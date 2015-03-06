@@ -1,0 +1,229 @@
+/* Copyright (c) 1999, 2000, 2001, 2002, 2005 Rich Neswold
+   All rights reserved.
+
+   Redistribution and use in source and binary forms, with or without
+   modification, are permitted provided that the following conditions are met:
+
+   * Redistributions of source code must retain the above copyright
+     notice, this list of conditions and the following disclaimer.
+   * Redistributions in binary form must reproduce the above copyright
+     notice, this list of conditions and the following disclaimer in
+     the documentation and/or other materials provided with the
+     distribution.
+   * Neither the name of the copyright holders nor the names of
+     contributors may be used to endorse or promote products derived
+     from this software without specific prior written permission.
+
+   THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+   AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+   IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+   ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE
+   LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
+   CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF
+   SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
+   INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN
+   CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
+   ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+   POSSIBILITY OF SUCH DAMAGE. */
+
+/* $Id: interrupts.dox 1455 2007-10-29 14:01:18Z joerg_wunsch $ */
+
+/** \defgroup avr_interrupts <avr/interrupt.h>: Interrupts
+
+\note This discussion of interrupts was originally taken from Rich Neswold's
+document. See \ref acks.
+
+<h3>Introduction to avr-libc's interrupt handling</h3>
+
+It's nearly impossible to find compilers that agree on how to handle interrupt
+code. Since the C language tries to stay away from machine dependent details,
+each compiler writer is forced to design their method of support.
+
+In the AVR-GCC environment, the vector table is predefined to point to
+interrupt routines with predetermined names. By using the appropriate name,
+your routine will be called when the corresponding interrupt occurs. The
+device library provides a set of default interrupt routines, which will get
+used if you don't define your own.
+
+Patching into the vector table is only one part of the problem. The compiler
+uses, by convention, a set of registers when it's normally executing
+compiler-generated code. It's important that these registers, as well as the
+status register, get saved and restored. The extra code needed to do this is
+enabled by tagging the interrupt function with
+<tt>__attribute__((signal))</tt>.
+
+These details seem to make interrupt routines a little messy, but all these
+details are handled by the Interrupt API. An interrupt routine is defined with
+ISR(). This macro register and mark
+the routine as an interrupt handler for the specified peripheral. The
+following is an example definition of a handler for the ADC interrupt.
+
+\code
+#include <avr/interrupt.h>
+
+ISR(ADC_vect)
+{
+    // user code here
+}
+\endcode
+
+Refer to the chapter explaining \ref ass_isr "assembler programming" for an
+explanation about interrupt routines written solely in assembler language.
+
+<h3>Catch-all interrupt vector</h3>
+
+If an unexpected interrupt occurs (interrupt is enabled and no handler is
+installed, which usually indicates a bug), then the default action is to reset
+the device by jumping to the reset vector. You can override this by supplying
+a function named \c BADISR_vect which should be defined with
+ISR() as such.  (The name BADISR_vect is actually an alias for __vector_default.
+The latter must be used inside assembly code in case <avr/interrupt.h> is
+not included.)
+
+\code
+#include <avr/interrupt.h>
+
+ISR(BADISR_vect)
+{
+    // user code here
+}
+\endcode
+
+<h3>Nested interrupts</h3>
+
+The AVR hardware clears the global interrupt flag in SREG before
+entering an interrupt vector.  Thus, normally interrupts will remain
+disabled inside the handler until the handler exits, where the RETI
+instruction (that is emitted by the compiler as part of the normal
+function epilogue for an interrupt handler) will eventually re-enable
+further interrupts.  For that reason, interrupt handlers normally do
+not nest.  For most interrupt handlers, this is the desired behaviour,
+for some it is even required in order to prevent infinitely recursive
+interrupts (like UART interrupts, or level-triggered external
+interrupts).  In rare circumstances though it might be desired to
+re-enable the global interrupt flag as early as possible in the
+interrupt handler, in order to not defer any other interrupt more than
+absolutely needed.  This could be done using an sei() instruction
+right at the beginning of the interrupt handler, but this still leaves
+few instructions inside the compiler-generated function prologue to
+run with global interrupts disabled.  The compiler can be instructed
+to insert an SEI instruction right at the beginning of an interrupt
+handler by declaring the handler the following way:
+
+\anchor attr_interrupt
+\code
+ISR(XXX_vect, ISR_NOBLOCK)
+{
+  ...
+}
+\endcode
+
+where \c XXX_vect is the name of a valid interrupt vector for the MCU
+type in question, as explained below.
+
+<h3>Two vectors sharing the same code</h3>
+
+In some circumstances, the actions to be taken upon two different
+interrupts might be completely identical so a single implementation
+for the ISR would suffice.  For example, pin-change interrupts
+arriving from two different ports could logically signal an event that
+is independent from the actual port (and thus interrupt vector) where
+it happened.  Sharing interrupt vector code can be accomplished using
+the ISR_ALIASOF() attribute to the ISR macro:
+
+\code
+ISR(PCINT0_vect)
+{
+  ...
+  // Code to handle the event.
+}
+
+ISR(PCINT1_vect, ISR_ALIASOF(PCINT0_vect));
+\endcode
+
+\note There is no body to the aliased ISR.
+
+Note that the ISR_ALIASOF() feature requires GCC 4.2 or above (or a
+patched version of GCC 4.1.x).  See the documentation of the
+ISR_ALIAS() macro for an implementation which is less elegant but
+could be applied to all compiler versions.
+
+<h3>Empty interrupt service routines</h3>
+
+In rare circumstances, in interrupt vector does not need any code to
+be implemented at all.  The vector must be declared anyway, so when
+the interrupt triggers it won't execute the BADISR_vect code (which by
+default restarts the application).
+
+This could for example be the case for interrupts that are solely
+enabled for the purpose of getting the controller out of sleep_mode().
+
+A handler for such an interrupt vector can be declared using the
+EMPTY_INTERRUPT() macro:
+
+\code
+EMPTY_INTERRUPT(ADC_vect);
+\endcode
+
+\note There is no body to this macro.
+
+<h3>Manually defined ISRs</h3>
+
+In some circumstances, the compiler-generated prologue and epilogue of
+the ISR might not be optimal for the job, and a manually defined ISR
+could be considered particularly to speedup the interrupt handling.
+
+One solution to this could be to implement the entire ISR as manual
+assembly code in a separate (assembly) file.  See \ref asmdemo for
+an example of how to implement it that way.
+
+Another solution is to still implement the ISR in C language but take
+over the compiler's job of generating the prologue and epilogue.  This
+can be done using the ISR_NAKED attribute to the ISR() macro.  Note
+that the compiler does not generate \e anything as prologue or
+epilogue, so the final reti() must be provided by the actual
+implementation.  SREG must be manually saved if the ISR code modifies
+it, and the compiler-implied assumption of \c __zero_reg__ always
+being 0 could be wrong (e. g. when interrupting right after of a MUL
+instruction).
+
+\code
+ISR(TIMER1_OVF_vect, ISR_NAKED)
+{
+  PORTB |= _BV(0);  // results in SBI which does not affect SREG
+  reti();
+}
+\endcode
+
+<h3>Choosing the vector: Interrupt vector names</h3>
+
+The interrupt is chosen by supplying one of the symbols in following table.
+
+There are currently two different styles present for naming the
+vectors.  One form uses names starting with \c SIG_, followed by
+a relatively verbose but arbitrarily chosen name describing the
+interrupt vector.  This has been the only available style in
+avr-libc up to version 1.2.x.
+
+Starting with avr-libc version 1.4.0, a second style of interrupt
+vector names has been added, where a short phrase for the vector
+description is followed by \c _vect.  The short phrase matches the
+vector name as described in the datasheet of the respective device
+(and in Atmel's XML files), with spaces replaced by an underscore
+and other non-alphanumeric characters dropped.  Using the suffix
+\c _vect is intented to improve portability to other C compilers
+available for the AVR that use a similar naming convention.
+
+The historical naming style might become deprecated in a future
+release, so it is not recommended for new projects.
+
+\note The ISR() macro cannot really spell-check
+the argument passed to them.  Thus, by misspelling one of the names
+below in a call to ISR(), a function will be created
+that, while possibly being usable as an interrupt function, is not
+actually wired into the interrupt vector table.  The compiler will
+generate a warning if it detects a suspiciously looking name of a
+ISR() function (i.e. one that after macro replacement does not
+start with "__vector_").
+
+*/

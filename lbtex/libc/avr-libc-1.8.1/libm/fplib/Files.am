@@ -1,0 +1,113 @@
+# Copyright (c) 2004,2008,2009  Theodore A. Roth
+# All rights reserved.
+#
+# Redistribution and use in source and binary forms, with or without
+# modification, are permitted provided that the following conditions are met:
+#
+# * Redistributions of source code must retain the above copyright
+#   notice, this list of conditions and the following disclaimer.
+# * Redistributions in binary form must reproduce the above copyright
+#   notice, this list of conditions and the following disclaimer in
+#   the documentation and/or other materials provided with the
+#   distribution.
+# * Neither the name of the copyright holders nor the names of
+#   contributors may be used to endorse or promote products derived
+#   from this software without specific prior written permission.
+#
+# THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+# AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+# IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+# ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE
+# LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
+# CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF
+# SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
+# INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN
+# CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
+# ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+# POSSIBILITY OF SUCH DAMAGE.
+#
+# $Id: Files.am 1961 2009-05-24 06:10:27Z dmix $
+#
+
+libm_a_c_sources = 
+
+libm_a_asm_sources = \
+	acos.S \
+	addsf3.S \
+	addsf3x.S \
+	asin.S \
+	atan2.S \
+	atan.S \
+	cbrt.S \
+	ceil.S \
+	cmpsf2.S \
+	copysign.S \
+	cosh.S \
+	cos.S \
+	divsf3.S \
+	divsf3x.S \
+	exp.S \
+	fixsfdi.S \
+	fixsfsi.S \
+	fixunssfsi.S \
+	floatdisf.S \
+	floatsisf.S \
+	floatundisf.S \
+	fdim.S \
+	floor.S \
+	fma.S \
+	fmax.S \
+	fmin.S \
+	fmod.S \
+	fp_arccos.S \
+	fp_cmp.S \
+	fp_inf.S \
+	fp_mintl.S \
+	fp_mpack.S \
+	fp_nan.S \
+	fp_negdi.S \
+	fp_norm2.S \
+	fp_powser.S \
+	fp_powsodd.S \
+	fp_pscA.S \
+	fp_pscB.S \
+	fp_rempio2.S \
+	fp_round.S \
+	fp_sinus.S \
+	fp_split3.S \
+	fp_trunc.S \
+	fp_zero.S \
+	frexp.S \
+	gesf2.S \
+	hypot.S \
+	inverse.S \
+	isfinite.S \
+	isinf.S \
+	isnan.S \
+	ldexp.S \
+	log10.S \
+	log.S \
+	lrint.S \
+	lround.S \
+	modf.S \
+	mulsf3.S \
+	mulsf3x.S \
+	negsf2.S \
+	pow.S \
+	round.S \
+	signbit.S \
+	sinh.S \
+	sin.S \
+	sqrt.S \
+	square.S \
+	tanh.S \
+	tan.S \
+	trunc.S \
+	unordsf2.S
+
+libm_a_extra_dist = \
+	asmdef.h \
+	fp32def.h \
+	ntz.h
+
+# vim: set ft=make:

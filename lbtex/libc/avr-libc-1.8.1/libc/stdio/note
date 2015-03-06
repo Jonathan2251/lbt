@@ -1,0 +1,1 @@
+clang -target mips-unknown-linux-gnu -c fclose.c -emit-llvm -I../../include -I../../common -o fclose.bc
