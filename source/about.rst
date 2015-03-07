@@ -22,10 +22,10 @@ Chen Chung-Shu
 Acknowledgments
 ---------------
 
-We would like to thank Sean Silva, chisophugis@gmail.com, for his help, 
+I would like to thank Sean Silva, chisophugis@gmail.com, for his help, 
 encouragement, and assistance with the Sphinx document generator.  
 Without his help, this book would not have been finished and published online. 
-We also thank those corrections from readers who make the book more accurate.
+Also thanking those corrections from readers who make the book more accurate.
 
 
 Revision history
@@ -64,12 +64,18 @@ http://jonathan2251.github.io/lbd/index.html.
 This book include:
 
 1. ELF linker for Cpu0 which extended from lld. Chapter 2.
-2. elf2hex extended from llvm-objump. Chapter 2.
+2. The elf2hex extended from llvm-objump. Chapter 2.
+3. Optimization. Chapter 3.
+4. Porting C standard library from avr libc and software floating point library
+   from LLVM compiler-rt.
 
 With these implementation, reader can generate Cpu0 machine code through Cpu0 
 llvm backend compiler, linker and elf2hex, then see how it runs on your 
 computer. 
 The pdf and epub are also available in the web.
+
+Outline of Chapters
+-------------------
 
 :ref:`sec-lld`:
 
