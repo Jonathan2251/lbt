@@ -68,17 +68,17 @@ ELF to Hex
 Add elf2hex.h and update llvm-objdump driver to support ELF to Hex for Cpu0 
 backend as follows,
 
-.. rubric:: lbdex/llvm-objdump/elf2hex-dlinker.h
-.. literalinclude:: ../lbdex/llvm-objdump/elf2hex-dlinker.h
+.. rubric:: lbtex/llvm-objdump/elf2hex-dlinker.h
+.. literalinclude:: ../lbtex/llvm-objdump/elf2hex-dlinker.h
 
-.. rubric:: lbdex/llvm-objdump/elf2hex.h
-.. literalinclude:: ../lbdex/llvm-objdump/elf2hex.h
+.. rubric:: lbtex/llvm-objdump/elf2hex.h
+.. literalinclude:: ../lbtex/llvm-objdump/elf2hex.h
 
-.. rubric:: lbdex/llvm-objdump/llvm-objdump.cpp
-.. literalinclude:: ../lbdex/llvm-objdump/llvm-objdump.cpp
+.. rubric:: lbtex/llvm-objdump/llvm-objdump.cpp
+.. literalinclude:: ../lbtex/llvm-objdump/llvm-objdump.cpp
     :start-after: // 1 llvm-objdump -elf2hex code update begin:
     :end-before: // 1 llvm-objdump -elf2hex code udpate end:
-.. literalinclude:: ../lbdex/llvm-objdump/llvm-objdump.cpp
+.. literalinclude:: ../lbtex/llvm-objdump/llvm-objdump.cpp
     :start-after: // 2 llvm-objdump -elf2hex code update begin:
     :end-before: // 2 llvm-objdump -elf2hex code udpate end:
 
@@ -115,15 +115,8 @@ Next, setup Cpu0 backend as follows,
   1-160-136-173:Cpu0 Jonathan$ cd ../../../tools/lld/lib/ReaderWriter/ELF/
   1-160-136-173:ELF Jonathan$ pwd
   /Users/Jonathan/llvm/test/src/tools/lld/lib/ReaderWriter/ELF
-  1-160-136-173:ELF Jonathan$ cp -rf ~/test/lbd/docs/BackendTutorial/
-  lbdex/lld/* .
+  1-160-136-173:ELF Jonathan$ cp -rf ~/test/lbt/lbtex/lld/* .
   1-160-136-173:ELF Jonathan$ mv Reference.h ../../../include/lld/Core/.
-  1-160-136-173:ELF Jonathan$ cp -f ~/test/lbd/docs/BackendTutorial/
-  lbdex/lld/CMakeLists.txt .
-  1-160-136-173:ELF Jonathan$ cp -f ~/test/lbd/docs/BackendTutorial/
-  lbdex/lld/ELFLinkingContext.cpp .
-  1-160-136-173:ELF Jonathan$ cp -f ~/test/lbd/docs/BackendTutorial/
-  lbdex/lld/Targets.h .
 
 
 Finally, update llvm-objdump to support converting ELF file to Hex file as 
@@ -134,8 +127,7 @@ follows,
   1-160-136-173:ELF Jonathan$ cd ../../../../llvm-objdump/
   1-160-136-173:llvm-objdump Jonathan$ pwd
   /Users/Jonathan/llvm/test/src/tools/llvm-objdump
-  1-160-136-173:llvm-objdump Jonathan$ cp -rf ~/test/lbd/docs/BackendTutorial/
-  lbdex/llvm-objdump/* .
+  1-160-136-173:llvm-objdump Jonathan$ cp -rf ~/test/lbt/btex/llvm-objdump/* .
 
 Now, build lld with Cpu0 backend as follows,
 
@@ -144,8 +136,6 @@ Now, build lld with Cpu0 backend as follows,
   1-160-136-173:cmake_debug_build Jonathan$ cmake -DCMAKE_CXX_COMPILER=clang++ -
   DCMAKE_C_COMPILER=clang -DCMAKE_CXX_FLAGS=-std=c++11 -DCMAKE_BUILD_TYPE=Debug
   -G "Xcode" ../src
-  -- The C compiler identification is Clang 5.0.0
-  -- The CXX compiler identification is Clang 5.0.0
   ...
   -- Targeting Cpu0
   ...
@@ -160,14 +150,12 @@ If using VM (guest machine is Linux) or Linux, build as follows,
   [Gamma@localhost cmake_debug_build]$ cmake -DCMAKE_CXX_COMPILER=g++ -
   DCMAKE_C_COMPILER=gcc -DCMAKE_CXX_FLAGS=-std=c++11 -DCMAKE_BUILD_TYPE=Debug
   -G "Unix Makefiles" ../src
-  -- The C compiler identification is Clang 3.5.0
-  -- The CXX compiler identification is Clang 3.5.0
   ...
   -- Targeting Cpu0
   ...
   -- Configuring done
   -- Generating done
-  -- Build files have been written to: /usr/local/llvm/test/cmake_debug_build
+  -- Build files have been written to: /home/cschen/llvm/test/cmake_debug_build
 
 
 Cpu0 backend souce code
@@ -176,7 +164,7 @@ Cpu0 backend souce code
 The code added on lld to support Cpu0 ELF as follows,
 
 
-.. rubric:: lbdex/lld/CMakeLists.txt
+.. rubric:: lbtex/lld/CMakeLists.txt
 .. code-block:: c++
 
   target_link_libraries(lldELF
@@ -185,7 +173,7 @@ The code added on lld to support Cpu0 ELF as follows,
     lldCpu0elELFTarget
     )
 
-.. rubric:: lbdex/lld/Atoms.h
+.. rubric:: lbtex/lld/Atoms.h
 .. code-block:: c++
 
   class SimpleELFDefinedAtom : public SimpleDefinedAtom {
@@ -196,7 +184,7 @@ The code added on lld to support Cpu0 ELF as follows,
     }
   }
 
-.. rubric:: lbdex/lld/ELFFile.h
+.. rubric:: lbtex/lld/ELFFile.h
 .. code-block:: c++
 
   template <class ELFT> Reference::KindArch ELFFile<ELFT>::kindArch() {
@@ -209,7 +197,7 @@ The code added on lld to support Cpu0 ELF as follows,
     ...
   }
 
-.. rubric:: lbdex/lld/ELFLinkingContext.cpp
+.. rubric:: lbtex/lld/ELFLinkingContext.cpp
 .. code-block:: c++
 
   uint16_t ELFLinkingContext::getOutputMachine() const {
@@ -235,13 +223,13 @@ The code added on lld to support Cpu0 ELF as follows,
           new lld::elf::Cpu0elLinkingContext(triple));
   }
 
-.. rubric:: lbdex/lld/Targets.h
+.. rubric:: lbtex/lld/Targets.h
 .. code-block:: c++
 
   #include "Cpu0/Cpu0Target.h"
   #include "Cpu0el/Cpu0Target.h"
 
-.. rubric:: lbdex/lld/Reference.h
+.. rubric:: lbtex/lld/Reference.h
 .. code-block:: c++
 
     enum class KindArch {
@@ -250,83 +238,83 @@ The code added on lld to support Cpu0 ELF as follows,
       Cpu0el  = 99
     };
 
-.. rubric:: lbdex/lld/Cpu0/CMakeLists.txt
-.. literalinclude:: ../lbdex/lld/Cpu0/CMakeLists.txt
+.. rubric:: lbtex/lld/Cpu0/CMakeLists.txt
+.. literalinclude:: ../lbtex/lld/Cpu0/CMakeLists.txt
 
-.. rubric:: lbdex/lld/Cpu0/Cpu0DynamicLibraryWriter.h
-.. literalinclude:: ../lbdex/lld/Cpu0/Cpu0DynamicLibraryWriter.h
+.. rubric:: lbtex/lld/Cpu0/Cpu0DynamicLibraryWriter.h
+.. literalinclude:: ../lbtex/lld/Cpu0/Cpu0DynamicLibraryWriter.h
 
-.. rubric:: lbdex/lld/Cpu0/Cpu0ExecutableWriter.h
-.. literalinclude:: ../lbdex/lld/Cpu0/Cpu0ExecutableWriter.h
+.. rubric:: lbtex/lld/Cpu0/Cpu0ExecutableWriter.h
+.. literalinclude:: ../lbtex/lld/Cpu0/Cpu0ExecutableWriter.h
 
-.. rubric:: lbdex/lld/Cpu0/Cpu0LinkingContext.h
-.. literalinclude:: ../lbdex/lld/Cpu0/Cpu0LinkingContext.h
+.. rubric:: lbtex/lld/Cpu0/Cpu0LinkingContext.h
+.. literalinclude:: ../lbtex/lld/Cpu0/Cpu0LinkingContext.h
 
-.. rubric:: lbdex/lld/Cpu0/Cpu0LinkingContext.cpp
-.. literalinclude:: ../lbdex/lld/Cpu0/Cpu0LinkingContext.cpp
+.. rubric:: lbtex/lld/Cpu0/Cpu0LinkingContext.cpp
+.. literalinclude:: ../lbtex/lld/Cpu0/Cpu0LinkingContext.cpp
 
-.. rubric:: lbdex/lld/Cpu0/Cpu0RelocationHandler.h
-.. literalinclude:: ../lbdex/lld/Cpu0/Cpu0RelocationHandler.h
+.. rubric:: lbtex/lld/Cpu0/Cpu0RelocationHandler.h
+.. literalinclude:: ../lbtex/lld/Cpu0/Cpu0RelocationHandler.h
 
-.. rubric:: lbdex/lld/Cpu0/Cpu0RelocationHandler.cpp
-.. literalinclude:: ../lbdex/lld/Cpu0/Cpu0RelocationHandler.cpp
+.. rubric:: lbtex/lld/Cpu0/Cpu0RelocationHandler.cpp
+.. literalinclude:: ../lbtex/lld/Cpu0/Cpu0RelocationHandler.cpp
 
-.. rubric:: lbdex/lld/Cpu0/Cpu0RelocationPass.h
-.. literalinclude:: ../lbdex/lld/Cpu0/Cpu0RelocationPass.h
+.. rubric:: lbtex/lld/Cpu0/Cpu0RelocationPass.h
+.. literalinclude:: ../lbtex/lld/Cpu0/Cpu0RelocationPass.h
 
-.. rubric:: lbdex/lld/Cpu0/Cpu0RelocationPass.cpp
-.. literalinclude:: ../lbdex/lld/Cpu0/Cpu0RelocationPass.cpp
+.. rubric:: lbtex/lld/Cpu0/Cpu0RelocationPass.cpp
+.. literalinclude:: ../lbtex/lld/Cpu0/Cpu0RelocationPass.cpp
 
-.. rubric:: lbdex/lld/Cpu0/Cpu0LinkingContext.cpp
-.. literalinclude:: ../lbdex/lld/Cpu0/Cpu0LinkingContext.cpp
+.. rubric:: lbtex/lld/Cpu0/Cpu0LinkingContext.cpp
+.. literalinclude:: ../lbtex/lld/Cpu0/Cpu0LinkingContext.cpp
 
-.. rubric:: lbdex/lld/Cpu0/Cpu0Target.h
-.. literalinclude:: ../lbdex/lld/Cpu0/Cpu0Target.h
+.. rubric:: lbtex/lld/Cpu0/Cpu0Target.h
+.. literalinclude:: ../lbtex/lld/Cpu0/Cpu0Target.h
 
-.. rubric:: lbdex/lld/Cpu0/Cpu0TargetHandler.h
-.. literalinclude:: ../lbdex/lld/Cpu0/Cpu0TargetHandler.h
+.. rubric:: lbtex/lld/Cpu0/Cpu0TargetHandler.h
+.. literalinclude:: ../lbtex/lld/Cpu0/Cpu0TargetHandler.h
 
-.. rubric:: lbdex/lld/Cpu0/Cpu0TargetHandler.cpp
-.. literalinclude:: ../lbdex/lld/Cpu0/Cpu0TargetHandler.cpp
+.. rubric:: lbtex/lld/Cpu0/Cpu0TargetHandler.cpp
+.. literalinclude:: ../lbtex/lld/Cpu0/Cpu0TargetHandler.cpp
 
-.. rubric:: lbdex/lld/Cpu0el/CMakeLists.txt
-.. literalinclude:: ../lbdex/lld/Cpu0el/CMakeLists.txt
+.. rubric:: lbtex/lld/Cpu0el/CMakeLists.txt
+.. literalinclude:: ../lbtex/lld/Cpu0el/CMakeLists.txt
 
-.. rubric:: lbdex/lld/Cpu0el/Cpu0DynamicLibraryWriter.h
-.. literalinclude:: ../lbdex/lld/Cpu0el/Cpu0DynamicLibraryWriter.h
+.. rubric:: lbtex/lld/Cpu0el/Cpu0DynamicLibraryWriter.h
+.. literalinclude:: ../lbtex/lld/Cpu0el/Cpu0DynamicLibraryWriter.h
 
-.. rubric:: lbdex/lld/Cpu0el/Cpu0ExecutableWriter.h
-.. literalinclude:: ../lbdex/lld/Cpu0el/Cpu0ExecutableWriter.h
+.. rubric:: lbtex/lld/Cpu0el/Cpu0ExecutableWriter.h
+.. literalinclude:: ../lbtex/lld/Cpu0el/Cpu0ExecutableWriter.h
 
-.. rubric:: lbdex/lld/Cpu0el/Cpu0LinkingContext.h
-.. literalinclude:: ../lbdex/lld/Cpu0el/Cpu0LinkingContext.h
+.. rubric:: lbtex/lld/Cpu0el/Cpu0LinkingContext.h
+.. literalinclude:: ../lbtex/lld/Cpu0el/Cpu0LinkingContext.h
 
-.. rubric:: lbdex/lld/Cpu0el/Cpu0LinkingContext.cpp
-.. literalinclude:: ../lbdex/lld/Cpu0el/Cpu0LinkingContext.cpp
+.. rubric:: lbtex/lld/Cpu0el/Cpu0LinkingContext.cpp
+.. literalinclude:: ../lbtex/lld/Cpu0el/Cpu0LinkingContext.cpp
 
-.. rubric:: lbdex/lld/Cpu0el/Cpu0RelocationHandler.h
-.. literalinclude:: ../lbdex/lld/Cpu0el/Cpu0RelocationHandler.h
+.. rubric:: lbtex/lld/Cpu0el/Cpu0RelocationHandler.h
+.. literalinclude:: ../lbtex/lld/Cpu0el/Cpu0RelocationHandler.h
 
-.. rubric:: lbdex/lld/Cpu0el/Cpu0RelocationHandler.cpp
-.. literalinclude:: ../lbdex/lld/Cpu0el/Cpu0RelocationHandler.cpp
+.. rubric:: lbtex/lld/Cpu0el/Cpu0RelocationHandler.cpp
+.. literalinclude:: ../lbtex/lld/Cpu0el/Cpu0RelocationHandler.cpp
 
-.. rubric:: lbdex/lld/Cpu0el/Cpu0RelocationPass.h
-.. literalinclude:: ../lbdex/lld/Cpu0el/Cpu0RelocationPass.h
+.. rubric:: lbtex/lld/Cpu0el/Cpu0RelocationPass.h
+.. literalinclude:: ../lbtex/lld/Cpu0el/Cpu0RelocationPass.h
 
-.. rubric:: lbdex/lld/Cpu0el/Cpu0RelocationPass.cpp
-.. literalinclude:: ../lbdex/lld/Cpu0el/Cpu0RelocationPass.cpp
+.. rubric:: lbtex/lld/Cpu0el/Cpu0RelocationPass.cpp
+.. literalinclude:: ../lbtex/lld/Cpu0el/Cpu0RelocationPass.cpp
 
-.. rubric:: lbdex/lld/Cpu0el/Cpu0LinkingContext.cpp
-.. literalinclude:: ../lbdex/lld/Cpu0el/Cpu0LinkingContext.cpp
+.. rubric:: lbtex/lld/Cpu0el/Cpu0LinkingContext.cpp
+.. literalinclude:: ../lbtex/lld/Cpu0el/Cpu0LinkingContext.cpp
 
-.. rubric:: lbdex/lld/Cpu0el/Cpu0Target.h
-.. literalinclude:: ../lbdex/lld/Cpu0el/Cpu0Target.h
+.. rubric:: lbtex/lld/Cpu0el/Cpu0Target.h
+.. literalinclude:: ../lbtex/lld/Cpu0el/Cpu0Target.h
 
-.. rubric:: lbdex/lld/Cpu0el/Cpu0TargetHandler.h
-.. literalinclude:: ../lbdex/lld/Cpu0el/Cpu0TargetHandler.h
+.. rubric:: lbtex/lld/Cpu0el/Cpu0TargetHandler.h
+.. literalinclude:: ../lbtex/lld/Cpu0el/Cpu0TargetHandler.h
 
-.. rubric:: lbdex/lld/Cpu0el/Cpu0TargetHandler.cpp
-.. literalinclude:: ../lbdex/lld/Cpu0/Cpu0TargetHandler.cpp
+.. rubric:: lbtex/lld/Cpu0el/Cpu0TargetHandler.cpp
+.. literalinclude:: ../lbtex/lld/Cpu0/Cpu0TargetHandler.cpp
 
 
 Above code in Cpu0 lld support both endian for static link and dynamic link. 
@@ -599,13 +587,13 @@ Resolving
 .. rubric:: Dead code stripping - example (modified from llvm lto document web)
 
 .. rubric:: a.h
-.. literalinclude:: ../lbdex/input/a.h
+.. literalinclude:: ../lbtex/input/a.h
 
 .. rubric:: a.cpp
-.. literalinclude:: ../lbdex/input/a.cpp
+.. literalinclude:: ../lbtex/input/a.cpp
 
 .. rubric:: ch13_1.cpp
-.. literalinclude:: ../lbdex/input/ch13_1.cpp
+.. literalinclude:: ../lbtex/input/ch13_1.cpp
 
 Above code can be reduced to :num:`Figure #lld-deadcodestripping` to perform
 mark and swip in graph for Dead Code Stripping.
@@ -687,8 +675,8 @@ didn't indicate this.
 
 The following code will register a pass when the lld backend code is up. 
 
-.. rubric:: lbdex/lld/Cpu0/Cpu0RelocationPass.cpp
-.. literalinclude:: ../lbdex/lld/Cpu0/Cpu0RelocationPass.cpp
+.. rubric:: lbtex/lld/Cpu0/Cpu0RelocationPass.cpp
+.. literalinclude:: ../lbtex/lld/Cpu0/Cpu0RelocationPass.cpp
     :start-after: } // end anon namespace
 
 
@@ -751,7 +739,7 @@ Generate Output File
 After register a relocation pass, lld backend hook function "applyRelocation()" 
 will be called by lld driver to finish the address binding in linker stage.
 
-.. rubric:: lbdex/lld/Cpu0/Cpu0RelocationHandler.cpp
+.. rubric:: lbtex/lld/Cpu0/Cpu0RelocationHandler.cpp
 .. code-block:: c++
 
   ErrorOr<void> Cpu0TargetRelocationHandler::applyRelocation(
@@ -781,14 +769,14 @@ will be called by lld driver to finish the address binding in linker stage.
     return error_code::success();
   }
 
-.. rubric:: lbdex/input/ch_hello.c
-.. literalinclude:: ../lbdex/input/ch_hello.c
+.. rubric:: lbtex/input/ch_hello.c
+.. literalinclude:: ../lbtex/input/ch_hello.c
     :start-after: // start
 
-.. rubric:: lbdex/input/build-hello.sh
-.. literalinclude:: ../lbdex/input/build-hello.sh
+.. rubric:: lbtex/input/build-hello.sh
+.. literalinclude:: ../lbtex/input/build-hello.sh
 
-.. rubric:: lbdex/verilog/Cpu0.hex
+.. rubric:: lbtex/verilog/Cpu0.hex
 .. code-block:: c++
 
   ...
@@ -873,35 +861,35 @@ File printf-stdarg-1.c is the file for testing the printf() function which
 implemented on PC OS platform. Let's run printf-stdarg-2.cpp on Cpu0 and
 compare it against the result of PC's printf() as below.
 
-.. rubric:: lbdex/input/printf-stdarg-1.c
-.. literalinclude:: ../lbdex/input/printf-stdarg-1.c
+.. rubric:: lbtex/input/printf-stdarg-1.c
+.. literalinclude:: ../lbtex/input/printf-stdarg-1.c
     :start-after: /// start
 
-.. rubric:: lbdex/input/printf-stdarg-2.cpp
-.. literalinclude:: ../lbdex/input/printf-stdarg-2.cpp
+.. rubric:: lbtex/input/printf-stdarg-2.cpp
+.. literalinclude:: ../lbtex/input/printf-stdarg-2.cpp
     :start-after: /// start
 
-.. rubric:: lbdex/input/printf-stdarg-def.c
-.. literalinclude:: ../lbdex/input/printf-stdarg-def.c
+.. rubric:: lbtex/input/printf-stdarg-def.c
+.. literalinclude:: ../lbtex/input/printf-stdarg-def.c
     :start-after: /// start
 
-.. rubric:: lbdex/input/printf-stdarg.c
-.. literalinclude:: ../lbdex/input/printf-stdarg.c
+.. rubric:: lbtex/input/printf-stdarg.c
+.. literalinclude:: ../lbtex/input/printf-stdarg.c
     :start-after: /// start
 
-.. rubric:: lbdex/input/start.cpp
-.. literalinclude:: ../lbdex/input/start.cpp
+.. rubric:: lbtex/input/start.cpp
+.. literalinclude:: ../lbtex/input/start.cpp
     :start-after: /// start
 
-.. rubric:: lbdex/input/lib_cpu0.ll
-.. literalinclude:: ../lbdex/input/lib_cpu0.ll
+.. rubric:: lbtex/input/lib_cpu0.ll
+.. literalinclude:: ../lbtex/input/lib_cpu0.ll
     :start-after: /// start
 
-.. rubric:: lbdex/input/functions.sh
-.. literalinclude:: ../lbdex/input/functions.sh
+.. rubric:: lbtex/input/functions.sh
+.. literalinclude:: ../lbtex/input/functions.sh
 
-.. rubric:: lbdex/input/build-printf-stdarg-2.sh
-.. literalinclude:: ../lbdex/input/build-printf-stdarg-2.sh
+.. rubric:: lbtex/input/build-printf-stdarg-2.sh
+.. literalinclude:: ../lbtex/input/build-printf-stdarg-2.sh
 
 The verilog/cpu0Is.v support cmp instruction and static linker as follows,
 
@@ -983,7 +971,7 @@ Let's check the result with PC program printf-stdarg-1.c output as follows,
 They are same. You can verify the slt instructions is work fine too by change 
 variable cpu from cpu032I to cpu032II as follows,
 
-.. rubric:: lbdex/input/build-printf-stdarg-2.sh
+.. rubric:: lbtex/input/build-printf-stdarg-2.sh
 
 
 .. code-block:: bash
@@ -1006,24 +994,24 @@ With the printf() of GPL source code, we can program more test code with it
 to verify the previous llvm Cpu0 backend generated program. The following code 
 is for this purpose.
 
-.. rubric:: lbdex/input/debug.cpp
-.. literalinclude:: ../lbdex/input/debug.cpp
+.. rubric:: lbtex/input/debug.cpp
+.. literalinclude:: ../lbtex/input/debug.cpp
     :start-after: /// start
     
-.. rubric:: lbdex/input/ch_lld_staticlink.h
-.. literalinclude:: ../lbdex/input/ch_lld_staticlink.h
+.. rubric:: lbtex/input/ch_lld_staticlink.h
+.. literalinclude:: ../lbtex/input/ch_lld_staticlink.h
     :start-after: /// start
 
-.. rubric:: lbdex/input/ch_lld_staticlink.cpp
-.. literalinclude:: ../lbdex/input/ch_lld_staticlink.cpp
+.. rubric:: lbtex/input/ch_lld_staticlink.cpp
+.. literalinclude:: ../lbtex/input/ch_lld_staticlink.cpp
     :start-after: /// start
 
-.. rubric:: lbdex/input/ch_slinker.cpp
-.. literalinclude:: ../lbdex/input/ch_slinker.cpp
+.. rubric:: lbtex/input/ch_slinker.cpp
+.. literalinclude:: ../lbtex/input/ch_slinker.cpp
     :start-after: /// start
 
-.. rubric:: lbdex/input/build-slinker.sh
-.. literalinclude:: ../lbdex/input/build-slinker.sh
+.. rubric:: lbtex/input/build-slinker.sh
+.. literalinclude:: ../lbtex/input/build-slinker.sh
   
 .. code-block:: bash
 
@@ -1126,7 +1114,7 @@ The Cpu0LinkingContext include the context information for those input obj
 files and output execution file you want to link.
 When do linking, the following code will create Cpu0LinkingContext.
 
-.. rubric:: lbdex/lld/ELFLinkingContext.h
+.. rubric:: lbtex/lld/ELFLinkingContext.h
 .. code-block:: c++
 
   class ELFLinkingContext : public LinkingContext {
@@ -1136,7 +1124,7 @@ When do linking, the following code will create Cpu0LinkingContext.
     ...
   }
 
-.. rubric:: lbdex/lld/ELFLinkingContext.cpp
+.. rubric:: lbtex/lld/ELFLinkingContext.cpp
 .. code-block:: c++
 
   std::unique_ptr<ELFLinkingContext>
@@ -1155,7 +1143,7 @@ While Cpu0LinkingContext is created by lld ELF driver as above, the following
 code in Cpu0LinkingContext constructor will create Cpu0TargetHandler and passing
 the Cpu0LinkingContext object pointer to Cpu0TargeHandler.
 
-.. rubric:: lbdex/lld/Cpu0/Cpu0LinkingContext.h
+.. rubric:: lbtex/lld/Cpu0/Cpu0LinkingContext.h
 .. code-block:: c++
 
   class Cpu0LinkingContext LLVM_FINAL : public ELFLinkingContext {
@@ -1170,7 +1158,7 @@ Finally, the Cpu0TargeHandler constructor will create other related objects
 and set up the relation reference object pointers as :num:`Figure #lld-f1`
 depicted by the following code.
 
-.. rubric:: lbdex/lld/Cpu0/Cpu0TargetHandler.cpp
+.. rubric:: lbtex/lld/Cpu0/Cpu0TargetHandler.cpp
 .. code-block:: c++
 
   Cpu0TargetHandler::Cpu0TargetHandler(Cpu0LinkingContext &context)
@@ -1182,8 +1170,8 @@ According chapter ELF, the linker stands for resolve the relocation records.
 The following code give the chance to let lld system call our relocation 
 function at proper time.
 
-.. rubric:: lbdex/lld/Cpu0/Cpu0RelocationPass.cpp
-.. literalinclude:: ../lbdex/lld/Cpu0/Cpu0RelocationPass.cpp
+.. rubric:: lbtex/lld/Cpu0/Cpu0RelocationPass.cpp
+.. literalinclude:: ../lbtex/lld/Cpu0/Cpu0RelocationPass.cpp
     :start-after: } // end anon namespace
 
 The "#ifdef DLINKER" part is for dynamic linker which will be used in next 
@@ -1194,7 +1182,7 @@ Now the following code of Cpu0TargetRelocationHandler::applyRelocation()
 will be called through 
 Cpu0TargetHandler by lld ELF driver when it meets each relocation record.
 
-.. rubric:: lbdex/lld/Cpu0/Cpu0RelocationHandler.cpp
+.. rubric:: lbtex/lld/Cpu0/Cpu0RelocationHandler.cpp
 .. code-block:: c++
 
   ErrorOr<void> Cpu0TargetRelocationHandler::applyRelocation(
@@ -1215,7 +1203,7 @@ Cpu0TargetHandler by lld ELF driver when it meets each relocation record.
     return error_code::success();
   }
 
-.. rubric:: lbdex/lld/Cpu0/Cpu0TargetHandler.h
+.. rubric:: lbtex/lld/Cpu0/Cpu0TargetHandler.h
 .. code-block:: c++
 
   class Cpu0TargetHandler LLVM_FINAL
@@ -1302,26 +1290,26 @@ The following code ch_dynamiclinker.cpp and foobar.cpp is the example for
 dynamic linker demostration. File dynamic_linker.cpp is what our implementaion
 to execute the dynamic linker function on Cpu0 Verilog machine.
 
-.. rubric:: lbdex/input/debug.h
-.. literalinclude:: ../lbdex/input/debug.h
+.. rubric:: lbtex/input/debug.h
+.. literalinclude:: ../lbtex/input/debug.h
 
-.. rubric:: lbdex/input/dynamic_linker.h
-.. literalinclude:: ../lbdex/input/dynamic_linker.h
+.. rubric:: lbtex/input/dynamic_linker.h
+.. literalinclude:: ../lbtex/input/dynamic_linker.h
 
-.. rubric:: lbdex/input/dynamic_linker.cpp
-.. literalinclude:: ../lbdex/input/dynamic_linker.cpp
+.. rubric:: lbtex/input/dynamic_linker.cpp
+.. literalinclude:: ../lbtex/input/dynamic_linker.cpp
     :start-after: /// start
 
-.. rubric:: lbdex/input/ch_dynamiclinker.cpp
-.. literalinclude:: ../lbdex/input/ch_dynamiclinker.cpp
+.. rubric:: lbtex/input/ch_dynamiclinker.cpp
+.. literalinclude:: ../lbtex/input/ch_dynamiclinker.cpp
     :start-after: /// start
 
-.. rubric:: lbdex/input/foobar.cpp
-.. literalinclude:: ../lbdex/input/foobar.cpp
+.. rubric:: lbtex/input/foobar.cpp
+.. literalinclude:: ../lbtex/input/foobar.cpp
     :start-after: /// start
 
-.. rubric:: lbdex/input/build-dlinker.sh
-.. literalinclude:: ../lbdex/input/build-dlinker.sh
+.. rubric:: lbtex/input/build-dlinker.sh
+.. literalinclude:: ../lbtex/input/build-dlinker.sh
   
 
 Run
@@ -1330,13 +1318,13 @@ Run
 .. code-block:: bash
 
   1-160-136-173:verilog Jonathan$ pwd
-  /Users/Jonathan/test/lbd/docs/BackendTutorial/source_ExampleCode/verilog
+  /Users/Jonathan/test/lbt/lbdex/verilog
   1-160-136-173:verilog Jonathan$ bash clean.sh
   1-160-136-173:verilog Jonathan$ cd ../input/
   1-160-136-173:input Jonathan$ bash build-dlinker.sh cpu032II
   1-160-136-173:input Jonathan$ cd ../verilog/
   1-160-136-173:verilog Jonathan$ pwd
-  /Users/Jonathan/test/lbd/docs/BackendTutorial/source_ExampleCode/verilog
+  /Users/Jonathan/test/lbt/lbdex/verilog
   1-160-136-173:verilog Jonathan$ iverilog -o cpu0IId cpu0IId.v 
   1-160-136-173:verilog Jonathan$ ls
   clean.sh  cpu0IId  cpu0Id.v  cpu0IId.v  cpu0IIs.v  cpu0Is.v  cpu0.v  dynlinker.v  
@@ -1441,7 +1429,7 @@ After run build-dlinker.sh, the following files are created.
   47 4c 4f 42 41 4c 5f 4f 46 46 53 45 54 5f 54 41 42 4c 45 5f 00 5f 44 59 4e 41 
   4d 49 43 00 
 
-.. rubric:: lbdex/verilog/dynsym
+.. rubric:: lbtex/verilog/dynsym
 .. code-block:: c++
 
   00 00 00 00 00 00 00 01 00 00 00 10 00 00 00 18 00 00 00 22 00 00 00 2b 00 00 
@@ -1452,12 +1440,12 @@ After run build-dlinker.sh, the following files are created.
 
   00 00 20 68 
 
-.. rubric:: lbdex/input/num_dyn_entry
+.. rubric:: exlbt/input/num_dyn_entry
 .. code-block:: bash
 
   6
 
-.. rubric:: lbdex/input/libfoobar.cpu0.so
+.. rubric:: lbtex/input/libfoobar.cpu0.so
 .. code-block:: bash
 
   1-160-136-173:input Jonathan$ ~/llvm/test/cmake_debug_build/Debug/bin/
@@ -1482,7 +1470,7 @@ After run build-dlinker.sh, the following files are created.
    0184 5f4f4646 5345545f 5441424c 455f005f  _OFFSET_TABLE_._
    0194 44594e41 4d494300                    DYNAMIC.
 
-.. rubric:: lbdex/input/a.out
+.. rubric:: lbtex/input/a.out
 .. code-block:: bash
 
   1-160-136-173:input Jonathan$ ~/llvm/test/cmake_debug_build/Debug/bin/
