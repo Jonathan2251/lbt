@@ -1731,7 +1731,7 @@ So, if you cannot find a good way to produce documents, you can consider to
 write documents like this book. This book document uses sphinx tool 
 just like the llvm development team. Sphinx uses restructured text format here
 [#]_ [#]_ [#]_.
-Appendix A tell you how to install sphinx tool. 
+Appendix A of lbd book tell you how to install sphinx tool. 
 Documentation work will help yourself to re-examine your software and make your 
 program better in structure, reliability and more important "Extend your code 
 to somewhere you didn't expect".
