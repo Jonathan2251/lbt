@@ -16,6 +16,16 @@ Since compiler-rt uses unix/linux rootfs structure, we fill the gap by porting
 avr libc.
 
 Both the compiler-rt and avr libc porting is under going, it's not finished.
+The flow as follows,
+
+.. _lib-f-flow: 
+.. figure:: ../Fig/lib/1.png
+  :scale: 100 %
+  :align: center
+
+  libc/softfloat library flow
+
+The llvm-link which introduced at last chapter can be hired for optimization.
 
 
 Compiler-rt

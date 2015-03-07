@@ -13,6 +13,17 @@ This chapter introduce llvm optimization.
 LLVM IR optimization
 ----------------------
 
+The llvm-link provide optimizaton in IR level which can apply in different 
+programs developed by more than one language. Of course, it can apply in 
+the same language which support seperate compile.
+
+.. _llvm-link-f-flow: 
+.. figure:: ../Fig/opt/1.png
+  :scale: 100 %
+  :align: center
+
+  llvm-link flow
+
 Clang provide optimization options to do optimation from high level language 
 to IR. 
 But since many languages like C/C++ support separate compilation, it meaning 
@@ -184,6 +195,12 @@ Of course, the backend code will be more effective as follows,
 	  .end	_Z6callerv
   $tmp1:
 	  .size	_Z6callerv, ($tmp1)-_Z6callerv
+
+Though llvm-link provide optimization in IR level to support seperate compile,
+it come with the cost in compile time. As you can imagine, any one statement 
+change will change the output IR of llvm-link. And the obj binary code have to 
+re-compile. Compare to the seperate compile for each \*.c file, it only need to
+re-compile the corresponding \*.o file only.
 
 
 Project
