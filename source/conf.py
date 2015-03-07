@@ -108,7 +108,7 @@ html_theme = 'haiku'
 
 # The name for this set of Sphinx documents.  If None, it defaults to
 # "<project> v<release> documentation".
-html_title = "Tutorial: Creating an LLVM Backend for the Cpu0 Architecture"
+html_title = "Tutorial: Creating an LLVM Toolchain for the Cpu0 Architecture"
 
 # A shorter title for the navigation bar.  Default is the same as html_title.
 #html_short_title = None
@@ -169,7 +169,7 @@ html_static_path = ['_static']
 #html_file_suffix = None
 
 # Output file base name for HTML help builder.
-htmlhelp_basename = 'TutorialLLVMBackendCpu0'
+htmlhelp_basename = 'LLVMToolchainCpu0'
 
 
 # -- Options for LaTeX output --------------------------------------------------
@@ -188,7 +188,7 @@ latex_elements = {
 # Grouping the document tree into LaTeX files. List of tuples
 # (source start file, target name, title, author, documentclass [howto/manual]).
 latex_documents = [
-  ('index', 'TutorialLLVMBackendCpu0.tex', u'Tutorial: Creating an LLVM Backend for the Cpu0 Architecture',
+  ('index', 'TutorialLLVMBackendCpu0.tex', u'Tutorial: Creating an LLVM Toolchain for the Cpu0 Architecture',
    u'Chen Chung-Shu \ \ \ \ \ gamma\_chen@yahoo.com.tw \\and Anoushe Jamshidi \ \ \ \ \ ajamshidi@gmail.com', 'manual'),
 ]
 
@@ -218,7 +218,7 @@ latex_documents = [
 # One entry per manual page. List of tuples
 # (source start file, name, description, authors, manual section).
 man_pages = [
-    ('index', 'TutorialLLVMBackendCpu0', u'Write An LLVM Backend Documentation',
+    ('index', 'LLVMToolchainCpu0', u'Write An LLVM Toolchain Documentation',
      [u'Chen Chung-Shu', u'Anoushe Jamshidi'], 1)
 ]
 
@@ -232,7 +232,7 @@ man_pages = [
 # (source start file, target name, title, author,
 #  dir menu entry, description, category)
 texinfo_documents = [
-  ('index', 'TutorialLLVMBackendCpu0', u'Tutorial: Creating an LLVM Backend for the Cpu0 Architecture',
+  ('index', 'LLVMToolchainCpu0', u'Tutorial: Creating an LLVM Toolchain for the Cpu0 Architecture',
    u'Chen Chung-Shu 陳鍾樞 gamma_chen@yahoo.com.tw and Anoushe Jamshidi ajamshidi@gmail.com', 'Tutorial: Creating an LLVM Backend for the Cpu0 Architecture', 'Tutorial: Creating an LLVM Backend for the Cpu0 Architecture.js.',
    'Computers'),
 ]
@@ -250,8 +250,8 @@ texinfo_documents = [
 # -- Options for Epub output ---------------------------------------------------
 
 # Bibliographic Dublin Core info.
-epub_title = u'Tutorial: Creating an LLVM Backend for the Cpu0 Architecture'
-epub_author = u'Chen Chung-Shu 陳鍾樞 gamma_chen@yahoo.com.tw and Anoushe Jamshidi ajamshidi@gmail.com'
+epub_title = u'Tutorial: Creating an LLVM Toolchain for the Cpu0 Architecture'
+epub_author = u'Chen Chung-Shu 陳鍾樞 gamma_chen@yahoo.com.tw'
 epub_publisher = u'LLVM'
 epub_copyright = u'2012, LLVM'
 

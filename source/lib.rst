@@ -55,12 +55,12 @@ Document are here [#avr-libc-doc-web]_ [#avr-libc-doc-pdf]_.
 Software Float Point Support
 -----------------------------
 
-.. rubric:: lbdex/input/ch_float.cpp
-.. literalinclude:: ../lbdex/input/ch_float.cpp
+.. rubric:: exlbt/input/ch_float.cpp
+.. literalinclude:: ../exlbt/input/ch_float.cpp
     :start-after: /// start
 
-.. rubric:: lbdex/input/build-float.sh
-.. literalinclude:: ../lbdex/input/build-float.sh
+.. rubric:: exlbt/input/build-float.sh
+.. literalinclude:: ../exlbt/input/build-float.sh
 
 Run as follows,
 

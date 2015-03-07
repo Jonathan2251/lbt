@@ -55,9 +55,8 @@ of a computer program be generated and executed. IR stands for Intermediate
 Representation. 
 The lower half is this book's work flow and software package of the toolchain 
 extended implementation based on llvm. Except clang, the other blocks need to 
-be extended for a new backend development. The hex is the ascii file format 
-using '0' to '9' and 'a' to 'f' for hexadecimal value representation since 
-the verilog language machine uses it as input file.
+be extended for a new backend development. This book implement the green boxes
+part.
 The Cpu0 llvm backend can be find on 
 http://jonathan2251.github.io/lbd/index.html.
 

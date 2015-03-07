@@ -21,9 +21,9 @@ Table of Contents
 Book example code
 -----------------
 
-The example code lbtex.tar.gz is available in: 
+The example code exlbt.tar.gz is available in: 
 
-http://jonathan2251.github.io/lbt/lbtex.tar.gz
+http://jonathan2251.github.io/lbt/exlbt.tar.gz
 
 
 Alternate formats

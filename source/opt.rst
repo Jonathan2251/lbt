@@ -35,12 +35,12 @@ Beyond the DAG local optimization mentioned in Chapter 2, there are global
 optimization based on inter-procedure analysis [#dragonbooks-9]_.
 The following steps and examples show this optimization solution in llvm.
 
-.. rubric:: lbdex/input/optimizen/1.cpp
-.. literalinclude:: ../lbdex/input/optimize/1.cpp
+.. rubric:: exlbt/input/optimizen/1.cpp
+.. literalinclude:: ../exlbt/input/optimize/1.cpp
     :start-after: /// start
 
-.. rubric:: lbdex/input/optimize/2.cpp
-.. literalinclude:: ../lbdex/input/optimize/2.cpp
+.. rubric:: exlbt/input/optimize/2.cpp
+.. literalinclude:: ../exlbt/input/optimize/2.cpp
     :start-after: /// start
 
 

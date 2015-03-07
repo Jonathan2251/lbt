@@ -1,10 +1,10 @@
 #!/usr/bin/env bash
 
 bash ./clean.sh
-rm -rf lbtex.tar.gz
+rm -rf exlbt.tar.gz
 CURR_DIR=$(pwd)
 echo ${CURR_DIR}
-tar -zcvf lbtex.tar.gz lbtex
-pushd lbtex
+tar -zcvf exlbt.tar.gz exlbt
+pushd exlbt
 popd
 
