@@ -15,7 +15,7 @@ ALLSPHINXOPTS   = -d $(BUILDDIR)/doctrees $(PAPEROPT_$(PAPER)) $(SPHINXOPTS) sou
 I18NSPHINXOPTS  = $(PAPEROPT_$(PAPER)) $(SPHINXOPTS) source
 
 # Custom
-GH_PAGES_SOURCES = source Makefile
+GH_PAGES_SOURCES = source exlbt Makefile
 
 .PHONY: help clean html dirhtml singlehtml pickle json htmlhelp qthelp devhelp epub latex latexpdf text man changes linkcheck doctest gettext gh-pages
 
@@ -164,7 +164,6 @@ gh-pages:
 	git checkout master $(GH_PAGES_SOURCES)
 	git reset HEAD
 	make html latexpdf epub
-	make html
 	mv -fv build/html/* ./
 	mv -fv build/latex/LLVMToolchainCpu0.pdf "./LLVMToolchainCpu0.pdf"
 	mv -fv build/epub/LLVMToolchainCpu0.epub "./LLVMToolchainCpu0.epub"
