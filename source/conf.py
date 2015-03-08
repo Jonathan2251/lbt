@@ -40,7 +40,7 @@ source_suffix = '.rst'
 master_doc = 'index'
 
 # General information about the project.
-project = u'TutorialLLVMBackendCpu0'
+project = u'LLVMToolchainCpu0'
 copyright = u'2013, LLVM'
 
 # The version info for the project you're documenting, acts as replacement for
@@ -188,7 +188,7 @@ latex_elements = {
 # Grouping the document tree into LaTeX files. List of tuples
 # (source start file, target name, title, author, documentclass [howto/manual]).
 latex_documents = [
-  ('index', 'TutorialLLVMBackendCpu0.tex', u'Tutorial: Creating an LLVM Toolchain for the Cpu0 Architecture',
+  ('index', 'LLVMToolchainCpu0.tex', u'Tutorial: Creating an LLVM Toolchain for the Cpu0 Architecture',
    u'Chen Chung-Shu \ \ \ \ \ gamma\_chen@yahoo.com.tw \\and Anoushe Jamshidi \ \ \ \ \ ajamshidi@gmail.com', 'manual'),
 ]
 
