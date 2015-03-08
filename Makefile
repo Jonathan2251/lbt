@@ -156,42 +156,18 @@ TMP_PREFIX = tmp
 # 'cd' take effect for the whole command.
 # TODO: is there a nicer way of doing this?
 gh-pages:
-	make genexample &&\
-	make html latexpdf epub &&\
-	rm -rf /tmp/build /tmp/exlbt.tar.gz &&\
-	cp -f exlbt.tar.gz /tmp/. &&\
-	cp -rf build /tmp/. &&\
-	git checkout gh-pages &&\
-	cp -f /tmp/exlbt.tar.gz ../../. &&\
-	cp -rf /tmp/build/html/* ../../. &&\
-	cp build/latex/LLVMToolchainCpu0.pdf ../../. &&\
-	cp build/epub/LLVMToolchainCpu0.epub ../../. &&\
-	cd ../../ &&\
-	git add exlbt.tar.gz *.html _images/. _sources/. _static/. objects.inv searchindex.js LLVMToolchainCpu0.* &&\
-	git commit -m "Generated gh-pages for `git log master -1 --pretty=short --abbrev-commit`" &&\
-	git push origin gh-pages &&\
-	git checkout master
-
-# Not work. The ../../lib/Target/Cpu0 code reference didn't exist in gh-pages
-#gh-pages2:
-#	git checkout gh-pages &&\
-#	rm -rf build _sources _static _images &&\
-#	git read-tree --prefix=$(TMP_PREFIX)/ -u HEAD master:$(BACKEND_TUTORIAL_SUBDIR) &&\
-#	mv ../../$(TMP_PREFIX)/* . &&\
-#	sh ./rungenexample.sh &&\
-#	make html latexpdf epub &&\
-#	mv -fv build/html/* ../../. &&\
-#	mv -fv build/latex/TutorialLLVMBackendCpu0.pdf "../../TutorialLLVMBackendCpu0.pdf" &&\
-#	mv -fv build/epub/TutorialLLVMBackendCpu0.epub "../../TutorialLLVMBackendCpu0.epub" &&\
-#	rm -rf `git ls-tree master:$(BACKEND_TUTORIAL_SUBDIR) | cut -f2` &&\
-#	rm -rf * &&\
-#	git add lbtex.tar.gz *.html _images/. _sources/. _static/. objects.inv searchindex.js TutorialLLVMBackendCpu0.* &&\
-#	git commit -m "Generated gh-pages for `git log master -1 --pretty=short --abbrev-commit`" &&\
-#	git push origin gh-pages &&\
-#	git checkout master
-
-genexample:
-	bash ./rungenexample.sh
+	git checkout gh-pages
+	rm -rf build _sources _static _images
+	git checkout master $(GH_PAGES_SOURCES)
+	git reset HEAD
+	make html latexpdf epub
+	make html
+	mv -fv build/html/* ./
+	mv -fv build/latex/ChenChung-ShuPersonalWebSite.pdf "./ChenChung-ShuPersonalWebSite.pdf"
+	mv -fv build/epub/ChenChung-ShuPersonalWebSite.epub "./ChenChung-ShuPersonalWebSite.epub"
+	rm -rf $(GH_PAGES_SOURCES) build
+	git add -A
+	git commit -m "Generated gh-pages for `git log master -1 --pretty=short --abbrev-commit`" && git push origin gh-pages ; git checkout master
 
 clean:
 	bash ./clean.sh
