@@ -160,15 +160,15 @@ gh-pages:
 	make genexample &&\
 	make html latexpdf epub &&\
 	rm -rf /tmp/build /tmp/lbtex.tar.gz &&\
-	cp -f lbtex.tar.gz /tmp/. &&\
+	cp -f exlbt.tar.gz /tmp/. &&\
 	cp -rf build /tmp/. &&\
 	git checkout gh-pages &&\
-	cp -f /tmp/lbtex.tar.gz ../../. &&\
+	cp -f /tmp/exlbt.tar.gz ../../. &&\
 	cp -rf /tmp/build/html/* ../../. &&\
 	cp build/latex/LLVMToolchainCpu0.pdf ../../. &&\
 	cp build/epub/LLVMToolchainCpu0.epub ../../. &&\
 	cd ../../ &&\
-	git add lbtex.tar.gz *.html _images/. _sources/. _static/. objects.inv searchindex.js TutorialLLVMBackendCpu0.* &&\
+	git add exlbt.tar.gz *.html _images/. _sources/. _static/. objects.inv searchindex.js LLVMToolchainCpu0.* &&\
 	git commit -m "Generated gh-pages for `git log master -1 --pretty=short --abbrev-commit`" &&\
 	git push origin gh-pages &&\
 	git checkout master &&\
