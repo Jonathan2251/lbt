@@ -158,7 +158,7 @@ TMP_PREFIX = tmp
 gh-pages:
 	make genexample &&\
 	make html latexpdf epub &&\
-	rm -rf /tmp/build /tmp/lbtex.tar.gz &&\
+	rm -rf /tmp/build /tmp/exlbt.tar.gz &&\
 	cp -f exlbt.tar.gz /tmp/. &&\
 	cp -rf build /tmp/. &&\
 	git checkout gh-pages &&\
