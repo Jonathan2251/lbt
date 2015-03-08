@@ -163,8 +163,8 @@ gh-pages:
 	make html latexpdf epub
 	make html
 	mv -fv build/html/* ./
-	mv -fv build/latex/ChenChung-ShuPersonalWebSite.pdf "./ChenChung-ShuPersonalWebSite.pdf"
-	mv -fv build/epub/ChenChung-ShuPersonalWebSite.epub "./ChenChung-ShuPersonalWebSite.epub"
+	mv -fv build/latex/LLVMToolchainCpu0.pdf "./LLVMToolchainCpu0.pdf"
+	mv -fv build/epub/LLVMToolchainCpu0.epub "./LLVMToolchainCpu0.epub"
 	rm -rf $(GH_PAGES_SOURCES) build
 	git add -A
 	git commit -m "Generated gh-pages for `git log master -1 --pretty=short --abbrev-commit`" && git push origin gh-pages ; git checkout master
