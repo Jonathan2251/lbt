@@ -164,6 +164,8 @@ gh-pages:
 	git checkout master $(GH_PAGES_SOURCES)
 	git reset HEAD
 	make html latexpdf epub
+	tar -zcvf exlbt.tar.gz exlbt
+	rm -rf exlbt
 	mv -fv build/html/* ./
 	mv -fv build/latex/LLVMToolchainCpu0.pdf "./LLVMToolchainCpu0.pdf"
 	mv -fv build/epub/LLVMToolchainCpu0.epub "./LLVMToolchainCpu0.epub"
