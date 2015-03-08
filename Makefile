@@ -169,7 +169,7 @@ gh-pages:
 	cd ../../ &&\
 	git add exlbt.tar.gz *.html _images/. _sources/. _static/. objects.inv searchindex.js LLVMToolchainCpu0.* &&\
 	git commit -m "Generated gh-pages for `git log master -1 --pretty=short --abbrev-commit`" &&\
-	git push origin gh-pages
+	git push origin gh-pages &&\
 	git checkout master
 
 # Not work. The ../../lib/Target/Cpu0 code reference didn't exist in gh-pages
