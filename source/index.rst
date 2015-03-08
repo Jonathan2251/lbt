@@ -35,10 +35,10 @@ The book is also available in the following formats:
 
     <ul>
     <li>
-    <a href="http://jonathan2251.github.io/lbd/LLVMToolchainCpu0.pdf">PDF</a>
+    <a href="http://jonathan2251.github.io/lbt/LLVMToolchainCpu0.pdf">PDF</a>
     </li>
     <li>
-    <a href="http://jonathan2251.github.io/lbd/LLVMToolchainCpu0.epub">ePub</a>
+    <a href="http://jonathan2251.github.io/lbt/LLVMToolchainCpu0.epub">ePub</a>
     </li>
     </ul>
 
