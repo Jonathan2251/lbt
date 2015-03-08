@@ -1086,6 +1086,10 @@ is for this purpose.
   test_template() = 15, PASS
   test_alloc() = 31, PASS
   test_inlineasm() = 53, PASS
+  20
+  10
+  5
+  test_cpp_polymorphism() = 0, PASS
   taskInterrupt(011)
   Software interrupt
   taskInterrupt(011)

@@ -24,7 +24,7 @@ clang -target mips-unknown-linux-gnu -c printf-stdarg-def.c -emit-llvm \
 clang -target mips-unknown-linux-gnu -c printf-stdarg.c -emit-llvm \
 -o printf-stdarg.bc
 clang $INCFLAG -c ch_float.cpp -emit-llvm -o ch_float.bc
-clang $INCFLAG -c ch9_7.cpp -emit-llvm -o ch9_7.bc
+clang $INCFLAG -c ${LBDEXDIR}/input/ch9_7.cpp -emit-llvm -o ch9_7.bc
 ${TOOLDIR}/llc -march=cpu0${endian} -mcpu=${CPU} -relocation-model=static \
 -filetype=obj start.bc -o start.cpu0.o
 ${TOOLDIR}/llc -march=cpu0${endian} -mcpu=${CPU} -relocation-model=static \

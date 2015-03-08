@@ -7,8 +7,6 @@
 #include "ch9_3_2.cpp"
 #include "ch11_2.cpp"
 #include "ch12_inherit.cpp"
-#include "ch12_eh.cpp"
-#include "ch12_thread_var.cpp"
 
 int verify_test_ctrl2()
 {
@@ -35,13 +33,6 @@ int verify_test_ctrl2()
     printf(", FAIL\n");
 
   return 0;
-}
-
-void test_build()
-{
-  test_thread_var();
-  test_thread_var_2();
-  test_try_catch();
 }
 
 int test_staticlink()
