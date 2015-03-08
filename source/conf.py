@@ -233,7 +233,7 @@ man_pages = [
 #  dir menu entry, description, category)
 texinfo_documents = [
   ('index', 'LLVMToolchainCpu0', u'Tutorial: Creating an LLVM Toolchain for the Cpu0 Architecture',
-   u'Chen Chung-Shu 陳鍾樞 gamma_chen@yahoo.com.tw and Anoushe Jamshidi ajamshidi@gmail.com', 'Tutorial: Creating an LLVM Backend for the Cpu0 Architecture', 'Tutorial: Creating an LLVM Backend for the Cpu0 Architecture.js.',
+   u'Chen Chung-Shu 陳鍾樞 gamma_chen@yahoo.com.tw', 'Tutorial: Creating an LLVM Toolchain for the Cpu0 Architecture', 'Tutorial: Creating an LLVM Backend for the Cpu0 Architecture.js.',
    'Computers'),
 ]
 
