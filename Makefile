@@ -150,7 +150,6 @@ doctest:
 	      "results in $(BUILDDIR)/doctest/output.txt."
 
 
-BACKEND_TUTORIAL_SUBDIR = docs/BackendTutorial
 TMP_PREFIX = tmp
 
 # Note: we have to run this as one big command in order to have the initial
@@ -170,9 +169,8 @@ gh-pages:
 	cd ../../ &&\
 	git add exlbt.tar.gz *.html _images/. _sources/. _static/. objects.inv searchindex.js LLVMToolchainCpu0.* &&\
 	git commit -m "Generated gh-pages for `git log master -1 --pretty=short --abbrev-commit`" &&\
-	git push origin gh-pages &&\
-	git checkout master &&\
-	cd $(BACKEND_TUTORIAL_SUBDIR)
+	git push origin gh-pages
+	git checkout master
 
 # Not work. The ../../lib/Target/Cpu0 code reference didn't exist in gh-pages
 #gh-pages2:
