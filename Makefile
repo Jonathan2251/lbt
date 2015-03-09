@@ -159,7 +159,7 @@ TMP_PREFIX = tmp
 # 'cd' take effect for the whole command.
 # TODO: is there a nicer way of doing this?
 gh-pages:
-    rm -rf /tmp/*
+    rm -rf /tmp/* &&\
     cp -rf lbdex /tmp/.
 	git checkout gh-pages
 	rm -rf build _sources _static _images
