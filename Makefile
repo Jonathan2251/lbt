@@ -159,10 +159,13 @@ TMP_PREFIX = tmp
 # 'cd' take effect for the whole command.
 # TODO: is there a nicer way of doing this?
 gh-pages:
+    rm -rf /tmp/*
+    cp -rf lbdex /tmp/.
 	git checkout gh-pages
 	rm -rf build _sources _static _images
 	git checkout master $(GH_PAGES_SOURCES)
 	git reset HEAD
+	cp -rf /tmp/lbdex .
 	make html latexpdf epub
 	tar -zcvf exlbt.tar.gz exlbt
 	rm -rf exlbt lbdex
