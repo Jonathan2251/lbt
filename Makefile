@@ -15,7 +15,7 @@ ALLSPHINXOPTS   = -d $(BUILDDIR)/doctrees $(PAPEROPT_$(PAPER)) $(SPHINXOPTS) sou
 I18NSPHINXOPTS  = $(PAPEROPT_$(PAPER)) $(SPHINXOPTS) source
 
 # Custom
-GH_PAGES_SOURCES = source exlbt Fig Makefile
+GH_PAGES_SOURCES = source exlbt lbdex Fig Makefile
 
 .PHONY: help clean html dirhtml singlehtml pickle json htmlhelp qthelp devhelp epub latex latexpdf text man changes linkcheck doctest gettext gh-pages
 
@@ -159,8 +159,6 @@ TMP_PREFIX = tmp
 # 'cd' take effect for the whole command.
 # TODO: is there a nicer way of doing this?
 gh-pages:
-    rm -rf /tmp/* &&\
-    cp -rf lbdex /tmp/.
 	git checkout gh-pages
 	rm -rf build _sources _static _images
 	git checkout master $(GH_PAGES_SOURCES)
@@ -168,7 +166,6 @@ gh-pages:
 	cp -rf /tmp/lbdex .
 	make html latexpdf epub
 	tar -zcvf exlbt.tar.gz exlbt
-	rm -rf exlbt lbdex
 	mv -fv build/html/* ./
 	mv -fv build/latex/LLVMToolchainCpu0.pdf "./LLVMToolchainCpu0.pdf"
 	mv -fv build/epub/LLVMToolchainCpu0.epub "./LLVMToolchainCpu0.epub"
