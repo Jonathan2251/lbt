@@ -4,7 +4,7 @@ OS=`uname -s`
 echo "OS =" ${OS}
 
 if [ "$OS" == "Linux" ]; then
-  TOOLDIR=/usr/local/llvm/test/cmake_debug_build/bin
+  TOOLDIR=~/llvm/test/cmake_debug_build/bin
   INCFLAG="-I/home/cschen/test/open-src-libc/avr-libc-1.8.1/include -I/home/cschen/test/open-src-libc/avr-libc-1.8.1/common"
 else
   TOOLDIR=~/llvm/test/cmake_debug_build/Debug/bin

@@ -32,7 +32,7 @@
 
 /* From: Id: printf_p_new.c,v 1.1.1.9 2002/10/15 20:10:28 joerg_wunsch Exp */
 /* $Id: vfprintf.c 2191 2010-11-05 13:45:57Z arcanum $ */
-#if 1
+#if 0
 #if !defined(__AVR_TINY__)
 #if 1
 #include <avr/pgmspace.h>
