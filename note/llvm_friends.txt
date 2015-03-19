@@ -1,0 +1,38 @@
+lbd work partners:
+ (Wei-Ren  陳韋任 <chenwj.cs97g@nctu.edu.tw>;
+ Jamshidi  Anoushe <ajamshidi@gmail.com>;
+ Silva  Sean <silvas@purdue.edu>;
+
+lbd Readers:
+ Cheah  Hui Yan <hycheah@gmail.com>;
+
+ guh@boisestate.edu <guh@boisestate.edu>;
+ http://cs.boisestate.edu/~uh
+
+ Jeff  Heckey <jheckey@ece.ucsb.edu>;
+ Tim  Sherwood <sherwood@cs.ucsb.edu>;
+ Jianhua  Liao <liao_jh@139.com>;
+
+ ramonn76@gmail.com <ramonn76@gmail.com>;
+
+ Tanvir Ahmed <tanvira@cad.ce.titech.ac.jp>;
+
+ Xialin Jiang <jiangxialin@gmail.com>;
+
+ 紀  fu chung <jacky.chi.0328@gmail.com>;
+
+ vijay.daultani@gmail.com <vijay.daultani@gmail.com>;
+
+
+ftdichip.com manager:
+ 沈  中庸 <anthony.shen@ftdichip.com>;
+
+Game based on llvm backend:
+   Rui <ruimvfigueira@gmail.com>;
+
+My teacher:
+ lin  ss <linss@csie.ntnu.edu.tw>;
+
+My brother:
+ 陳  鍾誠 <ccckmit@gmail.com>;
+

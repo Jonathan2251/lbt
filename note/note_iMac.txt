@@ -1,0 +1,19 @@
+1. Operation:
+
+  *** show binary file by hexdump or TextWrangler
+  hexdump ch4_5_1.cpu0.o
+  otool
+  od
+  Open binary file by TextWrangler, and select File - Hex Dump Front Document - Front document's file
+
+  Safari cannot attach file in yahoo e-mail, Firefox can.
+
+
+  Terminal:
+  Ctrl + a and Ctrl + e for beginning and end respectively.
+
+  Print screen:
+  shift + command + 4, use mouse to select your window/area to copy to chipboard, and paste it to your document file. 
+
+  Room in/out: control + finger move up/down on mouse (must check System Preferences -- Accessibility -- Room -- Use scroll gesture with modifier keys to zoom: Control)
+

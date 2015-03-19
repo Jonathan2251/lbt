@@ -1,0 +1,85 @@
+Can build with c11 option.
+
+1. Install cloog which depend on GMP as follows,
+  http://www.cloog.org/
+  https://gmplib.org/
+2. Install llvm, clang and polly:
+  clang and polly put in llvm/tools/
+
+3. Use polly:
+alias pollycc="~/test/polly/cmake_debug_build/bin/clang -Xclang -load -Xclang ~/test/polly/cmake_debug_build/lib/LLVMPolly.so"
+pollycc -mllvm -polly -O3 ch8_1_3.cpp -o a.polly.out
+or, 
+~/test/polly/cmake_debug_build/bin/clang -Xclang -load -Xclang ~/test/polly/cmake_debug_build/lib/LLVMPolly.so -mllvm -polly -O3 ch8_1_3.cpp -o a.polly.out
+
+4. Reference:
+http://comments.gmane.org/gmane.comp.compilers.llvm.devel/60547
+Polly-basic:  clang -Xclang -load -Xclang LLVMPolly.so -O3  (! load polly but no use of polly optimization)
+Polly-optimize: clang -Xclang -load -Xclang LLVMPolly.so -mllvm -polly -O3 (use polly optimization)
+
+5. Build by polly_cschen.sh and polly_cschen_arm.sh in directory polybench-c-3.2/.
+   Run with command, ./polly_cschen.sh to get llvm/clang/polly source and build it on dir llvm_build.
+   Run with command, ./polly_cschen_arm.sh to build it with llvm arm toolchain on dir llvm_arm_build.
+
+6. Run example code for polly and compare the result with non-polly as the following commands
+  cd polly_ex && ./runtime.sh  // for PC/X86
+
+  cd polly_ex && ./build-matmul-arm.sh            // build with llvm arm
+  time ./matmul                                   // non-polly clang -O3
+  // result:
+      # time ./matmul
+      real	10m 25.97s
+      user	10m 25.76s
+      sys	0m 0.23s
+
+  time ./matmul.polly                             // polly clang -O3
+  // result
+      # time ./matmul.polly
+      real	2m 59.71s
+      user	2m 59.55s
+      sys	0m 0.16s
+
+  time ./pmatmul > pmatmul.result
+  // result
+      # time ./pmatmul > pmatmul.result
+      real	22m 38.11s
+      user	10m 33.15s
+      sys	0m 0.51s
+
+  time ./pmatmul.polly > pmatmul.polly.result
+  // result
+      real	15m 45.92s
+      user	3m 12.79s
+      sys	0m 0.50s
+
+  diff pmatmul.result pmatmul.polly.result        // to ensure the outputs is same
+
+7. 2014/03/07 the git llvm/polly can build by the following change of polly.sh,
+from:
+    make -j$procs -l$procs
+to:
+    make 
+
+8. Document:
+http://polly.llvm.org/publications/grosser-diploma-thesis.pdf
+
+9. Gcc option -floop-strip-mine is for tiling.
+  You may run man gcc | grep '\-floop\-strip\-mine' to check if that is a supported option.
+
+10. Copy as follows, then can run polly parallel with omp api.
+~/test/llvm-arm-toolchain/1$ scp ./Marvell_toolchain_2013_04_12/arm-marvell-linux-gnueabi-hard_x86_64/arm-marvell-linux-gnueabi/libc/lib/libgomp.so.1 root@10.19.132.177:/usr/lib/
+
+11. Change tile size in tools/polly/lib/ScheduleOptimizer.cpp,
+  static isl_basic_map *getTileMap(isl_ctx *ctx, int scheduleDimensions,
+                                   isl_space *SpaceModel, int tileSize = 32/*12*/);
+
+12. For static debug:
+  (1). Set ~/.bashrc as follows,
+    export LD_LIBRARY_PATH="$LD_LIBRARY_PATH:/home/cschen/test/0819-polly/cloog_install/lib"
+    because:
+    http://stackoverflow.com/questions/695530/why-do-i-have-to-define-ld-library-path-with-an-export-every-time-i-run-my-appli
+  (2). cmake change as follows,
+    cmake -DCMAKE_PREFIX_PATH=${CLOOG_INSTALL} -D LINK_POLLY_INTO_TOOLS:Bool=ON -DCMAKE_BUILD_TYPE=Debug ${LLVM_SRC}
+  (3). gdb -args [clang -v] : 
+  [clang -v]= display for 
+  ~/test/0819-polly/llvm_build/bin/clang -O3 -mllvm -polly -mllvm -enable-polly-openmp -lgomp -mllvm -polly-ignore-aliasing -I utilities -I datamining/covariance utilities/polybench.c -DPOLYBENCH_TIME -DPOLYBENCH_USE_SCALAR_LB -DSMALL_DATASET datamining/correlation/correlation.c -o polybench/correlation.paralle -v

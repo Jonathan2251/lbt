@@ -1,0 +1,8 @@
+CC='clang' CXX='clang++' cmake -DCMAKE_CROSSCOMPILING=True -DLLVM_TABLEGEN=/usr/local/llvm/release/cmake_release_build/bin/llvm-tblgen -DCLANG_TABLEGEN=/usr/local/llvm/release/cmake_release_build/bin/clang-tblgen -DLLVM_DEFAULT_TARGET_TRIPLE=arm-linux-gnueabihf -DLLVM_TARGET_ARCH=ARM -DLLVM_TARGETS_TO_BUILD=ARM -DCMAKE_CXX_FLAGS='-target armv7a-linux-gnueabihf -mcpu=cortex-a9 -I/usr/gcc-linaro-arm-linux-gnueabihf-4.8-2013.04-20130417_linux/arm-linux-gnueabihf/include/c++/4.8.1/arm-linux-gnueabihf -I/usr/gcc-linaro-arm-linux-gnueabihf-4.8-2013.04-20130417_linux/include/ -mfloat-abi=hard -ccc-gcc-name arm-linux-gnueabihf-gcc' ../src
+
+
+
+native try:
+PASS: CC=clang CXX=clang++ cmake -G "Unix Makefiles" -DCMAKE_BUILD_TYPE=Release ../src
+FAIL: CC=clang CXX=clang++ cmake -G "Unix Makefiles" -DLIBCXX_CXX_ABI=libstdc++ -DLIBCXX_LIBSUPCXX_INCLUDE_PATHS="/usr/include/c++/4.8" -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=/usr ../src
+

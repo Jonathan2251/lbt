@@ -1,0 +1,35 @@
+On 03/13/2014 04:31 AM, chencs2251@gmail.com wrote:
+
+    Hi,
+
+    I installed polly with clang/llvm 3.4 and it speed up 6 times than clang
+    -O3 for matmul.c came from polly source example code.
+    But for the covariance.c of polybench-c-3.2 I cannot get any improvement in
+    speed.
+    I use clang -O3 -mllvm -polly on both matmul.c and covariance.c.
+    Can someone helps me?
+
+
+You currently need a couple of flags:
+
+polybench-c-3.2$ polly-clang -O3 datamining/covariance/covariance.c utilities/polybench.c -I utilities/  -DPOLYBENCH_TIME -mllvm -polly-ignore-aliasing -DPOLYBENCH_USE_SCALAR_LB
+polybench-c-3.2$ ./a.out
+5.276531
+polybench-c-3.2$ polly-clang -O3 datamining/covariance/covariance.c utilities/polybench.c -I utilities/  -DPOLYBENCH_TIME -mllvm -polly-ignore-aliasing -DPOLYBENCH_USE_SCALAR_LB -mllvm -polly
+polybench-c-3.2$ ./a.out
+0.472491
+
+-polly-ignore-aliasing:
+
+We still miss run-time alias checks, so you need to declare that no aliasing will happen
+
+-DPOLYBENCH_USE_SCALAR_LB
+
+Otherwise, polybench will generate a mix of scalar and parametric loop bounds. We can work with that, but the generated code still needs some
+tuning.
+
+Let me know if you can reproduce the results.
+
+Cheers,
+Tobias
+

@@ -1,0 +1,2 @@
+// Replace \t
+awk '{gsub("\t","  ",$0); print;}' ch4_1.cpu0.s > 1

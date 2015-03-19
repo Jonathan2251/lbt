@@ -1,0 +1,53 @@
+ullman@gmail.com <ullman@gmail.com>;
+book error
+
+
+Hi,
+
+The book, Compilers: Principles, Techniques, and Tools, of 2nd edition has a error I am quite sure as follows,
+
+P865, Figure 11.51 (c),
+
+original:
+for (i = max(0, j); ...
+
+correction:
+
+for (i = max(0, j-n); ...
+
+Cheers
+
+cschen
+
+
+
+
+Hi,
+
+The book, Compilers: Principles, Techniques, and Tools, of 2nd edition has a error as follows,
+
+P849, Partition: skewing 
+
+for ( i= 1 ; i <=N+M- 1 ; i++)
+  for ( j =max ( 1 , i+N) ;
+        j <=min ( i , M ) ; j ++ )
+    Z [i , j ] =
+       Z [i-1 , j - 1] ;
+
+for (p= 1 ; p<=N ; p++)
+  for (q= 1 ; q<=M ; q++ )
+    Z [p , q-p] =
+       Z [p- 1 , q-p- 1 ]
+
+
+The first loop structure, Z[i, j] where i>=1 and j>=1, imply access Z[0..x, 0..y].
+But the second loop structure, Z[p, q-p], imply access Z[p, q-p]=Z[1, 1-3]=Z[1, -2]. 
+The Z[1,-2] is accessed by the second loop structure which meaing it's a incorrect 
+tranform.
+
+
+Cheers
+
+cschen
+
+

@@ -1,0 +1,11 @@
+1. When #define DATA_TYPE int:
+  (1). gcc: both O3 and O0 the sor3.c is better than sor.c.
+  (2). clang: for O0, sor3.c is better than sor.c but for O3 sor3.c is slower than sor.c.
+  The O3 sor3.c is slower than sor.c since it call memset() in sor.c while sor3.c didn't.
+2. When #define DATA_TYPE double:
+  (1). clang and gcc: both O3 and O0 the sor3.c is better than sor.c.
+  
+
+3. When for loop include X, Y and Z 3 statements, then the time in sor3.O3 is worse
+than sor.O3. Because the instruction cache miss higher in sor3.O3. Verify by oprofile:
+./ocount --events=l1d_pend_miss:pending,icache:misses ./sor.O3

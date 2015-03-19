@@ -1,0 +1,7 @@
+1. Build: 
+   bash build.sh (BUILD_ARM=1 is for ARM).
+
+2. Run:
+   bash run.sh
+
+
