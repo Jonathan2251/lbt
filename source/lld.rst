@@ -1046,6 +1046,10 @@ is for this purpose.
   WARNING: ./cpu0.v:369: $readmemh(cpu0.hex): Not enough words in the file for 
   the requested range [0:524287].
   taskInterrupt(001)
+  1
+  2
+  4
+  8
   74
   253
   3
