@@ -66,7 +66,7 @@ module cpu0(input clock, reset, input [2:0] itype, output reg [2:0] tick,
   ADDu=8'h11,SUBu=8'h12,ADD=8'h13,SUB=8'h14,CLZ=8'h15,CLO=8'h16,MUL=8'h17,
   AND=8'h18,OR=8'h19,XOR=8'h1A,
   ROL=8'h1B,ROR=8'h1C,SRA=8'h1D,SHL=8'h1E,SHR=8'h1F,
-  SRAV=8'h20,SHLV=8'h21,SHRV=8'h22,
+  SRAV=8'h20,SHLV=8'h21,SHRV=8'h22,ROLV=8'h23,RORV=8'h24,
 `ifdef CPU0II
   SLTi=8'h26,SLTiu=8'h27, SLT=8'h28,SLTu=8'h29,
   BEQ=8'h37,BNE=8'h38,
@@ -271,6 +271,8 @@ module cpu0(input clock, reset, input [2:0] itype, output reg [2:0] tick,
                                     // SHRV Ra,Rb,Rc; Ra<=(Rb >> Rc)
       ROL:   regSet(a, (Rb<<c5)|(Rb>>(32-c5)));     // Rotate Left;
       ROR:   regSet(a, (Rb>>c5)|(Rb<<(32-c5)));     // Rotate Right;
+      ROLV:  regSet(a, (Rb<<Rc)|(Rb>>(32-Rc)));     // Rotate Left;
+      RORV:  regSet(a, (Rb>>Rc)|(Rb<<(32-Rc)));     // Rotate Right;
       MFLO:  regSet(a, LO);         // MFLO Ra; Ra<=LO
       MFHI:  regSet(a, HI);         // MFHI Ra; Ra<=HI
       MTLO:  LO = Ra;               // MTLO Ra; LO<=Ra
