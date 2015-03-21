@@ -92,7 +92,6 @@ int test_staticlink()
     printf(", PASS\n");
   else
     printf(", FAIL\n");
-  test_build();
 
   int_sim();
 
