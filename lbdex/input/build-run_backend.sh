@@ -11,8 +11,9 @@ prologue;
 
 clang -target mips-unknown-linux-gnu -c ch_run_backend.cpp -emit-llvm -o \
 ch_run_backend.bc
+llvm-link -o=a.bc ch_run_backend.bc rotate.ll
 ${TOOLDIR}/llc -march=cpu0${endian} -mcpu=${CPU} -relocation-model=static \
--filetype=obj ch_run_backend.bc -o ch_run_backend.cpu0.o
+-filetype=obj a.bc -o ch_run_backend.cpu0.o
 ${TOOLDIR}/llvm-objdump -d ch_run_backend.cpu0.o | tail -n +12| awk \
 '{print "/* " $1 " */\t" $2 " " $3 " " $4 " " $5 "\t/* " $6"\t" $7" " $8" \
 " $9" " $10 "\t*/"}' > ../verilog/cpu0.hex

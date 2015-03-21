@@ -19,8 +19,39 @@ int test_nolld()
 {
   bool pass = true;
   int a = 0;
+  asm("addiu	$4, $zero, 4"); // 0x0f
+  asm("addiu	$5, $zero, 30"); //
+  asm("jsub	rot0"); // rolv $2, $4, %5
+  asm("nop");
+  __asm__ __volatile__("addiu %0,$2,0"
+                       :"=r"(a)
+                       );
+  print_integer(a);  // a = 0x1 = 1
+  asm("addiu	$4, $zero, 8");
+  asm("jsub	rot1"); // rol $2, $4, 30
+  asm("nop");
+  __asm__ __volatile__("addiu %0,$2,0"
+                       :"=r"(a)
+                       );
+  print_integer(a);  // a = 2
+  asm("addiu	$4, $zero, 1");
+  asm("addiu	$5, $zero, 30"); //
+  asm("jsub	rot2"); // rorv $2, $4, $5
+  asm("nop");
+  __asm__ __volatile__("addiu %0,$2,0"
+                       :"=r"(a)
+                       );
+  print_integer(a);  // a = 4
+  asm("addiu	$4, $zero, 1");
+  asm("addiu	$5, $zero, 3");
+  asm("jsub	rot0"); // rolv $2, $4, %5
+  asm("nop");
+  __asm__ __volatile__("addiu %0,$2,0"
+                       :"=r"(a)
+                       );
+  print_integer(a);  // a = 8
   a = test_math();
-  print_integer(a);  // a = 74
+  print_integer(a);  // a = 0x
   if (a != 74) pass = false;
   a = test_div();
   print_integer(a);  // a = 253
