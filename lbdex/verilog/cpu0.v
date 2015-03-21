@@ -271,6 +271,8 @@ module cpu0(input clock, reset, input [2:0] itype, output reg [2:0] tick,
                                     // SHRV Ra,Rb,Rc; Ra<=(Rb >> Rc)
       ROL:   regSet(a, (Rb<<c5)|(Rb>>(32-c5)));     // Rotate Left;
       ROR:   regSet(a, (Rb>>c5)|(Rb<<(32-c5)));     // Rotate Right;
+      // Need set Rc to -32<=Rc<=32 further before call regSet(), for simple 
+      // tutorial I didn't do it.
       ROLV:  regSet(a, (Rb<<Rc)|(Rb>>(32-Rc)));     // Rotate Left;
       RORV:  regSet(a, (Rb>>Rc)|(Rb<<(32-Rc)));     // Rotate Right;
       MFLO:  regSet(a, LO);         // MFLO Ra; Ra<=LO
