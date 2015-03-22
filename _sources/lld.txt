@@ -1097,8 +1097,7 @@ is for this purpose.
   Harware interrupt 0
   taskInterrupt(011)
   Harware interrupt 1
-  total cpu cycles = 252660
-  RET to PC < 0, finished!
+  ...
 
 As above, by taking the open source code advantage, Cpu0 got the more stable 
 printf() program. 
@@ -1370,8 +1369,7 @@ Run
   loading _Z2laii...
   run _Z2laii...
   bar() = 11
-  total cpu cycles = 50530 
-  RET to PC < 0, finished!
+  ...
 
 
 The "#ifdef DEBUG_DLINKER" part of code in dynamic_linker.cpp is for debugging
