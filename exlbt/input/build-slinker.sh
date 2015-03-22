@@ -28,7 +28,6 @@ ${LBDEXDIR}/input/ch9_2_3_tailcall.cpp -emit-llvm -o ch9_2_3_tailcall.bc
 clang -c ${LBDEXDIR}/input/ch9_4.cpp -emit-llvm -o ch9_4.bc
 clang -I${LBDEXDIR}/input/ -target mips-unknown-linux-gnu -c ch_slinker.cpp -emit-llvm \
 -o ch_slinker.bc
-llvm-link -o=ch_slinker1.bc ch_slinker.bc ${LBDEXDIR}/input/rotate.ll
 ${TOOLDIR}/llc -march=cpu0${endian} -mcpu=${CPU} -relocation-model=static \
 -filetype=obj start.bc -o start.cpu0.o
 ${TOOLDIR}/llc -march=cpu0${endian} -mcpu=${CPU} -relocation-model=static \
@@ -51,7 +50,7 @@ ch9_2_3_tailcall.cpu0.o
 ${TOOLDIR}/llc -march=cpu0${endian} -mcpu=${CPU} -relocation-model=static \
 -filetype=obj ch9_4.bc -o ch9_4.cpu0.o
 ${TOOLDIR}/llc -march=cpu0${endian} -mcpu=${CPU} -relocation-model=static \
--filetype=obj ch_slinker1.bc -o ch_slinker.cpu0.o
+-filetype=obj ch_slinker.bc -o ch_slinker.cpu0.o
 ${TOOLDIR}/llc -march=cpu0${endian} -mcpu=${CPU} -relocation-model=static \
 -filetype=obj lib_cpu0.ll -o lib_cpu0.o
 ${TOOLDIR}/lld -flavor gnu -target cpu0${endian}-unknown-linux-gnu start.cpu0.o \
