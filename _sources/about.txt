@@ -31,7 +31,10 @@ Also thanking those corrections from readers who make the book more accurate.
 Revision history
 ----------------
 
-Version 3.6.1, Not release yet
+Version 3.6.2, Not release yet
+
+Version 3.6.1, Released March 22, 2015
+  Correct typing.
 
 Version 3.6.0, Released March 8, 2015
   Porting to lld 3.6.

@@ -15,7 +15,7 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    './',
-        VERSION:     '3.6.0',
+        VERSION:     '3.6.1',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -5419,7 +5419,6 @@ is for this purpose.</p>
     <span class="n">printf</span><span class="p">(</span><span class="s">&quot;, PASS</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">);</span>
   <span class="k">else</span>
     <span class="n">printf</span><span class="p">(</span><span class="s">&quot;, FAIL</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">);</span>
-  <span class="n">test_build</span><span class="p">();</span>
 
   <span class="n">int_sim</span><span class="p">();</span>
 
@@ -5469,12 +5468,16 @@ clang -target mips-unknown-linux-gnu -c printf-stdarg-def.c -emit-llvm \
 -o printf-stdarg-def.bc
 clang -target mips-unknown-linux-gnu -c printf-stdarg.c -emit-llvm \
 -o printf-stdarg.bc
-clang -target mips-unknown-linux-gnu -c ${LBDEXDIR}/input/ch4_1_2.cpp -emit-llvm -o ch4_1_2.bc
-clang -O1 -target mips-unknown-linux-gnu -c ${LBDEXDIR}/input/ch8_1_5.cpp -emit-llvm -o ch8_1_5.bc
-clang -O1 -target mips-unknown-linux-gnu -c ${LBDEXDIR}/input/ch8_3.cpp -emit-llvm -o ch8_3.bc
-clang -O1 -target mips-unknown-linux-gnu -c ${LBDEXDIR}/input/ch8_5.cpp -emit-llvm -o ch8_5.bc
-clang -O1 -target mips-unknown-linux-gnu -c ${LBDEXDIR}/input/ch9_2_3_tailcall.cpp -emit-llvm -o \
-ch9_2_3_tailcall.bc
+clang -target mips-unknown-linux-gnu -c ${LBDEXDIR}/input/ch4_1_2.cpp \
+-emit-llvm -o ch4_1_2.bc
+clang -O1 -target mips-unknown-linux-gnu -c ${LBDEXDIR}/input/ch8_1_5.cpp \
+-emit-llvm -o ch8_1_5.bc
+clang -O1 -target mips-unknown-linux-gnu -c ${LBDEXDIR}/input/ch8_3.cpp \
+-emit-llvm -o ch8_3.bc
+clang -O1 -target mips-unknown-linux-gnu -c ${LBDEXDIR}/input/ch8_5.cpp \
+-emit-llvm -o ch8_5.bc
+clang -O1 -target mips-unknown-linux-gnu -c \
+${LBDEXDIR}/input/ch9_2_3_tailcall.cpp -emit-llvm -o ch9_2_3_tailcall.bc
 clang -c ${LBDEXDIR}/input/ch9_4.cpp -emit-llvm -o ch9_4.bc
 clang -I${LBDEXDIR}/input/ -target mips-unknown-linux-gnu -c ch_slinker.cpp -emit-llvm \
 -o ch_slinker.bc
@@ -5529,6 +5532,7 @@ WARNING: ./cpu0.v:369: <span class="nv">$readmemh</span><span class="o">(</span>
 the requested range <span class="o">[</span>0:524287<span class="o">]</span>.
 taskInterrupt<span class="o">(</span>001<span class="o">)</span>
 74
+15
 253
 3
 1
