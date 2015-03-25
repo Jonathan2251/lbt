@@ -10,7 +10,6 @@
     
     <link rel="stylesheet" href="_static/haiku.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
-    <link rel="stylesheet" href="_static/print.css" type="text/css" />
     
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
@@ -25,7 +24,6 @@
     <script type="text/javascript" src="_static/underscore.js"></script>
     <script type="text/javascript" src="_static/doctools.js"></script>
     <script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
-    <script type="text/javascript" src="_static/theme_extras.js"></script>
     <link rel="author" title="About these documents" href="about.html" />
     <link rel="top" title="Tutorial: Creating an LLVM Toolchain for the Cpu0 Architecture" href="index.html" />
     <link rel="prev" title="Optimization" href="opt.html" /> 
@@ -65,7 +63,7 @@ avr libc.</p>
 <p>Both the compiler-rt and avr libc porting is under going, it&#8217;s not finished.
 The flow as follows,</p>
 <div class="figure align-center" id="lib-f-flow">
-<a class="reference internal image-reference" href="_images/11.png"><img alt="_images/11.png" src="_images/11.png" /></a>
+<a class="reference internal image-reference" href="_images/11.png"><img alt="_images/11.png" src="_images/11.png" style="width: 843.0px; height: 103.0px;" /></a>
 <p class="caption">Figure 1: libc/softfloat library flow</p>
 </div>
 <p>The llvm-link which introduced at last chapter can be hired for optimization.</p>
@@ -426,9 +424,9 @@ Document are here <a class="footnote-reference" href="#avr-libc-doc-web" id="id4
 </pre></div>
 </div>
 <p class="rubric">exlbt/input/build-float.sh</p>
-<div class="highlight-c++"><pre>#!/usr/bin/env bash
+<div class="highlight-c++"><div class="highlight"><pre>#!/usr/bin/env bash
 
-INCFLAG="-I../libsoftfloat/compiler-rt/builtins"
+INCFLAG=&quot;-I../libsoftfloat/compiler-rt/builtins&quot;
 
 source functions.sh
 
@@ -479,8 +477,7 @@ ${TOOLDIR}/lld -flavor gnu -target cpu0${endian}-unknown-linux-gnu \
 
 
 epilogue;
-
-</pre>
+</pre></div>
 </div>
 <p>Run as follows,</p>
 <div class="highlight-bash"><div class="highlight"><pre>JonathantekiiMac:input Jonathan<span class="nv">$ </span>bash build-float.sh cpu032II be
@@ -556,7 +553,7 @@ RET to PC &lt; 0, finished!
 
     <div class="footer">
         &copy; Copyright 2013, LLVM.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.2.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.2.2.
     </div>
   </body>
 </html>

@@ -43,3 +43,14 @@ The book is also available in the following formats:
     </ul>
 
 
+Presentation files
+--------------------
+
+.. raw:: html
+
+    <ul>
+    <a href="http://jonathan2251.github.io/lbt/Principle_Polyhedral.pdf"> 
+            The principle of Polyhedral compiler model </a>
+    </li>
+    </ul>
+
