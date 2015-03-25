@@ -169,6 +169,7 @@ gh-pages:
 	mv -fv build/html/* ./
 	mv -fv build/latex/LLVMToolchainCpu0.pdf "./LLVMToolchainCpu0.pdf"
 	mv -fv build/epub/LLVMToolchainCpu0.epub "./LLVMToolchainCpu0.epub"
+	cp -f present/Principle_Polyhedral.pdf "./Principle_Polyhedral.pdf"
 	rm -rf $(GH_PAGES_SOURCES) build lbdex
 	git add -A
 	git commit -m "Generated gh-pages for `git log master -1 --pretty=short --abbrev-commit`" && git push origin gh-pages ; git checkout master
