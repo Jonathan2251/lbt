@@ -2,15 +2,18 @@
 
 export BINUTILS_SRC=/home/cschen/test/llvm-arm-toolchain/1/binutils-2.23.2
 export BINUTILS_INSTALL=/home/cschen/test/llvm-arm-toolchain/1/binutils-2.23.2-install
-export MVLTOOLCHAIN=/home/cschen/test/llvm-arm-toolchain/1/Marvell_toolchain_2013_04_12/arm-marvell-linux-gnueabi-hard_x86_64
-export SYSROOT=${MVLTOOLCHAIN}/arm-marvell-linux-gnueabi
+#export MVLTOOLCHAIN=/home/cschen/test/llvm-arm-toolchain/1/Marvell_toolchain_2013_04_12/arm-marvell-linux-gnueabi-hard_x86_64
+#export SYSROOT=${MVLTOOLCHAIN}/arm-marvell-linux-gnueabi
+export MVLTOOLCHAIN=/home/cschen/test/compile-benchmark-with-polly/llvm-3.4-arm-hard-x86_64-201410
+export SYSROOT=${MVLTOOLCHAIN}/arm-linux-gnueabihf
 export BASE=`pwd`
 export LLVM_SRC=${BASE}/llvm
 export POLLY_SRC=${LLVM_SRC}/tools/polly
 export CLANG_SRC=${LLVM_SRC}/tools/clang
 export CLOOG_SRC=${BASE}/cloog_src
 export CLOOG_INSTALL=${BASE}/cloog_install
-export LLVM_BUILD=${BASE}/llvm_arm_build
+#export LLVM_BUILD=${BASE}/cmake_arm_debug_build
+export LLVM_BUILD=${BASE}/cmake_arm_hard_debug_build
 
 if [ -e /proc/cpuinfo ]; then
     procs=`cat /proc/cpuinfo | grep processor | wc -l`
@@ -53,7 +56,8 @@ mkdir -p ${LLVM_BUILD}
 cd ${LLVM_BUILD}
 
 if which cmake ; then
-    cmake -DCMAKE_PREFIX_PATH=${CLOOG_INSTALL} -DCMAKE_CXX_FLAGS=-std=c++11 -DCMAKE_BUILD_TYPE=Debug -DLLVM_DEFAULT_TARGET_TRIPLE=arm-marvell-linux-gnueabi -DLLVM_TARGET_ARCH=arm -DLLVM_ENABLE_THREADS=OFF -DLLVM_BINUTILS_INCDIR=${BINUTILS_SRC}/include -DDEFAULT_SYSROOT=${SYSROOT}/libc -G "Unix Makefiles" ${LLVM_SRC}
+    cmake -DCMAKE_PREFIX_PATH=${CLOOG_INSTALL} -DCMAKE_CXX_FLAGS=-std=c++11 -DCMAKE_BUILD_TYPE=Debug -DLLVM_DEFAULT_TARGET_TRIPLE=arm-marvell-linux-gnueabihf -DLLVM_TARGET_ARCH=arm -DLLVM_ENABLE_THREADS=OFF -DLLVM_BINUTILS_INCDIR=${BINUTILS_SRC}/include -DDEFAULT_SYSROOT=${SYSROOT}/libc -DCMAKE_BUILD_TYPE=Debug -G "Unix Makefiles" ${LLVM_SRC}
+#    cmake -DCMAKE_PREFIX_PATH=${CLOOG_INSTALL} -DCMAKE_CXX_FLAGS=-std=c++11 -DCMAKE_BUILD_TYPE=Debug -DLLVM_DEFAULT_TARGET_TRIPLE=arm-marvell-linux-gnueabi -DLLVM_TARGET_ARCH=arm -DLLVM_ENABLE_THREADS=OFF -DLLVM_BINUTILS_INCDIR=${BINUTILS_SRC}/include -DDEFAULT_SYSROOT=${SYSROOT}/libc -DCMAKE_BUILD_TYPE=Debug -G "Unix Makefiles" ${LLVM_SRC}
     make -j$procs -l$procs
     make check-polly
 else
