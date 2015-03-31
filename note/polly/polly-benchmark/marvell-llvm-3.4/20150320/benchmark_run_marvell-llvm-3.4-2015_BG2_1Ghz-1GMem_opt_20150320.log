@@ -1,0 +1,633 @@
+ 
+ 
+>>>>>>   Benchmarks is clinpack_linux_armadaxp_llvm3.4_o3_arm_timer
+DP_ROLL,91800
+DP_UNROLL,94107
+SP_ROLL,130298
+SP_UNROLL,126071
+<<<<<<   End of clinpack_linux_armadaxp_llvm3.4_o3_arm_timer
+ 
+ 
+>>>>>>   Benchmarks is coremark_linux_armadaxp_llvm3.4_o3_arm_timer
+coremark_linux_armadaxp_llvm3.4_o3_arm_timer,2639.683238
+<<<<<<   End of coremark_linux_armadaxp_llvm3.4_o3_arm_timer
+ 
+ 
+>>>>>>   Benchmarks is dhrystone_linux_armadaxp_llvm3.4_o3_arm_timer
+dhrystone_linux_armadaxp_llvm3, 2717391.2 
+<<<<<<   End of dhrystone_linux_armadaxp_llvm3.4_o3_arm_timer
+ 
+ 
+>>>>>>   Benchmarks is eembc_1.1_linux_armadaxp_llvm3.4_o3_arm_timer
+automotive_a2time01_lite,1006036.217
+automotive_aifftr01_lite,1813.237
+automotive_aifirf01_lite,258397.933
+automotive_aiifft01_lite,1872.659
+automotive_basefp01_lite,1652892.562
+automotive_bitmnp01_lite,32644.178
+automotive_cacheb01_lite,6920415.225
+automotive_canrdr01_lite,8130081.301
+automotive_idctrn01_lite,31512.605
+automotive_iirflt01_lite,371747.212
+automotive_matrix01_lite,3138.374
+automotive_pntrch01_lite,41666.667
+automotive_puwmod01_lite,7905138.340
+automotive_rspeed01_lite,4819277.108
+automotive_tblook01_lite,645161.290
+automotive_ttsprk01_lite,250000.000
+consumer_cjpeg_lite,52.896
+consumer_djpeg_lite,74.074
+consumer_rgbcmy01_lite,597.729
+consumer_rgbhpg01_lite,634.921
+consumer_rgbyiq01_lite,456.830
+networking_ospf_lite,18656.716
+networking_pktflowb1m_lite,7396.450
+networking_pktflowb2m_lite,3340.013
+networking_pktflowb512k_lite,19762.846
+networking_routelookup_lite,4230.118
+office_dither01_lite,503.778
+office_rotate01_lite,2002.002
+office_text01_lite,1231.527
+telecom_autcor00data_1_lite,1250000.000
+telecom_autcor00data_2_lite,8992.806
+telecom_autcor00data_3_lite,9398.496
+telecom_conven00data_1_lite,13020.833
+telecom_conven00data_2_lite,13550.136
+telecom_conven00data_3_lite,18382.353
+telecom_fbital00data_2_lite,2554.931
+telecom_fbital00data_3_lite,34317.090
+telecom_fbital00data_6_lite,3805.175
+telecom_fft00data_1_lite,23618.328
+telecom_fft00data_2_lite,23618.328
+telecom_fft00data_3_lite,23618.328
+telecom_viterb00data_1_lite,4867.496
+telecom_viterb00data_2_lite,4885.993
+telecom_viterb00data_3_lite,4901.961
+telecom_viterb00data_4_lite,5125.285
+<<<<<<   End of eembc_1.1_linux_armadaxp_llvm3.4_o3_arm_timer
+ 
+ 
+>>>>>>   Benchmarks is eembc_networking_2.0_linux_armadaxp_llvm3.4_o3_arm_timer
+netv2IP_ip_pktcheckb1m_lite,7598.784
+netv2IP_ip_pktcheckb2m_lite,3405.995
+netv2IP_ip_pktcheckb4m_lite,1676.446
+netv2IP_ip_pktcheckb512k_lite,19011.407
+netv2IP_ip_reassembly_lite,714.694
+netv2IP_ip_reassembly_lite_INIT,2410.800
+netv2IP_nat_lite,866.401
+netv2IP_nat_lite_INIT,4970.179
+netv2IP_ospfv2_lite,3279.764
+netv2IP_qos_lite,167.246
+netv2IP_routelookup_lite,4228.330
+netv2TCP_tcpbulk_lite,31397.174
+netv2TCP_tcpjumbo_lite,47846.890
+netv2TCP_tcpmixed_lite,14814.815
+<<<<<<   End of eembc_networking_2.0_linux_armadaxp_llvm3.4_o3_arm_timer
+ 
+ 
+>>>>>>   Benchmarks is eembc_oa_2.0_linux_armadaxp_llvm3.4_o3_arm_timer
+bezierv2fixed_data2,27.570995313
+bezierv2fixed_data3,115.740740741
+bezierv2fixed_data4,4166.666666667
+bezierv2float_data2,19.376089905
+bezierv2float_data3,77.760497667
+bezierv2float_data4,2702.702702703
+ditherv2_data2,57.306590258
+ditherv2_data3,104.712041885
+ditherv2_data4,270.270270270
+ditherv2_data5,434.782608696
+ditherv2_data6,416.666666667
+ditherv2_data7,80.645161290
+ditherv2_data8,1000.000000000
+ditherv2_data9,344.827586207
+ditherv2_data10,512.820512821
+ditherv2_data11,2500.000000000
+gs8.banner.bmp,1.333333333
+gs8.banner.cmyk1b,1.250000000
+gs8.banner.cmyk2b,1.250000000
+gs8.fern.tiff,0.053134963
+gs8.fonts.tiff,2.127659574
+gs8.mandel.bmp,0.000786646
+gs8.photo.bmp,0.261096606
+gs8.photo.cmyk1b,0.208768267
+gs8.photo.cmyk2b,0.215053763
+gs8.photo.cmyk4b,0.190839695
+gs8.ppt.cmyk1b,1.052631579
+gs8.ppt.cmyk2b,1.063829787
+gs8.ppt.cmyk4b,1.041666667
+gs8.ppt.cmyk8b,1.123595506
+gs8.ppt.tiff,0.970873786
+gs8.pptpdf.bmp,1.315789474
+gs8.pptpdf.cmyk1b,1.204819277
+gs8.pptpdf.cmyk2b,1.204819277
+gs8.pptpdf.cmyk4b,1.234567901
+gs8.pptpdf.cmyk8b,1.162790698
+gs8.spreadsheet.bmp,0.671140940
+gs8.spreadsheet.cmyk1b,0.653594771
+gs8.spreadsheet.cmyk2b,0.653594771
+gs8.spreadsheet.cmyk4b,0.645161290
+gs8.spreadsheet.cmyk8b,0.653594771
+gs8.text.cmyk1b,2.564102564
+gs8.text.cmyk2b,2.564102564
+gs8.text.cmyk4b,2.439024390
+gs8.text.cmyk8b,2.380952381
+gs8.text.tiff,2.439024390
+rotatev2_data2,7.861635220
+rotatev2_data3,14.164305949
+rotatev2_data4,72.463768116
+rotatev2_data5,68.493150685
+rotatev2_data6,65.789473684
+rotatev2_data7,11.792452830
+rotatev2_data8,333.333333333
+rotatev2_data9,22.727272727
+rotatev2_data10,178.571428571
+rotatev2_data11,2500.000000000
+textv2_data2,2631.578947368
+textv2_data3,1075.268817204
+textv2_data4,1149.425287356
+<<<<<<   End of eembc_oa_2.0_linux_armadaxp_llvm3.4_o3_arm_timer
+ 
+ 
+>>>>>>   Benchmarks is llcbench_linux_armadaxp_llvm3.4_o3_arm_timer
+"./cachebench_INT_linux_armadaxp_llvm3.4_o3_arm_timer.exe -m 22 -e 1 -x 1 -d 2 -r "
+"------Cache Read "
+256 ,1172.837020
+384 ,1214.470155
+512 ,1236.398172
+768 ,1259.144631
+1024 ,1270.851117
+1536 ,1282.761752
+2048 ,1288.797863
+3072 ,1294.887195
+4096 ,1295.840325
+6144 ,1264.703841
+8192 ,1250.043563
+12288 ,1251.677064
+16384 ,1252.314004
+24576 ,1182.930367
+32768 ,794.715512
+49152 ,595.876792
+65536 ,571.642596
+98304 ,544.328268
+131072 ,536.715012
+196608 ,526.346770
+262144 ,520.579811
+393216 ,422.172782
+524288 ,372.246746
+786432 ,256.265269
+1048576 ,216.626043
+1572864 ,193.404859
+2097152 ,187.688827
+3145728 ,186.065373
+4194304 ,185.994733
+"./cachebench_DOUBLE_linux_armadaxp_llvm3.4_o3_arm_timer.exe -m 22 -e 1 -x 1 -d 2 -w "
+"------Cache Write "
+256 ,2670.081758
+384 ,2987.314030
+512 ,3176.390476
+768 ,3391.340418
+1024 ,3509.902446
+1536 ,3637.159661
+2048 ,3704.198482
+3072 ,3773.147270
+4096 ,3809.211081
+6144 ,3845.949056
+8192 ,3864.617595
+12288 ,3858.115959
+16384 ,3828.038277
+24576 ,3707.370333
+32768 ,3603.067360
+49152 ,3528.685421
+65536 ,3529.797047
+98304 ,3497.827772
+131072 ,2749.028483
+196608 ,1654.406721
+262144 ,1448.071580
+393216 ,1429.826514
+524288 ,1437.810257
+786432 ,1605.737527
+1048576 ,1730.160891
+1572864 ,1879.400466
+2097152 ,1977.176170
+3145728 ,2107.581886
+4194304 ,2182.219545
+"./cachebench_INT_linux_armadaxp_llvm3.4_o3_arm_timer.exe -m 22 -e 1 -x 1 -d 2 -b "
+"------Cache Read Modify Write "
+256 ,1558.815945
+384 ,1451.482547
+512 ,1419.146850
+768 ,1406.704780
+1024 ,1391.800647
+1536 ,1491.309141
+2048 ,1510.331001
+3072 ,1528.448352
+4096 ,1475.002873
+6144 ,1410.814992
+8192 ,1384.290391
+12288 ,1354.507611
+16384 ,1344.002189
+24576 ,1330.734796
+32768 ,1307.716587
+49152 ,731.937272
+65536 ,728.633119
+98304 ,728.741266
+131072 ,728.635555
+196608 ,728.726987
+262144 ,728.731151
+393216 ,595.911698
+524288 ,551.612868
+786432 ,367.935449
+1048576 ,312.351771
+1572864 ,283.563929
+2097152 ,277.193155
+3145728 ,274.531393
+4194304 ,273.980662
+"./cachebench_INT_linux_armadaxp_llvm3.4_o3_arm_timer.exe -m 22 -e 1 -x 1 -d 5 -tr "
+"------Cache Tuned Read "
+256 ,2050.026913
+384 ,2073.666382
+512 ,2119.525412
+768 ,2156.120123
+1024 ,2175.473455
+1536 ,2197.259807
+2048 ,2208.465112
+3072 ,2215.271592
+4096 ,2219.261852
+6144 ,2033.567974
+8192 ,1952.916211
+12288 ,1955.490353
+16384 ,1956.733834
+24576 ,1957.606543
+32768 ,1902.236472
+49152 ,603.093131
+65536 ,602.160662
+98304 ,602.264977
+131072 ,602.284133
+196608 ,602.311644
+262144 ,602.301747
+393216 ,601.615129
+524288 ,543.210195
+786432 ,267.107320
+1048576 ,224.392604
+1572864 ,200.197014
+2097152 ,194.962863
+3145728 ,193.006417
+4194304 ,192.698472
+"./cachebench_DOUBLE_linux_armadaxp_llvm3.4_o3_arm_timer.exe -m 22 -e 1 -x 1 -d 2 -tw "
+"------Cache Tuned Write "
+256 ,4481.918119
+384 ,4901.471314
+512 ,5106.466382
+768 ,5308.240498
+1024 ,5005.411023
+1536 ,5228.410789
+2048 ,5343.215032
+3072 ,5460.711212
+4096 ,5520.070459
+6144 ,5579.566651
+8192 ,5610.308852
+12288 ,5620.637735
+16384 ,5604.160777
+24576 ,5420.550286
+32768 ,5252.466674
+49152 ,5013.737575
+65536 ,4913.484926
+98304 ,4485.884471
+131072 ,3645.626083
+196608 ,2151.858911
+262144 ,1630.207462
+393216 ,1383.591353
+524288 ,1417.450767
+786432 ,1563.046859
+1048576 ,1660.582061
+1572864 ,1816.684095
+2097152 ,1911.742967
+3145728 ,2046.268995
+4194304 ,2131.622022
+"./cachebench_INT_linux_armadaxp_llvm3.4_o3_arm_timer.exe -m 22 -e 1 -x 1 -d 2 -tb "
+"------Cache Tuned Read Modify Write "
+256 ,1602.699722
+384 ,1441.079123
+512 ,1404.967811
+768 ,1368.551095
+1024 ,1367.257525
+1536 ,1430.286499
+2048 ,1466.945652
+3072 ,1481.363485
+4096 ,1403.662497
+6144 ,1343.383435
+8192 ,1320.685587
+12288 ,1288.172726
+16384 ,1273.891059
+24576 ,1258.387976
+32768 ,1235.131738
+49152 ,713.815791
+65536 ,711.915201
+98304 ,711.991629
+131072 ,712.014328
+196608 ,711.933025
+262144 ,711.811033
+393216 ,687.101684
+524288 ,563.305939
+786432 ,363.110010
+1048576 ,307.159598
+1572864 ,281.340994
+2097152 ,274.231370
+3145728 ,270.817342
+4194304 ,269.375857
+"./cachebench_INT_linux_armadaxp_llvm3.4_o3_arm_timer.exe -m 22 -e 1 -x 1 -d 2 -s "
+"------Memset "
+256 ,2952.741761
+384 ,3331.224639
+512 ,3559.547405
+768 ,3821.764078
+1024 ,3890.896782
+1536 ,4069.663849
+2048 ,4163.171566
+3072 ,4265.309576
+4096 ,4317.563981
+6144 ,4370.659539
+8192 ,4397.718645
+12288 ,4404.975728
+16384 ,4393.584913
+24576 ,4313.150369
+32768 ,4251.435809
+49152 ,4210.397657
+65536 ,4196.458318
+98304 ,4148.113144
+131072 ,3616.276071
+196608 ,2006.964740
+262144 ,1540.815262
+393216 ,1394.320506
+524288 ,1399.663826
+786432 ,1537.771785
+1048576 ,1645.977708
+1572864 ,1796.815931
+2097152 ,1891.499468
+3145728 ,2029.053752
+4194304 ,2105.410923
+"./cachebench_INT_linux_armadaxp_llvm3.4_o3_arm_timer.exe -m 22 -e 1 -x 1 -d 2 -p "
+"------MemCopy "
+256 ,3585.525967
+384 ,4183.028852
+512 ,4563.533080
+768 ,4857.979828
+1024 ,5148.621909
+1536 ,5476.250219
+2048 ,5656.169979
+3072 ,5836.233183
+4096 ,5918.629936
+6144 ,6020.747479
+8192 ,6082.287759
+12288 ,6055.378242
+16384 ,5968.478726
+24576 ,3528.658895
+32768 ,3860.587111
+49152 ,3620.543946
+65536 ,3709.408134
+98304 ,3702.676567
+131072 ,3529.437222
+196608 ,3476.171479
+262144 ,2935.765390
+393216 ,1330.895509
+524288 ,1118.445800
+786432 ,1033.682724
+1048576 ,1012.707666
+1572864 ,986.755495
+2097152 ,977.642601
+3145728 ,977.883736
+4194304 ,978.757398
+<<<<<<   End of llcbench_linux_armadaxp_llvm3.4_o3_arm_timer
+ 
+ 
+>>>>>>   Benchmarks is lmbench3_linux_armadaxp_llvm3.4_o3_arm_timer
+"------mhz "
+1029 MHz, 0.9718 nanosec clock
+"------stream -v 1 -M 8k -W5 -N 10"
+STREAM copy latency(nanoseconds),5.90
+STREAM copy bandwidth(MB/sec),2711.13
+STREAM scale latency(nanoseconds),11.26
+STREAM scale bandwidth(MB/sec),1421.05
+STREAM add latency(nanoseconds),4.91
+STREAM add bandwidth(MB/sec),4883.59
+STREAM triad latency(nanoseconds),14.18
+STREAM triad bandwidth(MB/sec),1693.04
+"------stream -v 1 -M 128k -W5 -N 10"
+STREAM copy latency(nanoseconds),13.16
+STREAM copy bandwidth(MB/sec),1215.78
+STREAM scale latency(nanoseconds),19.47
+STREAM scale bandwidth(MB/sec),821.62
+STREAM add latency(nanoseconds),12.96
+STREAM add bandwidth(MB/sec),1851.88
+STREAM triad latency(nanoseconds),27.91
+STREAM triad bandwidth(MB/sec),859.86
+"------stream -v 1 -M 3m -W5 -N 10"
+STREAM copy latency(nanoseconds),43.53
+STREAM copy bandwidth(MB/sec),367.53
+STREAM scale latency(nanoseconds),52.81
+STREAM scale bandwidth(MB/sec),302.97
+STREAM add latency(nanoseconds),39.22
+STREAM add bandwidth(MB/sec),611.89
+STREAM triad latency(nanoseconds),59.11
+STREAM triad bandwidth(MB/sec),406.01
+"------lat_mem_rd "
+stride=32
+0.00049,1.945
+0.00098,1.945
+0.00195,1.946
+0.00293,1.945
+0.00391,1.947
+0.00586,3.891
+0.00781,4.867
+0.01172,4.866
+0.01562,4.865
+0.02344,4.866
+0.03125,4.878
+0.04688,38.898
+0.06250,38.967
+0.09375,38.967
+0.12500,38.965
+0.18750,38.966
+0.25000,38.967
+0.37500,45.895
+0.50000,61.046
+0.75000,99.308
+1.00000,117.801
+1.50000,134.917
+2.00000,140.555
+3.00000,142.443
+4.00000,142.618
+6.00000,142.632
+8.00000,142.624
+"------lat_mem_rd "
+stride=128
+0.00049,1.946
+0.00098,1.945
+0.00195,1.946
+0.00293,1.945
+0.00391,1.946
+0.00586,3.891
+0.00781,4.864
+0.01172,4.864
+0.01562,4.864
+0.02344,4.864
+0.03125,4.870
+0.04688,39.095
+0.06250,39.094
+0.09375,39.094
+0.12500,39.097
+0.18750,39.096
+0.25000,39.103
+0.37500,44.496
+0.50000,56.899
+0.75000,94.610
+1.00000,112.970
+1.50000,126.646
+2.00000,136.139
+3.00000,141.307
+4.00000,141.907
+6.00000,141.980
+8.00000,141.980
+"------lat_mem_rd "
+stride=1024
+1.00000,114.298
+1.50000,132.713
+2.00000,136.917
+4.00000,146.574
+8.00000,150.570
+"------bw_mem frd "
+0.001024,3403.90
+0.004096,3415.07
+0.016384,2272.44
+0.032768,1658.10
+0.131072,683.17
+0.262144,680.66
+0.524288,518.07
+1.05,257.79
+2.10,226.45
+4.19,222.67
+8.39,222.72
+"------bw_mem rd "
+0.001024,14814.48
+0.004096,14921.14
+0.016384,8023.78
+0.032768,2284.95
+0.131072,1943.21
+0.262144,1900.28
+0.524288,1292.49
+1.05,700.92
+2.10,620.09
+4.19,610.26
+8.39,611.01
+"------bw_mem wr "
+0.001024,15470.96
+0.004096,15360.76
+0.016384,15668.28
+0.032768,769.43
+0.131072,544.75
+0.262144,524.48
+0.524288,529.76
+1.05,571.53
+2.10,562.09
+4.19,573.70
+8.39,583.23
+"------bw_mem fwr "
+0.001024,3954.95
+0.004096,3981.27
+0.016384,3122.91
+0.032768,3012.24
+0.131072,2952.39
+0.262144,2339.72
+0.524288,1713.05
+1.05,1794.89
+2.10,2211.80
+4.19,2308.69
+8.39,2419.21
+"------bw_mem fcp "
+0.001024,886.97
+0.004096,833.05
+0.016384,821.02
+0.032768,465.23
+0.131072,392.36
+0.262144,287.07
+0.524288,194.36
+1.05,176.05
+2.10,169.33
+4.19,168.71
+8.39,168.68
+"------bw_mem cp "
+0.001024,3453.00
+0.004096,3322.86
+0.016384,3274.33
+0.032768,432.56
+0.131072,433.14
+0.262144,426.02
+0.524288,210.33
+1.05,187.28
+2.10,187.58
+4.19,187.63
+8.39,188.05
+"------bw_mem rdrw "
+0.001024,4304.34
+0.004096,4242.15
+0.016384,3604.36
+0.032768,1926.43
+0.131072,683.56
+0.262144,678.90
+0.524288,544.06
+1.05,201.15
+2.10,175.83
+4.19,173.39
+8.39,173.20
+<<<<<<   End of lmbench3_linux_armadaxp_llvm3.4_o3_arm_timer
+ 
+ 
+>>>>>>   Benchmarks is multibench-mini1e_linux_armadaxp_llvm3.4_o3_arm_timer
+ippktcheck-4M,324.928516 
+ipres-4M,24.970867 
+md5-4M,14.643432 
+rgbcmyk-4M,20.352091 
+rotate-4Ms1,4.027062 
+rotate-4Ms64,4.031608 
+x264-4Mq,0.293781 
+iDCT-4M,5.152514 
+4M-check-reassembly,32.883920 
+4M-check-reassembly-tcp,16.937669 
+4M-check-reassembly-tcp-cmykw2-rotatew2,4.846918 
+4M-check-reassembly-tcp-x264w2,0.388802 
+4M-cmykw2-rotatew2,6.505475 
+4M-rotatew2,8.126117 
+4M-cmykw2,33.439224 
+4M-tcp-mixed,36.199095 
+4M-x264w2,0.498753 
+4M-reassembly,27.397260 
+4M-check,328.170123 
+ippktcheck-4Mw1,324.844075 
+ipres-4Mw1,24.658885 
+md5-4Mw1,14.617746 
+rgbcmyk-4Mw1,20.281919 
+rotate-4Ms1w1,4.024793 
+rotate-4Ms64w1,4.031283 
+x264-4Mqw1,0.306016 
+iDCT-4Mw1,5.153577 
+rotate-color1Mp,18.539118 
+rotate-color1Mpw1,18.539118 
+rotate-34kX128w1,16.713092 
+empty-wld,423728.813559 
+<<<<<<   End of multibench-mini1e_linux_armadaxp_llvm3.4_o3_arm_timer
+ 
+ 
+>>>>>>   Benchmarks is STREAM_linux_armadaxp_llvm3.4_o3_arm_timer
+"------Number of Threads 1  "
+Function,      Rate (MB/s)  
+Copy,        1102.8029
+Scale,        321.5019
+Add,          455.6632
+Triad,        414.1747
+<<<<<<   End of STREAM_linux_armadaxp_llvm3.4_o3_arm_timer
+ 
+ 
+>>>>>>   Benchmarks is whetstone_linux_armadaxp_llvm3.4_o3_arm_timer
+whetstone_linux_armadaxp_llvm3.4_o3_arm_timer_SP.exe,428.156
+whetstone_linux_armadaxp_llvm3.4_o3_arm_timer_DP.exe,431.854
+<<<<<<   End of whetstone_linux_armadaxp_llvm3.4_o3_arm_timer
