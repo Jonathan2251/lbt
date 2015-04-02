@@ -32,6 +32,7 @@ Revision history
 ----------------
 
 Version 3.6.2, Not release yet
+  Move some test from lbt to lbd.
 
 Version 3.6.1, Released March 22, 2015
   Correct typing.
