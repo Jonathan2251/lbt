@@ -1,7 +1,7 @@
 
 /// start
 
-int verify_test_ctrl2()
+void verify_test_ctrl2()
 {
   int a = -1;
   int b = -1;
@@ -25,7 +25,7 @@ int verify_test_ctrl2()
   else
     printf(", FAIL\n");
 
-  return 0;
+  return;
 }
 
 int test_staticlink()
@@ -40,19 +40,7 @@ int test_staticlink()
     printf(", PASS\n");
   else
     printf(", FAIL\n");
-  a = verify_test_ctrl2();
-  a = select_1();
-  printf("select_1() = %d\n", a); // a = 1
-  a = select_2();
-  printf("select_2() = %d\n", a); // a = 1
-  a = select_3();
-  printf("select_3() = %d\n", a); // a = 1
-  a = test_select_global_pic(); // test global of pic llc -O1 option
-  printf("test_select_global_pic() = %d", a); // a = 100
-  if (a == 100)
-    printf(", PASS\n");
-  else
-    printf(", FAIL\n");
+  verify_test_ctrl2();
   a = test_func_arg_struct();
   a = test_constructor();
   a = test_template();

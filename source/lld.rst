@@ -1055,11 +1055,6 @@ is for this purpose.
   test_overflow = 0, PASS
   global variable gI = 100, PASS
   test_ctrl2(): a = 1, b = 0, c = 1, d = 0, PASS
-  select_1() = 1
-  select_2() = 1
-  select_3() = 1
-  test_select_global_pic() = 100, PASS
-  test_tailcall(5) = 120, PASS
   date1 = 2012 10 12 1 2 3, PASS
   date2 = 2012 10 12 1 2 3, PASS
   time2 = 1 10 12, PASS
