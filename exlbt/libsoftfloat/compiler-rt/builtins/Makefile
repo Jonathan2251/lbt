@@ -1,6 +1,6 @@
 CC=clang
-LLC=/usr/local/llvm/test/cmake_debug_build/bin/llc
-LINK=/usr/local/llvm/test/cmake_debug_build/bin/lld
+LLC=~/llvm/test/cmake_debug_build/bin/llc
+LINK=~/llvm/test/cmake_debug_build/bin/lld
 INCFLAG=-I/home/cschen/test/open-src-libc/avr-libc-1.8.1/include -I/home/cschen/test/open-src-libc/avr-libc-1.8.1/common
 CFLAGS=-target mips-unknown-linux-gnu -emit-llvm ${INCFLAG} -S
 LLCFLAGS=-march=cpu0 -relocation-model=static -filetype=obj

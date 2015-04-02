@@ -1,13 +1,6 @@
 
 /// start
 
-#include "ch6_1.cpp"
-#include "ch9_2_1.cpp"
-#include "ch9_2_2.cpp"
-#include "ch9_3_2.cpp"
-#include "ch11_2.cpp"
-#include "ch12_inherit.cpp"
-
 int verify_test_ctrl2()
 {
   int a = -1;
@@ -60,14 +53,8 @@ int test_staticlink()
     printf(", PASS\n");
   else
     printf(", FAIL\n");
-  a = test_tailcall(5);
-  printf("test_tailcall(5) = %d", a); // a = 120
-  if (a == 120)
-    printf(", PASS\n");
-  else
-    printf(", FAIL\n");
   a = test_func_arg_struct();
-  a = test_contructor();
+  a = test_constructor();
   a = test_template();
   printf("test_template() = %d", a); // a = 15
   if (a == 15)
@@ -80,9 +67,9 @@ int test_staticlink()
     printf(", PASS\n");
   else
     printf(", FAIL\n");
-  a = test_inlineasm();
-  printf("test_inlineasm() = %d", a); // a = 53
-  if (a == 53)
+  a = inlineasm_global(); // 4
+  printf("inlineasm_global() = %d", a); // a = 4
+  if (a == 4)
     printf(", PASS\n");
   else
     printf(", FAIL\n");

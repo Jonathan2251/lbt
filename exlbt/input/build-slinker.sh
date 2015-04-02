@@ -17,7 +17,7 @@ clang -target mips-unknown-linux-gnu -c printf-stdarg.c -emit-llvm \
 -o printf-stdarg.bc
 clang -target mips-unknown-linux-gnu -c ${LBDEXDIR}/input/ch4_1_2.cpp \
 -emit-llvm -o ch4_1_2.bc
-clang -O1 -target mips-unknown-linux-gnu -c ${LBDEXDIR}/input/ch8_1_5.cpp \
+clang -target mips-unknown-linux-gnu -c ${LBDEXDIR}/input/ch8_1_5.cpp \
 -emit-llvm -o ch8_1_5.bc
 clang -O1 -target mips-unknown-linux-gnu -c ${LBDEXDIR}/input/ch8_3.cpp \
 -emit-llvm -o ch8_3.bc
@@ -45,9 +45,6 @@ ${TOOLDIR}/llc -march=cpu0${endian} -mcpu=${CPU} -relocation-model=static \
 ${TOOLDIR}/llc -march=cpu0${endian} -mcpu=${CPU} -relocation-model=static \
 -filetype=obj ch8_5.bc -o ch8_5.cpu0.o
 ${TOOLDIR}/llc -march=cpu0${endian} -mcpu=${CPU} -relocation-model=static \
--filetype=obj -enable-cpu0-tail-calls ch9_2_3_tailcall.bc -o \
-ch9_2_3_tailcall.cpu0.o
-${TOOLDIR}/llc -march=cpu0${endian} -mcpu=${CPU} -relocation-model=static \
 -filetype=obj ch9_4.bc -o ch9_4.cpu0.o
 ${TOOLDIR}/llc -march=cpu0${endian} -mcpu=${CPU} -relocation-model=static \
 -filetype=obj ch_slinker.bc -o ch_slinker.cpu0.o
@@ -55,8 +52,8 @@ ${TOOLDIR}/llc -march=cpu0${endian} -mcpu=${CPU} -relocation-model=static \
 -filetype=obj lib_cpu0.ll -o lib_cpu0.o
 ${TOOLDIR}/lld -flavor gnu -target cpu0${endian}-unknown-linux-gnu start.cpu0.o \
 debug.cpu0.o printf-stdarg-def.cpu0.o printf-stdarg.cpu0.o ch4_1_2.cpu0.o \
-ch8_1_5.cpu0.o ch8_3.cpu0.o ch8_5.cpu0.o ch9_2_3_tailcall.cpu0.o ch9_4.cpu0.o \
-ch_slinker.cpu0.o lib_cpu0.o -o a.out
+ch8_1_5.cpu0.o ch8_3.cpu0.o ch8_5.cpu0.o ch9_4.cpu0.o ch_slinker.cpu0.o \
+lib_cpu0.o -o a.out
 
 epilogue;
 

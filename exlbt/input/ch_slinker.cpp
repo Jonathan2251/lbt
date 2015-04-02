@@ -2,8 +2,6 @@
 
 /// start
 
-//#define TEST_SELECT
-
 #include "ch_nolld.h"
 #include "ch_lld_staticlink.h"
 

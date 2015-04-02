@@ -1046,25 +1046,7 @@ is for this purpose.
   WARNING: ./cpu0.v:369: $readmemh(cpu0.hex): Not enough words in the file for 
   the requested range [0:524287].
   taskInterrupt(001)
-  74
-  15
-  253
-  3
-  1
-  14
-  3
-  -126
-  130
-  -32766
-  32770
-  393307
-  16777222
-  51
-  2
-  2147483647
-  -2147483648
-  7
-  15
+  ...
   test_nolld(): PASS
   taskInterrupt(011)
   Overflow exception
@@ -1086,7 +1068,7 @@ is for this purpose.
   date2 = 2013 1 26 12 21 10, PASS
   test_template() = 15, PASS
   test_alloc() = 31, PASS
-  test_inlineasm() = 53, PASS
+  inlineasm_global() = 4, PASS
   20
   10
   5
