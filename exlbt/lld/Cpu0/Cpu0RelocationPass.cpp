@@ -221,8 +221,8 @@ protected:
 
 public:
   RelocationPass(const ELFLinkingContext &ctx)
-      : _file(ctx), _ctx(ctx), _null(nullptr), _PLT0(nullptr), _got0(nullptr), 
-        _boot(new Cpu0BootAtom(_file)) {}
+      : _file(ctx), _ctx(ctx), _boot(new Cpu0BootAtom(_file)), _null(nullptr), 
+        _PLT0(nullptr), _got0(nullptr) {}
 
   /// \brief Do the pass.
   ///

@@ -17,15 +17,6 @@ using namespace elf;
 using namespace llvm;
 using namespace object;
 
-static bool error(std::error_code ec) {
-  if (!ec) return false;
-
-  outs() << "Cpu0RelocationHandler.cpp : error reading file: " 
-         << ec.message() << ".\n";
-  outs().flush();
-  return true;
-}
-
 namespace {
 /// \brief R_CPU0_HI16 - word64: (S + A) >> 16
 void relocHI16(uint8_t *location, uint64_t P, uint64_t S, int64_t A) {
@@ -44,6 +35,7 @@ void relocLO16(uint8_t *location, uint64_t P, uint64_t S, uint64_t A) {
       (uint32_t) * reinterpret_cast<llvm::support::ulittle32_t *>(location);
 }
 
+#if 0 // Not support yet
 /// \brief R_CPU0_GOT16 - word32: S
 void relocGOT16(uint8_t *location, uint64_t P, uint64_t S, int64_t A) {
   uint32_t result = (uint32_t)(S);
@@ -51,6 +43,7 @@ void relocGOT16(uint8_t *location, uint64_t P, uint64_t S, int64_t A) {
       result |
       (uint32_t) * reinterpret_cast<llvm::support::ulittle32_t *>(location);
 }
+#endif
 
 /// \brief R_CPU0_PC24 - word32: S + A - P
 void relocPC24(uint8_t *location, uint64_t P, uint64_t S, int64_t A) {

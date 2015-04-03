@@ -33,6 +33,8 @@ public:
                                   const lld::AtomLayout &,
                                   const Reference &) const override;
 
+  uint64_t tlsSize() { return _tlsSize; } // Just avoid compiler warning
+
 private:
   // Cached size of the TLS segment.
   mutable uint64_t _tlsSize;

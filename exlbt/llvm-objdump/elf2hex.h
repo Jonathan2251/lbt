@@ -36,6 +36,7 @@ cl::desc("Little endian format"));
   #include "elf2hex-dlinker.h"
 #endif
 
+#ifdef ELF2HEX_DEBUG
 // Modified from PrintSectionHeaders()
 static uint64_t GetSectionHeaderStartAddress(const ObjectFile *Obj, 
   StringRef sectionName) {
@@ -61,6 +62,7 @@ static uint64_t GetSectionHeaderStartAddress(const ObjectFile *Obj,
   }
   return 0;
 }
+#endif
 
 // Fill /*address*/ 00 00 00 00 [startAddr..endAddr] from startAddr to endAddr. 
 // Include startAddr and endAddr.
@@ -541,8 +543,10 @@ static void Elf2Hex(const ObjectFile *o) {
     return;
   }
 
+#ifdef ELF2HEX_DEBUG
   uint64_t startAddr = GetSectionHeaderStartAddress(o, "_start");
-//  outs() << format("_start address:%08" PRIx64 "\n", startAddr);
+  errs() << format("_start address:%08" PRIx64 "\n", startAddr);
+#endif
 #ifdef DLINK
   if (DumpSo) {
     DisassembleSoInHexFormat(o, DisAsm, IP, lastDumpAddr);
