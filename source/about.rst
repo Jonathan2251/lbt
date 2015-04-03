@@ -33,6 +33,7 @@ Revision history
 
 Version 3.6.2, Not release yet
   Move some test from lbt to lbd.
+  Remove warning in build Cpu0 code.
 
 Version 3.6.1, Released March 22, 2015
   Correct typing.
