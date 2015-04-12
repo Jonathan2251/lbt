@@ -50,6 +50,12 @@ Chassis::Chassis(const char* name)
 }
 #endif
 
+#ifndef DYNAMIC_SEARCH // if no this then not work.
+void Chassis::Add(Equipment* equip) {
+  CompositeEquipment::Add(equip);
+}
+#endif
+
 #if 0
 Cabinet::Cabinet(const char* name) 
   : CompositeEquipment(name) {
@@ -57,11 +63,17 @@ Cabinet::Cabinet(const char* name)
 }
 #endif
 
+Currency FloppyDisk::NetPrice() {
+  return 5;
+}
+
 #if 1
 int main() {
+#if 0
   printf("1\n");
   Cabinet cabinet("PC Cabinet");
   printf("2\n");
+#endif
 #if 1
   Chassis chassis("PC Chassis");
   printf("3\n");

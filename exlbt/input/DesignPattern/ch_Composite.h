@@ -1,3 +1,5 @@
+//#define DYNAMIC_SEARCH // The dynamic search virtual table is not support at this point.
+
 //typedef typename std::int Currency;
 #define Currency int
 #define Watt int
@@ -52,6 +54,9 @@ public:
   virtual Watt Power();
   virtual Currency NetPrice();
   virtual Currency DiscountPrice();
+#ifndef DYNAMIC_SEARCH
+  virtual void Add(Equipment* equip);
+#endif
 };
 
 class Cabinet : public CompositeEquipment {
