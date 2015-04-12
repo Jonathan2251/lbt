@@ -50,7 +50,7 @@ Chassis::Chassis(const char* name)
 }
 #endif
 
-#ifndef DYNAMIC_SEARCH // if no this then not work.
+#ifndef DYNAMIC_SEARCH
 void Chassis::Add(Equipment* equip) {
   CompositeEquipment::Add(equip);
 }
