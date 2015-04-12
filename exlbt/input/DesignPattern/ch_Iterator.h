@@ -26,7 +26,9 @@ protected:
 template <class Item>
 class ListIterator : public Iterator<Item> {
 public:
+  ListIterator();
   ListIterator(const List<Item>* aList);
+  virtual void Create(List<Item>* aList);
   virtual void First();
   virtual void Next();
   virtual bool IsDone() const;

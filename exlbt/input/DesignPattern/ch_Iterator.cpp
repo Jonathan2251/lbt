@@ -14,8 +14,21 @@ Item& List<Item>::Add (Item item) {
 
 template <class Item>
 ListIterator<Item>::ListIterator (
+  ) : _list(0), _current(0) {
+}
+
+template <class Item>
+ListIterator<Item>::ListIterator (
   const List<Item>* aList
   ) : _list(aList), _current(0) {
+}
+
+template <class Item>
+void ListIterator<Item>::Create (
+  List<Item>* aList
+  ) {
+  _list = aList;
+  _current = 0;
 }
 
 template <class Item>

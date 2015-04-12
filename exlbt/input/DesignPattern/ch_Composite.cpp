@@ -28,17 +28,34 @@ Currency CompositeEquipment::NetPrice () {
   return total;
 }
 #endif
+
 #if 1
 Iterator<Equipment*>* CompositeEquipment::CreateIterator() {
+#if 0
   Iter = new ListIterator<Equipment*>(&_equipment);
+#elif 1
+  Iter->Create(&_equipment);
+#else
+  static ListIterator<Equipment*> it(&_equipment);
+  Iter = &it;
+#endif
   return Iter;
 }
 #endif
 
+#if 1
 Chassis::Chassis(const char* name) 
   : CompositeEquipment(name) {
   printf("Chassis() 1\n");
 }
+#endif
+
+#if 0
+Cabinet::Cabinet(const char* name) 
+  : CompositeEquipment(name) {
+  printf("Cabinet() 1\n");
+}
+#endif
 
 #if 1
 int main() {
@@ -48,6 +65,8 @@ int main() {
 #if 1
   Chassis chassis("PC Chassis");
   printf("3\n");
+#endif
+#if 0
   cabinet.Add(&chassis);
   printf("4\n");
   Bus bus("MCA Bus");
@@ -58,13 +77,15 @@ int main() {
   printf("7\n");
   chassis.Add(&bus);
   printf("8\n");
+#endif
+#if 1
   FloppyDisk floppyDisk("3.5in Floppy");
   printf("8\n");
   chassis.Add(&floppyDisk);
   printf("10\n");
+#endif
 //  cout << "The net price is " << chassis->NetPrice() << endl;
   printf("The net price is %d\n", chassis.NetPrice());
-#endif
   return 0;
 }
 #endif
