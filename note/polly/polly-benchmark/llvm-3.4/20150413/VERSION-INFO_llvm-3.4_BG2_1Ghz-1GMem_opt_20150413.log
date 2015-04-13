@@ -1,0 +1,15 @@
+ISL version: 0.11.1
+GMP version: 5.1.2
+MPFR version: 3.1.2
+CLOOG version: 0.18.0
+MPC version: 1.0.1
+EXPAT version: 2.1.0
+NCURSES version: 5.9
+BINUTILS version: 2.25.0 48a389fd
+GCC version: 4.8.5 aec79623
+        GCC Linaro 4.8-2015.02 released.
+GDB version: 7.8.50.DATE-cvs 48a389fd
+LINUX version: 3.10.62
+GLIBC version: 2.19 5701ce20
+EXTRA version: f908cdde
+SCRIPT version: a2d1b567
