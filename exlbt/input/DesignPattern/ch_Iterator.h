@@ -1,12 +1,16 @@
+#ifndef CH_ITERATOR_H
+#define CH_ITERATOR_H
+
 #define DEFAULT_LIST_CAPACITY 10
 
 template <class Item>
-class List {
+class ChenList {
 public:
-  List(long size = DEFAULT_LIST_CAPACITY);
-  long Count() const;
-  Item& Get(long index) const;
-  Item& Add(Item item);
+  ChenList(int size = DEFAULT_LIST_CAPACITY);
+  int Count() const;
+  Item Get(int index) const;
+  Item Add(Item item);
+  void Remove(Item item);
 private:
   int _size;
   Item _item[100];
@@ -27,14 +31,15 @@ template <class Item>
 class ListIterator : public Iterator<Item> {
 public:
   ListIterator();
-  ListIterator(const List<Item>* aList);
-  virtual void Create(List<Item>* aList);
+  ListIterator(const ChenList<Item>* aList);
+  virtual void Create(const ChenList<Item>* aList);
   virtual void First();
   virtual void Next();
   virtual bool IsDone() const;
   virtual Item CurrentItem() const;
 private:
-  const List<Item>* _list;
-  long _current;
+  const ChenList<Item>* _list;
+  int _current;
 };
+#endif
 
