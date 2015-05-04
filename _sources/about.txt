@@ -31,7 +31,11 @@ Also thanking those corrections from readers who make the book more accurate.
 Revision history
 ----------------
 
-Version 3.6.2, Not release yet
+Version 3.6.3, Not release yet
+
+Version 3.6.2, Released May 4, 2015
+  Move some test from lbt to lbd.
+  Remove warning in build Cpu0 code.
 
 Version 3.6.1, Released March 22, 2015
   Correct typing.

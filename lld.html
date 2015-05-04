@@ -10,11 +10,12 @@
     
     <link rel="stylesheet" href="_static/haiku.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" href="_static/print.css" type="text/css" />
     
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    './',
-        VERSION:     '3.6.1',
+        VERSION:     '3.6.2',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -24,6 +25,7 @@
     <script type="text/javascript" src="_static/underscore.js"></script>
     <script type="text/javascript" src="_static/doctools.js"></script>
     <script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <script type="text/javascript" src="_static/theme_extras.js"></script>
     <link rel="author" title="About these documents" href="about.html" />
     <link rel="top" title="Tutorial: Creating an LLVM Toolchain for the Cpu0 Architecture" href="index.html" />
     <link rel="next" title="Optimization" href="opt.html" />
@@ -92,7 +94,7 @@ The term Cpu0 backend used in this chapter can refer to the ELF format handling
 for Cpu0 target machine under lld, llvm compiler backend, or both.
 Suppose readers will easy knowing what it refer to.</p>
 <div class="figure align-center" id="lld-f-workflow">
-<a class="reference internal image-reference" href="_images/1.png"><img alt="_images/1.png" src="_images/1.png" style="width: 899.0px; height: 261.0px;" /></a>
+<a class="reference internal image-reference" href="_images/1.png"><img alt="_images/1.png" src="_images/1.png" /></a>
 <p class="caption">Figure 1: Code generation and execution flow</p>
 </div>
 <p>As depicted in <a class="pageref" href="#lld-f-workflow">Figure  1</a> of chapter About. Beside llvm backend,
@@ -140,7 +142,7 @@ setting over 1GB to avoid insufficient memory link error.</p>
 <p>Add elf2hex.h, elf2hex-dlink.h and update llvm-objdump driver to support ELF to
 Hex for Cpu0 backend as follows,</p>
 <p class="rubric">exlbt/llvm-objdump/elf2hex-dlinker.h</p>
-<div class="highlight-c++"><div class="highlight"><pre>#ifdef DLINK
+<div class="highlight-c++"><pre>#ifdef DLINK
 
 class Cpu0DynFunIndex {
 private:
@@ -179,18 +181,18 @@ void Cpu0DynFunIndex::createPltName(const ObjectFile *Obj) {
     BaseAddr = Section.getAddress();
     BSS = Section.isBSS();
 
-    if (Name == &quot;.strtab&quot;) {
+    if (Name == ".strtab") {
       int num_dyn_entry = 0;
       FILE *fd_num_dyn_entry;
-      fd_num_dyn_entry = fopen(&quot;dlconfig/num_dyn_entry&quot;, &quot;r&quot;);
+      fd_num_dyn_entry = fopen("dlconfig/num_dyn_entry", "r");
       if (fd_num_dyn_entry != NULL) {
-        fscanf(fd_num_dyn_entry, &quot;%d&quot;, &amp;num_dyn_entry);
+        fscanf(fd_num_dyn_entry, "%d", &amp;num_dyn_entry);
       }
       fclose(fd_num_dyn_entry);
 
-      for (std::size_t addr = 2+strlen(&quot;.PLT0&quot;), end = Contents.size(); 
+      for (std::size_t addr = 2+strlen(".PLT0"), end = Contents.size(); 
            addr &lt; end; ) {
-        if (Contents.substr(addr, strlen(&quot;__plt_&quot;)) != &quot;__plt_&quot;)
+        if (Contents.substr(addr, strlen("__plt_")) != "__plt_")
           break;
         strcpy(exePltName[exePltNameSize], Contents.data()+addr);
         addr = addr + strlen(exePltName[exePltNameSize]) + 1;
@@ -204,10 +206,10 @@ void Cpu0DynFunIndex::createPltName(const ObjectFile *Obj) {
 void Cpu0DynFunIndex::createStrtab() {
   FILE *fd_dynstrAscii;
 
-  fd_dynstrAscii = fopen(&quot;dlconfig/dynstrAscii&quot;, &quot;r&quot;);
+  fd_dynstrAscii = fopen("dlconfig/dynstrAscii", "r");
   if (fd_dynstrAscii == NULL)
     fclose(fd_dynstrAscii);
-  assert(fd_dynstrAscii != NULL &amp;&amp; &quot;fd_dynstr == NULL&quot;);
+  assert(fd_dynstrAscii != NULL &amp;&amp; "fd_dynstr == NULL");
   int i = 0;
   // function                  result on EOF or error                    
   // --------                  ----------------------
@@ -219,7 +221,7 @@ void Cpu0DynFunIndex::createStrtab() {
   //                             less than expected
   int j = 0;
   for (i=0; 1; i++) {
-    j=fscanf(fd_dynstrAscii, &quot;%s&quot;, soStrtab[i]);
+    j=fscanf(fd_dynstrAscii, "%s", soStrtab[i]);
     if (j != 1)
       break;
   }
@@ -232,10 +234,10 @@ uint16_t Cpu0DynFunIndex::correctDynFunIndex(const char* pltName) {
   if (i != -1) {
     int j = 0;
     for (j=0; j &lt; soStrtabSize; j++)
-      if (strcmp(soStrtab[j], (const char*)exePltName[i]+strlen(&quot;__plt_&quot;)) == 0)
+      if (strcmp(soStrtab[j], (const char*)exePltName[i]+strlen("__plt_")) == 0)
         break;
     if (j == soStrtabSize) {
-      outs() &lt;&lt; &quot;cannot find &quot; &lt;&lt; exePltName[i] &lt;&lt; &quot;\n&quot;;
+      outs() &lt;&lt; "cannot find " &lt;&lt; exePltName[i] &lt;&lt; "\n";
       exit(1);
     }
     j++;
@@ -254,13 +256,13 @@ static void DisassembleSoInHexFormat(const ObjectFile *Obj
   FILE *fd_so_func_offset;
   int num_dyn_entry = 0;
   
-  fd_so_func_offset = fopen(&quot;dlconfig/so_func_offset&quot;, &quot;w&quot;);
+  fd_so_func_offset = fopen("dlconfig/so_func_offset", "w");
   if (fd_so_func_offset == NULL)
     fclose(fd_so_func_offset);
-  assert(fd_so_func_offset != NULL &amp;&amp; &quot;fd_so_func_offset == NULL&quot;);
+  assert(fd_so_func_offset != NULL &amp;&amp; "fd_so_func_offset == NULL");
 
 #ifdef ELF2HEX_DEBUG
-  errs() &lt;&lt; format(&quot;!lastDumpAddr %8&quot; PRIx64 &quot;\n&quot;, lastDumpAddr);
+  errs() &lt;&lt; format("!lastDumpAddr %8" PRIx64 "\n", lastDumpAddr);
 #endif
   std::error_code ec;
   for (const SectionRef &amp;Section : Obj-&gt;sections()) {
@@ -272,15 +274,15 @@ static void DisassembleSoInHexFormat(const ObjectFile *Obj
     if (error(Section.getContents(Contents))) continue;
     BaseAddr = Section.getAddress();
   #ifdef ELF2HEX_DEBUG
-    errs() &lt;&lt; &quot;Name &quot; &lt;&lt; Name &lt;&lt; format(&quot;  BaseAddr %8&quot; PRIx64 &quot;\n&quot;, BaseAddr);
-    errs() &lt;&lt; format(&quot;!!lastDumpAddr %8&quot; PRIx64 &quot;\n&quot;, lastDumpAddr);
+    errs() &lt;&lt; "Name " &lt;&lt; Name &lt;&lt; format("  BaseAddr %8" PRIx64 "\n", BaseAddr);
+    errs() &lt;&lt; format("!!lastDumpAddr %8" PRIx64 "\n", lastDumpAddr);
   #endif
     bool text;
     text = Section.isText();
     if (!text) {
       continue;
     }
-    // It&#39;s .text section
+    // It's .text section
     uint64_t SectionAddr;
     SectionAddr = Section.getAddress();
 
@@ -299,7 +301,7 @@ static void DisassembleSoInHexFormat(const ObjectFile *Obj
       }
     }
 
-    // Sort the symbols by address, just in case they didn&#39;t come in that way.
+    // Sort the symbols by address, just in case they didn't come in that way.
     array_pod_sort(Symbols.begin(), Symbols.end());
 
     // Make a list of all the relocations for this section.
@@ -308,7 +310,7 @@ static void DisassembleSoInHexFormat(const ObjectFile *Obj
     // Sort relocations by address.
     std::sort(Rels.begin(), Rels.end(), RelocAddressLess);
 
-    StringRef SegmentName = &quot;&quot;;
+    StringRef SegmentName = "";
     if (const MachOObjectFile *MachO =
         dyn_cast&lt;const MachOObjectFile&gt;(Obj)) {
       DataRefImpl DR = Section.getRawDataRefImpl();
@@ -316,11 +318,11 @@ static void DisassembleSoInHexFormat(const ObjectFile *Obj
     }
     StringRef name;
     if (error(Section.getName(name))) break;
-    if (name == &quot;.plt&quot;) continue;
-    outs() &lt;&lt; &quot;/*&quot; &lt;&lt; &quot;Disassembly of section &quot;;
+    if (name == ".plt") continue;
+    outs() &lt;&lt; "/*" &lt;&lt; "Disassembly of section ";
     if (!SegmentName.empty())
-      outs() &lt;&lt; SegmentName &lt;&lt; &quot;,&quot;;
-    outs() &lt;&lt; name &lt;&lt; &#39;:&#39; &lt;&lt; &quot;*/&quot;;
+      outs() &lt;&lt; SegmentName &lt;&lt; ",";
+    outs() &lt;&lt; name &lt;&lt; ':' &lt;&lt; "*/";
 
     // If the section has no symbols just insert a dummy one and disassemble
     // the whole section.
@@ -354,55 +356,55 @@ static void DisassembleSoInHexFormat(const ObjectFile *Obj
         End = Symbols[si + 1].first - 1;
       else {
         // This symbol has the same address as the next symbol. Skip it.
-        fprintf(fd_so_func_offset, &quot;%02x &quot;, 
+        fprintf(fd_so_func_offset, "%02x ", 
                 (uint8_t)(Symbols[si].first &gt;&gt; 24));
-        fprintf(fd_so_func_offset, &quot;%02x &quot;, 
+        fprintf(fd_so_func_offset, "%02x ", 
                 (uint8_t)((Symbols[si].first &gt;&gt; 16) &amp; 0xFF));
-        fprintf(fd_so_func_offset, &quot;%02x &quot;, 
+        fprintf(fd_so_func_offset, "%02x ", 
                 (uint8_t)((Symbols[si].first &gt;&gt; 8) &amp; 0xFF));
-        fprintf(fd_so_func_offset, &quot;%02x    &quot;, 
+        fprintf(fd_so_func_offset, "%02x    ", 
                 (uint8_t)((Symbols[si].first) &amp; 0xFF));
         std::string str = Symbols[si].second.str();
         std::size_t idx = 0;
         std::size_t strSize = 0;
         for (idx = 0, strSize = str.size(); idx &lt; strSize; idx++) {
-          fprintf(fd_so_func_offset, &quot;%c%c &quot;, 
+          fprintf(fd_so_func_offset, "%c%c ", 
                   hexdigit((str[idx] &gt;&gt; 4) &amp; 0xF, true),
                   hexdigit(str[idx] &amp; 0xF, true));
         }
         for (idx = strSize; idx &lt; 48; idx++) {
-          fprintf(fd_so_func_offset, &quot;%02x &quot;, 0);
+          fprintf(fd_so_func_offset, "%02x ", 0);
         }
-        fprintf(fd_so_func_offset, &quot;/* %s */\n&quot;, Symbols[si].second.begin());
+        fprintf(fd_so_func_offset, "/* %s */\n", Symbols[si].second.begin());
         num_dyn_entry++;
 
-        outs() &lt;&lt; &#39;\n&#39; &lt;&lt; &quot;/*&quot; &lt;&lt; Symbols[si].second &lt;&lt; &quot;:*/\n&quot;;
+        outs() &lt;&lt; '\n' &lt;&lt; "/*" &lt;&lt; Symbols[si].second &lt;&lt; ":*/\n";
         continue;
       }
 
       soLastPrintAddr = Symbols[si].first;
-      fprintf(fd_so_func_offset, &quot;%02x &quot;, (uint8_t)(Symbols[si].first &gt;&gt; 24));
-      fprintf(fd_so_func_offset, &quot;%02x &quot;, 
+      fprintf(fd_so_func_offset, "%02x ", (uint8_t)(Symbols[si].first &gt;&gt; 24));
+      fprintf(fd_so_func_offset, "%02x ", 
               (uint8_t)((Symbols[si].first &gt;&gt; 16) &amp; 0xFF));
-      fprintf(fd_so_func_offset, &quot;%02x &quot;, 
+      fprintf(fd_so_func_offset, "%02x ", 
               (uint8_t)((Symbols[si].first &gt;&gt; 8) &amp; 0xFF));
-      fprintf(fd_so_func_offset, &quot;%02x    &quot;, 
+      fprintf(fd_so_func_offset, "%02x    ", 
               (uint8_t)((Symbols[si].first) &amp; 0xFF));
       std::string str = Symbols[si].second.str();
       std::size_t idx = 0;
       std::size_t strSize = 0;
       for (idx = 0, strSize = str.size(); idx &lt; strSize; idx++) {
-        fprintf(fd_so_func_offset, &quot;%c%c &quot;, 
+        fprintf(fd_so_func_offset, "%c%c ", 
                 hexdigit((str[idx] &gt;&gt; 4) &amp; 0xF, true), 
                 hexdigit(str[idx] &amp; 0xF, true));
       }
       for (idx = strSize; idx &lt; 48; idx++) {
-        fprintf(fd_so_func_offset, &quot;%02x &quot;, 0);
+        fprintf(fd_so_func_offset, "%02x ", 0);
       }
-      fprintf(fd_so_func_offset, &quot;/* %s */\n&quot;, Symbols[si].second.begin());
+      fprintf(fd_so_func_offset, "/* %s */\n", Symbols[si].second.begin());
       num_dyn_entry++;
 
-      outs() &lt;&lt; &#39;\n&#39; &lt;&lt; &quot;/*&quot; &lt;&lt; Symbols[si].second &lt;&lt; &quot;:*/\n&quot;;
+      outs() &lt;&lt; '\n' &lt;&lt; "/*" &lt;&lt; Symbols[si].second &lt;&lt; ":*/\n";
 #ifndef NDEBUG
         raw_ostream &amp;DebugOut = DebugFlag ? dbgs() : nulls();
 #else
@@ -414,26 +416,26 @@ static void DisassembleSoInHexFormat(const ObjectFile *Obj
         if (DisAsm-&gt;getInstruction(Inst, Size, Bytes.slice(Index),
                                    SectionAddr + Index, DebugOut,
                                    CommentStream)) {
-          outs() &lt;&lt; format(&quot;/*%8&quot; PRIx64 &quot;:*/&quot;, lastDumpAddr + Index);
+          outs() &lt;&lt; format("/*%8" PRIx64 ":*/", lastDumpAddr + Index);
           if (!NoShowRawInsn) {
-            outs() &lt;&lt; &quot;\t&quot;;
+            outs() &lt;&lt; "\t";
             DumpBytes(StringRef(
                 reinterpret_cast&lt;const char *&gt;(Bytes.data()) + Index, Size));
           }
-          outs() &lt;&lt; &quot;/*&quot;;
-          IP-&gt;printInst(&amp;Inst, outs(), &quot;&quot;);
+          outs() &lt;&lt; "/*";
+          IP-&gt;printInst(&amp;Inst, outs(), "");
           outs() &lt;&lt; CommentStream.str();
-          outs() &lt;&lt; &quot;*/&quot;;
+          outs() &lt;&lt; "*/";
           Comments.clear();
-          outs() &lt;&lt; &quot;\n&quot;;
+          outs() &lt;&lt; "\n";
         } else {
-          errs() &lt;&lt; ToolName &lt;&lt; &quot;: warning: invalid instruction encoding\n&quot;;
+          errs() &lt;&lt; ToolName &lt;&lt; ": warning: invalid instruction encoding\n";
           if (Size == 0)
             Size = 1; // skip illegible bytes
         }
 
-        //  outs() &lt;&lt; &quot;Size = &quot; &lt;&lt; Size &lt;&lt;  &quot;Index = &quot; &lt;&lt; Index &lt;&lt; &quot;lastDumpAddr = &quot;
-        //         &lt;&lt; lastDumpAddr &lt;&lt; &quot;\n&quot;; // debug
+        //  outs() &lt;&lt; "Size = " &lt;&lt; Size &lt;&lt;  "Index = " &lt;&lt; Index &lt;&lt; "lastDumpAddr = "
+        //         &lt;&lt; lastDumpAddr &lt;&lt; "\n"; // debug
         // Print relocation for instruction.
         while (rel_cur != rel_end) {
           bool hidden = false;
@@ -446,13 +448,13 @@ static void DisassembleSoInHexFormat(const ObjectFile *Obj
           if (hidden) goto skip_print_rel;
 
           if (error(rel_cur-&gt;getOffset(addr))) goto skip_print_rel;
-          // Stop when rel_cur&#39;s address is past the current instruction.
+          // Stop when rel_cur's address is past the current instruction.
           if (addr &gt;= Index + Size) break;
           if (error(rel_cur-&gt;getTypeName(name))) goto skip_print_rel;
           if (error(rel_cur-&gt;getValueString(val))) goto skip_print_rel;
 
-          outs() &lt;&lt; format(&quot;\t\t\t/*%8&quot; PRIx64 &quot;: &quot;, SectionAddr + addr) &lt;&lt; name
-                 &lt;&lt; &quot;\t&quot; &lt;&lt; val &lt;&lt; &quot;*/\n&quot;;
+          outs() &lt;&lt; format("\t\t\t/*%8" PRIx64 ": ", SectionAddr + addr) &lt;&lt; name
+                 &lt;&lt; "\t" &lt;&lt; val &lt;&lt; "*/\n";
 
         skip_print_rel:
           ++rel_cur;
@@ -461,36 +463,36 @@ static void DisassembleSoInHexFormat(const ObjectFile *Obj
       }
       soLastPrintAddr = End;
     #ifdef ELF2HEX_DEBUG
-      errs() &lt;&lt; format(&quot;SectionAddr + Index = %8&quot; PRIx64 &quot;\n&quot;, SectionAddr + Index);
-      errs() &lt;&lt; format(&quot;lastDumpAddr %8&quot; PRIx64 &quot;\n&quot;, lastDumpAddr);
+      errs() &lt;&lt; format("SectionAddr + Index = %8" PRIx64 "\n", SectionAddr + Index);
+      errs() &lt;&lt; format("lastDumpAddr %8" PRIx64 "\n", lastDumpAddr);
     #endif
     }
   }
 // Dump share obj or lib
 // Fix the issue that __tls_get_addr appear as file offset 0.
 // Old lld version the __tls_get_addr appear at the last function name.
-  std::pair&lt;uint64_t, StringRef&gt; dummy(soLastPrintAddr, &quot;dummy&quot;);
-  fprintf(fd_so_func_offset, &quot;%02x &quot;, (uint8_t)(dummy.first &gt;&gt; 24));
-  fprintf(fd_so_func_offset, &quot;%02x &quot;, (uint8_t)((dummy.first &gt;&gt; 16) &amp; 0xFF));
-  fprintf(fd_so_func_offset, &quot;%02x &quot;, (uint8_t)((dummy.first &gt;&gt; 8) &amp; 0xFF));
-  fprintf(fd_so_func_offset, &quot;%02x    &quot;, (uint8_t)((dummy.first) &amp; 0xFF));
+  std::pair&lt;uint64_t, StringRef&gt; dummy(soLastPrintAddr, "dummy");
+  fprintf(fd_so_func_offset, "%02x ", (uint8_t)(dummy.first &gt;&gt; 24));
+  fprintf(fd_so_func_offset, "%02x ", (uint8_t)((dummy.first &gt;&gt; 16) &amp; 0xFF));
+  fprintf(fd_so_func_offset, "%02x ", (uint8_t)((dummy.first &gt;&gt; 8) &amp; 0xFF));
+  fprintf(fd_so_func_offset, "%02x    ", (uint8_t)((dummy.first) &amp; 0xFF));
   std::string str = dummy.second.str();
   std::size_t idx = 0;
   std::size_t strSize = 0;
   for (idx = 0, strSize = str.size(); idx &lt; strSize; idx++) {
-    fprintf(fd_so_func_offset, &quot;%c%c &quot;, hexdigit((str[idx] &gt;&gt; 4) &amp; 0xF, true)
+    fprintf(fd_so_func_offset, "%c%c ", hexdigit((str[idx] &gt;&gt; 4) &amp; 0xF, true)
             , hexdigit(str[idx] &amp; 0xF, true));
   }
   for (idx = strSize; idx &lt; 48; idx++) {
-    fprintf(fd_so_func_offset, &quot;%02x &quot;, 0);
+    fprintf(fd_so_func_offset, "%02x ", 0);
   }
-  fprintf(fd_so_func_offset, &quot;/* %s */\n&quot;, dummy.second.begin());
+  fprintf(fd_so_func_offset, "/* %s */\n", dummy.second.begin());
   num_dyn_entry++;
-  outs() &lt;&lt; &#39;\n&#39; &lt;&lt; &quot;/*&quot; &lt;&lt; dummy.second &lt;&lt; &quot;:*/\n&quot;;
+  outs() &lt;&lt; '\n' &lt;&lt; "/*" &lt;&lt; dummy.second &lt;&lt; ":*/\n";
   FILE *fd_num_dyn_entry;
-  fd_num_dyn_entry = fopen(&quot;dlconfig/num_dyn_entry&quot;, &quot;w&quot;);
+  fd_num_dyn_entry = fopen("dlconfig/num_dyn_entry", "w");
   if (fd_num_dyn_entry != NULL) {
-    fprintf(fd_num_dyn_entry, &quot;%d\n&quot;, num_dyn_entry);
+    fprintf(fd_num_dyn_entry, "%d\n", num_dyn_entry);
   }
   fclose(fd_num_dyn_entry);
 }
@@ -509,54 +511,54 @@ static void PrintSoDataSections(const ObjectFile *o, uint64_t&amp; lastDumpAddr,
     if (error(Section.getContents(Contents))) continue;
     BaseAddr = Section.getAddress();
     BSS = Section.isBSS();
-    if (Name == &quot;.dynsym&quot;) {
+    if (Name == ".dynsym") {
       int num_dyn_entry = 0;
       FILE *fd_num_dyn_entry;
-      fd_num_dyn_entry = fopen(&quot;dlconfig/num_dyn_entry&quot;, &quot;r&quot;);
+      fd_num_dyn_entry = fopen("dlconfig/num_dyn_entry", "r");
       if (fd_num_dyn_entry != NULL) {
-        fscanf(fd_num_dyn_entry, &quot;%d&quot;, &amp;num_dyn_entry);
+        fscanf(fd_num_dyn_entry, "%d", &amp;num_dyn_entry);
       }
       fclose(fd_num_dyn_entry);
-      raw_fd_ostream fd_dynsym(&quot;dlconfig/dynsym&quot;, ec, sys::fs::F_Text);
+      raw_fd_ostream fd_dynsym("dlconfig/dynsym", ec, sys::fs::F_Text);
       int count = 0;
       for (std::size_t addr = 0, end = Contents.size(); addr &lt; end; addr += 16) {
         if (isLittleEndian) {
           fd_dynsym &lt;&lt; hexdigit((Contents[addr+3] &gt;&gt; 4) &amp; 0xF, true)
-                     &lt;&lt; hexdigit(Contents[addr+3] &amp; 0xF, true) &lt;&lt; &quot; &quot;;
+                     &lt;&lt; hexdigit(Contents[addr+3] &amp; 0xF, true) &lt;&lt; " ";
           fd_dynsym &lt;&lt; hexdigit((Contents[addr+2] &gt;&gt; 4) &amp; 0xF, true)
-                     &lt;&lt; hexdigit(Contents[addr+2] &amp; 0xF, true) &lt;&lt; &quot; &quot;;
+                     &lt;&lt; hexdigit(Contents[addr+2] &amp; 0xF, true) &lt;&lt; " ";
           fd_dynsym &lt;&lt; hexdigit((Contents[addr+1] &gt;&gt; 4) &amp; 0xF, true)
-                     &lt;&lt; hexdigit(Contents[addr+1] &amp; 0xF, true) &lt;&lt; &quot; &quot;;
+                     &lt;&lt; hexdigit(Contents[addr+1] &amp; 0xF, true) &lt;&lt; " ";
           fd_dynsym &lt;&lt; hexdigit((Contents[addr] &gt;&gt; 4) &amp; 0xF, true)
-                     &lt;&lt; hexdigit(Contents[addr] &amp; 0xF, true) &lt;&lt; &quot; &quot;;
+                     &lt;&lt; hexdigit(Contents[addr] &amp; 0xF, true) &lt;&lt; " ";
         }
         else {
           fd_dynsym &lt;&lt; hexdigit((Contents[addr] &gt;&gt; 4) &amp; 0xF, true)
-                     &lt;&lt; hexdigit(Contents[addr] &amp; 0xF, true) &lt;&lt; &quot; &quot;;
+                     &lt;&lt; hexdigit(Contents[addr] &amp; 0xF, true) &lt;&lt; " ";
           fd_dynsym &lt;&lt; hexdigit((Contents[addr+1] &gt;&gt; 4) &amp; 0xF, true)
-                     &lt;&lt; hexdigit(Contents[addr+1] &amp; 0xF, true) &lt;&lt; &quot; &quot;;
+                     &lt;&lt; hexdigit(Contents[addr+1] &amp; 0xF, true) &lt;&lt; " ";
           fd_dynsym &lt;&lt; hexdigit((Contents[addr+2] &gt;&gt; 4) &amp; 0xF, true)
-                     &lt;&lt; hexdigit(Contents[addr+2] &amp; 0xF, true) &lt;&lt; &quot; &quot;;
+                     &lt;&lt; hexdigit(Contents[addr+2] &amp; 0xF, true) &lt;&lt; " ";
           fd_dynsym &lt;&lt; hexdigit((Contents[addr+3] &gt;&gt; 4) &amp; 0xF, true)
-                     &lt;&lt; hexdigit(Contents[addr+3] &amp; 0xF, true) &lt;&lt; &quot; &quot;;
+                     &lt;&lt; hexdigit(Contents[addr+3] &amp; 0xF, true) &lt;&lt; " ";
         }
         count++;
       }
       for (int i = count; i &lt; num_dyn_entry; i++) {
-        fd_dynsym &lt;&lt; &quot;00 00 00 00 &quot;;
+        fd_dynsym &lt;&lt; "00 00 00 00 ";
       }
     }
-    else if (Name == &quot;.dynstr&quot;) {
-      raw_fd_ostream fd_dynstr(&quot;dlconfig/dynstr&quot;, ec, sys::fs::F_Text);
-      raw_fd_ostream fd_dynstrAscii(&quot;dlconfig/dynstrAscii&quot;, ec, 
+    else if (Name == ".dynstr") {
+      raw_fd_ostream fd_dynstr("dlconfig/dynstr", ec, sys::fs::F_Text);
+      raw_fd_ostream fd_dynstrAscii("dlconfig/dynstrAscii", ec, 
                                     sys::fs::F_Text);
       for (std::size_t addr = 0, end = Contents.size(); addr &lt; end; addr++) {
         fd_dynstr &lt;&lt; hexdigit((Contents[addr] &gt;&gt; 4) &amp; 0xF, true)
-                   &lt;&lt; hexdigit(Contents[addr] &amp; 0xF, true) &lt;&lt; &quot; &quot;;
+                   &lt;&lt; hexdigit(Contents[addr] &amp; 0xF, true) &lt;&lt; " ";
         if (addr == 0)
           continue;
-        if (Contents[addr] == &#39;\0&#39;)
-          fd_dynstrAscii &lt;&lt; &quot;\n&quot;;
+        if (Contents[addr] == '\0')
+          fd_dynstrAscii &lt;&lt; "\n";
         else
           fd_dynstrAscii &lt;&lt; Contents[addr];
       }
@@ -565,10 +567,10 @@ static void PrintSoDataSections(const ObjectFile *o, uint64_t&amp; lastDumpAddr,
 }
 
 #endif // DLINK
-</pre></div>
+</pre>
 </div>
 <p class="rubric">exlbt/llvm-objdump/elf2hex.h</p>
-<div class="highlight-c++"><div class="highlight"><pre>//===---------------------------- elf2hex.cpp -----------------------------===//
+<div class="highlight-c++"><pre>//===---------------------------- elf2hex.cpp -----------------------------===//
 //
 //                     The LLVM Compiler Infrastructure
 //
@@ -582,35 +584,36 @@ static void PrintSoDataSections(const ObjectFile *o, uint64_t&amp; lastDumpAddr,
 //===----------------------------------------------------------------------===//
 
 #include &lt;stdio.h&gt;
-#include &quot;llvm/Support/raw_ostream.h&quot;
+#include "llvm/Support/raw_ostream.h"
 #define DLINK
 //#define ELF2HEX_DEBUG
 
 static cl::opt&lt;bool&gt;
-ConvertElf2Hex(&quot;elf2hex&quot;, 
-cl::desc(&quot;Display the hex content of verilog cpu0 needed sections&quot;));
+ConvertElf2Hex("elf2hex", 
+cl::desc("Display the hex content of verilog cpu0 needed sections"));
 
 static cl::opt&lt;bool&gt;
-LittleEndian(&quot;le&quot;, 
-cl::desc(&quot;Little endian format&quot;));
+LittleEndian("le", 
+cl::desc("Little endian format"));
 
 #ifdef DLINK
   static cl::opt&lt;bool&gt;
-  DumpSo(&quot;cpu0dumpso&quot;, 
-  cl::desc(&quot;Dump shared library .so&quot;));
+  DumpSo("cpu0dumpso", 
+  cl::desc("Dump shared library .so"));
   
   static cl::opt&lt;bool&gt;
-  LinkSo(&quot;cpu0linkso&quot;, 
-  cl::desc(&quot;Link shared library .so&quot;));
+  LinkSo("cpu0linkso", 
+  cl::desc("Link shared library .so"));
   
-  #include &quot;elf2hex-dlinker.h&quot;
+  #include "elf2hex-dlinker.h"
 #endif
 
+#ifdef ELF2HEX_DEBUG
 // Modified from PrintSectionHeaders()
 static uint64_t GetSectionHeaderStartAddress(const ObjectFile *Obj, 
   StringRef sectionName) {
-//  outs() &lt;&lt; &quot;Sections:\n&quot;
-//            &quot;Idx Name          Size      Address          Type\n&quot;;
+//  outs() &lt;&lt; "Sections:\n"
+//            "Idx Name          Size      Address          Type\n";
   std::error_code ec;
   unsigned i = 0;
   for (const SectionRef &amp;Section : Obj-&gt;sections()) {
@@ -631,20 +634,21 @@ static uint64_t GetSectionHeaderStartAddress(const ObjectFile *Obj,
   }
   return 0;
 }
+#endif
 
 // Fill /*address*/ 00 00 00 00 [startAddr..endAddr] from startAddr to endAddr. 
 // Include startAddr and endAddr.
 static void Fill0s(uint64_t startAddr, uint64_t endAddr) {
   std::size_t addr;
 
-  assert((startAddr &lt;= endAddr) &amp;&amp; &quot;startAddr must &lt;= BaseAddr&quot;);
+  assert((startAddr &lt;= endAddr) &amp;&amp; "startAddr must &lt;= BaseAddr");
   // Fill /*address*/ bytes is odd for 4 by 00 
-  outs() &lt;&lt; format(&quot;/*%8&quot; PRIx64 &quot; */&quot;, startAddr);
+  outs() &lt;&lt; format("/*%8" PRIx64 " */", startAddr);
   // Fill /*address*/ 00 00 00 00 for 4 bytes alignment (1 Cpu0 word size)
   for (addr = startAddr; addr &lt; endAddr; addr += 4) {
-    outs() &lt;&lt; format(&quot;/*%8&quot; PRIx64 &quot; */&quot;, addr);
-    outs() &lt;&lt; format(&quot;%02&quot; PRIx64 &quot; &quot;, 0) &lt;&lt; format(&quot;%02&quot; PRIx64 &quot; &quot;, 0) \
-    &lt;&lt; format(&quot;%02&quot; PRIx64 &quot; &quot;, 0) &lt;&lt; format(&quot;%02&quot; PRIx64 &quot; &quot;, 0) &lt;&lt; &#39;\n&#39;;
+    outs() &lt;&lt; format("/*%8" PRIx64 " */", addr);
+    outs() &lt;&lt; format("%02" PRIx64 " ", 0) &lt;&lt; format("%02" PRIx64 " ", 0) \
+    &lt;&lt; format("%02" PRIx64 " ", 0) &lt;&lt; format("%02" PRIx64 " ", 0) &lt;&lt; '\n';
   }
 
   return;
@@ -668,37 +672,37 @@ static void PrintDataSection(const ObjectFile *o, uint64_t&amp; lastDumpAddr,
     return;
   }
 
-  outs() &lt;&lt; &quot;/*Contents of section &quot; &lt;&lt; Name &lt;&lt; &quot;:*/\n&quot;;
+  outs() &lt;&lt; "/*Contents of section " &lt;&lt; Name &lt;&lt; ":*/\n";
   // Dump out the content as hex and printable ascii characters.
   for (std::size_t addr = 0, end = Contents.size(); addr &lt; end; addr += 16) {
-    outs() &lt;&lt; format(&quot;/*%8&quot; PRIx64 &quot; */&quot;, BaseAddr + addr);
+    outs() &lt;&lt; format("/*%8" PRIx64 " */", BaseAddr + addr);
     // Dump line of hex.
     for (std::size_t i = 0; i &lt; 16; ++i) {
       if (i != 0 &amp;&amp; i % 4 == 0)
-        outs() &lt;&lt; &#39; &#39;;
+        outs() &lt;&lt; ' ';
       if (addr + i &lt; end)
         outs() &lt;&lt; hexdigit((Contents[addr + i] &gt;&gt; 4) &amp; 0xF, true)
-               &lt;&lt; hexdigit(Contents[addr + i] &amp; 0xF, true) &lt;&lt; &quot; &quot;;
+               &lt;&lt; hexdigit(Contents[addr + i] &amp; 0xF, true) &lt;&lt; " ";
     }
     // Print ascii.
-    outs() &lt;&lt; &quot;/*&quot; &lt;&lt; &quot;  &quot;;
+    outs() &lt;&lt; "/*" &lt;&lt; "  ";
     for (std::size_t i = 0; i &lt; 16 &amp;&amp; addr + i &lt; end; ++i) {
       if (std::isprint(static_cast&lt;unsigned char&gt;(Contents[addr + i]) &amp; 0xFF))
         outs() &lt;&lt; Contents[addr + i];
       else
-        outs() &lt;&lt; &quot;.&quot;;
+        outs() &lt;&lt; ".";
     }
-    outs() &lt;&lt; &quot;*/&quot; &lt;&lt; &quot;\n&quot;;
+    outs() &lt;&lt; "*/" &lt;&lt; "\n";
   }
   for (std::size_t i = Contents.size(); i &lt; size; i++) {
-    outs() &lt;&lt; &quot;00 &quot;;
+    outs() &lt;&lt; "00 ";
   }
-  outs() &lt;&lt; &quot;\n&quot;;
+  outs() &lt;&lt; "\n";
 #ifdef ELF2HEX_DEBUG
-  errs() &lt;&lt; &quot;Name &quot; &lt;&lt; Name &lt;&lt; &quot;  BaseAddr &quot;;
-  errs() &lt;&lt; format(&quot;%8&quot; PRIx64 &quot; Contents.size() &quot;, BaseAddr);
-  errs() &lt;&lt; format(&quot;%8&quot; PRIx64 &quot; size &quot;, Contents.size());
-  errs() &lt;&lt; format(&quot;%8&quot; PRIx64 &quot; \n&quot;, size);
+  errs() &lt;&lt; "Name " &lt;&lt; Name &lt;&lt; "  BaseAddr ";
+  errs() &lt;&lt; format("%8" PRIx64 " Contents.size() ", BaseAddr);
+  errs() &lt;&lt; format("%8" PRIx64 " size ", Contents.size());
+  errs() &lt;&lt; format("%8" PRIx64 " \n", size);
 #endif
   // save the end address of this section to lastDumpAddr
   lastDumpAddr = BaseAddr + size;
@@ -710,7 +714,7 @@ static void DisassembleObjectInHexFormat(const ObjectFile *Obj
   std::unique_ptr&lt;MCInstPrinter&gt;&amp; IP, uint64_t&amp; lastDumpAddr) {
 
 #ifdef ELF2HEX_DEBUG
-  errs() &lt;&lt; format(&quot;!lastDumpAddr %8&quot; PRIx64 &quot;\n&quot;, lastDumpAddr);
+  errs() &lt;&lt; format("!lastDumpAddr %8" PRIx64 "\n", lastDumpAddr);
 #endif
   std::error_code ec;
   for (const SectionRef &amp;Section : Obj-&gt;sections()) {
@@ -724,35 +728,35 @@ static void DisassembleObjectInHexFormat(const ObjectFile *Obj
     if (BaseAddr &lt; 0x100)
       continue;
   #ifdef ELF2HEX_DEBUG
-    errs() &lt;&lt; &quot;Name &quot; &lt;&lt; Name &lt;&lt; format(&quot;  BaseAddr %8&quot; PRIx64 &quot;\n&quot;, BaseAddr);
-    errs() &lt;&lt; format(&quot;!!lastDumpAddr %8&quot; PRIx64 &quot;\n&quot;, lastDumpAddr);
+    errs() &lt;&lt; "Name " &lt;&lt; Name &lt;&lt; format("  BaseAddr %8" PRIx64 "\n", BaseAddr);
+    errs() &lt;&lt; format("!!lastDumpAddr %8" PRIx64 "\n", lastDumpAddr);
   #endif
     bool text;
     text = Section.isText();
     if (!text) {
     #ifdef ELF2HEX_DEBUG
-      errs() &lt;&lt; &quot;!text\n&quot;;
+      errs() &lt;&lt; "!text\n";
     #endif
       if (lastDumpAddr &lt; BaseAddr) {
         Fill0s(lastDumpAddr, BaseAddr - 1);
         lastDumpAddr = BaseAddr;
       }
-      if (Name == &quot;.got.plt&quot;) {
+      if (Name == ".got.plt") {
         uint64_t BaseAddr;
         BaseAddr = Section.getAddress();
       #ifdef DLINK
         if (LinkSo) {
-          raw_fd_ostream fd_global_offset(&quot;dlconfig/global_offset&quot;, ec, 
+          raw_fd_ostream fd_global_offset("dlconfig/global_offset", ec, 
                                           sys::fs::F_Text);
-          fd_global_offset &lt;&lt; format(&quot;%02&quot; PRIx64 &quot; &quot;, BaseAddr &gt;&gt; 24);
-          fd_global_offset &lt;&lt; format(&quot;%02&quot; PRIx64 &quot; &quot;, (BaseAddr &gt;&gt; 16) &amp; 0xFF);
-          fd_global_offset &lt;&lt; format(&quot;%02&quot; PRIx64 &quot; &quot;, (BaseAddr &gt;&gt; 8) &amp; 0xFF);
-          fd_global_offset &lt;&lt; format(&quot;%02&quot; PRIx64 &quot;    &quot;, BaseAddr &amp; 0xFF);
+          fd_global_offset &lt;&lt; format("%02" PRIx64 " ", BaseAddr &gt;&gt; 24);
+          fd_global_offset &lt;&lt; format("%02" PRIx64 " ", (BaseAddr &gt;&gt; 16) &amp; 0xFF);
+          fd_global_offset &lt;&lt; format("%02" PRIx64 " ", (BaseAddr &gt;&gt; 8) &amp; 0xFF);
+          fd_global_offset &lt;&lt; format("%02" PRIx64 "    ", BaseAddr &amp; 0xFF);
         }
       #endif
         PrintDataSection(Obj, lastDumpAddr, Section);
       }
-      else if ((Name == &quot;.bss&quot; || Name == &quot;.sbss&quot;) &amp;&amp; Contents.size() &gt; 0) {
+      else if ((Name == ".bss" || Name == ".sbss") &amp;&amp; Contents.size() &gt; 0) {
         uint64_t size = (Contents.size() + 3)/4*4;
         Fill0s(BaseAddr, BaseAddr + size - 1);
         lastDumpAddr = BaseAddr + size;
@@ -769,7 +773,7 @@ static void DisassembleObjectInHexFormat(const ObjectFile *Obj
         lastDumpAddr = BaseAddr;
       }
     }
-    // It&#39;s .text section
+    // It's .text section
     uint64_t SectionAddr;
     SectionAddr = Section.getAddress();
     uint64_t SectSize = Section.getSize();
@@ -795,11 +799,11 @@ static void DisassembleObjectInHexFormat(const ObjectFile *Obj
       }
     }
 
-    // Sort the symbols by address, just in case they didn&#39;t come in that way.
+    // Sort the symbols by address, just in case they didn't come in that way.
     array_pod_sort(Symbols.begin(), Symbols.end());
   #ifdef ELF2HEX_DEBUG
     for (unsigned si = 0, se = Symbols.size(); si != se; ++si) {
-        errs() &lt;&lt; &#39;\n&#39; &lt;&lt; &quot;/*&quot; &lt;&lt; Symbols[si].first &lt;&lt; &quot;  &quot; &lt;&lt; Symbols[si].second &lt;&lt; &quot;:*/\n&quot;;
+        errs() &lt;&lt; '\n' &lt;&lt; "/*" &lt;&lt; Symbols[si].first &lt;&lt; "  " &lt;&lt; Symbols[si].second &lt;&lt; ":*/\n";
     }
   #endif
 
@@ -809,7 +813,7 @@ static void DisassembleObjectInHexFormat(const ObjectFile *Obj
     // Sort relocations by address.
     std::sort(Rels.begin(), Rels.end(), RelocAddressLess);
 
-    StringRef SegmentName = &quot;&quot;;
+    StringRef SegmentName = "";
     if (const MachOObjectFile *MachO =
         dyn_cast&lt;const MachOObjectFile&gt;(Obj)) {
       DataRefImpl DR = Section.getRawDataRefImpl();
@@ -817,10 +821,10 @@ static void DisassembleObjectInHexFormat(const ObjectFile *Obj
     }
     StringRef name;
     if (error(Section.getName(name))) break;
-    outs() &lt;&lt; &quot;/*&quot; &lt;&lt; &quot;Disassembly of section &quot;;
+    outs() &lt;&lt; "/*" &lt;&lt; "Disassembly of section ";
     if (!SegmentName.empty())
-      outs() &lt;&lt; SegmentName &lt;&lt; &quot;,&quot;;
-    outs() &lt;&lt; name &lt;&lt; &#39;:&#39; &lt;&lt; &quot;*/&quot;;
+      outs() &lt;&lt; SegmentName &lt;&lt; ",";
+    outs() &lt;&lt; name &lt;&lt; ':' &lt;&lt; "*/";
 
     // If the section has no symbols just insert a dummy one and disassemble
     // the whole section.
@@ -852,11 +856,11 @@ static void DisassembleObjectInHexFormat(const ObjectFile *Obj
       else if (Symbols[si + 1].first != Start)
         End = Symbols[si + 1].first - 1;
       else {
-        outs() &lt;&lt; &#39;\n&#39; &lt;&lt; &quot;/*&quot; &lt;&lt; Symbols[si].second &lt;&lt; &quot;:*/\n&quot;;
+        outs() &lt;&lt; '\n' &lt;&lt; "/*" &lt;&lt; Symbols[si].second &lt;&lt; ":*/\n";
         continue;
       }
 
-      outs() &lt;&lt; &#39;\n&#39; &lt;&lt; &quot;/*&quot; &lt;&lt; Symbols[si].second &lt;&lt; &quot;:*/\n&quot;;
+      outs() &lt;&lt; '\n' &lt;&lt; "/*" &lt;&lt; Symbols[si].second &lt;&lt; ":*/\n";
     #ifdef DLINK
       uint16_t funIndex = 0;
       if (LinkSo) {
@@ -876,14 +880,14 @@ static void DisassembleObjectInHexFormat(const ObjectFile *Obj
 
     #ifdef DLINK
   #ifdef ELF2HEX_DEBUG
-    errs() &lt;&lt; &quot;funIndex: &quot; &lt;&lt; funIndex &lt;&lt; &quot;Index: &quot; &lt;&lt; Index &lt;&lt; &quot;Size: &quot; &lt;&lt; Size &lt;&lt; &quot;\n&quot;;
+    errs() &lt;&lt; "funIndex: " &lt;&lt; funIndex &lt;&lt; "Index: " &lt;&lt; Index &lt;&lt; "Size: " &lt;&lt; Size &lt;&lt; "\n";
   #endif
         if (LinkSo &amp;&amp; funIndex &amp;&amp; Index == Start) {
-          outs() &lt;&lt; format(&quot;/*%8&quot; PRIx64 &quot;:*/\t&quot;, SectionAddr + Index);
-          outs() &lt;&lt; &quot;01 6b &quot; &lt;&lt; format(&quot;%02&quot; PRIx64, (funIndex*4+16) &amp; 0xff00)
-                  &lt;&lt; format(&quot; %02&quot; PRIx64, (funIndex*4+16) &amp; 0x00ff);
-          outs() &lt;&lt; &quot;                                  /* ld\t$t9, &quot; 
-                 &lt;&lt; funIndex*4+16 &lt;&lt; &quot;($gp)\n&quot;;
+          outs() &lt;&lt; format("/*%8" PRIx64 ":*/\t", SectionAddr + Index);
+          outs() &lt;&lt; "01 6b " &lt;&lt; format("%02" PRIx64, (funIndex*4+16) &amp; 0xff00)
+                  &lt;&lt; format(" %02" PRIx64, (funIndex*4+16) &amp; 0x00ff);
+          outs() &lt;&lt; "                                  /* ld\t$t9, " 
+                 &lt;&lt; funIndex*4+16 &lt;&lt; "($gp)\n";
         }
         else
     #endif
@@ -891,27 +895,27 @@ static void DisassembleObjectInHexFormat(const ObjectFile *Obj
           if (DisAsm-&gt;getInstruction(Inst, Size, Bytes.slice(Index),
                                      SectionAddr + Index, DebugOut,
                                      CommentStream)) {
-            outs() &lt;&lt; format(&quot;/*%8&quot; PRIx64 &quot;:*/&quot;, SectionAddr + Index);
+            outs() &lt;&lt; format("/*%8" PRIx64 ":*/", SectionAddr + Index);
             if (!NoShowRawInsn) {
-              outs() &lt;&lt; &quot;\t&quot;;
+              outs() &lt;&lt; "\t";
               DumpBytes(StringRef(
                   reinterpret_cast&lt;const char *&gt;(Bytes.data()) + Index, Size));
             }
-            outs() &lt;&lt; &quot;/*&quot;;
-            IP-&gt;printInst(&amp;Inst, outs(), &quot;&quot;);
+            outs() &lt;&lt; "/*";
+            IP-&gt;printInst(&amp;Inst, outs(), "");
             outs() &lt;&lt; CommentStream.str();
-            outs() &lt;&lt; &quot;*/&quot;;
+            outs() &lt;&lt; "*/";
             Comments.clear();
-            outs() &lt;&lt; &quot;\n&quot;;
+            outs() &lt;&lt; "\n";
           } else {
-            errs() &lt;&lt; ToolName &lt;&lt; &quot;: warning: invalid instruction encoding\n&quot;;
+            errs() &lt;&lt; ToolName &lt;&lt; ": warning: invalid instruction encoding\n";
             if (Size == 0)
               Size = 1; // skip illegible bytes
           }
         }
 
-        //  outs() &lt;&lt; &quot;Size = &quot; &lt;&lt; Size &lt;&lt;  &quot;Index = &quot; &lt;&lt; Index &lt;&lt; &quot;lastDumpAddr = &quot;
-        //         &lt;&lt; lastDumpAddr &lt;&lt; &quot;\n&quot;; // debug
+        //  outs() &lt;&lt; "Size = " &lt;&lt; Size &lt;&lt;  "Index = " &lt;&lt; Index &lt;&lt; "lastDumpAddr = "
+        //         &lt;&lt; lastDumpAddr &lt;&lt; "\n"; // debug
         // Print relocation for instruction.
         while (rel_cur != rel_end) {
           bool hidden = false;
@@ -924,21 +928,21 @@ static void DisassembleObjectInHexFormat(const ObjectFile *Obj
           if (hidden) goto skip_print_rel;
 
           if (error(rel_cur-&gt;getOffset(addr))) goto skip_print_rel;
-          // Stop when rel_cur&#39;s address is past the current instruction.
+          // Stop when rel_cur's address is past the current instruction.
           if (addr &gt;= Index + Size) break;
           if (error(rel_cur-&gt;getTypeName(name))) goto skip_print_rel;
           if (error(rel_cur-&gt;getValueString(val))) goto skip_print_rel;
 
-          outs() &lt;&lt; format(&quot;\t\t\t/*%8&quot; PRIx64 &quot;: &quot;, SectionAddr + addr) &lt;&lt; name
-                 &lt;&lt; &quot;\t&quot; &lt;&lt; val &lt;&lt; &quot;*/\n&quot;;
+          outs() &lt;&lt; format("\t\t\t/*%8" PRIx64 ": ", SectionAddr + addr) &lt;&lt; name
+                 &lt;&lt; "\t" &lt;&lt; val &lt;&lt; "*/\n";
 
         skip_print_rel:
           ++rel_cur;
         }
       }
     #ifdef ELF2HEX_DEBUG
-      errs() &lt;&lt; format(&quot;SectionAddr + Index = %8&quot; PRIx64 &quot;\n&quot;, SectionAddr + Index);
-      errs() &lt;&lt; format(&quot;lastDumpAddr %8&quot; PRIx64 &quot;\n&quot;, lastDumpAddr);
+      errs() &lt;&lt; format("SectionAddr + Index = %8" PRIx64 "\n", SectionAddr + Index);
+      errs() &lt;&lt; format("lastDumpAddr %8" PRIx64 "\n", lastDumpAddr);
     #endif
     }
     // In section .plt or .text, the Contents.size() maybe &lt; (SectionAddr + Index)
@@ -972,42 +976,42 @@ static uint64_t SectionOffset(const ObjectFile *o, StringRef secName) {
 static void PrintBootSection(uint64_t pltOffset, bool isLittleEndian) {
   uint64_t offset = pltOffset - 4;
   if (isLittleEndian) {
-    outs() &lt;&lt; &quot;/*       0:*/	&quot;;
-    outs() &lt;&lt; format(&quot;%02&quot; PRIx64 &quot; &quot;, (offset &amp; 0xff));
-    outs() &lt;&lt; format(&quot;%02&quot; PRIx64 &quot;&quot;, (offset &amp; 0xff00) &gt;&gt; 8);
-    outs() &lt;&lt; &quot; 00 36&quot;;
-    outs() &lt;&lt; &quot;                                  /*	jmp	0x&quot;;
-    outs() &lt;&lt; format(&quot;%02&quot; PRIx64 &quot;%02&quot; PRIx64 &quot; */\n&quot;, (offset &amp; 0xff00) &gt;&gt; 8, 
+    outs() &lt;&lt; "/*       0:*/	";
+    outs() &lt;&lt; format("%02" PRIx64 " ", (offset &amp; 0xff));
+    outs() &lt;&lt; format("%02" PRIx64 "", (offset &amp; 0xff00) &gt;&gt; 8);
+    outs() &lt;&lt; " 00 36";
+    outs() &lt;&lt; "                                  /*	jmp	0x";
+    outs() &lt;&lt; format("%02" PRIx64 "%02" PRIx64 " */\n", (offset &amp; 0xff00) &gt;&gt; 8, 
                      (offset &amp; 0xff)); 
     outs() &lt;&lt;
-      &quot;/*       4:*/	04 00 00 36                                  /*	jmp	4 */\n&quot;;
-    outs() &lt;&lt; &quot;/*       8:*/	&quot;;
-    outs() &lt;&lt; format(&quot;%02&quot; PRIx64 &quot; &quot;, (offset &amp; 0xff));
-    outs() &lt;&lt; format(&quot;%02&quot; PRIx64 &quot;&quot;, (offset &amp; 0xff00) &gt;&gt; 8);
-    outs() &lt;&lt; &quot; 00 36&quot;;
-    outs() &lt;&lt; &quot;                                  /*	jmp	0x&quot;;
-    outs() &lt;&lt; format(&quot;%02&quot; PRIx64 &quot;%02&quot; PRIx64 &quot; */\n&quot;, (offset &amp; 0xff00) &gt;&gt; 8, 
+      "/*       4:*/	04 00 00 36                                  /*	jmp	4 */\n";
+    outs() &lt;&lt; "/*       8:*/	";
+    outs() &lt;&lt; format("%02" PRIx64 " ", (offset &amp; 0xff));
+    outs() &lt;&lt; format("%02" PRIx64 "", (offset &amp; 0xff00) &gt;&gt; 8);
+    outs() &lt;&lt; " 00 36";
+    outs() &lt;&lt; "                                  /*	jmp	0x";
+    outs() &lt;&lt; format("%02" PRIx64 "%02" PRIx64 " */\n", (offset &amp; 0xff00) &gt;&gt; 8, 
                      (offset &amp; 0xff)); 
     outs() &lt;&lt;
-      &quot;/*       c:*/	fc ff ff 36                                  /*	jmp	-4 */\n&quot;;
+      "/*       c:*/	fc ff ff 36                                  /*	jmp	-4 */\n";
   }
   else {
-    outs() &lt;&lt; &quot;/*       0:*/	36 00 &quot;;
-    outs() &lt;&lt; format(&quot;%02&quot; PRIx64 &quot; &quot;, (offset &amp; 0xff00) &gt;&gt; 8);
-    outs() &lt;&lt; format(&quot;%02&quot; PRIx64 &quot;&quot;, (offset &amp; 0xff));
-    outs() &lt;&lt; &quot;                                  /*	jmp	0x&quot;;
-    outs() &lt;&lt; format(&quot;%02&quot; PRIx64 &quot;%02&quot; PRIx64 &quot; */\n&quot;, (offset &amp; 0xff00) &gt;&gt; 8, 
+    outs() &lt;&lt; "/*       0:*/	36 00 ";
+    outs() &lt;&lt; format("%02" PRIx64 " ", (offset &amp; 0xff00) &gt;&gt; 8);
+    outs() &lt;&lt; format("%02" PRIx64 "", (offset &amp; 0xff));
+    outs() &lt;&lt; "                                  /*	jmp	0x";
+    outs() &lt;&lt; format("%02" PRIx64 "%02" PRIx64 " */\n", (offset &amp; 0xff00) &gt;&gt; 8, 
                      (offset &amp; 0xff)); 
     outs() &lt;&lt;
-      &quot;/*       4:*/	36 00 00 04                                  /*	jmp	4 */\n&quot;;
-    outs() &lt;&lt; &quot;/*       8:*/	36 00 &quot;;
-    outs() &lt;&lt; format(&quot;%02&quot; PRIx64 &quot; &quot;, (offset &amp; 0xff00) &gt;&gt; 8);
-    outs() &lt;&lt; format(&quot;%02&quot; PRIx64 &quot;&quot;, (offset &amp; 0xff));
-    outs() &lt;&lt; &quot;                                  /*	jmp	0x&quot;;
-    outs() &lt;&lt; format(&quot;%02&quot; PRIx64 &quot;%02&quot; PRIx64 &quot; */\n&quot;, (offset &amp; 0xff00) &gt;&gt; 8, 
+      "/*       4:*/	36 00 00 04                                  /*	jmp	4 */\n";
+    outs() &lt;&lt; "/*       8:*/	36 00 ";
+    outs() &lt;&lt; format("%02" PRIx64 " ", (offset &amp; 0xff00) &gt;&gt; 8);
+    outs() &lt;&lt; format("%02" PRIx64 "", (offset &amp; 0xff));
+    outs() &lt;&lt; "                                  /*	jmp	0x";
+    outs() &lt;&lt; format("%02" PRIx64 "%02" PRIx64 " */\n", (offset &amp; 0xff00) &gt;&gt; 8, 
                      (offset &amp; 0xff)); 
     outs() &lt;&lt;
-      &quot;/*       c:*/	36 ff ff fc                                  /*	jmp	-4 */\n&quot;;
+      "/*       c:*/	36 ff ff fc                                  /*	jmp	-4 */\n";
   }
 }
 
@@ -1024,22 +1028,22 @@ static void FillJTI(const ObjectFile *o) {
     uint32_t Flags = Symbol.getFlags();
     section_iterator Section = o-&gt;section_end();
     if (error(Section-&gt;getName(SectionName)))
-      SectionName = &quot;&quot;;
-    if (SectionName != &quot;.rodata&quot;) continue;
+      SectionName = "";
+    if (SectionName != ".rodata") continue;
     if (error(Symbol.getName(Name)))
       continue;
   // For example: Name=JTI8_0 =&gt; JTIBlockName=BB8 (rule hit until _)
-    if (strncmp(Name.c_str(), &quot;JTI&quot;, strlen(&quot;JTI&quot;) == 0) {
+    if (strncmp(Name.c_str(), "JTI", strlen("JTI") == 0) {
       int i = 0;
-      for (i = strlen(&quot;JTI&quot;); Name[i] != &#39;_&#39;; i++);
-      if (i &gt; strlen(&quot;JTI&quot;)) 
-        JTIBlockName = &quot;BB&quot; + Name.substr(strlen(&quot;JTI&quot;), i-strlen(&quot;JTI&quot;));
+      for (i = strlen("JTI"); Name[i] != '_'; i++);
+      if (i &gt; strlen("JTI")) 
+        JTIBlockName = "BB" + Name.substr(strlen("JTI"), i-strlen("JTI"));
     }
   // Then get all BB8_* address.
     Address = Section.getAddress();
     if (error(Symbol.getSection(Section)))
       continue;
-    if (Section != &quot;.text&quot;)
+    if (Section != ".text")
       continue;
 }
 #endif
@@ -1064,7 +1068,7 @@ static void Elf2Hex(const ObjectFile *o) {
 
   std::unique_ptr&lt;const MCRegisterInfo&gt; MRI(TheTarget-&gt;createMCRegInfo(TripleName));
   if (!MRI) {
-    errs() &lt;&lt; &quot;error: no register info for target &quot; &lt;&lt; TripleName &lt;&lt; &quot;\n&quot;;
+    errs() &lt;&lt; "error: no register info for target " &lt;&lt; TripleName &lt;&lt; "\n";
     return;
   }
 
@@ -1072,20 +1076,20 @@ static void Elf2Hex(const ObjectFile *o) {
   std::unique_ptr&lt;const MCAsmInfo&gt; AsmInfo(
     TheTarget-&gt;createMCAsmInfo(*MRI, TripleName));
   if (!AsmInfo) {
-    errs() &lt;&lt; &quot;error: no assembly info for target &quot; &lt;&lt; TripleName &lt;&lt; &quot;\n&quot;;
+    errs() &lt;&lt; "error: no assembly info for target " &lt;&lt; TripleName &lt;&lt; "\n";
     return;
   }
 
   std::unique_ptr&lt;const MCSubtargetInfo&gt; STI(
-    TheTarget-&gt;createMCSubtargetInfo(TripleName, &quot;&quot;, FeaturesStr));
+    TheTarget-&gt;createMCSubtargetInfo(TripleName, "", FeaturesStr));
   if (!STI) {
-    errs() &lt;&lt; &quot;error: no subtarget info for target &quot; &lt;&lt; TripleName &lt;&lt; &quot;\n&quot;;
+    errs() &lt;&lt; "error: no subtarget info for target " &lt;&lt; TripleName &lt;&lt; "\n";
     return;
   }
 
   std::unique_ptr&lt;const MCInstrInfo&gt; MII(TheTarget-&gt;createMCInstrInfo());
   if (!MII) {
-    errs() &lt;&lt; &quot;error: no instruction info for target &quot; &lt;&lt; TripleName &lt;&lt; &quot;\n&quot;;
+    errs() &lt;&lt; "error: no instruction info for target " &lt;&lt; TripleName &lt;&lt; "\n";
     return;
   }
 
@@ -1095,7 +1099,7 @@ static void Elf2Hex(const ObjectFile *o) {
   std::unique_ptr&lt;MCDisassembler&gt; DisAsm(
     TheTarget-&gt;createMCDisassembler(*STI, Ctx));
   if (!DisAsm) {
-    errs() &lt;&lt; &quot;error: no disassembler for target &quot; &lt;&lt; TripleName &lt;&lt; &quot;\n&quot;;
+    errs() &lt;&lt; "error: no disassembler for target " &lt;&lt; TripleName &lt;&lt; "\n";
     return;
   }
 
@@ -1106,13 +1110,15 @@ static void Elf2Hex(const ObjectFile *o) {
   std::unique_ptr&lt;MCInstPrinter&gt; IP(TheTarget-&gt;createMCInstPrinter(
       AsmPrinterVariant, *AsmInfo, *MII, *MRI, *STI));
   if (!IP) {
-    errs() &lt;&lt; &quot;error: no instruction printer for target &quot; &lt;&lt; TripleName
-      &lt;&lt; &#39;\n&#39;;
+    errs() &lt;&lt; "error: no instruction printer for target " &lt;&lt; TripleName
+      &lt;&lt; '\n';
     return;
   }
 
-  uint64_t startAddr = GetSectionHeaderStartAddress(o, &quot;_start&quot;);
-//  outs() &lt;&lt; format(&quot;_start address:%08&quot; PRIx64 &quot;\n&quot;, startAddr);
+#ifdef ELF2HEX_DEBUG
+  uint64_t startAddr = GetSectionHeaderStartAddress(o, "_start");
+  errs() &lt;&lt; format("_start address:%08" PRIx64 "\n", startAddr);
+#endif
 #ifdef DLINK
   if (DumpSo) {
     DisassembleSoInHexFormat(o, DisAsm, IP, lastDumpAddr);
@@ -1122,15 +1128,15 @@ static void Elf2Hex(const ObjectFile *o) {
 #endif
   {
     std::error_code EC;
-    uint64_t pltOffset = SectionOffset(o, &quot;.plt&quot;);
+    uint64_t pltOffset = SectionOffset(o, ".plt");
     PrintBootSection(pltOffset, LittleEndian);
   #ifdef DLINK
     if (LinkSo) {
       cpu0DynFunIndex.createPltName(o);
       cpu0DynFunIndex.createStrtab();
-      raw_fd_ostream fd_plt_offset(&quot;dlconfig/plt_offset&quot;, EC, 
+      raw_fd_ostream fd_plt_offset("dlconfig/plt_offset", EC, 
                                     sys::fs::F_Text);
-      fd_plt_offset &lt;&lt; format(&quot;%08&quot; PRIx64 &quot; &quot;, pltOffset);
+      fd_plt_offset &lt;&lt; format("%08" PRIx64 " ", pltOffset);
     }
   #endif
     lastDumpAddr = 16;
@@ -1139,7 +1145,7 @@ static void Elf2Hex(const ObjectFile *o) {
     DisassembleObjectInHexFormat(o, DisAsm, IP, lastDumpAddr);
   }
 }
-</pre></div>
+</pre>
 </div>
 <p class="rubric">exlbt/llvm-objdump/llvm-objdump.cpp</p>
 <div class="highlight-c++"><div class="highlight"><pre><span class="cp">#include &quot;elf2hex.h&quot;</span>
@@ -1367,7 +1373,7 @@ follows,</p>
 </pre></div>
 </div>
 <p class="rubric">exlbt/lld/Cpu0/CMakeLists.txt</p>
-<div class="highlight-c++"><div class="highlight"><pre>add_lld_library(lldCpu0ELFTarget
+<div class="highlight-c++"><pre>add_lld_library(lldCpu0ELFTarget
   Cpu0LinkingContext.cpp
   Cpu0TargetHandler.cpp
   Cpu0RelocationHandler.cpp
@@ -1377,7 +1383,7 @@ follows,</p>
 target_link_libraries(lldCpu0ELFTarget ${cmake_2_8_12_INTERFACE}
   lldCore
   )
-</pre></div>
+</pre>
 </div>
 <p class="rubric">exlbt/lld/Cpu0/Cpu0DynamicLibraryWriter.h</p>
 <div class="highlight-c++"><div class="highlight"><pre><span class="c1">//===- lib/ReaderWriter/ELF/Cpu0/Cpu0DynamicLibraryWriter.h ---------------===//</span>
@@ -1675,6 +1681,8 @@ target_link_libraries(lldCpu0ELFTarget ${cmake_2_8_12_INTERFACE}
                                   <span class="k">const</span> <span class="n">lld</span><span class="o">::</span><span class="n">AtomLayout</span> <span class="o">&amp;</span><span class="p">,</span>
                                   <span class="k">const</span> <span class="n">Reference</span> <span class="o">&amp;</span><span class="p">)</span> <span class="k">const</span> <span class="n">override</span><span class="p">;</span>
 
+  <span class="kt">uint64_t</span> <span class="nf">tlsSize</span><span class="p">()</span> <span class="p">{</span> <span class="k">return</span> <span class="n">_tlsSize</span><span class="p">;</span> <span class="p">}</span> <span class="c1">// Just avoid compiler warning</span>
+
 <span class="nl">private:</span>
   <span class="c1">// Cached size of the TLS segment.</span>
   <span class="k">mutable</span> <span class="kt">uint64_t</span> <span class="n">_tlsSize</span><span class="p">;</span>
@@ -1708,15 +1716,6 @@ target_link_libraries(lldCpu0ELFTarget ${cmake_2_8_12_INTERFACE}
 <span class="k">using</span> <span class="k">namespace</span> <span class="n">llvm</span><span class="p">;</span>
 <span class="k">using</span> <span class="k">namespace</span> <span class="n">object</span><span class="p">;</span>
 
-<span class="k">static</span> <span class="kt">bool</span> <span class="nf">error</span><span class="p">(</span><span class="n">std</span><span class="o">::</span><span class="n">error_code</span> <span class="n">ec</span><span class="p">)</span> <span class="p">{</span>
-  <span class="k">if</span> <span class="p">(</span><span class="o">!</span><span class="n">ec</span><span class="p">)</span> <span class="k">return</span> <span class="nb">false</span><span class="p">;</span>
-
-  <span class="n">outs</span><span class="p">()</span> <span class="o">&lt;&lt;</span> <span class="s">&quot;Cpu0RelocationHandler.cpp : error reading file: &quot;</span> 
-         <span class="o">&lt;&lt;</span> <span class="n">ec</span><span class="p">.</span><span class="n">message</span><span class="p">()</span> <span class="o">&lt;&lt;</span> <span class="s">&quot;.</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">;</span>
-  <span class="n">outs</span><span class="p">().</span><span class="n">flush</span><span class="p">();</span>
-  <span class="k">return</span> <span class="nb">true</span><span class="p">;</span>
-<span class="p">}</span>
-
 <span class="k">namespace</span> <span class="p">{</span>
 <span class="c1">/// \brief R_CPU0_HI16 - word64: (S + A) &gt;&gt; 16</span>
 <span class="kt">void</span> <span class="n">relocHI16</span><span class="p">(</span><span class="kt">uint8_t</span> <span class="o">*</span><span class="n">location</span><span class="p">,</span> <span class="kt">uint64_t</span> <span class="n">P</span><span class="p">,</span> <span class="kt">uint64_t</span> <span class="n">S</span><span class="p">,</span> <span class="kt">int64_t</span> <span class="n">A</span><span class="p">)</span> <span class="p">{</span>
@@ -1735,13 +1734,15 @@ target_link_libraries(lldCpu0ELFTarget ${cmake_2_8_12_INTERFACE}
       <span class="p">(</span><span class="kt">uint32_t</span><span class="p">)</span> <span class="o">*</span> <span class="k">reinterpret_cast</span><span class="o">&lt;</span><span class="n">llvm</span><span class="o">::</span><span class="n">support</span><span class="o">::</span><span class="kt">ubig32_t</span> <span class="o">*&gt;</span><span class="p">(</span><span class="n">location</span><span class="p">);</span>
 <span class="p">}</span>
 
-<span class="c1">/// \brief R_CPU0_GOT16 - word32: S</span>
-<span class="kt">void</span> <span class="n">relocGOT16</span><span class="p">(</span><span class="kt">uint8_t</span> <span class="o">*</span><span class="n">location</span><span class="p">,</span> <span class="kt">uint64_t</span> <span class="n">P</span><span class="p">,</span> <span class="kt">uint64_t</span> <span class="n">S</span><span class="p">,</span> <span class="kt">int64_t</span> <span class="n">A</span><span class="p">)</span> <span class="p">{</span>
-  <span class="kt">uint32_t</span> <span class="n">result</span> <span class="o">=</span> <span class="p">(</span><span class="kt">uint32_t</span><span class="p">)(</span><span class="n">S</span><span class="p">);</span>
-  <span class="o">*</span><span class="k">reinterpret_cast</span><span class="o">&lt;</span><span class="n">llvm</span><span class="o">::</span><span class="n">support</span><span class="o">::</span><span class="kt">ubig32_t</span> <span class="o">*&gt;</span><span class="p">(</span><span class="n">location</span><span class="p">)</span> <span class="o">=</span>
-      <span class="n">result</span> <span class="o">|</span>
-      <span class="p">(</span><span class="kt">uint32_t</span><span class="p">)</span> <span class="o">*</span> <span class="k">reinterpret_cast</span><span class="o">&lt;</span><span class="n">llvm</span><span class="o">::</span><span class="n">support</span><span class="o">::</span><span class="kt">ubig32_t</span> <span class="o">*&gt;</span><span class="p">(</span><span class="n">location</span><span class="p">);</span>
-<span class="p">}</span>
+<span class="cp">#if 0</span><span class="c"> // Not support yet</span>
+<span class="c">/// \brief R_CPU0_GOT16 - word32: S</span>
+<span class="c">void relocGOT16(uint8_t *location, uint64_t P, uint64_t S, int64_t A) {</span>
+<span class="c">  uint32_t result = (uint32_t)(S);</span>
+<span class="c">  *reinterpret_cast&lt;llvm::support::ubig32_t *&gt;(location) =</span>
+<span class="c">      result |</span>
+<span class="c">      (uint32_t) * reinterpret_cast&lt;llvm::support::ubig32_t *&gt;(location);</span>
+<span class="c">}</span>
+<span class="cp">#endif</span>
 
 <span class="c1">/// \brief R_CPU0_PC24 - word32: S + A - P</span>
 <span class="kt">void</span> <span class="n">relocPC24</span><span class="p">(</span><span class="kt">uint8_t</span> <span class="o">*</span><span class="n">location</span><span class="p">,</span> <span class="kt">uint64_t</span> <span class="n">P</span><span class="p">,</span> <span class="kt">uint64_t</span> <span class="n">S</span><span class="p">,</span> <span class="kt">int64_t</span> <span class="n">A</span><span class="p">)</span> <span class="p">{</span>
@@ -1936,7 +1937,7 @@ target_link_libraries(lldCpu0ELFTarget ${cmake_2_8_12_INTERFACE}
 </pre></div>
 </div>
 <p class="rubric">exlbt/lld/Cpu0/Cpu0RelocationPass.cpp</p>
-<div class="highlight-c++"><div class="highlight"><pre>//===- lib/ReaderWriter/ELF/Cpu0/Cpu0RelocationPass.cpp ---------------===//
+<div class="highlight-c++"><pre>//===- lib/ReaderWriter/ELF/Cpu0/Cpu0RelocationPass.cpp ---------------===//
 //
 //                             The LLVM Linker
 //
@@ -1957,13 +1958,13 @@ target_link_libraries(lldCpu0ELFTarget ${cmake_2_8_12_INTERFACE}
 ///
 //===----------------------------------------------------------------------===//
 
-#include &quot;Atoms.h&quot;
-#include &quot;Cpu0RelocationPass.h&quot;
-#include &quot;Cpu0LinkingContext.h&quot;
+#include "Atoms.h"
+#include "Cpu0RelocationPass.h"
+#include "Cpu0LinkingContext.h"
 
-#include &quot;lld/Core/Simple.h&quot;
+#include "lld/Core/Simple.h"
 
-#include &quot;llvm/ADT/DenseMap.h&quot;
+#include "llvm/ADT/DenseMap.h"
 
 
 using namespace lld;
@@ -2005,7 +2006,7 @@ class Cpu0BootAtom : public PLT0Atom {
 public:
   Cpu0BootAtom(const File &amp;f) : PLT0Atom(f) {
 #ifndef NDEBUG
-    _name = &quot;.PLT0&quot;;
+    _name = ".PLT0";
 #endif
   }
   virtual ArrayRef&lt;uint8_t&gt; rawContent() const {
@@ -2028,7 +2029,7 @@ class Cpu0PLT0Atom : public PLT0Atom {
 public:
   Cpu0PLT0Atom(const File &amp;f) : PLT0Atom(f) {
 #ifndef NDEBUG
-    _name = &quot;.PLT0&quot;;
+    _name = ".PLT0";
 #endif
   }
   ArrayRef&lt;uint8_t&gt; rawContent() const override {
@@ -2048,7 +2049,7 @@ public:
 
 class ELFPassFile : public SimpleFile {
 public:
-  ELFPassFile(const ELFLinkingContext &amp;eti) : SimpleFile(&quot;ELFPassFile&quot;) {
+  ELFPassFile(const ELFLinkingContext &amp;eti) : SimpleFile("ELFPassFile") {
     setOrdinal(eti.getNextOrdinalAndIncrement());
   }
 
@@ -2082,14 +2083,14 @@ protected:
     auto plt = _pltMap.find(da);
     if (plt != _pltMap.end())
       return plt-&gt;second;
-    auto ga = new (_file._alloc) Cpu0GOTAtom(_file, &quot;.got.plt&quot;);
+    auto ga = new (_file._alloc) Cpu0GOTAtom(_file, ".got.plt");
     ga-&gt;addReferenceELF_Cpu0(R_CPU0_RELGOT, 0, da, 0);
-    auto pa = new (_file._alloc) Cpu0PLTAtom(_file, &quot;.plt&quot;);
+    auto pa = new (_file._alloc) Cpu0PLTAtom(_file, ".plt");
     pa-&gt;addReferenceELF_Cpu0(R_CPU0_PC24, 2, ga, -4);
 #ifndef NDEBUG
-    ga-&gt;_name = &quot;__got_ifunc_&quot;;
+    ga-&gt;_name = "__got_ifunc_";
     ga-&gt;_name += da-&gt;name();
-    pa-&gt;_name = &quot;__plt_ifunc_&quot;;
+    pa-&gt;_name = "__plt_ifunc_";
     pa-&gt;_name += da-&gt;name();
 #endif
     _gotMap[da] = ga;
@@ -2117,10 +2118,10 @@ protected:
   const GOTAtom *getGOTTPOFF(const Atom *atom) {
     auto got = _gotMap.find(atom);
     if (got == _gotMap.end()) {
-      auto g = new (_file._alloc) Cpu0GOTAtom(_file, &quot;.got&quot;);
+      auto g = new (_file._alloc) Cpu0GOTAtom(_file, ".got");
       g-&gt;addReferenceELF_Cpu0(R_CPU0_TLS_TPREL32, 0, atom, 0);
 #ifndef NDEBUG
-      g-&gt;_name = &quot;__got_tls_&quot;;
+      g-&gt;_name = "__got_tls_";
       g-&gt;_name += atom-&gt;name();
 #endif
       _gotMap[atom] = g;
@@ -2133,9 +2134,9 @@ protected:
   /// \brief Create a GOT entry containing 0.
   const GOTAtom *getNullGOT() {
     if (!_null) {
-      _null = new (_file._alloc) Cpu0GOTAtom(_file, &quot;.got.plt&quot;);
+      _null = new (_file._alloc) Cpu0GOTAtom(_file, ".got.plt");
 #ifndef NDEBUG
-      _null-&gt;_name = &quot;__got_null&quot;;
+      _null-&gt;_name = "__got_null";
 #endif
     }
     return _null;
@@ -2144,10 +2145,10 @@ protected:
   const GOTAtom *getGOT(const DefinedAtom *da) {
     auto got = _gotMap.find(da);
     if (got == _gotMap.end()) {
-      auto g = new (_file._alloc) Cpu0GOTAtom(_file, &quot;.got&quot;);
+      auto g = new (_file._alloc) Cpu0GOTAtom(_file, ".got");
       g-&gt;addReferenceELF_Cpu0(R_CPU0_32, 0, da, 0);
 #ifndef NDEBUG
-      g-&gt;_name = &quot;__got_&quot;;
+      g-&gt;_name = "__got_";
       g-&gt;_name += da-&gt;name();
 #endif
       _gotMap[da] = g;
@@ -2159,8 +2160,8 @@ protected:
 
 public:
   RelocationPass(const ELFLinkingContext &amp;ctx)
-      : _file(ctx), _ctx(ctx), _null(nullptr), _PLT0(nullptr), _got0(nullptr), 
-        _boot(new Cpu0BootAtom(_file)) {}
+      : _file(ctx), _ctx(ctx), _boot(new Cpu0BootAtom(_file)), _null(nullptr), 
+        _PLT0(nullptr), _got0(nullptr) {}
 
   /// \brief Do the pass.
   ///
@@ -2171,7 +2172,7 @@ public:
   /// After all references are handled, the atoms created during that are all
   /// added to mf.
   void perform(std::unique_ptr&lt;MutableFile&gt; &amp;mf) override {
-    ScopedTask task(getDefaultDomain(), &quot;Cpu0 GOT/PLT Pass&quot;);
+    ScopedTask task(getDefaultDomain(), "Cpu0 GOT/PLT Pass");
     // Process all references.
     for (const auto &amp;atom : mf-&gt;defined())
       for (const auto &amp;ref : *atom)
@@ -2184,21 +2185,21 @@ public:
       auto it = atomRange.begin();
       bool find = false;
       for (it = atomRange.begin(); it &lt; atomRange.end(); it++) {
-        if ((*it)-&gt;name() == &quot;start&quot;) {
+        if ((*it)-&gt;name() == "start") {
           find = true;
           break;
         }
       }
-      assert(find &amp;&amp; &quot;not found start\n&quot;);
+      assert(find &amp;&amp; "not found start\n");
       _boot-&gt;addReferenceELF_Cpu0(R_CPU0_PC24, 0, *it, -3);
       find = false;
       for (it = atomRange.begin(); it &lt; atomRange.end(); it++) {
-        if ((*it)-&gt;name() == &quot;ISR&quot;) {
+        if ((*it)-&gt;name() == "ISR") {
           find = true;
           break;
         }
       }
-      assert(find &amp;&amp; &quot;not found ISR\n&quot;);
+      assert(find &amp;&amp; "not found ISR\n");
       _boot-&gt;addReferenceELF_Cpu0(R_CPU0_PC24, 8, *it, -3);
       _boot-&gt;setOrdinal(ordinal++);
       mf-&gt;addAtom(*_boot);
@@ -2209,12 +2210,12 @@ public:
       auto it = atomRange.begin();
       bool find = false;
       for (it = atomRange.begin(); it &lt; atomRange.end(); it++) {
-        if ((*it)-&gt;name() == &quot;_Z14dynamic_linkerv&quot;) {
+        if ((*it)-&gt;name() == "_Z14dynamic_linkerv") {
           find = true;
           break;
         }
       }
-      assert(find &amp;&amp; &quot;Cannot find _Z14dynamic_linkerv()&quot;);
+      assert(find &amp;&amp; "Cannot find _Z14dynamic_linkerv()");
       _PLT0-&gt;addReferenceELF_Cpu0(R_CPU0_PC24, 12, *it, -3);
       _PLT0-&gt;setOrdinal(ordinal++);
       mf-&gt;addAtom(*_PLT0);
@@ -2289,11 +2290,11 @@ public:
 
   std::error_code handlePLT32(const Reference &amp;ref) {
     // __tls_get_addr is handled elsewhere.
-    if (ref.target() &amp;&amp; ref.target()-&gt;name() == &quot;__tls_get_addr&quot;) {
+    if (ref.target() &amp;&amp; ref.target()-&gt;name() == "__tls_get_addr") {
       const_cast&lt;Reference &amp;&gt;(ref).setKindValue(R_CPU0_NONE);
       return std::error_code();
     }
-    // Static code doesn&#39;t need PLTs.
+    // Static code doesn't need PLTs.
     const_cast&lt;Reference &amp;&gt;(ref).setKindValue(R_CPU0_PC24);
     // Handle IFUNC.
     if (const DefinedAtom *da =
@@ -2325,9 +2326,9 @@ public:
     // Fill in the null entry.
     getNullGOT();
     _PLT0 = new (_file._alloc) Cpu0PLT0Atom(_file);
-    _got0 = new (_file._alloc) Cpu0GOTAtom(_file, &quot;.got.plt&quot;);
+    _got0 = new (_file._alloc) Cpu0GOTAtom(_file, ".got.plt");
 #ifndef NDEBUG
-    _got0-&gt;_name = &quot;__got0&quot;;
+    _got0-&gt;_name = "__got0";
 #endif
     return _PLT0;
   }
@@ -2336,18 +2337,18 @@ public:
     auto plt = _pltMap.find(a);
     if (plt != _pltMap.end())
       return plt-&gt;second;
-    auto ga = new (_file._alloc) Cpu0GOTAtom(_file, &quot;.got.plt&quot;);
+    auto ga = new (_file._alloc) Cpu0GOTAtom(_file, ".got.plt");
     ga-&gt;addReferenceELF_Cpu0(R_CPU0_JUMP_SLOT, 0, a, 0);
-    auto pa = new (_file._alloc) Cpu0PLTAtom(_file, &quot;.plt&quot;);
+    auto pa = new (_file._alloc) Cpu0PLTAtom(_file, ".plt");
     getPLT0();  // add _PLT0 and _got0
 
     // Set the starting address of the got entry to the second instruction in
     // the plt entry.
     ga-&gt;addReferenceELF_Cpu0(R_CPU0_32, 0, pa, 4);
 #ifndef NDEBUG
-    ga-&gt;_name = &quot;__got_&quot;;
+    ga-&gt;_name = "__got_";
     ga-&gt;_name += a-&gt;name();
-    pa-&gt;_name = &quot;__plt_&quot;;
+    pa-&gt;_name = "__plt_";
     pa-&gt;_name += a-&gt;name();
 #endif
     _gotMap[a] = ga;
@@ -2411,10 +2412,10 @@ public:
   const GOTAtom *getSharedGOT(const Atom *a) {
     auto got = _gotMap.find(a);
     if (got == _gotMap.end()) {
-      auto g = new (_file._alloc) Cpu0GOTAtom(_file, &quot;.got.dyn&quot;);
+      auto g = new (_file._alloc) Cpu0GOTAtom(_file, ".got.dyn");
       g-&gt;addReferenceELF_Cpu0(R_CPU0_GLOB_DAT, 0, a, 0);
 #ifndef NDEBUG
-      g-&gt;_name = &quot;__got_&quot;;
+      g-&gt;_name = "__got_";
       g-&gt;_name += a-&gt;name();
 #endif
       _gotMap[a] = g;
@@ -2458,10 +2459,10 @@ lld::elf::createCpu0RelocationPass(const Cpu0LinkingContext &amp;ctx) {
   case llvm::ELF::ET_REL:
     return std::unique_ptr&lt;Pass&gt;();
   default:
-    llvm_unreachable(&quot;Unhandled output file type&quot;);
+    llvm_unreachable("Unhandled output file type");
   }
 }
-</pre></div>
+</pre>
 </div>
 <p class="rubric">exlbt/lld/Cpu0/Cpu0LinkingContext.cpp</p>
 <div class="highlight-c++"><div class="highlight"><pre><span class="c1">//===- lib/ReaderWriter/ELF/Cpu0/Cpu0LinkingContext.cpp ---------------===//</span>
@@ -2630,7 +2631,7 @@ lld::elf::createCpu0RelocationPass(const Cpu0LinkingContext &amp;ctx) {
 </pre></div>
 </div>
 <p class="rubric">exlbt/lld/Cpu0el/CMakeLists.txt</p>
-<div class="highlight-c++"><div class="highlight"><pre>add_lld_library(lldCpu0elELFTarget
+<div class="highlight-c++"><pre>add_lld_library(lldCpu0elELFTarget
   Cpu0LinkingContext.cpp
   Cpu0TargetHandler.cpp
   Cpu0RelocationHandler.cpp
@@ -2640,7 +2641,7 @@ lld::elf::createCpu0RelocationPass(const Cpu0LinkingContext &amp;ctx) {
 target_link_libraries(lldCpu0elELFTarget ${cmake_2_8_12_INTERFACE}
   lldCore
   )
-</pre></div>
+</pre>
 </div>
 <p class="rubric">exlbt/lld/Cpu0el/Cpu0DynamicLibraryWriter.h</p>
 <div class="highlight-c++"><div class="highlight"><pre><span class="c1">//===- lib/ReaderWriter/ELF/Cpu0/Cpu0DynamicLibraryWriter.h ---------------===//</span>
@@ -2938,6 +2939,8 @@ target_link_libraries(lldCpu0elELFTarget ${cmake_2_8_12_INTERFACE}
                                   <span class="k">const</span> <span class="n">lld</span><span class="o">::</span><span class="n">AtomLayout</span> <span class="o">&amp;</span><span class="p">,</span>
                                   <span class="k">const</span> <span class="n">Reference</span> <span class="o">&amp;</span><span class="p">)</span> <span class="k">const</span> <span class="n">override</span><span class="p">;</span>
 
+  <span class="kt">uint64_t</span> <span class="nf">tlsSize</span><span class="p">()</span> <span class="p">{</span> <span class="k">return</span> <span class="n">_tlsSize</span><span class="p">;</span> <span class="p">}</span> <span class="c1">// Just avoid compiler warning</span>
+
 <span class="nl">private:</span>
   <span class="c1">// Cached size of the TLS segment.</span>
   <span class="k">mutable</span> <span class="kt">uint64_t</span> <span class="n">_tlsSize</span><span class="p">;</span>
@@ -2971,15 +2974,6 @@ target_link_libraries(lldCpu0elELFTarget ${cmake_2_8_12_INTERFACE}
 <span class="k">using</span> <span class="k">namespace</span> <span class="n">llvm</span><span class="p">;</span>
 <span class="k">using</span> <span class="k">namespace</span> <span class="n">object</span><span class="p">;</span>
 
-<span class="k">static</span> <span class="kt">bool</span> <span class="nf">error</span><span class="p">(</span><span class="n">std</span><span class="o">::</span><span class="n">error_code</span> <span class="n">ec</span><span class="p">)</span> <span class="p">{</span>
-  <span class="k">if</span> <span class="p">(</span><span class="o">!</span><span class="n">ec</span><span class="p">)</span> <span class="k">return</span> <span class="nb">false</span><span class="p">;</span>
-
-  <span class="n">outs</span><span class="p">()</span> <span class="o">&lt;&lt;</span> <span class="s">&quot;Cpu0RelocationHandler.cpp : error reading file: &quot;</span> 
-         <span class="o">&lt;&lt;</span> <span class="n">ec</span><span class="p">.</span><span class="n">message</span><span class="p">()</span> <span class="o">&lt;&lt;</span> <span class="s">&quot;.</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">;</span>
-  <span class="n">outs</span><span class="p">().</span><span class="n">flush</span><span class="p">();</span>
-  <span class="k">return</span> <span class="nb">true</span><span class="p">;</span>
-<span class="p">}</span>
-
 <span class="k">namespace</span> <span class="p">{</span>
 <span class="c1">/// \brief R_CPU0_HI16 - word64: (S + A) &gt;&gt; 16</span>
 <span class="kt">void</span> <span class="n">relocHI16</span><span class="p">(</span><span class="kt">uint8_t</span> <span class="o">*</span><span class="n">location</span><span class="p">,</span> <span class="kt">uint64_t</span> <span class="n">P</span><span class="p">,</span> <span class="kt">uint64_t</span> <span class="n">S</span><span class="p">,</span> <span class="kt">int64_t</span> <span class="n">A</span><span class="p">)</span> <span class="p">{</span>
@@ -2998,13 +2992,15 @@ target_link_libraries(lldCpu0elELFTarget ${cmake_2_8_12_INTERFACE}
       <span class="p">(</span><span class="kt">uint32_t</span><span class="p">)</span> <span class="o">*</span> <span class="k">reinterpret_cast</span><span class="o">&lt;</span><span class="n">llvm</span><span class="o">::</span><span class="n">support</span><span class="o">::</span><span class="kt">ulittle32_t</span> <span class="o">*&gt;</span><span class="p">(</span><span class="n">location</span><span class="p">);</span>
 <span class="p">}</span>
 
-<span class="c1">/// \brief R_CPU0_GOT16 - word32: S</span>
-<span class="kt">void</span> <span class="n">relocGOT16</span><span class="p">(</span><span class="kt">uint8_t</span> <span class="o">*</span><span class="n">location</span><span class="p">,</span> <span class="kt">uint64_t</span> <span class="n">P</span><span class="p">,</span> <span class="kt">uint64_t</span> <span class="n">S</span><span class="p">,</span> <span class="kt">int64_t</span> <span class="n">A</span><span class="p">)</span> <span class="p">{</span>
-  <span class="kt">uint32_t</span> <span class="n">result</span> <span class="o">=</span> <span class="p">(</span><span class="kt">uint32_t</span><span class="p">)(</span><span class="n">S</span><span class="p">);</span>
-  <span class="o">*</span><span class="k">reinterpret_cast</span><span class="o">&lt;</span><span class="n">llvm</span><span class="o">::</span><span class="n">support</span><span class="o">::</span><span class="kt">ulittle32_t</span> <span class="o">*&gt;</span><span class="p">(</span><span class="n">location</span><span class="p">)</span> <span class="o">=</span>
-      <span class="n">result</span> <span class="o">|</span>
-      <span class="p">(</span><span class="kt">uint32_t</span><span class="p">)</span> <span class="o">*</span> <span class="k">reinterpret_cast</span><span class="o">&lt;</span><span class="n">llvm</span><span class="o">::</span><span class="n">support</span><span class="o">::</span><span class="kt">ulittle32_t</span> <span class="o">*&gt;</span><span class="p">(</span><span class="n">location</span><span class="p">);</span>
-<span class="p">}</span>
+<span class="cp">#if 0</span><span class="c"> // Not support yet</span>
+<span class="c">/// \brief R_CPU0_GOT16 - word32: S</span>
+<span class="c">void relocGOT16(uint8_t *location, uint64_t P, uint64_t S, int64_t A) {</span>
+<span class="c">  uint32_t result = (uint32_t)(S);</span>
+<span class="c">  *reinterpret_cast&lt;llvm::support::ulittle32_t *&gt;(location) =</span>
+<span class="c">      result |</span>
+<span class="c">      (uint32_t) * reinterpret_cast&lt;llvm::support::ulittle32_t *&gt;(location);</span>
+<span class="c">}</span>
+<span class="cp">#endif</span>
 
 <span class="c1">/// \brief R_CPU0_PC24 - word32: S + A - P</span>
 <span class="kt">void</span> <span class="n">relocPC24</span><span class="p">(</span><span class="kt">uint8_t</span> <span class="o">*</span><span class="n">location</span><span class="p">,</span> <span class="kt">uint64_t</span> <span class="n">P</span><span class="p">,</span> <span class="kt">uint64_t</span> <span class="n">S</span><span class="p">,</span> <span class="kt">int64_t</span> <span class="n">A</span><span class="p">)</span> <span class="p">{</span>
@@ -3200,7 +3196,7 @@ target_link_libraries(lldCpu0elELFTarget ${cmake_2_8_12_INTERFACE}
 </pre></div>
 </div>
 <p class="rubric">exlbt/lld/Cpu0el/Cpu0RelocationPass.cpp</p>
-<div class="highlight-c++"><div class="highlight"><pre>//===- lib/ReaderWriter/ELF/Cpu0/Cpu0RelocationPass.cpp ---------------===//
+<div class="highlight-c++"><pre>//===- lib/ReaderWriter/ELF/Cpu0/Cpu0RelocationPass.cpp ---------------===//
 //
 //                             The LLVM Linker
 //
@@ -3221,13 +3217,13 @@ target_link_libraries(lldCpu0elELFTarget ${cmake_2_8_12_INTERFACE}
 ///
 //===----------------------------------------------------------------------===//
 
-#include &quot;Atoms.h&quot;
-#include &quot;Cpu0RelocationPass.h&quot;
-#include &quot;Cpu0LinkingContext.h&quot;
+#include "Atoms.h"
+#include "Cpu0RelocationPass.h"
+#include "Cpu0LinkingContext.h"
 
-#include &quot;lld/Core/Simple.h&quot;
+#include "lld/Core/Simple.h"
 
-#include &quot;llvm/ADT/DenseMap.h&quot;
+#include "llvm/ADT/DenseMap.h"
 
 
 using namespace lld;
@@ -3269,7 +3265,7 @@ class Cpu0BootAtom : public PLT0Atom {
 public:
   Cpu0BootAtom(const File &amp;f) : PLT0Atom(f) {
 #ifndef NDEBUG
-    _name = &quot;.PLT0&quot;;
+    _name = ".PLT0";
 #endif
   }
   virtual ArrayRef&lt;uint8_t&gt; rawContent() const {
@@ -3292,7 +3288,7 @@ class Cpu0PLT0Atom : public PLT0Atom {
 public:
   Cpu0PLT0Atom(const File &amp;f) : PLT0Atom(f) {
 #ifndef NDEBUG
-    _name = &quot;.PLT0&quot;;
+    _name = ".PLT0";
 #endif
   }
   ArrayRef&lt;uint8_t&gt; rawContent() const override {
@@ -3312,7 +3308,7 @@ public:
 
 class ELFPassFile : public SimpleFile {
 public:
-  ELFPassFile(const ELFLinkingContext &amp;eti) : SimpleFile(&quot;ELFPassFile&quot;) {
+  ELFPassFile(const ELFLinkingContext &amp;eti) : SimpleFile("ELFPassFile") {
     setOrdinal(eti.getNextOrdinalAndIncrement());
   }
 
@@ -3346,14 +3342,14 @@ protected:
     auto plt = _pltMap.find(da);
     if (plt != _pltMap.end())
       return plt-&gt;second;
-    auto ga = new (_file._alloc) Cpu0GOTAtom(_file, &quot;.got.plt&quot;);
+    auto ga = new (_file._alloc) Cpu0GOTAtom(_file, ".got.plt");
     ga-&gt;addReferenceELF_Cpu0(R_CPU0_RELGOT, 0, da, 0);
-    auto pa = new (_file._alloc) Cpu0PLTAtom(_file, &quot;.plt&quot;);
+    auto pa = new (_file._alloc) Cpu0PLTAtom(_file, ".plt");
     pa-&gt;addReferenceELF_Cpu0(R_CPU0_PC24, 2, ga, -4);
 #ifndef NDEBUG
-    ga-&gt;_name = &quot;__got_ifunc_&quot;;
+    ga-&gt;_name = "__got_ifunc_";
     ga-&gt;_name += da-&gt;name();
-    pa-&gt;_name = &quot;__plt_ifunc_&quot;;
+    pa-&gt;_name = "__plt_ifunc_";
     pa-&gt;_name += da-&gt;name();
 #endif
     _gotMap[da] = ga;
@@ -3381,10 +3377,10 @@ protected:
   const GOTAtom *getGOTTPOFF(const Atom *atom) {
     auto got = _gotMap.find(atom);
     if (got == _gotMap.end()) {
-      auto g = new (_file._alloc) Cpu0GOTAtom(_file, &quot;.got&quot;);
+      auto g = new (_file._alloc) Cpu0GOTAtom(_file, ".got");
       g-&gt;addReferenceELF_Cpu0(R_CPU0_TLS_TPREL32, 0, atom, 0);
 #ifndef NDEBUG
-      g-&gt;_name = &quot;__got_tls_&quot;;
+      g-&gt;_name = "__got_tls_";
       g-&gt;_name += atom-&gt;name();
 #endif
       _gotMap[atom] = g;
@@ -3397,9 +3393,9 @@ protected:
   /// \brief Create a GOT entry containing 0.
   const GOTAtom *getNullGOT() {
     if (!_null) {
-      _null = new (_file._alloc) Cpu0GOTAtom(_file, &quot;.got.plt&quot;);
+      _null = new (_file._alloc) Cpu0GOTAtom(_file, ".got.plt");
 #ifndef NDEBUG
-      _null-&gt;_name = &quot;__got_null&quot;;
+      _null-&gt;_name = "__got_null";
 #endif
     }
     return _null;
@@ -3408,10 +3404,10 @@ protected:
   const GOTAtom *getGOT(const DefinedAtom *da) {
     auto got = _gotMap.find(da);
     if (got == _gotMap.end()) {
-      auto g = new (_file._alloc) Cpu0GOTAtom(_file, &quot;.got&quot;);
+      auto g = new (_file._alloc) Cpu0GOTAtom(_file, ".got");
       g-&gt;addReferenceELF_Cpu0(R_CPU0_32, 0, da, 0);
 #ifndef NDEBUG
-      g-&gt;_name = &quot;__got_&quot;;
+      g-&gt;_name = "__got_";
       g-&gt;_name += da-&gt;name();
 #endif
       _gotMap[da] = g;
@@ -3423,8 +3419,8 @@ protected:
 
 public:
   RelocationPass(const ELFLinkingContext &amp;ctx)
-      : _file(ctx), _ctx(ctx), _null(nullptr), _PLT0(nullptr), _got0(nullptr), 
-        _boot(new Cpu0BootAtom(_file)) {}
+      : _file(ctx), _ctx(ctx), _boot(new Cpu0BootAtom(_file)), _null(nullptr), 
+        _PLT0(nullptr), _got0(nullptr) {}
 
   /// \brief Do the pass.
   ///
@@ -3435,7 +3431,7 @@ public:
   /// After all references are handled, the atoms created during that are all
   /// added to mf.
   void perform(std::unique_ptr&lt;MutableFile&gt; &amp;mf) override {
-    ScopedTask task(getDefaultDomain(), &quot;Cpu0 GOT/PLT Pass&quot;);
+    ScopedTask task(getDefaultDomain(), "Cpu0 GOT/PLT Pass");
     // Process all references.
     for (const auto &amp;atom : mf-&gt;defined())
       for (const auto &amp;ref : *atom)
@@ -3448,21 +3444,21 @@ public:
       auto it = atomRange.begin();
       bool find = false;
       for (it = atomRange.begin(); it &lt; atomRange.end(); it++) {
-        if ((*it)-&gt;name() == &quot;start&quot;) {
+        if ((*it)-&gt;name() == "start") {
           find = true;
           break;
         }
       }
-      assert(find &amp;&amp; &quot;not found start\n&quot;);
+      assert(find &amp;&amp; "not found start\n");
       _boot-&gt;addReferenceELF_Cpu0(R_CPU0_PC24, 0, *it, -3);
       find = false;
       for (it = atomRange.begin(); it &lt; atomRange.end(); it++) {
-        if ((*it)-&gt;name() == &quot;ISR&quot;) {
+        if ((*it)-&gt;name() == "ISR") {
           find = true;
           break;
         }
       }
-      assert(find &amp;&amp; &quot;not found ISR\n&quot;);
+      assert(find &amp;&amp; "not found ISR\n");
       _boot-&gt;addReferenceELF_Cpu0(R_CPU0_PC24, 8, *it, -3);
       _boot-&gt;setOrdinal(ordinal++);
       mf-&gt;addAtom(*_boot);
@@ -3473,12 +3469,12 @@ public:
       auto it = atomRange.begin();
       bool find = false;
       for (it = atomRange.begin(); it &lt; atomRange.end(); it++) {
-        if ((*it)-&gt;name() == &quot;_Z14dynamic_linkerv&quot;) {
+        if ((*it)-&gt;name() == "_Z14dynamic_linkerv") {
           find = true;
           break;
         }
       }
-      assert(find &amp;&amp; &quot;Cannot find _Z14dynamic_linkerv()&quot;);
+      assert(find &amp;&amp; "Cannot find _Z14dynamic_linkerv()");
       _PLT0-&gt;addReferenceELF_Cpu0(R_CPU0_PC24, 12, *it, -3);
       _PLT0-&gt;setOrdinal(ordinal++);
       mf-&gt;addAtom(*_PLT0);
@@ -3553,11 +3549,11 @@ public:
 
   std::error_code handlePLT32(const Reference &amp;ref) {
     // __tls_get_addr is handled elsewhere.
-    if (ref.target() &amp;&amp; ref.target()-&gt;name() == &quot;__tls_get_addr&quot;) {
+    if (ref.target() &amp;&amp; ref.target()-&gt;name() == "__tls_get_addr") {
       const_cast&lt;Reference &amp;&gt;(ref).setKindValue(R_CPU0_NONE);
       return std::error_code();
     }
-    // Static code doesn&#39;t need PLTs.
+    // Static code doesn't need PLTs.
     const_cast&lt;Reference &amp;&gt;(ref).setKindValue(R_CPU0_PC24);
     // Handle IFUNC.
     if (const DefinedAtom *da =
@@ -3589,9 +3585,9 @@ public:
     // Fill in the null entry.
     getNullGOT();
     _PLT0 = new (_file._alloc) Cpu0PLT0Atom(_file);
-    _got0 = new (_file._alloc) Cpu0GOTAtom(_file, &quot;.got.plt&quot;);
+    _got0 = new (_file._alloc) Cpu0GOTAtom(_file, ".got.plt");
 #ifndef NDEBUG
-    _got0-&gt;_name = &quot;__got0&quot;;
+    _got0-&gt;_name = "__got0";
 #endif
     return _PLT0;
   }
@@ -3600,18 +3596,18 @@ public:
     auto plt = _pltMap.find(a);
     if (plt != _pltMap.end())
       return plt-&gt;second;
-    auto ga = new (_file._alloc) Cpu0GOTAtom(_file, &quot;.got.plt&quot;);
+    auto ga = new (_file._alloc) Cpu0GOTAtom(_file, ".got.plt");
     ga-&gt;addReferenceELF_Cpu0(R_CPU0_JUMP_SLOT, 0, a, 0);
-    auto pa = new (_file._alloc) Cpu0PLTAtom(_file, &quot;.plt&quot;);
+    auto pa = new (_file._alloc) Cpu0PLTAtom(_file, ".plt");
     getPLT0();  // add _PLT0 and _got0
 
     // Set the starting address of the got entry to the second instruction in
     // the plt entry.
     ga-&gt;addReferenceELF_Cpu0(R_CPU0_32, 0, pa, 4);
 #ifndef NDEBUG
-    ga-&gt;_name = &quot;__got_&quot;;
+    ga-&gt;_name = "__got_";
     ga-&gt;_name += a-&gt;name();
-    pa-&gt;_name = &quot;__plt_&quot;;
+    pa-&gt;_name = "__plt_";
     pa-&gt;_name += a-&gt;name();
 #endif
     _gotMap[a] = ga;
@@ -3675,10 +3671,10 @@ public:
   const GOTAtom *getSharedGOT(const Atom *a) {
     auto got = _gotMap.find(a);
     if (got == _gotMap.end()) {
-      auto g = new (_file._alloc) Cpu0GOTAtom(_file, &quot;.got.dyn&quot;);
+      auto g = new (_file._alloc) Cpu0GOTAtom(_file, ".got.dyn");
       g-&gt;addReferenceELF_Cpu0(R_CPU0_GLOB_DAT, 0, a, 0);
 #ifndef NDEBUG
-      g-&gt;_name = &quot;__got_&quot;;
+      g-&gt;_name = "__got_";
       g-&gt;_name += a-&gt;name();
 #endif
       _gotMap[a] = g;
@@ -3722,10 +3718,10 @@ lld::elf::createCpu0RelocationPass(const Cpu0elLinkingContext &amp;ctx) {
   case llvm::ELF::ET_REL:
     return std::unique_ptr&lt;Pass&gt;();
   default:
-    llvm_unreachable(&quot;Unhandled output file type&quot;);
+    llvm_unreachable("Unhandled output file type");
   }
 }
-</pre></div>
+</pre>
 </div>
 <p class="rubric">exlbt/lld/Cpu0el/Cpu0LinkingContext.cpp</p>
 <div class="highlight-c++"><div class="highlight"><pre><span class="c1">//===- lib/ReaderWriter/ELF/Cpu0/Cpu0LinkingContext.cpp ---------------===//</span>
@@ -3995,7 +3991,7 @@ fixed address.</li>
 </li>
 </ul>
 <div class="figure align-center" id="lld-atom">
-<a class="reference internal image-reference" href="_images/atom.png"><img alt="_images/atom.png" src="_images/atom.png" style="width: 386.0px; height: 417.0px;" /></a>
+<a class="reference internal image-reference" href="_images/atom.png"><img alt="_images/atom.png" src="_images/atom.png" /></a>
 <p class="caption">Figure 2: Atom classified (from lld web)</p>
 </div>
 </div>
@@ -4068,23 +4064,22 @@ file into an Atom graph</li>
 <ul>
 <li><p class="first">The base class lld::reader and the elf specific file format reader as follows,</p>
 <p class="rubric">lld/lib/ReaderWriter/Reader.cpp</p>
-<div class="highlight-c++"><div class="highlight"><pre>~/llvm/test/src/tools/lld/lib/ReaderWriter$ cat Reader.cpp
+<div class="highlight-c++"><pre>~/llvm/test/src/tools/lld/lib/ReaderWriter$ cat Reader.cpp
 ...
-#include &quot;lld/ReaderWriter/Reader.h&quot;
+#include "lld/ReaderWriter/Reader.h"
 
-#include &quot;llvm/ADT/OwningPtr.h&quot;
-#include &quot;llvm/ADT/StringRef.h&quot;
-#include &quot;llvm/Support/MemoryBuffer.h&quot;
-#include &quot;llvm/Support/system_error.h&quot;
+#include "llvm/ADT/OwningPtr.h"
+#include "llvm/ADT/StringRef.h"
+#include "llvm/Support/MemoryBuffer.h"
+#include "llvm/Support/system_error.h"
 
 namespace lld {
 Reader::~Reader() {
 }
-} // end namespace lld
-</pre></div>
+} // end namespace lld</pre>
 </div>
 <p class="rubric">lld/lib/ReaderWriter/ELF/Reader.cpp</p>
-<div class="highlight-c++"><div class="highlight"><pre>~/llvm/test/src/tools/lld/lib/ReaderWriter/ELF$ cat Reader.cpp
+<div class="highlight-c++"><pre>~/llvm/test/src/tools/lld/lib/ReaderWriter/ELF$ cat Reader.cpp
 namespace lld {
 namespace elf {
 ...
@@ -4104,8 +4099,7 @@ private:
 std::unique_ptr&lt;Reader&gt; createReaderELF(const ELFLinkingContext &amp;context) {
   return std::unique_ptr&lt;Reader&gt;(new elf::ELFReader(context));
 }
-} // end namespace lld
-</pre></div>
+} // end namespace lld</pre>
 </div>
 </li>
 </ul>
@@ -4198,7 +4192,7 @@ that it visits as <strong>“live”</strong>.</li>
 <p>Above code can be reduced to <a class="pageref" href="#lld-deadcodestripping">Figure  3</a> to perform
 mark and swip in graph for Dead Code Stripping.</p>
 <div class="figure align-center" id="lld-deadcodestripping">
-<a class="reference internal image-reference" href="_images/deadcodestripping.png"><img alt="_images/deadcodestripping.png" src="_images/deadcodestripping.png" style="width: 144.4px; height: 270.8px;" /></a>
+<a class="reference internal image-reference" href="_images/deadcodestripping.png"><img alt="_images/deadcodestripping.png" src="_images/deadcodestripping.png" /></a>
 <p class="caption">Figure 3: Atom classified (from lld web)</p>
 </div>
 <p>As above example, the foo2() is an isolated node without any reference. It&#8217;s
@@ -4240,7 +4234,7 @@ DynamicRelocationPass is for dynamic linker. We will see how to register a
 relocation pass according the staic or dynamic linker you like to do in
 next section.</p>
 <div class="figure align-center" id="lld-f3">
-<a class="reference internal image-reference" href="_images/3.png"><img alt="_images/3.png" src="_images/3.png" style="width: 833.0px; height: 726.0px;" /></a>
+<a class="reference internal image-reference" href="_images/3.png"><img alt="_images/3.png" src="_images/3.png" /></a>
 <p class="caption">Figure 4: Cpu0 lld RelocationPass</p>
 </div>
 <p>All lld backends which want to handle the Relocation
@@ -4295,10 +4289,10 @@ file from an Atom graph.</p>
 </li>
 <li><p class="first">Writer</p>
 <p class="rubric">lld/lib/ReaderWriter</p>
-<div class="highlight-c++"><div class="highlight"><pre>~/llvm/test/src/tools/lld/lib/ReaderWriter$ cat Writer.cpp
+<div class="highlight-c++"><pre>~/llvm/test/src/tools/lld/lib/ReaderWriter$ cat Writer.cpp
 ...
-#include &quot;lld/Core/File.h&quot;
-#include &quot;lld/ReaderWriter/Writer.h&quot;
+#include "lld/Core/File.h"
+#include "lld/ReaderWriter/Writer.h"
 
 namespace lld {
 Writer::Writer() {
@@ -4310,11 +4304,10 @@ Writer::~Writer() {
 bool Writer::createImplicitFiles(std::vector&lt;std::unique_ptr&lt;File&gt; &gt; &amp;) {
   return true;
 }
-} // end namespace lld
-</pre></div>
+} // end namespace lld</pre>
 </div>
 <p class="rubric">lld/lib/ReaderWriter</p>
-<div class="highlight-c++"><div class="highlight"><pre>~/llvm/test/src/tools/lld/lib/ReaderWriter/ELF$ cat Writer.cpp
+<div class="highlight-c++"><pre>~/llvm/test/src/tools/lld/lib/ReaderWriter/ELF$ cat Writer.cpp
 namespace lld {
 
 std::unique_ptr&lt;Writer&gt; createWriterELF(const ELFLinkingContext &amp;info) {
@@ -4331,8 +4324,7 @@ std::unique_ptr&lt;Writer&gt; createWriterELF(const ELFLinkingContext &amp;info)
                 elf::ExecutableWriter&lt;ELFType&lt;support::big, 8, true&gt;&gt;(info));
 ...
 
-} // namespace lld
-</pre></div>
+} // namespace lld</pre>
 </div>
 </li>
 </ul>
@@ -4379,7 +4371,7 @@ will be called by lld driver to finish the address binding in linker stage.</p>
 </pre></div>
 </div>
 <p class="rubric">exlbt/input/build-hello.sh</p>
-<div class="highlight-c++"><div class="highlight"><pre>#!/usr/bin/env bash
+<div class="highlight-c++"><pre>#!/usr/bin/env bash
 
 source functions.sh
 
@@ -4414,7 +4406,9 @@ start.cpu0.o debug.cpu0.o printf-stdarg-def.cpu0.o printf-stdarg.cpu0.o \
 ch_hello.cpu0.o lib_cpu0.o -o a.out
 
 epilogue;
-</pre></div>
+
+
+</pre>
 </div>
 <p class="rubric">exlbt/verilog/Cpu0.hex</p>
 <div class="highlight-c++"><div class="highlight"><pre><span class="p">...</span>
@@ -4930,9 +4924,9 @@ compare it against the result of PC&#8217;s printf() as below.</p>
 </pre></div>
 </div>
 <p class="rubric">exlbt/input/lib_cpu0.ll</p>
-<div class="highlight-c++"><div class="highlight"><pre>; The @_start() exist to prevent lld linker error.
+<div class="highlight-c++"><pre>; The @_start() exist to prevent lld linker error.
 ; Real entry (first instruction) is from cpu0BootAtomContent of 
-; Cpu0RelocationPass.cpp jump to asm(&quot;start:&quot;) of start.cpp.
+; Cpu0RelocationPass.cpp jump to asm("start:") of start.cpp.
 define void @_start() nounwind {
 entry:
   ret void
@@ -4997,83 +4991,84 @@ define void @_ZNSt8ios_base4InitD1Ev() nounwind {
 entry:
   ret void
 }
-</pre></div>
+
+</pre>
 </div>
 <p class="rubric">exlbt/input/functions.sh</p>
-<div class="highlight-c++"><div class="highlight"><pre>prologue() {
+<div class="highlight-c++"><pre>prologue() {
   LBDEXDIR=../../lbdex
 
   if [ $argNum == 0 ]; then
-    echo &quot;useage: bash $sh_name cpu_type endian&quot;
-    echo &quot;  cpu_type: cpu032I or cpu032II&quot;
-    echo &quot;  endian: be (big endian, default) or le (little endian)&quot;
-    echo &quot;for example:&quot;
-    echo &quot;  bash build-slinker.sh cpu032I be&quot;
+    echo "useage: bash $sh_name cpu_type endian"
+    echo "  cpu_type: cpu032I or cpu032II"
+    echo "  endian: be (big endian, default) or le (little endian)"
+    echo "for example:"
+    echo "  bash build-slinker.sh cpu032I be"
     exit 1;
   fi
   if [ $arg1 != cpu032I ] &amp;&amp; [ $arg1 != cpu032II ]; then
-    echo &quot;1st argument is cpu032I or cpu032II&quot;
+    echo "1st argument is cpu032I or cpu032II"
     exit 1
   fi
 
   INCDIR=../../lbdex/input
   OS=`uname -s`
-  echo &quot;OS =&quot; ${OS}
+  echo "OS =" ${OS}
 
-  if [ &quot;$OS&quot; == &quot;Linux&quot; ]; then
+  if [ "$OS" == "Linux" ]; then
     TOOLDIR=~/llvm/test/cmake_debug_build/bin
   else
     TOOLDIR=~/llvm/test/cmake_debug_build/Debug/bin
   fi
 
   CPU=$arg1
-  echo &quot;CPU =&quot; &quot;${CPU}&quot;
+  echo "CPU =" "${CPU}"
 
-  if [ &quot;$arg2&quot; != &quot;&quot; ] &amp;&amp; [ $arg2 != le ] &amp;&amp; [ $arg2 != be ]; then
-    echo &quot;2nd argument is be (big endian, default) or le (little endian)&quot;
+  if [ "$arg2" != "" ] &amp;&amp; [ $arg2 != le ] &amp;&amp; [ $arg2 != be ]; then
+    echo "2nd argument is be (big endian, default) or le (little endian)"
     exit 1
   fi
-  if [ &quot;$arg2&quot; == &quot;&quot; ] || [ $arg2 == be ]; then
+  if [ "$arg2" == "" ] || [ $arg2 == be ]; then
     endian=
   else
     endian=el
   fi
-  echo &quot;endian =&quot; &quot;${endian}&quot;
+  echo "endian =" "${endian}"
 
   bash clean.sh
 }
 
 isLittleEndian() {
-  echo &quot;endian = &quot; &quot;$endian&quot;
-  if [ &quot;$endian&quot; == &quot;LittleEndian&quot; ] ; then
-    le=&quot;true&quot;
-  elif [ &quot;$endian&quot; == &quot;BigEndian&quot; ] ; then
-    le=&quot;false&quot;
+  echo "endian = " "$endian"
+  if [ "$endian" == "LittleEndian" ] ; then
+    le="true"
+  elif [ "$endian" == "BigEndian" ] ; then
+    le="false"
   else
-    echo &quot;!endian unknown&quot;
+    echo "!endian unknown"
     exit 1
   fi
 }
 
 elf2hex() {
   ${TOOLDIR}/llvm-objdump -elf2hex -le=${le} a.out &gt; ${LBDEXDIR}/verilog/cpu0.hex
-  if [ ${le} == &quot;true&quot; ] ; then
-    echo &quot;1   /* 0: big endian, 1: little endian */&quot; &gt; ${LBDEXDIR}/verilog/cpu0.config
+  if [ ${le} == "true" ] ; then
+    echo "1   /* 0: big endian, 1: little endian */" &gt; ${LBDEXDIR}/verilog/cpu0.config
   else
-    echo &quot;0   /* 0: big endian, 1: little endian */&quot; &gt; ${LBDEXDIR}/verilog/cpu0.config
+    echo "0   /* 0: big endian, 1: little endian */" &gt; ${LBDEXDIR}/verilog/cpu0.config
   fi
   cat ${LBDEXDIR}/verilog/cpu0.config
 }
 
 epilogue() {
-  endian=`${TOOLDIR}/llvm-readobj -h a.out|grep &quot;DataEncoding&quot;|awk &#39;{print $2}&#39;`
+  endian=`${TOOLDIR}/llvm-readobj -h a.out|grep "DataEncoding"|awk '{print $2}'`
   isLittleEndian;
   elf2hex;
 }
-</pre></div>
+</pre>
 </div>
 <p class="rubric">exlbt/input/build-printf-stdarg-2.sh</p>
-<div class="highlight-c++"><div class="highlight"><pre>#!/usr/bin/env bash
+<div class="highlight-c++"><pre>#!/usr/bin/env bash
 
 source functions.sh
 
@@ -5105,24 +5100,27 @@ start.cpu0.o debug.cpu0.o printf-stdarg-def.cpu0.o printf-stdarg-2.cpu0.o \
 lib_cpu0.o -o a.out
 
 epilogue;
-</pre></div>
+
+</pre>
 </div>
 <p>The verilog/cpu0Is.v support cmp instruction and static linker as follows,</p>
 <p class="rubric">lbdex/verilog/cpu0Is.v</p>
-<div class="highlight-c++"><div class="highlight"><pre>// TRACE: Display the memory contents of the loaded program and data
+<div class="highlight-c++"><pre>// TRACE: Display the memory contents of the loaded program and data
 //`define TRACE 
 
-`include &quot;cpu0.v&quot;
-</pre></div>
+`include "cpu0.v"
+
+</pre>
 </div>
 <p>The verilog/cpu0IIs.v support slt instruction and static linker as follows,</p>
 <p class="rubric">lbdex/verilog/cpu0IIs.v</p>
-<div class="highlight-c++"><div class="highlight"><pre>`define CPU0II
+<div class="highlight-c++"><pre>`define CPU0II
 // TRACE: Display the memory contents of the loaded program and data
 //`define TRACE 
 
-`include &quot;cpu0.v&quot;
-</pre></div>
+`include "cpu0.v"
+
+</pre>
 </div>
 <p>The build-printf-stdarg-2.sh is for my PC setting. Please change this script to
 the directory of your llvm/lld setting. After that run static linker example
@@ -5313,25 +5311,13 @@ is for this purpose.</p>
 <span class="k">extern</span> <span class="kt">int</span> <span class="nf">test_add_overflow</span><span class="p">();</span>
 <span class="k">extern</span> <span class="kt">int</span> <span class="nf">test_sub_overflow</span><span class="p">();</span>
 <span class="k">extern</span> <span class="kt">int</span> <span class="nf">test_ctrl2</span><span class="p">();</span>
-<span class="k">extern</span> <span class="kt">int</span> <span class="nf">select_1</span><span class="p">();</span>
-<span class="k">extern</span> <span class="kt">int</span> <span class="nf">select_2</span><span class="p">();</span>
-<span class="k">extern</span> <span class="kt">int</span> <span class="nf">select_3</span><span class="p">();</span>
-<span class="k">extern</span> <span class="kt">int</span> <span class="nf">test_select_global_pic</span><span class="p">();</span>
-<span class="k">extern</span> <span class="kt">int</span> <span class="nf">test_tailcall</span><span class="p">(</span><span class="kt">int</span> <span class="n">a</span><span class="p">);</span>
 <span class="k">extern</span> <span class="kt">int</span> <span class="nf">test_alloc</span><span class="p">();</span>
 
 <span class="k">extern</span> <span class="kt">int</span> <span class="nf">test_staticlink</span><span class="p">();</span>
 </pre></div>
 </div>
 <p class="rubric">exlbt/input/ch_lld_staticlink.cpp</p>
-<div class="highlight-c++"><div class="highlight"><pre><span class="cp">#include &quot;ch6_1.cpp&quot;</span>
-<span class="cp">#include &quot;ch9_2_1.cpp&quot;</span>
-<span class="cp">#include &quot;ch9_2_2.cpp&quot;</span>
-<span class="cp">#include &quot;ch9_3_2.cpp&quot;</span>
-<span class="cp">#include &quot;ch11_2.cpp&quot;</span>
-<span class="cp">#include &quot;ch12_inherit.cpp&quot;</span>
-
-<span class="kt">int</span> <span class="nf">verify_test_ctrl2</span><span class="p">()</span>
+<div class="highlight-c++"><div class="highlight"><pre><span class="kt">void</span> <span class="nf">verify_test_ctrl2</span><span class="p">()</span>
 <span class="p">{</span>
   <span class="kt">int</span> <span class="n">a</span> <span class="o">=</span> <span class="o">-</span><span class="mi">1</span><span class="p">;</span>
   <span class="kt">int</span> <span class="n">b</span> <span class="o">=</span> <span class="o">-</span><span class="mi">1</span><span class="p">;</span>
@@ -5355,7 +5341,7 @@ is for this purpose.</p>
   <span class="k">else</span>
     <span class="n">printf</span><span class="p">(</span><span class="s">&quot;, FAIL</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">);</span>
 
-  <span class="k">return</span> <span class="mi">0</span><span class="p">;</span>
+  <span class="k">return</span><span class="p">;</span>
 <span class="p">}</span>
 
 <span class="kt">int</span> <span class="nf">test_staticlink</span><span class="p">()</span>
@@ -5370,27 +5356,9 @@ is for this purpose.</p>
     <span class="n">printf</span><span class="p">(</span><span class="s">&quot;, PASS</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">);</span>
   <span class="k">else</span>
     <span class="n">printf</span><span class="p">(</span><span class="s">&quot;, FAIL</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">);</span>
-  <span class="n">a</span> <span class="o">=</span> <span class="n">verify_test_ctrl2</span><span class="p">();</span>
-  <span class="n">a</span> <span class="o">=</span> <span class="n">select_1</span><span class="p">();</span>
-  <span class="n">printf</span><span class="p">(</span><span class="s">&quot;select_1() = %d</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">,</span> <span class="n">a</span><span class="p">);</span> <span class="c1">// a = 1</span>
-  <span class="n">a</span> <span class="o">=</span> <span class="n">select_2</span><span class="p">();</span>
-  <span class="n">printf</span><span class="p">(</span><span class="s">&quot;select_2() = %d</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">,</span> <span class="n">a</span><span class="p">);</span> <span class="c1">// a = 1</span>
-  <span class="n">a</span> <span class="o">=</span> <span class="n">select_3</span><span class="p">();</span>
-  <span class="n">printf</span><span class="p">(</span><span class="s">&quot;select_3() = %d</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">,</span> <span class="n">a</span><span class="p">);</span> <span class="c1">// a = 1</span>
-  <span class="n">a</span> <span class="o">=</span> <span class="n">test_select_global_pic</span><span class="p">();</span> <span class="c1">// test global of pic llc -O1 option</span>
-  <span class="n">printf</span><span class="p">(</span><span class="s">&quot;test_select_global_pic() = %d&quot;</span><span class="p">,</span> <span class="n">a</span><span class="p">);</span> <span class="c1">// a = 100</span>
-  <span class="k">if</span> <span class="p">(</span><span class="n">a</span> <span class="o">==</span> <span class="mi">100</span><span class="p">)</span>
-    <span class="n">printf</span><span class="p">(</span><span class="s">&quot;, PASS</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">);</span>
-  <span class="k">else</span>
-    <span class="n">printf</span><span class="p">(</span><span class="s">&quot;, FAIL</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">);</span>
-  <span class="n">a</span> <span class="o">=</span> <span class="n">test_tailcall</span><span class="p">(</span><span class="mi">5</span><span class="p">);</span>
-  <span class="n">printf</span><span class="p">(</span><span class="s">&quot;test_tailcall(5) = %d&quot;</span><span class="p">,</span> <span class="n">a</span><span class="p">);</span> <span class="c1">// a = 120</span>
-  <span class="k">if</span> <span class="p">(</span><span class="n">a</span> <span class="o">==</span> <span class="mi">120</span><span class="p">)</span>
-    <span class="n">printf</span><span class="p">(</span><span class="s">&quot;, PASS</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">);</span>
-  <span class="k">else</span>
-    <span class="n">printf</span><span class="p">(</span><span class="s">&quot;, FAIL</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">);</span>
+  <span class="n">verify_test_ctrl2</span><span class="p">();</span>
   <span class="n">a</span> <span class="o">=</span> <span class="n">test_func_arg_struct</span><span class="p">();</span>
-  <span class="n">a</span> <span class="o">=</span> <span class="n">test_contructor</span><span class="p">();</span>
+  <span class="n">a</span> <span class="o">=</span> <span class="n">test_constructor</span><span class="p">();</span>
   <span class="n">a</span> <span class="o">=</span> <span class="n">test_template</span><span class="p">();</span>
   <span class="n">printf</span><span class="p">(</span><span class="s">&quot;test_template() = %d&quot;</span><span class="p">,</span> <span class="n">a</span><span class="p">);</span> <span class="c1">// a = 15</span>
   <span class="k">if</span> <span class="p">(</span><span class="n">a</span> <span class="o">==</span> <span class="mi">15</span><span class="p">)</span>
@@ -5403,9 +5371,9 @@ is for this purpose.</p>
     <span class="n">printf</span><span class="p">(</span><span class="s">&quot;, PASS</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">);</span>
   <span class="k">else</span>
     <span class="n">printf</span><span class="p">(</span><span class="s">&quot;, FAIL</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">);</span>
-  <span class="n">a</span> <span class="o">=</span> <span class="n">test_inlineasm</span><span class="p">();</span>
-  <span class="n">printf</span><span class="p">(</span><span class="s">&quot;test_inlineasm() = %d&quot;</span><span class="p">,</span> <span class="n">a</span><span class="p">);</span> <span class="c1">// a = 53</span>
-  <span class="k">if</span> <span class="p">(</span><span class="n">a</span> <span class="o">==</span> <span class="mi">53</span><span class="p">)</span>
+  <span class="n">a</span> <span class="o">=</span> <span class="n">inlineasm_global</span><span class="p">();</span> <span class="c1">// 4</span>
+  <span class="n">printf</span><span class="p">(</span><span class="s">&quot;inlineasm_global() = %d&quot;</span><span class="p">,</span> <span class="n">a</span><span class="p">);</span> <span class="c1">// a = 4</span>
+  <span class="k">if</span> <span class="p">(</span><span class="n">a</span> <span class="o">==</span> <span class="mi">4</span><span class="p">)</span>
     <span class="n">printf</span><span class="p">(</span><span class="s">&quot;, PASS</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">);</span>
   <span class="k">else</span>
     <span class="n">printf</span><span class="p">(</span><span class="s">&quot;, FAIL</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">);</span>
@@ -5423,9 +5391,7 @@ is for this purpose.</p>
 </pre></div>
 </div>
 <p class="rubric">exlbt/input/ch_slinker.cpp</p>
-<div class="highlight-c++"><div class="highlight"><pre><span class="c1">//#define TEST_SELECT</span>
-
-<span class="cp">#include &quot;ch_nolld.h&quot;</span>
+<div class="highlight-c++"><div class="highlight"><pre><span class="cp">#include &quot;ch_nolld.h&quot;</span>
 <span class="cp">#include &quot;ch_lld_staticlink.h&quot;</span>
 
 <span class="kt">int</span> <span class="nf">main</span><span class="p">()</span>
@@ -5447,7 +5413,7 @@ is for this purpose.</p>
 </pre></div>
 </div>
 <p class="rubric">exlbt/input/build-slinker.sh</p>
-<div class="highlight-c++"><div class="highlight"><pre>#!/usr/bin/env bash
+<div class="highlight-c++"><pre>#!/usr/bin/env bash
 
 source functions.sh
 
@@ -5466,17 +5432,11 @@ clang -target mips-unknown-linux-gnu -c printf-stdarg.c -emit-llvm \
 -o printf-stdarg.bc
 clang -target mips-unknown-linux-gnu -c ${LBDEXDIR}/input/ch4_1_2.cpp \
 -emit-llvm -o ch4_1_2.bc
-clang -O1 -target mips-unknown-linux-gnu -c ${LBDEXDIR}/input/ch8_1_5.cpp \
+clang -target mips-unknown-linux-gnu -c ${LBDEXDIR}/input/ch8_1_5.cpp \
 -emit-llvm -o ch8_1_5.bc
-clang -O1 -target mips-unknown-linux-gnu -c ${LBDEXDIR}/input/ch8_3.cpp \
--emit-llvm -o ch8_3.bc
-clang -O1 -target mips-unknown-linux-gnu -c ${LBDEXDIR}/input/ch8_5.cpp \
--emit-llvm -o ch8_5.bc
-clang -O1 -target mips-unknown-linux-gnu -c \
-${LBDEXDIR}/input/ch9_2_3_tailcall.cpp -emit-llvm -o ch9_2_3_tailcall.bc
 clang -c ${LBDEXDIR}/input/ch9_4.cpp -emit-llvm -o ch9_4.bc
-clang -I${LBDEXDIR}/input/ -target mips-unknown-linux-gnu -c ch_slinker.cpp -emit-llvm \
--o ch_slinker.bc
+clang -I${LBDEXDIR}/input/ -target mips-unknown-linux-gnu -c ch_slinker.cpp \
+-emit-llvm -o ch_slinker.bc
 ${TOOLDIR}/llc -march=cpu0${endian} -mcpu=${CPU} -relocation-model=static \
 -filetype=obj start.bc -o start.cpu0.o
 ${TOOLDIR}/llc -march=cpu0${endian} -mcpu=${CPU} -relocation-model=static \
@@ -5490,13 +5450,6 @@ ${TOOLDIR}/llc -march=cpu0${endian} -mcpu=${CPU} -relocation-model=static \
 ${TOOLDIR}/llc -march=cpu0${endian} -mcpu=${CPU} -relocation-model=static \
 -filetype=obj ch8_1_5.bc -o ch8_1_5.cpu0.o
 ${TOOLDIR}/llc -march=cpu0${endian} -mcpu=${CPU} -relocation-model=static \
--filetype=obj ch8_3.bc -o ch8_3.cpu0.o
-${TOOLDIR}/llc -march=cpu0${endian} -mcpu=${CPU} -relocation-model=static \
--filetype=obj ch8_5.bc -o ch8_5.cpu0.o
-${TOOLDIR}/llc -march=cpu0${endian} -mcpu=${CPU} -relocation-model=static \
--filetype=obj -enable-cpu0-tail-calls ch9_2_3_tailcall.bc -o \
-ch9_2_3_tailcall.cpu0.o
-${TOOLDIR}/llc -march=cpu0${endian} -mcpu=${CPU} -relocation-model=static \
 -filetype=obj ch9_4.bc -o ch9_4.cpu0.o
 ${TOOLDIR}/llc -march=cpu0${endian} -mcpu=${CPU} -relocation-model=static \
 -filetype=obj ch_slinker.bc -o ch_slinker.cpu0.o
@@ -5504,11 +5457,11 @@ ${TOOLDIR}/llc -march=cpu0${endian} -mcpu=${CPU} -relocation-model=static \
 -filetype=obj lib_cpu0.ll -o lib_cpu0.o
 ${TOOLDIR}/lld -flavor gnu -target cpu0${endian}-unknown-linux-gnu start.cpu0.o \
 debug.cpu0.o printf-stdarg-def.cpu0.o printf-stdarg.cpu0.o ch4_1_2.cpu0.o \
-ch8_1_5.cpu0.o ch8_3.cpu0.o ch8_5.cpu0.o ch9_2_3_tailcall.cpu0.o ch9_4.cpu0.o \
-ch_slinker.cpu0.o lib_cpu0.o -o a.out
+ch8_1_5.cpu0.o ch9_4.cpu0.o ch_slinker.cpu0.o lib_cpu0.o -o a.out
 
 epilogue;
-</pre></div>
+
+</pre>
 </div>
 <div class="highlight-bash"><div class="highlight"><pre>1-160-136-173:input Jonathan<span class="nv">$ </span><span class="nb">pwd</span>
 /Users/Jonathan/test/lbt/exlbt/input
@@ -5526,25 +5479,7 @@ In file included from ch_slinker.cpp:23:
 WARNING: ./cpu0.v:369: <span class="nv">$readmemh</span><span class="o">(</span>cpu0.hex<span class="o">)</span>: Not enough words in the file <span class="k">for</span>
 the requested range <span class="o">[</span>0:524287<span class="o">]</span>.
 taskInterrupt<span class="o">(</span>001<span class="o">)</span>
-74
-15
-253
-3
-1
-14
-3
--126
-130
--32766
-32770
-393307
-16777222
-51
-2
-2147483647
--2147483648
-7
-15
+...
 test_nolld<span class="o">()</span>: PASS
 taskInterrupt<span class="o">(</span>011<span class="o">)</span>
 Overflow exception
@@ -5553,11 +5488,6 @@ Overflow exception
 <span class="nv">test_overflow</span> <span class="o">=</span> 0, PASS
 global variable <span class="nv">gI</span> <span class="o">=</span> 100, PASS
 test_ctrl2<span class="o">()</span>: <span class="nv">a</span> <span class="o">=</span> 1, <span class="nv">b</span> <span class="o">=</span> 0, <span class="nv">c</span> <span class="o">=</span> 1, <span class="nv">d</span> <span class="o">=</span> 0, PASS
-select_1<span class="o">()</span> <span class="o">=</span> 1
-select_2<span class="o">()</span> <span class="o">=</span> 1
-select_3<span class="o">()</span> <span class="o">=</span> 1
-test_select_global_pic<span class="o">()</span> <span class="o">=</span> 100, PASS
-test_tailcall<span class="o">(</span>5<span class="o">)</span> <span class="o">=</span> 120, PASS
 <span class="nv">date1</span> <span class="o">=</span> 2012 10 12 1 2 3, PASS
 <span class="nv">date2</span> <span class="o">=</span> 2012 10 12 1 2 3, PASS
 <span class="nv">time2</span> <span class="o">=</span> 1 10 12, PASS
@@ -5566,7 +5496,7 @@ test_tailcall<span class="o">(</span>5<span class="o">)</span> <span class="o">=
 <span class="nv">date2</span> <span class="o">=</span> 2013 1 26 12 21 10, PASS
 test_template<span class="o">()</span> <span class="o">=</span> 15, PASS
 test_alloc<span class="o">()</span> <span class="o">=</span> 31, PASS
-test_inlineasm<span class="o">()</span> <span class="o">=</span> 53, PASS
+inlineasm_global<span class="o">()</span> <span class="o">=</span> 4, PASS
 20
 10
 5
@@ -5596,11 +5526,11 @@ message from cpu0.v code.</p>
 <div class="section" id="cpu0-lld-structure">
 <h4><a class="toc-backref" href="#id50">Cpu0 lld structure</a><a class="headerlink" href="#cpu0-lld-structure" title="Permalink to this headline">¶</a></h4>
 <div class="figure align-center" id="lld-f1">
-<a class="reference internal image-reference" href="_images/12.png"><img alt="_images/12.png" src="_images/12.png" style="width: 752.0px; height: 823.0px;" /></a>
+<a class="reference internal image-reference" href="_images/12.png"><img alt="_images/12.png" src="_images/12.png" /></a>
 <p class="caption">Figure 5: Cpu0 lld class relationship</p>
 </div>
 <div class="figure align-center" id="lld-f2">
-<a class="reference internal image-reference" href="_images/2.png"><img alt="_images/2.png" src="_images/2.png" style="width: 459.2px; height: 699.2px;" /></a>
+<a class="reference internal image-reference" href="_images/2.png"><img alt="_images/2.png" src="_images/2.png" /></a>
 <p class="caption">Figure 6: Cpu0 lld ELFLinkingContext and DefaultLayout member functions</p>
 </div>
 <p>The Cpu0LinkingContext include the context information for those input obj
@@ -5718,7 +5648,7 @@ Cpu0TargetHandler by lld ELF driver when it meets each relocation record.</p>
 </div>
 <p>Summary as <a class="pageref" href="#lld-f4">Figure  7</a>.</p>
 <div class="figure align-center" id="lld-f4">
-<a class="reference internal image-reference" href="_images/4.png"><img alt="_images/4.png" src="_images/4.png" style="width: 333.6px; height: 566.4px;" /></a>
+<a class="reference internal image-reference" href="_images/4.png"><img alt="_images/4.png" src="_images/4.png" /></a>
 <p class="caption">Figure 7: Cpu0 lld related objects created sequence</p>
 </div>
 <p>Remind, static std::unique_ptr&lt;ELFLinkingContext&gt;
@@ -5730,7 +5660,7 @@ The unique_ptr objects automatically delete the object they manage (using a
 deleter) as soon as themselves are destroyed. Just like the Singlelten
 pattern in Design Pattern book or Smart Pointers in Effective C++ book. <a class="footnote-reference" href="#id22" id="id4">[4]</a></p>
 <div class="figure align-center" id="lld-f5">
-<a class="reference internal image-reference" href="_images/5.png"><img alt="_images/5.png" src="_images/5.png" style="width: 804.0px; height: 601.0px;" /></a>
+<a class="reference internal image-reference" href="_images/5.png"><img alt="_images/5.png" src="_images/5.png" /></a>
 <p class="caption">Figure 8: Cpu0LinkingContext get Cpu0TargetHandler through &amp;getTargetHandler()</p>
 </div>
 <p>As <a class="pageref" href="#lld-f1">Figure  5</a> depicted, the Cpu0TargetHandler include the members or
@@ -5766,8 +5696,8 @@ std::move(bar);</p>
 <p>In addition to the lld code with #ifdef DLINKER. The following code in Verilog
 exists to support dynamic linker.</p>
 <p class="rubric">lbdex/verilog/dynlinker.v</p>
-<div class="highlight-c++"><div class="highlight"><pre>`define DLINKER_INFO_ADDR  &#39;h70000
-`define GPADDR    &#39;h7FFF0
+<div class="highlight-c++"><pre>`define DLINKER_INFO_ADDR  'h70000
+`define GPADDR    'h7FFF0
 
 `ifdef DLINKER
   task setDynLinkerInfo; begin
@@ -5800,7 +5730,7 @@ exists to support dynamic linker.</p>
          numDynEntry = i/52;
          j = 1;
        `ifdef DEBUG_DLINKER
-         $display(&quot;numDynEntry = %8x&quot;, numDynEntry);
+         $display("numDynEntry = %8x", numDynEntry);
        `endif
        end
     end
@@ -5832,7 +5762,7 @@ exists to support dynamic linker.</p>
   `ifdef DEBUG_DLINKER
     i = `DLINKER_INFO_ADDR+4+numDynEntry*4;
     for (j=0; j &lt; (8*numDynEntry); j=j+8) begin
-       $display(&quot;%8x: %8x&quot;, i, {m[i], m[i+1], m[i+2], m[i+3]});
+       $display("%8x: %8x", i, {m[i], m[i+1], m[i+2], m[i+3]});
       i = i + 8;
     end
   `endif
@@ -5844,15 +5774,15 @@ exists to support dynamic linker.</p>
       i = i + 1;
     end
   `ifdef DEBUG_DLINKER
-    $display(&quot;In setDynLinkerInfo()&quot;);
+    $display("In setDynLinkerInfo()");
     for (i=`DLINKER_INFO_ADDR; i &lt; `MEMSIZE; i=i+4) begin
        if (m[i] != `MEMEMPTY || m[i+1] != `MEMEMPTY || 
          m[i+2] != `MEMEMPTY || m[i+3] != `MEMEMPTY)
-         $display(&quot;%8x: %8x&quot;, i, {m[i], m[i+1], m[i+2], m[i+3]});
+         $display("%8x: %8x", i, {m[i], m[i+1], m[i+2], m[i+3]});
     end
-    $display(&quot;global address %8x&quot;, {m[`GPADDR], m[`GPADDR+1], 
+    $display("global address %8x", {m[`GPADDR], m[`GPADDR+1], 
              m[`GPADDR+2], m[`GPADDR+3]});
-    $display(&quot;gp = %8x&quot;, gp);
+    $display("gp = %8x", gp);
   `endif
 // below code set memory as follows,
 //                                    -----------------------------------
@@ -5863,59 +5793,59 @@ exists to support dynamic linker.</p>
 // gp+16+(numDynEntry-1)*4 ---------&gt; | the last plt entry address |
 //                                    -----------------------------------
 // gpPlt ---------------------------&gt; | all 0                           | (16 bytes)
-// gpPlt+16+0*8&#39;h10 ----------------&gt; | 32&#39;h10: pointer to plt0         |
-// gpPlt+16+1*8&#39;h10 ----------------&gt; | 1st plt entry                   |
-// gpPlt+16+2*8&#39;h10 ----------------&gt; | 2nd plt entry                   |
+// gpPlt+16+0*8'h10 ----------------&gt; | 32'h10: pointer to plt0         |
+// gpPlt+16+1*8'h10 ----------------&gt; | 1st plt entry                   |
+// gpPlt+16+2*8'h10 ----------------&gt; | 2nd plt entry                   |
 //                                    | ...                             |
-// gpPlt+16+(numDynEntry-1)*8&#39;h10 --&gt; | the last plt entry              |
+// gpPlt+16+(numDynEntry-1)*8'h10 --&gt; | the last plt entry              |
 //                                    -----------------------------------
 // note: gp point to the _GLOBAL_OFFSET_TABLE_, 
 //       numDynEntry = actual number of functions + 1.
-//   gp+1*4..gp+numDynEntry*4 set to 8&#39;h10 plt0 which will jump to dynamic 
+//   gp+1*4..gp+numDynEntry*4 set to 8'h10 plt0 which will jump to dynamic 
 //   linker.
 //   After dynamic linker load function to memory, it will set gp+index*4 to 
 //   function memory address. For example, if the function index is 2, then the 
 //   gp+2*4 is set to the memory address of this loaded function. 
 //   Then the the caller call 
-//   &quot;ld $t9, 2*4($gp)&quot; and &quot;ret $t9&quot; will jump to this loaded function directly.
+//   "ld $t9, 2*4($gp)" and "ret $t9" will jump to this loaded function directly.
 
     gpPlt = gp+16+numDynEntry*4;
     // set (gpPlt-16..gpPlt-1) to 0
     for (j=16; j &gt;= 1; j=j-1)
-      m[gpPlt+j] = 8&#39;h00;
-    // put plt in (gpPlt..gpPlt+numDynEntry*8&#39;h10+1)
+      m[gpPlt+j] = 8'h00;
+    // put plt in (gpPlt..gpPlt+numDynEntry*8'h10+1)
     for (i=1; i &lt; numDynEntry; i=i+1) begin
-      // (gp+&#39;8h10..gp+numDynEntry*&#39;8h10+15) set to plt entry
+      // (gp+'8h10..gp+numDynEntry*'8h10+15) set to plt entry
       // addiu	$t9, $zero, dynsym_idx
-      m[gpPlt+i*8&#39;h10] = 8&#39;h09;
-      m[gpPlt+i*8&#39;h10+1] = 8&#39;h60;
-      m[gpPlt+i*8&#39;h10+2] = i[15:8];
-      m[gpPlt+i*8&#39;h10+3] = i[7:0];
+      m[gpPlt+i*8'h10] = 8'h09;
+      m[gpPlt+i*8'h10+1] = 8'h60;
+      m[gpPlt+i*8'h10+2] = i[15:8];
+      m[gpPlt+i*8'h10+3] = i[7:0];
       // st	$t9, 0($gp)
-      m[gpPlt+i*8&#39;h10+4] = 8&#39;h02;
-      m[gpPlt+i*8&#39;h10+5] = 8&#39;h6b;
-      m[gpPlt+i*8&#39;h10+6] = 0;
-      m[gpPlt+i*8&#39;h10+7] = 0;
-      // ld	$t9, (&#39;16h0010)($gp)
-      m[gpPlt+i*8&#39;h10+8] = 8&#39;h01;
-      m[gpPlt+i*8&#39;h10+9] = 8&#39;h6b;
-      m[gpPlt+i*8&#39;h10+10] = 0;
-      m[gpPlt+i*8&#39;h10+11] = 8&#39;h10;
+      m[gpPlt+i*8'h10+4] = 8'h02;
+      m[gpPlt+i*8'h10+5] = 8'h6b;
+      m[gpPlt+i*8'h10+6] = 0;
+      m[gpPlt+i*8'h10+7] = 0;
+      // ld	$t9, ('16h0010)($gp)
+      m[gpPlt+i*8'h10+8] = 8'h01;
+      m[gpPlt+i*8'h10+9] = 8'h6b;
+      m[gpPlt+i*8'h10+10] = 0;
+      m[gpPlt+i*8'h10+11] = 8'h10;
       // ret	$t9
-      m[gpPlt+i*8&#39;h10+12] = 8&#39;h3c;
-      m[gpPlt+i*8&#39;h10+13] = 8&#39;h60;
-      m[gpPlt+i*8&#39;h10+14] = 0;
-      m[gpPlt+i*8&#39;h10+15] = 0;
+      m[gpPlt+i*8'h10+12] = 8'h3c;
+      m[gpPlt+i*8'h10+13] = 8'h60;
+      m[gpPlt+i*8'h10+14] = 0;
+      m[gpPlt+i*8'h10+15] = 0;
     end
 
   // .got.plt offset(0x00.0x03) has been set to 0 in elf already.
-  // Set .got.plt offset(8&#39;h10..numDynEntry*&#39;8h10) point to plt entry as above.
+  // Set .got.plt offset(8'h10..numDynEntry*'8h10) point to plt entry as above.
   `ifdef DEBUG_DLINKER
-         $display(&quot;numDynEntry = %8x&quot;, numDynEntry);
+         $display("numDynEntry = %8x", numDynEntry);
   `endif
-//      j32=32&#39;h1fc0; // m[32&#39;h1fc]=&quot;something&quot; will hang. Very tricky
-    m[gp+16] = 8&#39;h0;
-    m[gp+16+1] = 8&#39;h0;
+//      j32=32'h1fc0; // m[32'h1fc]="something" will hang. Very tricky
+    m[gp+16] = 8'h0;
+    m[gp+16+1] = 8'h0;
     i=pltAddr[0]+16;
     m[gp+16+2] = i[15:8];   // .plt section addr + 16
     m[gp+16+3] = i[7:0];
@@ -5931,17 +5861,17 @@ exists to support dynamic linker.</p>
   `ifdef DEBUG_DLINKER
     // show (gp..gp+numDynEntry*4-1)
     for (i=0; i &lt; numDynEntry; i=i+1) begin
-      $display(&quot;%8x: %8x&quot;, gp+16+i*4, {m[gp+16+i*4], m[gp+16+i*4+1], 
+      $display("%8x: %8x", gp+16+i*4, {m[gp+16+i*4], m[gp+16+i*4+1], 
                m[gp+16+i*4+2], m[gp+16+i*4+3]});
     end
-    // show (gpPlt..gpPlt+(numDynEntry+1)*8&#39;h10-1)
+    // show (gpPlt..gpPlt+(numDynEntry+1)*8'h10-1)
     for (i=0; i &lt; numDynEntry; i=i+1) begin
       for (j=0; j &lt; 16; j=j+4)
-        $display(&quot;%8x: %8x&quot;, gpPlt+i*8&#39;h10+j, 
-                 {m[gpPlt+i*8&#39;h10+j], 
-                  m[gpPlt+i*8&#39;h10+j+1], 
-                  m[gpPlt+i*8&#39;h10+j+2], 
-                  m[gpPlt+i*8&#39;h10+j+3]});
+        $display("%8x: %8x", gpPlt+i*8'h10+j, 
+                 {m[gpPlt+i*8'h10+j], 
+                  m[gpPlt+i*8'h10+j+1], 
+                  m[gpPlt+i*8'h10+j+2], 
+                  m[gpPlt+i*8'h10+j+3]});
     end
   `endif
   end endtask
@@ -5953,12 +5883,12 @@ exists to support dynamic linker.</p>
     for (i=0; i &lt; `MEMSIZE; i=i+1) begin
        flash[i] = `MEMEMPTY;
     end
-    $readmemh(&quot;dlconfig/libso.hex&quot;, flash);
+    $readmemh("dlconfig/libso.hex", flash);
   `ifdef DEBUG_DLINKER
     for (i=0; i &lt; `MEMSIZE &amp;&amp; (flash[i] != `MEMEMPTY || 
          flash[i+1] != `MEMEMPTY || flash[i+2] != `MEMEMPTY || 
          flash[i+3] != `MEMEMPTY); i=i+4) begin
-       $display(&quot;%8x: %8x&quot;, i, {flash[i], flash[i+1], flash[i+2], flash[i+3]});
+       $display("%8x: %8x", i, {flash[i], flash[i+1], flash[i+2], flash[i+3]});
     end
   `endif
   end endtask
@@ -5966,7 +5896,7 @@ exists to support dynamic linker.</p>
 
 `ifdef DLINKER
   task createDynInfo; begin
-    $readmemh(&quot;dlconfig/global_offset&quot;, globalAddr);
+    $readmemh("dlconfig/global_offset", globalAddr);
     m[`GPADDR]   = globalAddr[0];
     m[`GPADDR+1] = globalAddr[1];
     m[`GPADDR+2] = globalAddr[2];
@@ -5975,12 +5905,12 @@ exists to support dynamic linker.</p>
     gp[23:16] = globalAddr[1];
     gp[15:8] = globalAddr[2];
     gp[7:0] = globalAddr[3];
-    $readmemh(&quot;dlconfig/plt_offset&quot;, pltAddr);
+    $readmemh("dlconfig/plt_offset", pltAddr);
   `ifdef DEBUG_DLINKER
-    $display(&quot;global address %8x&quot;, {m[`GPADDR], m[`GPADDR+1], 
+    $display("global address %8x", {m[`GPADDR], m[`GPADDR+1], 
              m[`GPADDR+2], m[`GPADDR+3]});
-    $display(&quot;gp = %8x&quot;, gp);
-    $display(&quot;pltAddr = %8x&quot;, pltAddr[0]);
+    $display("gp = %8x", gp);
+    $display("pltAddr = %8x", pltAddr[0]);
   `endif
 `endif
 `ifdef DLINKER
@@ -5993,16 +5923,17 @@ exists to support dynamic linker.</p>
     for (i=0; i &lt;384; i=i+1) begin
        so_func_offset[i] = `MEMEMPTY;
     end
-    $readmemh(&quot;dlconfig/dynsym&quot;, dsym);
-    $readmemh(&quot;dlconfig/dynstr&quot;, dstr);
-    $readmemh(&quot;dlconfig/so_func_offset&quot;, so_func_offset);
+    $readmemh("dlconfig/dynsym", dsym);
+    $readmemh("dlconfig/dynstr", dstr);
+    $readmemh("dlconfig/so_func_offset", so_func_offset);
     setDynLinkerInfo();
   end endtask
 `endif
-</pre></div>
+
+</pre>
 </div>
 <p class="rubric">lbdex/verilog/flashio.v</p>
-<div class="highlight-c++"><div class="highlight"><pre>`define FLASHADDR &#39;hA0000
+<div class="highlight-c++"><pre>`define FLASHADDR 'hA0000
 
 `ifdef DLINKER
     end else if (abus &gt;= `FLASHADDR &amp;&amp; abus &lt;= `FLASHADDR+`MEMSIZE-4) begin
@@ -6018,35 +5949,38 @@ exists to support dynamic linker.</p>
         endcase
       end else if (en == 1 &amp;&amp; rw == 1) begin// r_w==1:read
         case (m_size)
-        `BYTE:  data = {8&#39;h00  , 8&#39;h00,   8&#39;h00,   flash[fabus]};
-        `INT16: data = {8&#39;h00  , 8&#39;h00,   flash[fabus], flash[fabus+1]};
-        `INT24: data = {8&#39;h00  , flash[fabus], flash[fabus+1], flash[fabus+2]};
+        `BYTE:  data = {8'h00  , 8'h00,   8'h00,   flash[fabus]};
+        `INT16: data = {8'h00  , 8'h00,   flash[fabus], flash[fabus+1]};
+        `INT24: data = {8'h00  , flash[fabus], flash[fabus+1], flash[fabus+2]};
         `INT32: data = {flash[fabus], flash[fabus+1], flash[fabus+2], 
                        flash[fabus+3]};
         endcase
       end else
-        data = 32&#39;hZZZZZZZZ;
+        data = 32'hZZZZZZZZ;
 `endif
-</pre></div>
+
+</pre>
 </div>
 <p class="rubric">lbdex/verilog/cpu0Id.v</p>
-<div class="highlight-c++"><div class="highlight"><pre>`define DLINKER  // Dynamic Linker Support
+<div class="highlight-c++"><pre>`define DLINKER  // Dynamic Linker Support
 //`define DEBUG_DLINKER   // Dynamic Linker Debug
 // TRACE: Display the memory contents of the loaded program and data
 //`define TRACE 
 
-`include &quot;cpu0.v&quot;
-</pre></div>
+`include "cpu0.v"
+
+</pre>
 </div>
 <p class="rubric">lbdex/verilog/cpu0IId.v</p>
-<div class="highlight-c++"><div class="highlight"><pre>`define CPU0II
+<div class="highlight-c++"><pre>`define CPU0II
 `define DLINKER  // Dynamic Linker Support
 //`define DEBUG_DLINKER   // Dynamic Linker Debug
 // TRACE: Display the memory contents of the loaded program and data
 //`define TRACE 
 
-`include &quot;cpu0.v&quot;
-</pre></div>
+`include "cpu0.v"
+
+</pre>
 </div>
 <p>The following code ch_dynamiclinker.cpp and foobar.cpp is the example for
 dynamic linker demostration. File dynamic_linker.cpp is what our implementaion
@@ -6355,7 +6289,7 @@ to execute the dynamic linker function on Cpu0 Verilog machine.</p>
 </pre></div>
 </div>
 <p class="rubric">exlbt/input/build-dlinker.sh</p>
-<div class="highlight-c++"><div class="highlight"><pre>#!/usr/bin/env bash
+<div class="highlight-c++"><pre>#!/usr/bin/env bash
 
 source functions.sh
 
@@ -6405,9 +6339,10 @@ ${TOOLDIR}/llvm-objdump -elf2hex -le=false -cpu0dumpso libfoobar.cpu0.so \
 &gt; dlconfig/libso.hex
 ${TOOLDIR}/llvm-objdump -elf2hex -le=false -cpu0linkso a.out &gt; cpu0.hex
 cp -rf dlconfig cpu0.hex ../../lbdex/verilog/.
-echo &quot;0   /* 0: big endian, 1: little endian */&quot; &gt; ../../lbdex/verilog/cpu0.config
+echo "0   /* 0: big endian, 1: little endian */" &gt; ../../lbdex/verilog/cpu0.config
 cat ../../lbdex/verilog/cpu0.config
-</pre></div>
+
+</pre>
 </div>
 <div class="section" id="id7">
 <h4><a class="toc-backref" href="#id52">Run</a><a class="headerlink" href="#id7" title="Permalink to this headline">¶</a></h4>
@@ -6582,7 +6517,7 @@ of section .got.plt.</p>
 <p>The code of dynlinker.v will set the memory as follows after program is loaded.
 (gp value below is 2068 came from file global_offset).</p>
 <p class="rubric">memory contents</p>
-<div class="highlight-bash"><div class="highlight"><pre>//                                    -----------------------------------
+<div class="highlight-bash"><pre>//                                    -----------------------------------
 // gp ------------------------------&gt; | all 0                           | (16 bytes)
 // gp+16 ---------------------------&gt; | 0                          |
 // gp+16+1*4 -----------------------&gt; | 1st plt entry address      | (4 bytes)
@@ -6590,20 +6525,19 @@ of section .got.plt.</p>
 // gp+16+(numDynEntry-1)*4 ---------&gt; | the last plt entry address |
 //                                    -----------------------------------
 // gpPlt ---------------------------&gt; | all 0                           | (16 bytes)
-// gpPlt+16+0*8&#39;h10 ----------------&gt; | 32&#39;h10: pointer to plt0         |
-// gpPlt+16+1*8&#39;h10 ----------------&gt; | 1st plt entry                   |
-// gpPlt+16+2*8&#39;h10 ----------------&gt; | 2nd plt entry                   |
+// gpPlt+16+0*8'h10 ----------------&gt; | 32'h10: pointer to plt0         |
+// gpPlt+16+1*8'h10 ----------------&gt; | 1st plt entry                   |
+// gpPlt+16+2*8'h10 ----------------&gt; | 2nd plt entry                   |
 //                                    | ...                             |
-// gpPlt+16+(numDynEntry-1)*8&#39;h10 --&gt; | the last plt entry              |
-//                                    -----------------------------------
-</pre></div>
+// gpPlt+16+(numDynEntry-1)*8'h10 --&gt; | the last plt entry              |
+//                                    -----------------------------------</pre>
 </div>
 <p>For example code of ch_dynamiclinker.cpp and foobar.cpp, gp is 2068, numDynEntry is
 the contents of file num_dyn_entry which is 6. Every plt entry above (memory
 address gp+16+1*8&#8217;h10..gp+16+(numDynEntry-1)*8&#8217;h10) is initialized to &#8220;addiu $t9,
 $zero, 4($gp); st $t9, 0($gp); ld $t9, 16($gp); ret $t9&#8221; as follows,</p>
 <p class="rubric">memory contents</p>
-<div class="highlight-bash"><div class="highlight"><pre>//                                    -----------------------------------
+<div class="highlight-bash"><pre>//                                    -----------------------------------
 // gp ------------------------------&gt; | all 0                           | (16 bytes)
 // gp+16 ---------------------------&gt; | 0                          |
 // gp+16+1*4 -----------------------&gt; | 1st plt entry address      | (4 bytes)
@@ -6611,30 +6545,29 @@ $zero, 4($gp); st $t9, 0($gp); ld $t9, 16($gp); ret $t9&#8221; as follows,</p>
 // gp+16+(numDynEntry-1)*4 ---------&gt; | the last plt entry address |
 //                                    -----------------------------------
 // gpPlt ---------------------------&gt; | all 0                           | (16 bytes)
-// gpPlt+16+0*8&#39;h10 ----------------&gt; | 32&#39;h10: pointer to plt0         |
-// gpPlt+16+1*8&#39;h10 ----------------&gt; | addiu $t9, $zero, 4             |
+// gpPlt+16+0*8'h10 ----------------&gt; | 32'h10: pointer to plt0         |
+// gpPlt+16+1*8'h10 ----------------&gt; | addiu $t9, $zero, 4             |
 //                                    | st  $t9, 0($gp)                 |
 //                                    | ld  $t9, 16($gp)                |
 //                                    | ret $t9                         |
-// gpPlt+16+2*8&#39;h10 ----------------&gt; | addiu $t9, $zero, 4             |
+// gpPlt+16+2*8'h10 ----------------&gt; | addiu $t9, $zero, 4             |
 //                                    | st  $t9, 0($gp)                 |
 //                                    | ld  $t9, 16($gp)                |
 //                                    | ret $t9                         |
 // ...                                | ...                             |
-// gpPlt+16+(6-1)*8&#39;h10 ------------&gt; | addiu $t9, $zero, 4             |
+// gpPlt+16+(6-1)*8'h10 ------------&gt; | addiu $t9, $zero, 4             |
 //                                    | st  $t9, 0($gp)                 |
 //                                    | ld  $t9, 16($gp)                |
 //                                    | ret $t9                         |
-//                                    -----------------------------------
-</pre></div>
+//                                    -----------------------------------</pre>
 </div>
 <p><a class="pageref" href="#lld-f6">Figure  9</a> is the memory contents after the example program is loaded.</p>
 <div class="figure align-center" id="lld-f6">
-<a class="reference internal image-reference" href="_images/6.png"><img alt="_images/6.png" src="_images/6.png" style="width: 350.4px; height: 560.0px;" /></a>
+<a class="reference internal image-reference" href="_images/6.png"><img alt="_images/6.png" src="_images/6.png" /></a>
 <p class="caption">Figure 9: Memory contents after the program is loaded</p>
 </div>
 <div class="figure align-center" id="lld-f7">
-<a class="reference internal image-reference" href="_images/7.png"><img alt="_images/7.png" src="_images/7.png" style="width: 189.6px; height: 554.4px;" /></a>
+<a class="reference internal image-reference" href="_images/7.png"><img alt="_images/7.png" src="_images/7.png" /></a>
 <p class="caption">Figure 10: Control flow transfer from calling foo() instruction of main() to dynamic linker</p>
 </div>
 <p><a class="pageref" href="#lld-f7">Figure  10</a> is the Control flow transfer from call foo() of main() to
@@ -6657,17 +6590,17 @@ linker needs to restore the $lr, $fp, $sp to the
 value of just before caller calling foo() (they are saved in 4, 8, 12 of $gp
 offset in PLT0, so them can be restored from that address).</p>
 <div class="figure align-center" id="lld-f8">
-<a class="reference internal image-reference" href="_images/8.png"><img alt="_images/8.png" src="_images/8.png" style="width: 348.8px; height: 415.2px;" /></a>
+<a class="reference internal image-reference" href="_images/8.png"><img alt="_images/8.png" src="_images/8.png" /></a>
 <p class="caption">Figure 11: Transfer from dynamic linker to foo() and back to main()</p>
 </div>
 <p>As <a class="pageref" href="#lld-f8">Figure  11</a> depicted, control flow from dynamic linker to foo() and
 back to caller main() when it meets the instruction &#8220;ret $lr&#8221; in foo().</p>
 <div class="figure align-center" id="lld-f9">
-<a class="reference internal image-reference" href="_images/9.png"><img alt="_images/9.png" src="_images/9.png" style="width: 208.0px; height: 600.0px;" /></a>
+<a class="reference internal image-reference" href="_images/9.png"><img alt="_images/9.png" src="_images/9.png" /></a>
 <p class="caption">Figure 12: Control flow transfer from calling bar() instruction of main() to dynamic linker</p>
 </div>
 <div class="figure align-center" id="lld-f10">
-<a class="reference internal image-reference" href="_images/10.png"><img alt="_images/10.png" src="_images/10.png" style="width: 376.8px; height: 456.0px;" /></a>
+<a class="reference internal image-reference" href="_images/10.png"><img alt="_images/10.png" src="_images/10.png" /></a>
 <p class="caption">Figure 13: Dynamic linker load bar() from flash to memory</p>
 </div>
 <p>Now the program run at the next instruction of call foo() in main() as
@@ -6685,7 +6618,7 @@ content of $gp+24 point to &#8220;Plt la:&#8221;.
 The &#8220;Plt la:&#8221; code will call dynamic linker
 to load la() function, run la() and back to bar() as <a class="pageref" href="#lld-f11">Figure  14</a>.</p>
 <div class="figure align-center" id="lld-f11">
-<a class="reference internal image-reference" href="_images/111.png"><img alt="_images/111.png" src="_images/111.png" style="width: 197.6px; height: 418.4px;" /></a>
+<a class="reference internal image-reference" href="_images/111.png"><img alt="_images/111.png" src="_images/111.png" /></a>
 <p class="caption">Figure 14: Call la through &#8220;Plt la:&#8221; in bar()</p>
 </div>
 <p>The dynamic linker implementation usually is not specified in ABI. It needs the
@@ -6887,7 +6820,7 @@ to somewhere you didn&#8217;t expect&#8221;.</p>
 
     <div class="footer">
         &copy; Copyright 2013, LLVM.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.2.2.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.2.
     </div>
   </body>
 </html>
