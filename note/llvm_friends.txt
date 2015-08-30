@@ -22,6 +22,12 @@ lbd Readers:
  紀  fu chung <jacky.chi.0328@gmail.com>;
 
  vijay.daultani@gmail.com <vijay.daultani@gmail.com>;
+ 
+ lyudalev@gmail.com
+ 
+ xil174@eng.ucsd.edu
+ 
+ thomas.goodfellow@offis.de
 
 
 ftdichip.com manager:
