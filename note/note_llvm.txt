@@ -80,9 +80,11 @@
 
   /*-print0 (GNU find only) tells find to use the null character (\0) instead of whitespace as the output delimiter between pathnames found. This is a safer option if you files can contain blanks or other special character. It is recommended to use the -print0 argument to find if you use -exec command or xargs (the -0 argument is needed in xargs.).*/
 
-  rename Mips Fpga * AsmParser/* Disassembler/* InstPrinter/* MCTargetDesc/* TargetInfo/*
+  rename Mips Cpu0 * AsmParser/* Disassembler/* InstPrinter/* MCTargetDesc/* TargetInfo/*
 
-  rename Fpga Cpu0 * AsmParser/* Disassembler/* InstPrinter/* MCTargetDesc/* TargetInfo/*
+  In Ubuntu:
+  rename 's/Mips/Cpu0/g' * AsmParser/* Disassembler/* InstPrinter/* MCTargetDesc/* TargetInfo/*
+
 
 rm -f `find . -name *.cpp~`
 
