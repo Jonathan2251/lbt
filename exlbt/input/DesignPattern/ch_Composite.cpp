@@ -1,7 +1,7 @@
 #include "ch_Composite.h"
 
-//extern "C" int printf(const char *format, ...);
-#include <cstdio>
+extern "C" int printf(const char *format, ...);
+//#include <cstdio>
 
 #include "ch_Iterator.cpp"
 
