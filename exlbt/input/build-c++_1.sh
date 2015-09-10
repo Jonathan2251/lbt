@@ -15,7 +15,7 @@ clang -target mips-unknown-linux-gnu -c printf-stdarg-def.c -emit-llvm \
 -o printf-stdarg-def.bc
 clang -target mips-unknown-linux-gnu -c printf-stdarg.c -emit-llvm \
 -o printf-stdarg.bc
-clang -DTEST_RUN -c ch12_inherit.cpp -emit-llvm -o ch12_inherit.bc
+clang -DTEST_RUN -c ${LBDEXDIR}/input/ch12_inherit.cpp -emit-llvm -o ch12_inherit.bc
 ${TOOLDIR}/llc -march=cpu0${endian} -mcpu=${CPU} -relocation-model=static \
 -filetype=obj start.bc -o start.cpu0.o
 ${TOOLDIR}/llc -march=cpu0${endian} -mcpu=${CPU} -relocation-model=static \
