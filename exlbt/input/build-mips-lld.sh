@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
-endian=
-#endian=el
+#endian=
+endian=el
 
 OS=`uname -s`
 echo "OS =" ${OS}
@@ -29,4 +29,4 @@ ${TOOLDIR}/llc -march=mips${endian} -relocation-model=static -filetype=obj \
 lib_cpu0.ll -o lib_cpu0.o
 ~/llvm/test/cmake_release_build/bin/lld -flavor gnu -target \
 mips${endian}-unknown-linux-gnu printf-stdarg-def.o printf-stdarg.o ch_hello.o \
-lib_cpu0.o \
+lib_cpu0.o
