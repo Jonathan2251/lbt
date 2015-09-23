@@ -15,7 +15,10 @@ clang -target mips-unknown-linux-gnu -c printf-stdarg-def.c -emit-llvm \
 -o printf-stdarg-def.bc
 clang -target mips-unknown-linux-gnu -c printf-stdarg.c -emit-llvm \
 -o printf-stdarg.bc
-clang -DTEST_RUN -c ${LBDEXDIR}/input/ch12_inherit.cpp -emit-llvm -o ch12_inherit.bc
+clang -DCOUT_TEST -I${LBDEXDIR}/input/ -c test_c++.cpp \
+-emit-llvm -o test_c++.bc
+#clang -I${LBDEXDIR}/input/ -c ${LBDEXDIR}/input/test_c++.cpp -emit-llvm -o \
+#test_c++.bc
 ${TOOLDIR}/llc -march=cpu0${endian} -mcpu=${CPU} -relocation-model=static \
 -filetype=obj start.bc -o start.cpu0.o
 ${TOOLDIR}/llc -march=cpu0${endian} -mcpu=${CPU} -relocation-model=static \
@@ -25,12 +28,13 @@ ${TOOLDIR}/llc -march=cpu0${endian} -mcpu=${CPU} -relocation-model=static \
 ${TOOLDIR}/llc -march=cpu0${endian} -mcpu=${CPU} -relocation-model=static \
 -filetype=obj printf-stdarg.bc -o printf-stdarg.cpu0.o
 ${TOOLDIR}/llc -march=cpu0${endian} -mcpu=${CPU} -relocation-model=static \
--filetype=obj ch12_inherit.bc -o ch12_inherit.cpu0.o
+-filetype=obj test_c++.bc -o test_c++.cpu0.o
 ${TOOLDIR}/llc -march=cpu0${endian} -mcpu=${CPU} -relocation-model=static \
 -filetype=obj lib_cpu0.ll -o lib_cpu0.o
-${TOOLDIR}/lld -flavor gnu -target cpu0${endian}-unknown-linux-gnu \
+${TOOLDIR}/lld -flavor gnu -target \
+cpu0${endian}-unknown-linux-gnu \
 start.cpu0.o debug.cpu0.o printf-stdarg-def.cpu0.o printf-stdarg.cpu0.o \
-ch12_inherit.cpu0.o lib_cpu0.o -o a.out
+test_c++.cpu0.o lib_cpu0.o -o a.out
 
 epilogue;
 

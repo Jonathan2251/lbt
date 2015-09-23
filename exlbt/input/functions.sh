@@ -19,8 +19,10 @@ prologue() {
   echo "OS =" ${OS}
 
   if [ "$OS" == "Linux" ]; then
+    CLANGDIR=~/llvm/release/cmake_debug_build/bin
     TOOLDIR=~/llvm/test/cmake_debug_build/bin
   else
+    CLANGDIR=~/llvm/release/cmake_debug_build/Debug/bin
     TOOLDIR=~/llvm/test/cmake_debug_build/Debug/bin
   fi
 
