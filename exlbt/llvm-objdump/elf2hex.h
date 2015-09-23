@@ -139,7 +139,8 @@ static void PrintDataSection(const ObjectFile *o, uint64_t& lastDumpAddr,
 // Modified from DisassembleObject()
 static void DisassembleObjectInHexFormat(const ObjectFile *Obj
 /*, bool InlineRelocs*/  , std::unique_ptr<MCDisassembler>& DisAsm, 
-  std::unique_ptr<MCInstPrinter>& IP, uint64_t& lastDumpAddr) {
+  std::unique_ptr<MCInstPrinter>& IP, uint64_t& lastDumpAddr,
+  std::unique_ptr<const MCSubtargetInfo>& STI) {
 
 #ifdef ELF2HEX_DEBUG
   errs() << format("!lastDumpAddr %8" PRIx64 "\n", lastDumpAddr);
@@ -212,18 +213,18 @@ static void DisassembleObjectInHexFormat(const ObjectFile *Obj
     std::vector<std::pair<uint64_t, StringRef> > Symbols;
     for (const SymbolRef &Symbol : Obj->symbols()) {
       if (Section.containsSymbol(Symbol)) {
-        uint64_t Address;
-        if (error(Symbol.getAddress(Address)))
+        ErrorOr<uint64_t> AddressOrErr = Symbol.getAddress();
+        if (error(AddressOrErr.getError()))
           break;
-        if (Address == UnknownAddressOrSize)
-          continue;
+        uint64_t Address = *AddressOrErr;
         Address -= SectionAddr;
         if (Address >= SectSize)
           continue;
 
-        StringRef Name;
-        if (error(Symbol.getName(Name))) break;
-        Symbols.push_back(std::make_pair(Address, Name));
+        ErrorOr<StringRef> Name = Symbol.getName();
+        if (error(Name.getError()))
+          break;
+        Symbols.push_back(std::make_pair(Address, *Name));
       }
     }
 
@@ -326,11 +327,10 @@ static void DisassembleObjectInHexFormat(const ObjectFile *Obj
             outs() << format("/*%8" PRIx64 ":*/", SectionAddr + Index);
             if (!NoShowRawInsn) {
               outs() << "\t";
-              DumpBytes(StringRef(
-                  reinterpret_cast<const char *>(Bytes.data()) + Index, Size));
+              dumpBytes(Bytes.slice(Index, Size), outs());
             }
             outs() << "/*";
-            IP->printInst(&Inst, outs(), "");
+            IP->printInst(&Inst, outs(), "", *STI);
             outs() << CommentStream.str();
             outs() << "*/";
             Comments.clear();
@@ -346,20 +346,19 @@ static void DisassembleObjectInHexFormat(const ObjectFile *Obj
         //         << lastDumpAddr << "\n"; // debug
         // Print relocation for instruction.
         while (rel_cur != rel_end) {
-          bool hidden = false;
-          uint64_t addr;
+          bool hidden = getHidden(*rel_cur);
+          uint64_t addr = rel_cur->getOffset();
           SmallString<16> name;
           SmallString<32> val;
 
           // If this relocation is hidden, skip it.
-          if (error(rel_cur->getHidden(hidden))) goto skip_print_rel;
           if (hidden) goto skip_print_rel;
 
-          if (error(rel_cur->getOffset(addr))) goto skip_print_rel;
           // Stop when rel_cur's address is past the current instruction.
           if (addr >= Index + Size) break;
-          if (error(rel_cur->getTypeName(name))) goto skip_print_rel;
-          if (error(rel_cur->getValueString(val))) goto skip_print_rel;
+          rel_cur->getTypeName(name);
+          if (error(getRelocationValueString(*rel_cur, val)))
+            goto skip_print_rel;
 
           outs() << format("\t\t\t/*%8" PRIx64 ": ", SectionAddr + addr) << name
                  << "\t" << val << "*/\n";
@@ -536,7 +535,7 @@ static void Elf2Hex(const ObjectFile *o) {
 
   int AsmPrinterVariant = AsmInfo->getAssemblerDialect();
   std::unique_ptr<MCInstPrinter> IP(TheTarget->createMCInstPrinter(
-      AsmPrinterVariant, *AsmInfo, *MII, *MRI, *STI));
+      Triple(TripleName), AsmPrinterVariant, *AsmInfo, *MII, *MRI));
   if (!IP) {
     errs() << "error: no instruction printer for target " << TripleName
       << '\n';
@@ -549,7 +548,7 @@ static void Elf2Hex(const ObjectFile *o) {
 #endif
 #ifdef DLINK
   if (DumpSo) {
-    DisassembleSoInHexFormat(o, DisAsm, IP, lastDumpAddr);
+    DisassembleSoInHexFormat(o, DisAsm, IP, lastDumpAddr, STI);
     PrintSoDataSections(o, lastDumpAddr, LittleEndian);
   }
   else
@@ -570,6 +569,6 @@ static void Elf2Hex(const ObjectFile *o) {
     lastDumpAddr = 16;
     Fill0s(lastDumpAddr, 0x100);
     lastDumpAddr = 0x100;
-    DisassembleObjectInHexFormat(o, DisAsm, IP, lastDumpAddr);
+    DisassembleObjectInHexFormat(o, DisAsm, IP, lastDumpAddr, STI);
   }
 }

@@ -1,0 +1,8 @@
+1. Porting Cpu0 from X86_64.
+
+2. Porting method:
+  (1). Copy code from X86_64 of lld new release to Cpu0 and add the difference to it.
+// lld 3.6
+  (2). Copy and modify from Cpu0 to Cpu0el.
+
+
