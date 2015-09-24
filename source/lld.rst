@@ -7,6 +7,7 @@ Cpu0 ELF linker
    :local:
    :depth: 4
 
+LLD is change quickly and the figures of this chapter is not up to date.
 Like llvm, lld linker include a couple of target in ELF format handling.
 The term Cpu0 backend used in this chapter can refer to the ELF format handling 
 for Cpu0 target machine under lld, llvm compiler backend, or both. 
@@ -164,24 +165,48 @@ Cpu0 backend souce code
 
 The code added on lld to support Cpu0 ELF as follows,
 
-
-.. rubric:: exlbt/lld/CMakeLists.txt
+.. rubric:: exlbt/lld/include/Core/Reference.h
 .. code-block:: c++
 
-  target_link_libraries(lldELF
-    ...
-    lldCpu0ELFTarget
-    lldCpu0elELFTarget
+  // Which architecture the kind value is for.
+  enum class KindArch { ..., Cpu0 };
+
+.. rubric:: exlbt/lld/include/ReaderWriter/Reference.h
+.. code-block:: c++
+
+  std::unique_ptr<ELFLinkingContext> createCpu0LinkingContext(llvm::Triple);
+
+.. rubric:: exlbt/lld/lib/Driver/CMakeLists.txt
+.. code-block:: c++
+
+  add_llvm_library(lldDriver
+      ...
+      lldCpu0ELFTarget
     )
 
-.. rubric:: exlbt/lld/Atoms.h
+.. rubric:: exlbt/lld/lib/Driver/GnuLdDriver.cpp
+.. code-block:: c++
+
+  std::unique_ptr<ELFLinkingContext>
+  GnuLdDriver::createELFLinkingContext(llvm::Triple triple) {
+    ...
+    if ((p = elf::createCpu0LinkingContext(triple))) return p;
+    ...
+  }
+
+.. rubric:: exlbt/lld/lib/ReaderWriter/ELF/CMakeLists.txt
+.. code-block:: c++
+
+  add_subdirectory(Cpu0)
+
+.. rubric:: exlbt/lld/lib/ReaderWriter/ELF/Atoms.h
 .. code-block:: c++
 
   class SimpleELFDefinedAtom : public SimpleDefinedAtom {
     ...
-    void addReferenceELF_Cpu0(uint16_t relocType, uint64_t off, const Atom *t,
-                              Reference::Addend a) {
-      this->addReferenceELF(Reference::KindArch::Cpu0, relocType, off, t, a);
+    void addReferenceELF_Cpu0(Reference::KindValue relocType, uint64_t off,
+                              const Atom *t, Reference::Addend a) {
+      addReferenceELF(Reference::KindArch::Cpu0, relocType, off, t, a);
     }
   }
 
@@ -212,111 +237,59 @@ The code added on lld to support Cpu0 ELF as follows,
     }
   }
   ...
+  
+.. rubric:: exlbt/lld/lib/ReaderWriter/ELF/ELFFile.h
+.. code-block:: c++
+
   std::unique_ptr<ELFLinkingContext>
   ELFLinkingContext::create(llvm::Triple triple) {
     switch (triple.getArch()) {
     ...
-    case llvm::Triple::cpu0:
-      return std::unique_ptr<ELFLinkingContext>(
-          new lld::elf::Cpu0LinkingContext(triple));
-    case llvm::Triple::cpu0el:
-      return std::unique_ptr<ELFLinkingContext>(
-          new lld::elf::Cpu0elLinkingContext(triple));
+    case llvm::ELF::EM_CPU0:
+      return Reference::KindArch::Cpu0;
   }
 
-.. rubric:: exlbt/lld/Targets.h
-.. code-block:: c++
+.. rubric:: exlbt/lld/lib/ReaderWriter/ELF/Cpu0/CMakeLists.txt
+.. literalinclude:: ../exlbt/lld/lib/ReaderWriter/ELF/Cpu0/CMakeLists.txt
 
-  #include "Cpu0/Cpu0Target.h"
-  #include "Cpu0el/Cpu0Target.h"
+.. rubric:: exlbt/lld/lib/ReaderWriter/ELF/Cpu0/Cpu0DynamicLibraryWriter.h
+.. literalinclude:: ../exlbt/lld/lib/ReaderWriter/ELF/Cpu0/Cpu0DynamicLibraryWriter.h
 
-.. rubric:: exlbt/lld/Reference.h
-.. code-block:: c++
+.. rubric:: exlbt/lld/lib/ReaderWriter/ELF/Cpu0/Cpu0ExecutableWriter.h
+.. literalinclude:: ../exlbt/lld/lib/ReaderWriter/ELF/Cpu0/Cpu0ExecutableWriter.h
 
-    enum class KindArch {
-      ...
-      Cpu0    = 98,
-      Cpu0el  = 99
-    };
+.. rubric:: exlbt/lld/lib/ReaderWriter/ELF/Cpu0/Cpu0ExecutableWriter.cpp
+.. literalinclude:: ../exlbt/lld/lib/ReaderWriter/ELF/Cpu0/Cpu0ExecutableWriter.cpp
 
-.. rubric:: exlbt/lld/Cpu0/CMakeLists.txt
-.. literalinclude:: ../exlbt/lld/Cpu0/CMakeLists.txt
+.. rubric:: exlbt/lld/lib/ReaderWriter/ELF/Cpu0/Cpu0LinkingContext.h
+.. literalinclude:: ../exlbt/lld/lib/ReaderWriter/ELF/Cpu0/Cpu0LinkingContext.h
 
-.. rubric:: exlbt/lld/Cpu0/Cpu0DynamicLibraryWriter.h
-.. literalinclude:: ../exlbt/lld/Cpu0/Cpu0DynamicLibraryWriter.h
+.. rubric:: exlbt/lld/lib/ReaderWriter/ELF/Cpu0/Cpu0LinkingContext.cpp
+.. literalinclude:: ../exlbt/lld/lib/ReaderWriter/ELF/Cpu0/Cpu0LinkingContext.cpp
 
-.. rubric:: exlbt/lld/Cpu0/Cpu0ExecutableWriter.h
-.. literalinclude:: ../exlbt/lld/Cpu0/Cpu0ExecutableWriter.h
+.. rubric:: exlbt/lld/lib/ReaderWriter/ELF/Cpu0/Cpu0RelocationHandler.h
+.. literalinclude:: ../exlbt/lld/lib/ReaderWriter/ELF/Cpu0/Cpu0RelocationHandler.h
 
-.. rubric:: exlbt/lld/Cpu0/Cpu0LinkingContext.h
-.. literalinclude:: ../exlbt/lld/Cpu0/Cpu0LinkingContext.h
+.. rubric:: exlbt/lld/lib/ReaderWriter/ELF/Cpu0/Cpu0RelocationHandler.cpp
+.. literalinclude:: ../exlbt/lld/lib/ReaderWriter/ELF/Cpu0/Cpu0RelocationHandler.cpp
 
-.. rubric:: exlbt/lld/Cpu0/Cpu0LinkingContext.cpp
-.. literalinclude:: ../exlbt/lld/Cpu0/Cpu0LinkingContext.cpp
+.. rubric:: exlbt/lld/lib/ReaderWriter/ELF/Cpu0/Cpu0RelocationPass.h
+.. literalinclude:: ../exlbt/lld/lib/ReaderWriter/ELF/Cpu0/Cpu0RelocationPass.h
 
-.. rubric:: exlbt/lld/Cpu0/Cpu0RelocationHandler.h
-.. literalinclude:: ../exlbt/lld/Cpu0/Cpu0RelocationHandler.h
+.. rubric:: exlbt/lld/lib/ReaderWriter/ELF/Cpu0/Cpu0RelocationPass.cpp
+.. literalinclude:: ../exlbt/lld/lib/ReaderWriter/ELF/Cpu0/Cpu0RelocationPass.cpp
 
-.. rubric:: exlbt/lld/Cpu0/Cpu0RelocationHandler.cpp
-.. literalinclude:: ../exlbt/lld/Cpu0/Cpu0RelocationHandler.cpp
+.. rubric:: exlbt/lld/lib/ReaderWriter/ELF/Cpu0/Cpu0SectionChunks.h
+.. literalinclude:: ../exlbt/lld/lib/ReaderWriter/ELF/Cpu0/Cpu0SectionChunks.h
 
-.. rubric:: exlbt/lld/Cpu0/Cpu0RelocationPass.h
-.. literalinclude:: ../exlbt/lld/Cpu0/Cpu0RelocationPass.h
+.. rubric:: exlbt/lld/lib/ReaderWriter/ELF/Cpu0/Cpu0SectionChunks.cpp
+.. literalinclude:: ../exlbt/lld/lib/ReaderWriter/ELF/Cpu0/Cpu0SectionChunks.cpp
 
-.. rubric:: exlbt/lld/Cpu0/Cpu0RelocationPass.cpp
-.. literalinclude:: ../exlbt/lld/Cpu0/Cpu0RelocationPass.cpp
+.. rubric:: exlbt/lld/lib/ReaderWriter/ELF/Cpu0/Cpu0TargetHandler.h
+.. literalinclude:: ../exlbt/lld/lib/ReaderWriter/ELF/Cpu0/Cpu0TargetHandler.h
 
-.. rubric:: exlbt/lld/Cpu0/Cpu0LinkingContext.cpp
-.. literalinclude:: ../exlbt/lld/Cpu0/Cpu0LinkingContext.cpp
-
-.. rubric:: exlbt/lld/Cpu0/Cpu0Target.h
-.. literalinclude:: ../exlbt/lld/Cpu0/Cpu0Target.h
-
-.. rubric:: exlbt/lld/Cpu0/Cpu0TargetHandler.h
-.. literalinclude:: ../exlbt/lld/Cpu0/Cpu0TargetHandler.h
-
-.. rubric:: exlbt/lld/Cpu0/Cpu0TargetHandler.cpp
-.. literalinclude:: ../exlbt/lld/Cpu0/Cpu0TargetHandler.cpp
-
-.. rubric:: exlbt/lld/Cpu0el/CMakeLists.txt
-.. literalinclude:: ../exlbt/lld/Cpu0el/CMakeLists.txt
-
-.. rubric:: exlbt/lld/Cpu0el/Cpu0DynamicLibraryWriter.h
-.. literalinclude:: ../exlbt/lld/Cpu0el/Cpu0DynamicLibraryWriter.h
-
-.. rubric:: exlbt/lld/Cpu0el/Cpu0ExecutableWriter.h
-.. literalinclude:: ../exlbt/lld/Cpu0el/Cpu0ExecutableWriter.h
-
-.. rubric:: exlbt/lld/Cpu0el/Cpu0LinkingContext.h
-.. literalinclude:: ../exlbt/lld/Cpu0el/Cpu0LinkingContext.h
-
-.. rubric:: exlbt/lld/Cpu0el/Cpu0LinkingContext.cpp
-.. literalinclude:: ../exlbt/lld/Cpu0el/Cpu0LinkingContext.cpp
-
-.. rubric:: exlbt/lld/Cpu0el/Cpu0RelocationHandler.h
-.. literalinclude:: ../exlbt/lld/Cpu0el/Cpu0RelocationHandler.h
-
-.. rubric:: exlbt/lld/Cpu0el/Cpu0RelocationHandler.cpp
-.. literalinclude:: ../exlbt/lld/Cpu0el/Cpu0RelocationHandler.cpp
-
-.. rubric:: exlbt/lld/Cpu0el/Cpu0RelocationPass.h
-.. literalinclude:: ../exlbt/lld/Cpu0el/Cpu0RelocationPass.h
-
-.. rubric:: exlbt/lld/Cpu0el/Cpu0RelocationPass.cpp
-.. literalinclude:: ../exlbt/lld/Cpu0el/Cpu0RelocationPass.cpp
-
-.. rubric:: exlbt/lld/Cpu0el/Cpu0LinkingContext.cpp
-.. literalinclude:: ../exlbt/lld/Cpu0el/Cpu0LinkingContext.cpp
-
-.. rubric:: exlbt/lld/Cpu0el/Cpu0Target.h
-.. literalinclude:: ../exlbt/lld/Cpu0el/Cpu0Target.h
-
-.. rubric:: exlbt/lld/Cpu0el/Cpu0TargetHandler.h
-.. literalinclude:: ../exlbt/lld/Cpu0el/Cpu0TargetHandler.h
-
-.. rubric:: exlbt/lld/Cpu0el/Cpu0TargetHandler.cpp
-.. literalinclude:: ../exlbt/lld/Cpu0/Cpu0TargetHandler.cpp
-
+.. rubric:: exlbt/lld/Cpu0/lib/ReaderWriter/ELF/Cpu0TargetHandler.cpp
+.. literalinclude:: ../exlbt/lld/lib/ReaderWriter/ELF/Cpu0/Cpu0TargetHandler.cpp
 
 Above code in Cpu0 lld support both endian for static link and dynamic link. 
 The "#ifdef DLINKER" is for dynamic link support. 
@@ -457,33 +430,7 @@ Linking Steps
 Command line processing 
 '''''''''''''''''''''''
 
-To support a new backend, the following code added for Command line processing.
-
-.. rubric:: lld/lib/ReaderWriter/ELF/ELFLinkingContext.cpp
-.. code-block:: c++
-
-  uint16_t ELFLinkingContext::getOutputMachine() const {
-    switch (getTriple().getArch()) {
-    ...
-    case llvm::Triple::cpu0:
-      return llvm::ELF::EM_CPU0;
-    default:
-      llvm_unreachable("Unhandled arch");
-    }
-  }
-  
-  std::unique_ptr<ELFLinkingContext>
-  ELFLinkingContext::create(llvm::Triple triple) {
-    switch (triple.getArch()) {
-    ...
-    case llvm::Triple::cpu0:
-      return std::unique_ptr<ELFLinkingContext>(
-          new lld::elf::Cpu0LinkingContext(triple));
-    default:
-      return nullptr;
-    }
-  }
-
+To support a new backend, refer to Cpu0 code added above.
 
 Parsing input files 
 '''''''''''''''''''
@@ -501,49 +448,8 @@ Parsing input files
 
 - Reader
 
-  - The base class lld::reader and the elf specific file format reader as follows,
-
-    .. rubric:: lld/lib/ReaderWriter/Reader.cpp
-    .. code-block:: c++
-
-      ~/llvm/test/src/tools/lld/lib/ReaderWriter$ cat Reader.cpp
-      ...
-      #include "lld/ReaderWriter/Reader.h"
-
-      #include "llvm/ADT/OwningPtr.h"
-      #include "llvm/ADT/StringRef.h"
-      #include "llvm/Support/MemoryBuffer.h"
-      #include "llvm/Support/system_error.h"
-
-      namespace lld {
-      Reader::~Reader() {
-      }
-      } // end namespace lld
-
-    .. rubric:: lld/lib/ReaderWriter/ELF/Reader.cpp
-    .. code-block:: c++
-
-      ~/llvm/test/src/tools/lld/lib/ReaderWriter/ELF$ cat Reader.cpp 
-      namespace lld {
-      namespace elf {
-      ...
-      class ELFReader : public Reader {
-      public:
-        ELFReader(const ELFLinkingContext &ctx)
-            : lld::Reader(ctx), _elfLinkingContext(ctx) {}
-
-        error_code parseFile(std::unique_ptr<MemoryBuffer> &mb,
-                             std::vector<std::unique_ptr<File> > &result) const {
-      …
-      private:
-        const ELFLinkingContext &_elfLinkingContext;
-      };
-      } // end namespace elf
-
-      std::unique_ptr<Reader> createReaderELF(const ELFLinkingContext &context) {
-        return std::unique_ptr<Reader>(new elf::ELFReader(context));
-      }
-      } // end namespace lld
+  - Refer lld/lib/ReaderWriter/ELF/Reader.cpp and it's related files since lld 
+    change quickly.
 
 
 - lld::File representations
@@ -676,8 +582,8 @@ didn't indicate this.
 
 The following code will register a pass when the lld backend code is up. 
 
-.. rubric:: exlbt/lld/Cpu0/Cpu0RelocationPass.cpp
-.. literalinclude:: ../exlbt/lld/Cpu0/Cpu0RelocationPass.cpp
+.. rubric:: exlbt/lld/lib/ReaderWriter/ELF/Cpu0/Cpu0RelocationPass.cpp
+.. literalinclude:: ../exlbt/lld/lib/ReaderWriter/ELF/Cpu0/Cpu0RelocationPass.cpp
     :start-after: } // end anon namespace
 
 
@@ -694,76 +600,37 @@ Generate Output File
 
 - Writer
 
-  .. rubric:: lld/lib/ReaderWriter
-  .. code-block:: c++
-
-    ~/llvm/test/src/tools/lld/lib/ReaderWriter$ cat Writer.cpp
-    ...
-    #include "lld/Core/File.h"
-    #include "lld/ReaderWriter/Writer.h"
-
-    namespace lld {
-    Writer::Writer() {
-    }
-
-    Writer::~Writer() {
-    }
-
-    bool Writer::createImplicitFiles(std::vector<std::unique_ptr<File> > &) {
-      return true;
-    }
-    } // end namespace lld
-
-  .. rubric:: lld/lib/ReaderWriter
-  .. code-block:: c++
-
-    ~/llvm/test/src/tools/lld/lib/ReaderWriter/ELF$ cat Writer.cpp 
-    namespace lld {
-
-    std::unique_ptr<Writer> createWriterELF(const ELFLinkingContext &info) {
-      using llvm::object::ELFType;
-      ...
-      switch (info.getOutputELFType()) {
-      case llvm::ELF::ET_EXEC:
-        if (info.is64Bits()) {
-          if (info.isLittleEndian())
-            return std::unique_ptr<Writer>(new
-                elf::ExecutableWriter<ELFType<support::little, 8, true>>(info));
-          else
-            return std::unique_ptr<Writer>(new
-                    elf::ExecutableWriter<ELFType<support::big, 8, true>>(info));
-    ...
-
-    } // namespace lld
+  - Refer lld/lib/ReaderWriter/ELF/Writer.cpp and it's related files since lld 
+    change quickly.
 
 
 After register a relocation pass, lld backend hook function "applyRelocation()" 
 will be called by lld driver to finish the address binding in linker stage.
 
-.. rubric:: exlbt/lld/Cpu0/Cpu0RelocationHandler.cpp
+.. rubric:: exlbt/lld/lib/ReaderWriter/ELF/Cpu0/Cpu0RelocationHandler.cpp
 .. code-block:: c++
 
-  ErrorOr<void> Cpu0TargetRelocationHandler::applyRelocation(
-      ELFWriter &writer, llvm::FileOutputBuffer &buf, const lld::AtomLayout &atom,
+  template <class ELFT> std::error_code Cpu0TargetRelocationHandler<ELFT>::applyRelocation(
+      ELFWriter &writer, llvm::FileOutputBuffer &buf, const AtomLayout &atom,
       const Reference &ref) const {
     ...
     uint8_t *atomContent = buf.getBufferStart() + atom._fileOffset;
-    uint8_t *location = atomContent + ref.offsetInAtom();
-    uint64_t targetVAddress = writer.addressOfAtom(ref.target());
-    uint64_t relocVAddress = atom._virtualAddr + ref.offsetInAtom();
+    uint8_t *loc = atomContent + ref.offsetInAtom();
+    uint64_t target = writer.addressOfAtom(ref.target());
+    uint64_t reloc = atom._virtualAddr + ref.offsetInAtom();
     ...
     switch (ref.kind()) {
     case R_CPU0_NONE:
       break;
     case R_CPU0_HI16:
-      relocHI16(location, relocVAddress, targetVAddress, ref.addend());
+      relocHI16(loc, reloc, target, ref.addend(), _endian);
       break;
     case R_CPU0_LO16:
-      relocLO16(location, relocVAddress, targetVAddress, ref.addend());
+      relocLO16(loc, reloc, target, ref.addend(), _endian);
       break;
     ...
     case R_CPU0_PC24:
-      relocPC24(location, relocVAddress, targetVAddress, ref.addend());
+      relocPC24(loc, reloc, target, ref.addend(), _endian);
       break;
     ...
     }
@@ -1110,66 +977,23 @@ Cpu0 lld structure
 
 The Cpu0LinkingContext include the context information for those input obj 
 files and output execution file you want to link.
-When do linking, the following code will create Cpu0LinkingContext.
+When do linking, the code added in GnuLdDriver.cpp will create 
+Cpu0LinkingContext.
 
-.. rubric:: exlbt/lld/ELFLinkingContext.h
-.. code-block:: c++
-
-  class ELFLinkingContext : public LinkingContext {
-  public:
-    ...
-    static std::unique_ptr<ELFLinkingContext> create(llvm::Triple);
-    ...
-  }
-
-.. rubric:: exlbt/lld/ELFLinkingContext.cpp
-.. code-block:: c++
-
-  std::unique_ptr<ELFLinkingContext>
-  ELFLinkingContext::create(llvm::Triple triple) {
-    switch (triple.getArch()) {
-    ...
-    case llvm::Triple::cpu0:
-      return std::unique_ptr<ELFLinkingContext>(
-          new lld::elf::Cpu0LinkingContext(triple));
-    default:
-      return nullptr;
-    }
-  }
-
-While Cpu0LinkingContext is created by lld ELF driver as above, the following
+While Cpu0LinkingContext is created by lld ELF driver as above, the 
 code in Cpu0LinkingContext constructor will create Cpu0TargetHandler and passing
 the Cpu0LinkingContext object pointer to Cpu0TargeHandler.
 
-.. rubric:: exlbt/lld/Cpu0/Cpu0LinkingContext.h
-.. code-block:: c++
-
-  class Cpu0LinkingContext LLVM_FINAL : public ELFLinkingContext {
-  public:
-    Cpu0LinkingContext(llvm::Triple triple)
-        : ELFLinkingContext(triple, std::unique_ptr<TargetHandlerBase>(
-                                    new Cpu0TargetHandler(*this))) {}
-    ...
-  }
-
 Finally, the Cpu0TargeHandler constructor will create other related objects
 and set up the relation reference object pointers as :num:`Figure #lld-f1`
-depicted by the following code.
-
-.. rubric:: exlbt/lld/Cpu0/Cpu0TargetHandler.cpp
-.. code-block:: c++
-
-  Cpu0TargetHandler::Cpu0TargetHandler(Cpu0LinkingContext &context)
-      : DefaultTargetHandler(context), _gotFile(new GOTFile(context)),
-        _relocationHandler(context), _targetLayout(context) {}
-
+depicted.
 
 According chapter ELF, the linker stands for resolve the relocation records.
 The following code give the chance to let lld system call our relocation 
 function at proper time.
 
-.. rubric:: exlbt/lld/Cpu0/Cpu0RelocationPass.cpp
-.. literalinclude:: ../exlbt/lld/Cpu0/Cpu0RelocationPass.cpp
+.. rubric:: exlbt/lld/lib/ReaderWriter/ELF/Cpu0/Cpu0RelocationPass.cpp
+.. literalinclude:: ../exlbt/lld/lib/ReaderWriter/ELF/Cpu0/Cpu0RelocationPass.cpp
     :start-after: } // end anon namespace
 
 The "#ifdef DLINKER" part is for dynamic linker which will be used in next 
@@ -1180,7 +1004,7 @@ Now the following code of Cpu0TargetRelocationHandler::applyRelocation()
 will be called through 
 Cpu0TargetHandler by lld ELF driver when it meets each relocation record.
 
-.. rubric:: exlbt/lld/Cpu0/Cpu0RelocationHandler.cpp
+.. rubric:: exlbt/lld/lib/ReaderWriter/ELF/Cpu0/Cpu0RelocationHandler.cpp
 .. code-block:: c++
 
   ErrorOr<void> Cpu0TargetRelocationHandler::applyRelocation(
