@@ -31,7 +31,10 @@ Also thanking those corrections from readers who make the book more accurate.
 Revision history
 ----------------
 
-Version 3.6.3, Not release yet
+Version 3.7.1, Not release yet
+
+Version 3.7.0, Released September 24, 2015
+  Porting to lld 3.7.
 
 Version 3.6.2, Released May 4, 2015
   Move some test from lbt to lbd.
