@@ -57,3 +57,8 @@
   // switch to clang release 32
   git checkout --track -b release_32 remotes/origin/release_32
 
+
+4. remove files permanently:
+git filter-branch --tree-filter --ignore-unmatch 'rm -rf lib' HEAD
+git push origin master --force
+
