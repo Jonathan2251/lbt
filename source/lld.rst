@@ -7,11 +7,11 @@ Cpu0 ELF linker
    :local:
    :depth: 4
 
-LLD is change quickly and the figures of this chapter is not up to date.
+LLD changes quickly and the figures of this chapter is not up to date.
 Like llvm, lld linker include a couple of target in ELF format handling.
 The term Cpu0 backend used in this chapter can refer to the ELF format handling 
-for Cpu0 target machine under lld, llvm compiler backend, or both. 
-Suppose readers will easy knowing what it refer to.
+for Cpu0 target machine under lld, llvm compiler backend, or both. But
+supposing readers will easy knowing what it refer to.
 
 .. _lld-f-workflow: 
 .. figure:: ../Fig/about/1.png
@@ -114,11 +114,9 @@ Next, setup Cpu0 backend as follows,
 
 .. code-block:: bash
 
-  1-160-136-173:Cpu0 Jonathan$ cd ../../../tools/lld/lib/ReaderWriter/ELF/
-  1-160-136-173:ELF Jonathan$ pwd
-  /Users/Jonathan/llvm/test/src/tools/lld/lib/ReaderWriter/ELF
-  1-160-136-173:ELF Jonathan$ cp -rf ~/test/lbt/exlbt/lld/* .
-  1-160-136-173:ELF Jonathan$ mv Reference.h ../../../include/lld/Core/.
+  1-160-136-173:lld Jonathan$ pwd
+  /Users/Jonathan/llvm/test/src/tools/lld
+  1-160-136-173:lld Jonathan$ cp -rf ~/test/lbt/exlbt/lld/* .
 
 
 Finally, update llvm-objdump to support converting ELF file to Hex file as 
@@ -126,7 +124,6 @@ follows,
 
 .. code-block:: bash
 
-  1-160-136-173:ELF Jonathan$ cd ../../../../llvm-objdump/
   1-160-136-173:llvm-objdump Jonathan$ pwd
   /Users/Jonathan/llvm/test/src/tools/llvm-objdump
   1-160-136-173:llvm-objdump Jonathan$ cp -rf ~/test/lbt/exlbt/llvm-objdump/* .
@@ -293,10 +290,6 @@ The code added on lld to support Cpu0 ELF as follows,
 
 Above code in Cpu0 lld support both endian for static link and dynamic link. 
 The "#ifdef DLINKER" is for dynamic link support. 
-The directory Cpu0 is for big endian and Cpu0el is for little endian. 
-They are almost same. I believe the lld structure will change to support both 
-endian but at this point, the best way to do both endian support is duplicate 
-the directory.
 
 
 LLD introduction 

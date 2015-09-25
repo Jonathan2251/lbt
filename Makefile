@@ -164,7 +164,7 @@ gh-pages:
 	rm -rf build _sources _static _images
 	git checkout master $(GH_PAGES_SOURCES)
 	git reset HEAD
-	cp -rf ../lbd/docs/BackendTutorial/lbdex .
+	cp -rf ../lbd/lbdex .
 	make html latexpdf epub
 	tar -zcvf exlbt.tar.gz exlbt
 	mv -fv build/html/* ./
