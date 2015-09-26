@@ -62,9 +62,8 @@ uint16_t ELFLinkingContext::getOutputMachine() const {
   case llvm::Triple::arm:
     return llvm::ELF::EM_ARM;
   case llvm::Triple::cpu0:
-    return llvm::ELF::EM_CPU0;
   case llvm::Triple::cpu0el:
-    return llvm::ELF::EM_CPU0_LE;
+    return llvm::ELF::EM_CPU0;
   default:
     llvm_unreachable("Unhandled arch");
   }
