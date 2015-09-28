@@ -407,6 +407,7 @@ static std::error_code getRelocationValueString(const ELFObjectFile<ELFT> *Obj,
   case ELF::EM_ARM:
   case ELF::EM_HEXAGON:
   case ELF::EM_MIPS:
+  case ELF::EM_CPU0: // llvm-obj -t -r
     res = Target;
     break;
   default:

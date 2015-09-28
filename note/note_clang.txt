@@ -14,3 +14,8 @@ clang++ -c toy.cpp `llvm-config --cppflags` -emit-llvm -O3 -o toy.bc
 clang++ toy.bc -rdynamic `llvm-config --ldflags --libs core jit native` -O3 -o toy
 
 LLVM toolchain support as a plug-in for Eclipse CDT
+
+We can get llvm IR for c or c++ pattern by following directory:
+114-43-202-217:CodeGen Jonathan$ pwd
+/Users/Jonathan/llvm/release/src/tools/clang/test/CodeGen
+114-43-202-217:CodeGen Jonathan$ clang -cc1 *.c

@@ -76,6 +76,17 @@ Hex for Cpu0 backend as follows,
 .. literalinclude:: ../exlbt/llvm-objdump/elf2hex.h
 
 .. rubric:: exlbt/llvm-objdump/llvm-objdump.cpp
+.. code-block:: c++
+  
+  template <class ELFT>
+  static std::error_code getRelocationValueString(const ELFObjectFile<ELFT> *Obj,
+                                                  DataRefImpl Rel,
+                                                  SmallVectorImpl<char> &Result) {
+    ...
+    case ELF::EM_CPU0: // llvm-obj -t -r
+    ...
+  }
+
 .. literalinclude:: ../exlbt/llvm-objdump/llvm-objdump.cpp
     :start-after: // 1 llvm-objdump -elf2hex code update begin:
     :end-before: // 1 llvm-objdump -elf2hex code udpate end:
