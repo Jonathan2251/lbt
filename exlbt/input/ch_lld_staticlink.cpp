@@ -41,6 +41,18 @@ int test_staticlink()
   else
     printf(", FAIL\n");
   verify_test_ctrl2();
+  a = test_blockaddress(1);
+  printf("test_blockaddress(1) = %d", a); // a = 1
+  if (a == 1)
+    printf(", PASS\n");
+  else
+    printf(", FAIL\n");
+  a = test_blockaddress(2);
+  printf("test_blockaddress(2) = %d", a); // a = 2
+  if (a == 2)
+    printf(", PASS\n");
+  else
+    printf(", FAIL\n");
   a = test_func_arg_struct();
   a = test_constructor();
   a = test_template();

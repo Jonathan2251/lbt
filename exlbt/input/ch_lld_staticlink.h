@@ -14,6 +14,7 @@ extern int test_overflow();
 extern int test_add_overflow();
 extern int test_sub_overflow();
 extern int test_ctrl2();
+extern int test_blockaddress(int x);
 extern int test_alloc();
 
 extern int test_staticlink();
