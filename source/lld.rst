@@ -936,6 +936,8 @@ is for this purpose.
   date2 = 2013 1 26 12 21 10, PASS
   test_template() = 15, PASS
   test_alloc() = 31, PASS
+  exceptionOccur= 1, PASS
+  exceptionOccur= 0, PASS
   inlineasm_global() = 4, PASS
   20
   10

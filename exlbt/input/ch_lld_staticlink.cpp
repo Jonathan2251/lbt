@@ -67,6 +67,18 @@ int test_staticlink()
     printf(", PASS\n");
   else
     printf(", FAIL\n");
+  test_detect_exception(true);
+  printf("exceptionOccur= %d", exceptionOccur);
+  if (exceptionOccur)
+    printf(", PASS\n");
+  else
+    printf(", FAIL\n");
+  test_detect_exception(false);
+  printf("exceptionOccur= %d", exceptionOccur);
+  if (!exceptionOccur)
+    printf(", PASS\n");
+  else
+    printf(", FAIL\n");
   a = inlineasm_global(); // 4
   printf("inlineasm_global() = %d", a); // a = 4
   if (a == 4)
