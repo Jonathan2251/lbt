@@ -77,10 +77,9 @@ http://jonathan2251.github.io/lbd/index.html.
 
 This book include:
 
-1. ELF linker for Cpu0 which extended from lld. Chapter 2.
-2. The elf2hex extended from llvm-objump. Chapter 2.
-3. Optimization. Chapter 3.
-4. Porting C standard library from avr libc and software floating point library
+1. The elf2hex extended from llvm-objump. Chapter 2.
+2. Optimization. Chapter 3.
+3. Porting C standard library from avr libc and software floating point library
    from LLVM compiler-rt.
 
 With these implementation, reader can generate Cpu0 machine code through Cpu0 
