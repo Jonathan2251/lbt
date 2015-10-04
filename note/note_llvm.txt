@@ -68,15 +68,14 @@
 
 3. Unix command:
 
-  // Replace "Mips" with "Fpga" in currently directory of all files.
-  cd Fpga
-  find . -type f -print0 | xargs -0 sed -i 's/Mips/Fpga/g'
-  find . -type f -print0 | xargs -0 sed -i 's/MIPS/FPGA/g'
-  find . -type f -print0 | xargs -0 sed -i 's/mips/fpga/g'
-
-  find . -type f -print0 | xargs -0 sed -i 's/Fpga/Cpu0/g'
-  find . -type f -print0 | xargs -0 sed -i 's/FPGA/CPU0/g'
-  find . -type f -print0 | xargs -0 sed -i 's/fpga/cpu0/g'
+  // Replace "Mips" with "Cpu0" in currently directory of all files.
+  Linux:
+  find . -type f -print0 | xargs -0 sed -i 's/Mips/Cpu0/g'
+  find . -type f -print0 | xargs -0 sed -i 's/MIPS/CPU0/g'
+  find . -type f -print0 | xargs -0 sed -i 's/mips/cpu0/g'
+  
+  iMac:
+  find . -type f -print0 | xargs -0 sed -i '' 's/Mips/Cpu0/g'
 
   /*-print0 (GNU find only) tells find to use the null character (\0) instead of whitespace as the output delimiter between pathnames found. This is a safer option if you files can contain blanks or other special character. It is recommended to use the -print0 argument to find if you use -exec command or xargs (the -0 argument is needed in xargs.).*/
 
