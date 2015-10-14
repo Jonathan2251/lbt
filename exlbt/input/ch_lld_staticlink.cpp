@@ -53,6 +53,12 @@ int test_staticlink()
     printf(", PASS\n");
   else
     printf(", FAIL\n");
+  a = test_longbranch();
+  printf("test_longbranch() = %d", a); // a = 0
+  if (a == 0)
+    printf(", PASS\n");
+  else
+    printf(", FAIL\n");
   a = test_func_arg_struct();
   a = test_constructor();
   a = test_template();

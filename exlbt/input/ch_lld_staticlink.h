@@ -15,6 +15,7 @@ extern int test_add_overflow();
 extern int test_sub_overflow();
 extern int test_ctrl2();
 extern int test_blockaddress(int x);
+extern int test_longbranch();
 extern bool exceptionOccur;
 extern int test_detect_exception(bool exception);
 extern int test_alloc();
