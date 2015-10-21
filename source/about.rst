@@ -36,6 +36,7 @@ Version 3.7.1, Not release yet
   Add IR blockaddress and indirectbr support.
   Add ch_9_3_detect_exception.cpp test.
   Change display "ret $rx" to "jr $rx" where $rx is not $lr.
+  Add Phi node test.
 
 Version 3.7.0, Released September 24, 2015
   Porting to lld 3.7.
@@ -61,7 +62,7 @@ Outline of Chapters
 
 .. _about-f1: 
 .. figure:: ../Fig/about/1.png
-  :scale: 100 %
+  :scale: 50
   :align: center
 
   Code generation and execution flow

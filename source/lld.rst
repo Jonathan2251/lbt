@@ -926,6 +926,7 @@ is for this purpose.
   test_overflow = 0, PASS
   global variable gI = 100, PASS
   test_ctrl2(): a = 1, b = 0, c = 1, d = 0, PASS
+  test_phinode(3, 1) = 3, PASS
   test_blockaddress(1) = 1, PASS
   test_blockaddress(2) = 2, PASS
   date1 = 2012 10 12 1 2 3, PASS
