@@ -41,7 +41,7 @@ int test_staticlink()
   else
     printf(", FAIL\n");
   verify_test_ctrl2();
-  a = test_phinode(3, 1);
+  a = test_phinode(3, 1, 0);
   printf("test_phinode(3, 1) = %d", a); // a = 3
   if (a == 3)
     printf(", PASS\n");
