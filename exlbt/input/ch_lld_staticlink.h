@@ -19,6 +19,5 @@ extern int test_blockaddress(int x);
 extern int test_longbranch();
 extern bool exceptionOccur;
 extern int test_detect_exception(bool exception);
-extern int test_alloc();
 
 extern int test_staticlink();

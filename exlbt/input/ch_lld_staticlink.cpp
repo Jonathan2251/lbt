@@ -73,12 +73,6 @@ int test_staticlink()
     printf(", PASS\n");
   else
     printf(", FAIL\n");
-  a = test_alloc();  // 31
-  printf("test_alloc() = %d", a);
-  if (a == 31)
-    printf(", PASS\n");
-  else
-    printf(", FAIL\n");
   test_detect_exception(true);
   printf("exceptionOccur= %d", exceptionOccur);
   if (exceptionOccur)
