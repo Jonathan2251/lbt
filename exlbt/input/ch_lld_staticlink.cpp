@@ -66,10 +66,26 @@ int test_staticlink()
   else
     printf(", FAIL\n");
   a = test_func_arg_struct();
+  printf("test_func_arg_struct() = %d", a); // a = 0
+  if (a == 0)
+    printf(", PASS\n");
+  else
+    printf(", FAIL\n");
   a = test_constructor();
+  printf("test_constructor() = %d", a); // a = 0
+  if (a == 0)
+    printf(", PASS\n");
+  else
+    printf(", FAIL\n");
   a = test_template();
   printf("test_template() = %d", a); // a = 15
   if (a == 15)
+    printf(", PASS\n");
+  else
+    printf(", FAIL\n");
+  a = test_tailcall(5);
+  printf("test_tailcall(5) = %d", a); // a = 15
+  if (a == 120)
     printf(", PASS\n");
   else
     printf(", FAIL\n");
