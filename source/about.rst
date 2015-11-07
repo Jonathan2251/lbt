@@ -31,7 +31,9 @@ Also thanking those corrections from readers who make the book more accurate.
 Revision history
 ----------------
 
-Version 3.7.1, Not release yet
+Version 3.7.2, Not release yet
+
+Version 3.7.1, Released November 7, 2015
   Remove EM_CPU0_EL.
   Add IR blockaddress and indirectbr support.
   Add ch_9_3_detect_exception.cpp test.
@@ -87,10 +89,6 @@ This book include:
 With these implementation, reader can generate Cpu0 machine code through Cpu0 
 llvm backend compiler, linker and elf2hex, then see how it runs on your 
 computer. 
-The pdf and epub are also available in the web.
-
-Outline of Chapters
--------------------
 
 :ref:`sec-lld`:
 
@@ -98,8 +96,7 @@ Develop ELF linker for Cpu0 backend based on lld project.
 
 :ref:`sec-opt`:
 
-Backend independent optimaization. Under working and I need to avoid something I
-know since I working with a proprietary company.
+Backend independent optimaization.
 
 :ref:`sec-lib`:
 
