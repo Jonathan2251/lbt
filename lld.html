@@ -15,7 +15,7 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    './',
-        VERSION:     '3.7.0',
+        VERSION:     '3.7.1',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -1149,6 +1149,16 @@ static void Elf2Hex(const ObjectFile *o) {
 </pre>
 </div>
 <p class="rubric">exlbt/llvm-objdump/llvm-objdump.cpp</p>
+<div class="highlight-c++"><div class="highlight"><pre><span class="k">template</span> <span class="o">&lt;</span><span class="k">class</span> <span class="nc">ELFT</span><span class="o">&gt;</span>
+<span class="k">static</span> <span class="n">std</span><span class="o">::</span><span class="n">error_code</span> <span class="n">getRelocationValueString</span><span class="p">(</span><span class="k">const</span> <span class="n">ELFObjectFile</span><span class="o">&lt;</span><span class="n">ELFT</span><span class="o">&gt;</span> <span class="o">*</span><span class="n">Obj</span><span class="p">,</span>
+                                                <span class="n">DataRefImpl</span> <span class="n">Rel</span><span class="p">,</span>
+                                                <span class="n">SmallVectorImpl</span><span class="o">&lt;</span><span class="kt">char</span><span class="o">&gt;</span> <span class="o">&amp;</span><span class="n">Result</span><span class="p">)</span> <span class="p">{</span>
+  <span class="p">...</span>
+  <span class="k">case</span> <span class="n">ELF</span>:<span class="o">:</span><span class="n">EM_CPU0</span><span class="o">:</span> <span class="c1">// llvm-obj -t -r</span>
+  <span class="p">...</span>
+<span class="p">}</span>
+</pre></div>
+</div>
 <div class="highlight-c++"><div class="highlight"><pre><span class="cp">#include &quot;elf2hex.h&quot;</span>
 
 <span class="k">static</span> <span class="kt">void</span> <span class="nf">DumpObject</span><span class="p">(</span><span class="k">const</span> <span class="n">ObjectFile</span> <span class="o">*</span><span class="n">o</span><span class="p">)</span> <span class="p">{</span>
@@ -4146,7 +4156,7 @@ is for this purpose.</p>
 <div class="highlight-c++"><div class="highlight"><pre><span class="cp">#include &quot;debug.h&quot;</span>
 <span class="cp">#include &quot;print.h&quot;</span>
 
-<span class="cp">#define PRINT_TEST</span>
+<span class="c1">//#define PRINT_TEST</span>
 
 <span class="k">extern</span> <span class="s">&quot;C&quot;</span> <span class="kt">int</span> <span class="n">printf</span><span class="p">(</span><span class="k">const</span> <span class="kt">char</span> <span class="o">*</span><span class="n">format</span><span class="p">,</span> <span class="p">...);</span>
 <span class="k">extern</span> <span class="s">&quot;C&quot;</span> <span class="kt">int</span> <span class="n">sprintf</span><span class="p">(</span><span class="kt">char</span> <span class="o">*</span><span class="n">out</span><span class="p">,</span> <span class="k">const</span> <span class="kt">char</span> <span class="o">*</span><span class="n">format</span><span class="p">,</span> <span class="p">...);</span>
@@ -4156,7 +4166,13 @@ is for this purpose.</p>
 <span class="k">extern</span> <span class="kt">int</span> <span class="nf">test_add_overflow</span><span class="p">();</span>
 <span class="k">extern</span> <span class="kt">int</span> <span class="nf">test_sub_overflow</span><span class="p">();</span>
 <span class="k">extern</span> <span class="kt">int</span> <span class="nf">test_ctrl2</span><span class="p">();</span>
-<span class="k">extern</span> <span class="kt">int</span> <span class="nf">test_alloc</span><span class="p">();</span>
+<span class="k">extern</span> <span class="kt">int</span> <span class="nf">test_phinode</span><span class="p">(</span><span class="kt">int</span> <span class="n">a</span><span class="p">,</span> <span class="kt">int</span> <span class="n">b</span><span class="p">,</span> <span class="kt">int</span> <span class="n">c</span><span class="p">);</span>
+<span class="k">extern</span> <span class="kt">int</span> <span class="nf">test_blockaddress</span><span class="p">(</span><span class="kt">int</span> <span class="n">x</span><span class="p">);</span>
+<span class="k">extern</span> <span class="kt">int</span> <span class="nf">test_longbranch</span><span class="p">();</span>
+<span class="k">extern</span> <span class="kt">int</span> <span class="nf">test_func_arg_struct</span><span class="p">();</span>
+<span class="k">extern</span> <span class="kt">int</span> <span class="nf">test_tailcall</span><span class="p">(</span><span class="kt">int</span> <span class="n">a</span><span class="p">);</span>
+<span class="k">extern</span> <span class="kt">bool</span> <span class="n">exceptionOccur</span><span class="p">;</span>
+<span class="k">extern</span> <span class="kt">int</span> <span class="nf">test_detect_exception</span><span class="p">(</span><span class="kt">bool</span> <span class="n">exception</span><span class="p">);</span>
 
 <span class="k">extern</span> <span class="kt">int</span> <span class="nf">test_staticlink</span><span class="p">();</span>
 </pre></div>
@@ -4202,17 +4218,63 @@ is for this purpose.</p>
   <span class="k">else</span>
     <span class="n">printf</span><span class="p">(</span><span class="s">&quot;, FAIL</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">);</span>
   <span class="n">verify_test_ctrl2</span><span class="p">();</span>
+  <span class="n">a</span> <span class="o">=</span> <span class="n">test_phinode</span><span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">);</span>
+  <span class="n">printf</span><span class="p">(</span><span class="s">&quot;test_phinode(3, 1) = %d&quot;</span><span class="p">,</span> <span class="n">a</span><span class="p">);</span> <span class="c1">// a = 3</span>
+  <span class="k">if</span> <span class="p">(</span><span class="n">a</span> <span class="o">==</span> <span class="mi">3</span><span class="p">)</span>
+    <span class="n">printf</span><span class="p">(</span><span class="s">&quot;, PASS</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">);</span>
+  <span class="k">else</span>
+    <span class="n">printf</span><span class="p">(</span><span class="s">&quot;, FAIL</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">);</span>
+  <span class="n">a</span> <span class="o">=</span> <span class="n">test_blockaddress</span><span class="p">(</span><span class="mi">1</span><span class="p">);</span>
+  <span class="n">printf</span><span class="p">(</span><span class="s">&quot;test_blockaddress(1) = %d&quot;</span><span class="p">,</span> <span class="n">a</span><span class="p">);</span> <span class="c1">// a = 1</span>
+  <span class="k">if</span> <span class="p">(</span><span class="n">a</span> <span class="o">==</span> <span class="mi">1</span><span class="p">)</span>
+    <span class="n">printf</span><span class="p">(</span><span class="s">&quot;, PASS</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">);</span>
+  <span class="k">else</span>
+    <span class="n">printf</span><span class="p">(</span><span class="s">&quot;, FAIL</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">);</span>
+  <span class="n">a</span> <span class="o">=</span> <span class="n">test_blockaddress</span><span class="p">(</span><span class="mi">2</span><span class="p">);</span>
+  <span class="n">printf</span><span class="p">(</span><span class="s">&quot;test_blockaddress(2) = %d&quot;</span><span class="p">,</span> <span class="n">a</span><span class="p">);</span> <span class="c1">// a = 2</span>
+  <span class="k">if</span> <span class="p">(</span><span class="n">a</span> <span class="o">==</span> <span class="mi">2</span><span class="p">)</span>
+    <span class="n">printf</span><span class="p">(</span><span class="s">&quot;, PASS</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">);</span>
+  <span class="k">else</span>
+    <span class="n">printf</span><span class="p">(</span><span class="s">&quot;, FAIL</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">);</span>
+  <span class="n">a</span> <span class="o">=</span> <span class="n">test_longbranch</span><span class="p">();</span>
+  <span class="n">printf</span><span class="p">(</span><span class="s">&quot;test_longbranch() = %d&quot;</span><span class="p">,</span> <span class="n">a</span><span class="p">);</span> <span class="c1">// a = 0</span>
+  <span class="k">if</span> <span class="p">(</span><span class="n">a</span> <span class="o">==</span> <span class="mi">0</span><span class="p">)</span>
+    <span class="n">printf</span><span class="p">(</span><span class="s">&quot;, PASS</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">);</span>
+  <span class="k">else</span>
+    <span class="n">printf</span><span class="p">(</span><span class="s">&quot;, FAIL</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">);</span>
   <span class="n">a</span> <span class="o">=</span> <span class="n">test_func_arg_struct</span><span class="p">();</span>
+  <span class="n">printf</span><span class="p">(</span><span class="s">&quot;test_func_arg_struct() = %d&quot;</span><span class="p">,</span> <span class="n">a</span><span class="p">);</span> <span class="c1">// a = 0</span>
+  <span class="k">if</span> <span class="p">(</span><span class="n">a</span> <span class="o">==</span> <span class="mi">0</span><span class="p">)</span>
+    <span class="n">printf</span><span class="p">(</span><span class="s">&quot;, PASS</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">);</span>
+  <span class="k">else</span>
+    <span class="n">printf</span><span class="p">(</span><span class="s">&quot;, FAIL</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">);</span>
   <span class="n">a</span> <span class="o">=</span> <span class="n">test_constructor</span><span class="p">();</span>
+  <span class="n">printf</span><span class="p">(</span><span class="s">&quot;test_constructor() = %d&quot;</span><span class="p">,</span> <span class="n">a</span><span class="p">);</span> <span class="c1">// a = 0</span>
+  <span class="k">if</span> <span class="p">(</span><span class="n">a</span> <span class="o">==</span> <span class="mi">0</span><span class="p">)</span>
+    <span class="n">printf</span><span class="p">(</span><span class="s">&quot;, PASS</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">);</span>
+  <span class="k">else</span>
+    <span class="n">printf</span><span class="p">(</span><span class="s">&quot;, FAIL</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">);</span>
   <span class="n">a</span> <span class="o">=</span> <span class="n">test_template</span><span class="p">();</span>
   <span class="n">printf</span><span class="p">(</span><span class="s">&quot;test_template() = %d&quot;</span><span class="p">,</span> <span class="n">a</span><span class="p">);</span> <span class="c1">// a = 15</span>
   <span class="k">if</span> <span class="p">(</span><span class="n">a</span> <span class="o">==</span> <span class="mi">15</span><span class="p">)</span>
     <span class="n">printf</span><span class="p">(</span><span class="s">&quot;, PASS</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">);</span>
   <span class="k">else</span>
     <span class="n">printf</span><span class="p">(</span><span class="s">&quot;, FAIL</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">);</span>
-  <span class="n">a</span> <span class="o">=</span> <span class="n">test_alloc</span><span class="p">();</span>  <span class="c1">// 31</span>
-  <span class="n">printf</span><span class="p">(</span><span class="s">&quot;test_alloc() = %d&quot;</span><span class="p">,</span> <span class="n">a</span><span class="p">);</span>
-  <span class="k">if</span> <span class="p">(</span><span class="n">a</span> <span class="o">==</span> <span class="mi">31</span><span class="p">)</span>
+  <span class="n">a</span> <span class="o">=</span> <span class="n">test_tailcall</span><span class="p">(</span><span class="mi">5</span><span class="p">);</span>
+  <span class="n">printf</span><span class="p">(</span><span class="s">&quot;test_tailcall(5) = %d&quot;</span><span class="p">,</span> <span class="n">a</span><span class="p">);</span> <span class="c1">// a = 15</span>
+  <span class="k">if</span> <span class="p">(</span><span class="n">a</span> <span class="o">==</span> <span class="mi">120</span><span class="p">)</span>
+    <span class="n">printf</span><span class="p">(</span><span class="s">&quot;, PASS</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">);</span>
+  <span class="k">else</span>
+    <span class="n">printf</span><span class="p">(</span><span class="s">&quot;, FAIL</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">);</span>
+  <span class="n">test_detect_exception</span><span class="p">(</span><span class="nb">true</span><span class="p">);</span>
+  <span class="n">printf</span><span class="p">(</span><span class="s">&quot;exceptionOccur= %d&quot;</span><span class="p">,</span> <span class="n">exceptionOccur</span><span class="p">);</span>
+  <span class="k">if</span> <span class="p">(</span><span class="n">exceptionOccur</span><span class="p">)</span>
+    <span class="n">printf</span><span class="p">(</span><span class="s">&quot;, PASS</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">);</span>
+  <span class="k">else</span>
+    <span class="n">printf</span><span class="p">(</span><span class="s">&quot;, FAIL</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">);</span>
+  <span class="n">test_detect_exception</span><span class="p">(</span><span class="nb">false</span><span class="p">);</span>
+  <span class="n">printf</span><span class="p">(</span><span class="s">&quot;exceptionOccur= %d&quot;</span><span class="p">,</span> <span class="n">exceptionOccur</span><span class="p">);</span>
+  <span class="k">if</span> <span class="p">(</span><span class="o">!</span><span class="n">exceptionOccur</span><span class="p">)</span>
     <span class="n">printf</span><span class="p">(</span><span class="s">&quot;, PASS</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">);</span>
   <span class="k">else</span>
     <span class="n">printf</span><span class="p">(</span><span class="s">&quot;, FAIL</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">);</span>
@@ -4275,34 +4337,54 @@ clang -target mips-unknown-linux-gnu -c printf-stdarg-def.c -emit-llvm \
 -o printf-stdarg-def.bc
 clang -target mips-unknown-linux-gnu -c printf-stdarg.c -emit-llvm \
 -o printf-stdarg.bc
-clang -target mips-unknown-linux-gnu -c ${LBDEXDIR}/input/ch4_1_2.cpp \
--emit-llvm -o ch4_1_2.bc
-clang -target mips-unknown-linux-gnu -c ${LBDEXDIR}/input/ch8_1_5.cpp \
--emit-llvm -o ch8_1_5.bc
-clang -c ${LBDEXDIR}/input/ch9_4.cpp -emit-llvm -o ch9_4.bc
+clang -target mips-unknown-linux-gnu -c ${LBDEXDIR}/input/ch4_1_addsuboverflow.cpp \
+-emit-llvm -o ch4_1_addsuboverflow.bc
+clang -target mips-unknown-linux-gnu -c ${LBDEXDIR}/input/ch8_1_br_jt.cpp \
+-emit-llvm -o ch8_1_br_jt.bc
+clang -O3 -target mips-unknown-linux-gnu -c ${LBDEXDIR}/input/ch8_2_phinode.cpp \
+-emit-llvm -o ch8_2_phinode.bc
+clang -target mips-unknown-linux-gnu -c ${LBDEXDIR}/input/ch8_1_blockaddr.cpp \
+-emit-llvm -o ch8_1_blockaddr.bc
+clang -target mips-unknown-linux-gnu -c ${LBDEXDIR}/input/ch8_2_longbranch.cpp \
+-emit-llvm -o ch8_2_longbranch.bc
+clang -O1 -target mips-unknown-linux-gnu -c ${LBDEXDIR}/input/ch9_2_tailcall.cpp \
+-emit-llvm -o ch9_2_tailcall.bc
+clang -target mips-unknown-linux-gnu -c ${LBDEXDIR}/input/ch9_3_detect_exception.cpp \
+-emit-llvm -o ch9_3_detect_exception.bc
 clang -I${LBDEXDIR}/input/ -target mips-unknown-linux-gnu -c ch_slinker.cpp \
 -emit-llvm -o ch_slinker.bc
 ${TOOLDIR}/llc -march=cpu0${endian} -mcpu=${CPU} -relocation-model=static \
--filetype=obj start.bc -o start.cpu0.o
+-filetype=obj start.bc -o start.o
 ${TOOLDIR}/llc -march=cpu0${endian} -mcpu=${CPU} -relocation-model=static \
--filetype=obj debug.bc -o debug.cpu0.o
+-filetype=obj debug.bc -o debug.o
 ${TOOLDIR}/llc -march=cpu0${endian} -mcpu=${CPU} -relocation-model=static \
--filetype=obj printf-stdarg-def.bc -o printf-stdarg-def.cpu0.o
+-filetype=obj printf-stdarg-def.bc -o printf-stdarg-def.o
 ${TOOLDIR}/llc -march=cpu0${endian} -mcpu=${CPU} -relocation-model=static \
--filetype=obj printf-stdarg.bc -o printf-stdarg.cpu0.o
+-filetype=obj printf-stdarg.bc -o printf-stdarg.o
 ${TOOLDIR}/llc -march=cpu0${endian} -mcpu=${CPU} -relocation-model=static \
--filetype=obj -cpu0-enable-overflow=true ch4_1_2.bc -o ch4_1_2.cpu0.o
+-filetype=obj -cpu0-enable-overflow=true ch4_1_addsuboverflow.bc -o \
+ch4_1_addsuboverflow.o
 ${TOOLDIR}/llc -march=cpu0${endian} -mcpu=${CPU} -relocation-model=static \
--filetype=obj ch8_1_5.bc -o ch8_1_5.cpu0.o
+-filetype=obj ch8_1_br_jt.bc -o ch8_1_br_jt.o
 ${TOOLDIR}/llc -march=cpu0${endian} -mcpu=${CPU} -relocation-model=static \
--filetype=obj ch9_4.bc -o ch9_4.cpu0.o
+-filetype=obj ch8_2_phinode.bc -o ch8_2_phinode.o
 ${TOOLDIR}/llc -march=cpu0${endian} -mcpu=${CPU} -relocation-model=static \
--filetype=obj ch_slinker.bc -o ch_slinker.cpu0.o
+-filetype=obj ch8_1_blockaddr.bc -o ch8_1_blockaddr.o
+${TOOLDIR}/llc -march=cpu0${endian} -mcpu=${CPU} -relocation-model=pic \
+-filetype=obj -force-cpu0-long-branch ch8_2_longbranch.bc -o \
+ch8_2_longbranch.o
 ${TOOLDIR}/llc -march=cpu0${endian} -mcpu=${CPU} -relocation-model=static \
--filetype=obj lib_cpu0.ll -o lib_cpu0.o
-${TOOLDIR}/lld -flavor gnu -target cpu0${endian}-unknown-linux-gnu start.cpu0.o \
-debug.cpu0.o printf-stdarg-def.cpu0.o printf-stdarg.cpu0.o ch4_1_2.cpu0.o \
-ch8_1_5.cpu0.o ch9_4.cpu0.o ch_slinker.cpu0.o lib_cpu0.o -o a.out
+-filetype=obj ch9_2_tailcall.bc -o ch9_2_tailcall.o
+${TOOLDIR}/llc -march=cpu0${endian} -mcpu=${CPU} -relocation-model=static \
+-filetype=obj ch9_3_detect_exception.bc -o ch9_3_detect_exception.o
+${TOOLDIR}/llc -march=cpu0${endian} -mcpu=${CPU} -relocation-model=static \
+-filetype=obj ch_slinker.bc -o ch_slinker.o
+${TOOLDIR}/llc -march=cpu0${endian} -mcpu=${CPU} -relocation-model=static \
+-filetype=obj lib_cpu0.ll -o lib_o
+${TOOLDIR}/lld -flavor gnu -target cpu0${endian}-unknown-linux-gnu start.o \
+debug.o printf-stdarg-def.o printf-stdarg.o ch4_1_addsuboverflow.o \
+ch8_1_br_jt.o ch8_2_phinode.o ch8_1_blockaddr.o ch8_2_longbranch.o \
+ch9_2_tailcall.o ch9_3_detect_exception.o ch_slinker.o lib_o -o a.out
 
 epilogue;
 
@@ -4333,6 +4415,9 @@ Overflow exception
 <span class="nv">test_overflow</span> <span class="o">=</span> 0, PASS
 global variable <span class="nv">gI</span> <span class="o">=</span> 100, PASS
 test_ctrl2<span class="o">()</span>: <span class="nv">a</span> <span class="o">=</span> 1, <span class="nv">b</span> <span class="o">=</span> 0, <span class="nv">c</span> <span class="o">=</span> 1, <span class="nv">d</span> <span class="o">=</span> 0, PASS
+test_phinode<span class="o">(</span>3, 1<span class="o">)</span> <span class="o">=</span> 3, PASS
+test_blockaddress<span class="o">(</span>1<span class="o">)</span> <span class="o">=</span> 1, PASS
+test_blockaddress<span class="o">(</span>2<span class="o">)</span> <span class="o">=</span> 2, PASS
 <span class="nv">date1</span> <span class="o">=</span> 2012 10 12 1 2 3, PASS
 <span class="nv">date2</span> <span class="o">=</span> 2012 10 12 1 2 3, PASS
 <span class="nv">time2</span> <span class="o">=</span> 1 10 12, PASS
@@ -4341,6 +4426,8 @@ test_ctrl2<span class="o">()</span>: <span class="nv">a</span> <span class="o">=
 <span class="nv">date2</span> <span class="o">=</span> 2013 1 26 12 21 10, PASS
 test_template<span class="o">()</span> <span class="o">=</span> 15, PASS
 test_alloc<span class="o">()</span> <span class="o">=</span> 31, PASS
+<span class="nv">exceptionOccur</span><span class="o">=</span> 1, PASS
+<span class="nv">exceptionOccur</span><span class="o">=</span> 0, PASS
 inlineasm_global<span class="o">()</span> <span class="o">=</span> 4, PASS
 20
 10
@@ -4800,7 +4887,7 @@ to execute the dynamic linker function on Cpu0 Verilog machine.</p>
 <span class="cp">#define STOP \</span>
 <span class="cp">  asm(&quot;lui $t9, 0xffff&quot;); \</span>
 <span class="cp">  asm(&quot;addiu $t9, $zero, 0xffff&quot;); \</span>
-<span class="cp">  asm(&quot;ret $t9&quot;);</span>
+<span class="cp">  asm(&quot;jr $t9&quot;);</span>
 
 <span class="cp">#define ENABLE_TRACE \</span>
 <span class="cp">  asm(&quot;ori $sw, $sw, 0x0020&quot;);</span>
@@ -5019,7 +5106,7 @@ to execute the dynamic linker function on Cpu0 Verilog machine.</p>
   <span class="k">asm</span><span class="p">(</span><span class="s">&quot;lui $t9, 0x7&quot;</span><span class="p">);</span>
   <span class="k">asm</span><span class="p">(</span><span class="s">&quot;ori $t9, $t9, 0xFFE0&quot;</span><span class="p">);</span>
   <span class="k">asm</span><span class="p">(</span><span class="s">&quot;ld $t9, 0($t9)&quot;</span><span class="p">);</span>
-  <span class="k">asm</span><span class="p">(</span><span class="s">&quot;ret $t9&quot;</span><span class="p">);</span>
+  <span class="k">asm</span><span class="p">(</span><span class="s">&quot;jr $t9&quot;</span><span class="p">);</span>
 
   <span class="k">return</span><span class="p">;</span>
 <span class="p">}</span>

@@ -15,7 +15,7 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    './',
-        VERSION:     '3.7.0',
+        VERSION:     '3.7.1',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -54,16 +54,15 @@
 <span id="sec-about"></span><h1>About<a class="headerlink" href="#about" title="Permalink to this headline">¶</a></h1>
 <div class="contents local topic" id="contents">
 <ul class="simple">
-<li><a class="reference internal" href="#authors" id="id2">Authors</a></li>
-<li><a class="reference internal" href="#acknowledgments" id="id3">Acknowledgments</a></li>
-<li><a class="reference internal" href="#revision-history" id="id4">Revision history</a></li>
-<li><a class="reference internal" href="#licensing" id="id5">Licensing</a></li>
-<li><a class="reference internal" href="#outline-of-chapters" id="id6">Outline of Chapters</a></li>
-<li><a class="reference internal" href="#id1" id="id7">Outline of Chapters</a></li>
+<li><a class="reference internal" href="#authors" id="id1">Authors</a></li>
+<li><a class="reference internal" href="#acknowledgments" id="id2">Acknowledgments</a></li>
+<li><a class="reference internal" href="#revision-history" id="id3">Revision history</a></li>
+<li><a class="reference internal" href="#licensing" id="id4">Licensing</a></li>
+<li><a class="reference internal" href="#outline-of-chapters" id="id5">Outline of Chapters</a></li>
 </ul>
 </div>
 <div class="section" id="authors">
-<h2><a class="toc-backref" href="#id2">Authors</a><a class="headerlink" href="#authors" title="Permalink to this headline">¶</a></h2>
+<h2><a class="toc-backref" href="#id1">Authors</a><a class="headerlink" href="#authors" title="Permalink to this headline">¶</a></h2>
 <div class="figure align-right">
 <img alt="_images/Author_ChineseName.png" src="_images/Author_ChineseName.png" />
 </div>
@@ -75,16 +74,22 @@
 </dl>
 </div>
 <div class="section" id="acknowledgments">
-<h2><a class="toc-backref" href="#id3">Acknowledgments</a><a class="headerlink" href="#acknowledgments" title="Permalink to this headline">¶</a></h2>
+<h2><a class="toc-backref" href="#id2">Acknowledgments</a><a class="headerlink" href="#acknowledgments" title="Permalink to this headline">¶</a></h2>
 <p>I would like to thank Sean Silva, <a class="reference external" href="mailto:chisophugis&#37;&#52;&#48;gmail&#46;com">chisophugis<span>&#64;</span>gmail<span>&#46;</span>com</a>, for his help,
 encouragement, and assistance with the Sphinx document generator.
 Without his help, this book would not have been finished and published online.
 Also thanking those corrections from readers who make the book more accurate.</p>
 </div>
 <div class="section" id="revision-history">
-<h2><a class="toc-backref" href="#id4">Revision history</a><a class="headerlink" href="#revision-history" title="Permalink to this headline">¶</a></h2>
-<p>Version 3.7.1, Not release yet</p>
+<h2><a class="toc-backref" href="#id3">Revision history</a><a class="headerlink" href="#revision-history" title="Permalink to this headline">¶</a></h2>
+<p>Version 3.7.2, Not release yet</p>
 <dl class="docutils">
+<dt>Version 3.7.1, Released November 7, 2015</dt>
+<dd>Remove EM_CPU0_EL.
+Add IR blockaddress and indirectbr support.
+Add ch_9_3_detect_exception.cpp test.
+Change display &#8220;ret $rx&#8221; to &#8220;jr $rx&#8221; where $rx is not $lr.
+Add Phi node test.</dd>
 <dt>Version 3.7.0, Released September 24, 2015</dt>
 <dd>Porting to lld 3.7.</dd>
 <dt>Version 3.6.2, Released May 4, 2015</dt>
@@ -97,11 +102,11 @@ Remove warning in build Cpu0 code.</dd>
 </dl>
 </div>
 <div class="section" id="licensing">
-<h2><a class="toc-backref" href="#id5">Licensing</a><a class="headerlink" href="#licensing" title="Permalink to this headline">¶</a></h2>
+<h2><a class="toc-backref" href="#id4">Licensing</a><a class="headerlink" href="#licensing" title="Permalink to this headline">¶</a></h2>
 <p><a class="reference external" href="http://llvm.org/docs/DeveloperPolicy.html#license">http://llvm.org/docs/DeveloperPolicy.html#license</a></p>
 </div>
 <div class="section" id="outline-of-chapters">
-<h2><a class="toc-backref" href="#id6">Outline of Chapters</a><a class="headerlink" href="#outline-of-chapters" title="Permalink to this headline">¶</a></h2>
+<h2><a class="toc-backref" href="#id5">Outline of Chapters</a><a class="headerlink" href="#outline-of-chapters" title="Permalink to this headline">¶</a></h2>
 <div class="figure align-center" id="about-f1">
 <a class="reference internal image-reference" href="_images/1.png"><img alt="_images/1.png" src="_images/1.png" /></a>
 <p class="caption">Figure 2: Code generation and execution flow</p>
@@ -117,7 +122,6 @@ The Cpu0 llvm backend can be find on
 <a class="reference external" href="http://jonathan2251.github.io/lbd/index.html">http://jonathan2251.github.io/lbd/index.html</a>.</p>
 <p>This book include:</p>
 <ol class="arabic simple">
-<li>ELF linker for Cpu0 which extended from lld. Chapter 2.</li>
 <li>The elf2hex extended from llvm-objump. Chapter 2.</li>
 <li>Optimization. Chapter 3.</li>
 <li>Porting C standard library from avr libc and software floating point library
@@ -125,16 +129,11 @@ from LLVM compiler-rt.</li>
 </ol>
 <p>With these implementation, reader can generate Cpu0 machine code through Cpu0
 llvm backend compiler, linker and elf2hex, then see how it runs on your
-computer.
-The pdf and epub are also available in the web.</p>
-</div>
-<div class="section" id="id1">
-<h2><a class="toc-backref" href="#id7">Outline of Chapters</a><a class="headerlink" href="#id1" title="Permalink to this headline">¶</a></h2>
+computer.</p>
 <p><a class="reference internal" href="lld.html#sec-lld"><em>Cpu0 ELF linker</em></a>:</p>
 <p>Develop ELF linker for Cpu0 backend based on lld project.</p>
 <p><a class="reference internal" href="opt.html#sec-opt"><em>Optimization</em></a>:</p>
-<p>Backend independent optimaization. Under working and I need to avoid something I
-know since I working with a proprietary company.</p>
+<p>Backend independent optimaization.</p>
 <p><a class="reference internal" href="lib.html#sec-lib"><em>Library</em></a>:</p>
 <p>Software floating point library and standard C library supporting. Under working.</p>
 </div>
