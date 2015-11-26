@@ -130,6 +130,7 @@ void dynamic_linker()
   asm("ori $t9, $t9, 0xFFE0");
   asm("ld $t9, 0($t9)");
   asm("jr $t9");
+  asm("nop");
 
   return;
 }
