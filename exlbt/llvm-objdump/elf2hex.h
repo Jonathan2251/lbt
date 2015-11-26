@@ -13,6 +13,9 @@
 
 #include <stdio.h>
 #include "llvm/Support/raw_ostream.h"
+
+#define BOOT_SIZE 16
+
 #define DLINK
 //#define ELF2HEX_DEBUG
 
@@ -70,8 +73,6 @@ static void Fill0s(uint64_t startAddr, uint64_t endAddr) {
   std::size_t addr;
 
   assert((startAddr <= endAddr) && "startAddr must <= BaseAddr");
-  // Fill /*address*/ bytes is odd for 4 by 00 
-  outs() << format("/*%8" PRIx64 " */", startAddr);
   // Fill /*address*/ 00 00 00 00 for 4 bytes alignment (1 Cpu0 word size)
   for (addr = startAddr; addr < endAddr; addr += 4) {
     outs() << format("/*%8" PRIx64 " */", addr);
@@ -566,7 +567,7 @@ static void Elf2Hex(const ObjectFile *o) {
       fd_plt_offset << format("%08" PRIx64 " ", pltOffset);
     }
   #endif
-    lastDumpAddr = 16;
+    lastDumpAddr = BOOT_SIZE;
     Fill0s(lastDumpAddr, 0x100);
     lastDumpAddr = 0x100;
     DisassembleObjectInHexFormat(o, DisAsm, IP, lastDumpAddr, STI);

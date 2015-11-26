@@ -1223,13 +1223,13 @@ After run build-dlinker.sh, the following files are created.
 
   /*__plt__Z3barv:*/
   /*      20:*/	01 6b 00 24                                  /* ld	$t9, 36($gp)
-  /*      24:*/	3c 60 00 00                                  /*	ret	$t9*/
+  /*      24:*/	3c 60 00 00                                  /*	jr	$t9*/
   /*      28:*/	00 00 00 00                                  /*	nop*/
   /*      2c:*/	00 00 00 00                                  /*	nop*/
 
   /*__plt__Z3fooii:*/
   /*      30:*/	01 6b 00 1c                                  /* ld	$t9, 28($gp)
-  /*      34:*/	3c 60 00 00                                  /*	ret	$t9*/
+  /*      34:*/	3c 60 00 00                                  /*	jr	$t9*/
   /*      38:*/	00 00 00 00                                  /*	nop*/
   /*      3c:*/	00 00 00 00                                  /*	nop*/
   ...
@@ -1243,7 +1243,7 @@ After run build-dlinker.sh, the following files are created.
   ...
   /*     d9c:*/	3b ff f3 0c                                  /*	jsub	16773900*/ // call printf()
   ...
-  /*     db8:*/	3c e0 00 00                                  /*	ret	$lr*/
+  /*     db8:*/	3c e0 00 00                                  /*	jr	$lr*/
   ...
   /*Contents of section .data:*/
   /*20a8 */00 00 00 01  00 00 00 01  00 00 00 01  00 00 00 01 /*  ................*/
@@ -1372,16 +1372,16 @@ $zero, 4($gp); st $t9, 0($gp); ld $t9, 16($gp); ret $t9" as follows,
   // gpPlt+16+1*8'h10 ----------------> | addiu $t9, $zero, 4             |
   //                                    | st  $t9, 0($gp)                 |
   //                                    | ld  $t9, 16($gp)                |
-  //                                    | ret $t9                         |
+  //                                    | jr $t9                         |
   // gpPlt+16+2*8'h10 ----------------> | addiu $t9, $zero, 4             |
   //                                    | st  $t9, 0($gp)                 |
   //                                    | ld  $t9, 16($gp)                |
-  //                                    | ret $t9                         |
+  //                                    | jr $t9                         |
   // ...                                | ...                             |
   // gpPlt+16+(6-1)*8'h10 ------------> | addiu $t9, $zero, 4             |
   //                                    | st  $t9, 0($gp)                 |
   //                                    | ld  $t9, 16($gp)                |
-  //                                    | ret $t9                         |
+  //                                    | jr $t9                         |
   //                                    -----------------------------------
 
 
@@ -1414,8 +1414,9 @@ library by the value of 0(\$gp) which is 3 now (set in "Plt foo:"). The value
 3 tells dynamic linker loading foo() (3rd string in .dynstr) from offset of 
 shared library, 0x3c (3rd value of Function offset area in Figure).
 Now, dynamic linker can load foo() function from flash to memory, set the 
-address gp+3*4 to 0x40000 where the address 0x40000 is the memory address of 
-foo() function loaded to, and then prepare jump to the foo() memory address. 
+address gp+16+3*4(=gp+28) to 0x40000 where the address 0x40000 is the memory 
+address of foo() function loaded to, and then prepare jump to the foo() memory 
+address. 
 Remind we say the prepare jump to foo(). Because before jump to foo(), dynamic 
 linker needs to restore the \$lr, \$fp, \$sp to the 
 value of just before caller calling foo() (they are saved in 4, 8, 12 of \$gp 
@@ -1450,9 +1451,9 @@ Now the program run at the next instruction of call foo() in main() as
 to address 0xd8 "jsub __plt__Z3barv", the control flow will transfer from 
 main through __plt_Z3barv, "Plt bar:" and PLT0 to dynamic linker as 
 :num:`Figure #lld-f9` depicted. Then load and run bar() from flash to memory 
-just like the calling __plt__Z3fooii as :num:`Figure #lld-f10` depicted. 
+as :num:`Figure #lld-f10` depicted. It just like the calling __plt__Z3fooii.
 The difference is bar() will call foo() first and call la() next. 
-The call foo() in bar() will jump to foo() directly as :num:`Figure #lld-f9` 
+The call foo() in bar() will jump to foo() directly as :num:`Figure #lld-f10` 
 because the content of gp+28 is the address of 0x40000 which
 set in dynamic linker when the first time of foo() function is called. 
 
