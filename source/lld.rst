@@ -1401,8 +1401,9 @@ $zero, 4($gp); st $t9, 0($gp); ld $t9, 16($gp); ret $t9" as follows,
 
   Control flow transfer from calling foo() instruction of main() to dynamic linker
 
-:num:`Figure #lld-f7` is the Control flow transfer from call foo() of main() to 
-dynamic linker. After the first time of ch_dynamiclinker.cpp call foo(), it 
+:num:`Figure #lld-f7` is the Control flow which transfered from call foo() of 
+main() to dynamic linker. 
+After the first time of ch_dynamiclinker.cpp call foo(), it 
 jump to __plt_Z3fooii plt entry. 
 In __plt_Z3fooii, "ld \$t9, 1c($gp)" and "ret \$t9" will jump to "Plt foo:". 
 Since foo is the 3rd plt entry in "Plt foo:", it save 3 to 0(\$gp) memory 
@@ -1439,6 +1440,17 @@ back to caller main() when it meets the instruction "ret \$lr" in foo().
 
   Control flow transfer from calling bar() instruction of main() to dynamic linker
   
+Now the program run at the next instruction of call foo() in main() as 
+:num:`Figure #lld-f9` depicted. When it runs 
+to address 0xd84 "jsub __plt__Z3barv", the control flow will transfer from 
+main through __plt_Z3barv, "Plt bar:" and PLT0 to dynamic linker as 
+:num:`Figure #lld-f9` depicted. Then load and run bar() from flash to memory 
+as :num:`Figure #lld-f10` depicted. It just like the calling __plt__Z3fooii.
+The difference is bar() will call foo() first and call la() next. 
+The call foo() in bar() will jump to foo() directly as :num:`Figure #lld-f10` 
+because the content of gp+28 is the address of 0x40000 which is
+set by dynamic linker when the first time of foo() function is called. 
+
 .. _lld-f10: 
 .. figure:: ../Fig/lld/10.png
   :scale: 80 %
@@ -1446,16 +1458,6 @@ back to caller main() when it meets the instruction "ret \$lr" in foo().
 
   Dynamic linker load bar() from flash to memory
   
-Now the program run at the next instruction of call foo() in main() as 
-:num:`Figure #lld-f9` depicted. When it runs 
-to address 0xd8 "jsub __plt__Z3barv", the control flow will transfer from 
-main through __plt_Z3barv, "Plt bar:" and PLT0 to dynamic linker as 
-:num:`Figure #lld-f9` depicted. Then load and run bar() from flash to memory 
-as :num:`Figure #lld-f10` depicted. It just like the calling __plt__Z3fooii.
-The difference is bar() will call foo() first and call la() next. 
-The call foo() in bar() will jump to foo() directly as :num:`Figure #lld-f10` 
-because the content of gp+28 is the address of 0x40000 which
-set in dynamic linker when the first time of foo() function is called. 
 
 Finally when bar() call la() function it will jump to "Plt la:" since the 
 content of \$gp+24 point to "Plt la:". 
