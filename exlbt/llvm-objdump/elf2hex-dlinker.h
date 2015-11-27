@@ -275,7 +275,7 @@ static void DisassembleSoInHexFormat(const ObjectFile *Obj
         if (DisAsm->getInstruction(Inst, Size, Bytes.slice(Index),
                                    SectionAddr + Index, DebugOut,
                                    CommentStream)) {
-          outs() << format("/*%8" PRIx64 ":*/", lastDumpAddr + Index);
+          outs() << format("/*%8" PRIx64 ":*/", Index);
           if (!NoShowRawInsn) {
             outs() << "\t";
             dumpBytes(Bytes.slice(Index, Size), outs());
@@ -292,8 +292,10 @@ static void DisassembleSoInHexFormat(const ObjectFile *Obj
             Size = 1; // skip illegible bytes
         }
 
-        //  outs() << "Size = " << Size <<  "Index = " << Index << "lastDumpAddr = "
-        //         << lastDumpAddr << "\n"; // debug
+      #ifdef ELF2HEX_DEBUG
+        outs() << "Size = " << Size <<  " Index = " << Index << " lastDumpAddr = "
+               << lastDumpAddr << "\n"; // debug
+      #endif
         // Print relocation for instruction.
         while (rel_cur != rel_end) {
           bool hidden = getHidden(*rel_cur);
@@ -316,9 +318,9 @@ static void DisassembleSoInHexFormat(const ObjectFile *Obj
         skip_print_rel:
           ++rel_cur;
         }
-        lastDumpAddr += Index;
       }
       soLastPrintAddr = End;
+      lastDumpAddr += Index;
     #ifdef ELF2HEX_DEBUG
       errs() << format("SectionAddr + Index = %8" PRIx64 "\n", SectionAddr + Index);
       errs() << format("lastDumpAddr %8" PRIx64 "\n", lastDumpAddr);

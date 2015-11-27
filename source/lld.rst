@@ -54,8 +54,8 @@ shared library and verify the dynamic link result.
 In reality, the Micro CPUs without OS or tiny OS inside only support static 
 link for C language.
 
-About lld please refer LLD web site here [#]_ and LLD install requirement on 
-Linux here [#]_. 
+About lld please refer LLD web site here [#lldweb]_ and LLD install requirement 
+on Linux here [#lld-install]_. 
 Currently, lld can be built by: gcc and clang 3.5 compiler on Ubuntu, and gcc 
 on Fedora, as I have tried. 
 On iMac, lld can be built by clang with the Xcode version as the next sub 
@@ -108,7 +108,8 @@ LLD project is underdevelopment and can be compiled only with c++11 standard
 (C++2011 year announced standard). 
 For iMac, our software is OS X version 10.9.1 and Xcode version 5.0.2. 
 For old iMac software version, you can install VM (such as Virtual Box) and 
-build lld as Linux platform. Please download lld from llvm web [#]_ and put lld 
+build lld as Linux platform. Please download lld from llvm web 
+[#llvm-download]_ and put lld 
 souce code on {llvm-src}/tools/lld just like we download llvm and clang as 
 shown in Appendex A of book "Tutorial: Creating an LLVM Backend for the Cpu0 
 Architecture" as follows.
@@ -774,15 +775,9 @@ compare it against the result of PC's printf() as below.
 .. rubric:: exlbt/input/build-printf-stdarg-2.sh
 .. literalinclude:: ../exlbt/input/build-printf-stdarg-2.sh
 
-The verilog/cpu0Is.v support cmp instruction and static linker as follows,
+.. rubric:: lbdex/verilog/Makefile
+.. literalinclude:: ../lbdex/verilog/Makefile
 
-.. rubric:: lbdex/verilog/cpu0Is.v
-.. literalinclude:: ../lbdex/verilog/cpu0Is.v
-
-The verilog/cpu0IIs.v support slt instruction and static linker as follows,
-
-.. rubric:: lbdex/verilog/cpu0IIs.v
-.. literalinclude:: ../lbdex/verilog/cpu0IIs.v
 
 The build-printf-stdarg-2.sh is for my PC setting. Please change this script to
 the directory of your llvm/lld setting. After that run static linker example 
@@ -802,9 +797,11 @@ code as follows,
   
   1-160-136-173:input Jonathan$ cd ../../lbdex/verilog/
   1-160-136-173:verilog Jonathan$ pwd
-  /Users/Jonathan/test/lbt/lbdex/lbdex/verilog
-  1-160-136-173:verilog Jonathan$ bash clean.sh
-  1-160-136-173:verilog Jonathan$ iverilog -o cpu0II cpu0IIs.v
+  /Users/Jonathan/test/lbt/lbdex/verilog
+  1-160-136-173:verilog Jonathan$ make
+  1-160-136-173:verilog Jonathan$ ls
+  ... cpu0Isp ... cpu0IIsp ...
+  1-160-136-173:verilog Jonathan$ ./cpu0Isp
   Hello world!
   printf test
   (null) is null pointer
@@ -869,7 +866,7 @@ variable cpu from cpu032I to cpu032II as follows,
   1-160-136-173:input Jonathan$ bash build-printf-stdarg-2.sh cpu032II be
   ...
   1-160-136-173:input Jonathan$ cd ../lbdex/verilog/
-  1-160-136-173:verilog Jonathan$ ./cpu0IIs 
+  1-160-136-173:verilog Jonathan$ ./cpu0IIsp
 
 The verilog machine cpu0IIs include all instructions of cpu032I and add 
 slt, beq, ..., instructions.
@@ -913,7 +910,7 @@ is for this purpose.
                 ^
   1 warning generated.
   114-37-148-111:input Jonathan$ cd ../../lbdex/verilog/
-  114-37-148-111:verilog Jonathan$ ./cpu0IIs
+  114-37-148-111:verilog Jonathan$ ./cpu0IIsp
   WARNING: ./cpu0.v:369: $readmemh(cpu0.hex): Not enough words in the file for 
   the requested range [0:524287].
   taskInterrupt(001)
@@ -1062,7 +1059,8 @@ The Cpu0LinkingContext constructor will create it's ELFLinkingContext part.
 The std::unique_ptr came from c++11 standard.
 The unique_ptr objects automatically delete the object they manage (using a 
 deleter) as soon as themselves are destroyed. Just like the Singlelten 
-pattern in Design Pattern book or Smart Pointers in Effective C++ book. [#]_
+pattern in Design Pattern book or Smart Pointers in Effective C++ book. 
+[#effectiveC++]_
 
 .. _lld-f5: 
 .. figure:: ../Fig/lld/5.png
@@ -1082,7 +1080,7 @@ contructor function.
 List the c++11 unique_ptr::get() and move() which used in :num:`Figure #lld-f5` 
 as follows.
 
-.. note:: std::unique_ptr::get() [#]_
+.. note:: std::unique_ptr::get() [#get]_
 
   pointer get() const noexcept;
 
@@ -1090,7 +1088,7 @@ as follows.
   Returns the stored pointer. 
 
 
-.. note:: std::move() [#]_
+.. note:: std::move() [#move]_
 
   for example:
     std::string bar = "bar-string";
@@ -1111,11 +1109,8 @@ exists to support dynamic linker.
 .. rubric:: lbdex/verilog/flashio.v
 .. literalinclude:: ../lbdex/verilog/flashio.v
 
-.. rubric:: lbdex/verilog/cpu0Id.v
-.. literalinclude:: ../lbdex/verilog/cpu0Id.v
-
-.. rubric:: lbdex/verilog/cpu0IId.v
-.. literalinclude:: ../lbdex/verilog/cpu0IId.v
+.. rubric:: lbdex/verilog/Makefile
+.. literalinclude:: ../lbdex/verilog/Makefile
 
 The following code ch_dynamiclinker.cpp and foobar.cpp is the example for 
 dynamic linker demostration. File dynamic_linker.cpp is what our implementaion
@@ -1154,11 +1149,10 @@ Run
   1-160-136-173:input Jonathan$ cd ../../lbdex/verilog/
   1-160-136-173:verilog Jonathan$ pwd
   /Users/Jonathan/test/lbt/lbdex/verilog
-  1-160-136-173:verilog Jonathan$ iverilog -o cpu0IId cpu0IId.v 
+  1-160-136-173:verilog Jonathan$ make
   1-160-136-173:verilog Jonathan$ ls
-  clean.sh  cpu0IId  cpu0Id.v  cpu0IId.v  cpu0IIs.v  cpu0Is.v  cpu0.v  dynlinker.v  
-  flashio.v
-  1-160-136-173:verilog Jonathan$ ./cpu0IId 
+  ...  cpu0IIdsp  ...
+  1-160-136-173:verilog Jonathan$ ./cpu0IIdp
   WARNING: ./cpu0.v:371: $readmemh(cpu0.hex): Not enough words in the file for 
   the requested range [0:524287].
   WARNING: ./dynlinker.v:185: $readmemh(libso.hex): Not enough words in the 
@@ -1191,7 +1185,7 @@ Function foo() is loaded by dynamic linker (dynamic_linker.cpp) from flash
 address FLASHADDR (defined in dynamic_linker.h) to memory.
 The flashio.v implement the simulation read from flash address.
 After loaded foo() body from flash, dynamic_linker.cpp jump to this loaded
-address by "ret \$t9" instruction.
+address by "jr \$t9" instruction.
 
 Same as static linker, you can generate slt instruction instead of cmp by
 change from cpu=cpu0I to cpu0=cpu0II in build-dlinker.sh and run it again to
@@ -1208,70 +1202,76 @@ After run build-dlinker.sh, the following files are created.
 .. rubric:: lbdex/verilog/cpu0.hex
 .. code-block:: bash
   
+  /*       0:*/	36 00 01 9c                                  /*	jmp	0x019c */
+  /*       4:*/	36 00 00 04                                  /*	jmp	4 */
+  /*       8:*/	36 00 01 9c                                  /*	jmp	0x019c */
+  /*       c:*/	36 ff ff fc                                  /*	jmp	-4 */
+  ...
   /*Disassembly of section .plt:*/
   /*.PLT0:*/
-  /*       0:*/	36 00 00 3c                                  /*	jmp	60*/
-  /*       4:*/	36 00 00 04                                  /*	jmp	4*/
-  /*       8:*/	36 00 00 04                                  /*	jmp	4*/
-  /*       c:*/	36 ff ff fc                                  /*	jmp	-4*/
+  /*     1a0:*/	36 00 00 5c /*	jmp	92*/
+  /*     1a4:*/	36 00 00 04 /*	jmp	4*/
+  /*     1a8:*/	36 00 0f cc /*	jmp	4044*/
+  /*     1ac:*/	36 ff ff fc /*	jmp	16777212*/
 
   /*.PLT0:*/
-  /*      10:*/	02 eb 00 04                                  /*	st	$lr, 4($gp)*/
-  /*      14:*/	02 cb 00 08                                  /*	st	$fp, 8($gp)*/
-  /*      18:*/	02 db 00 0c                                  /*	st	$sp, 12($gp)*/
-  /*      1c:*/	36 00 09 b8                                  /*	jmp	2488*/
-
-  /*__plt__Z3barv:*/
-  /*      20:*/	01 6b 00 24                                  /* ld	$t9, 36($gp)
-  /*      24:*/	3c 60 00 00                                  /*	jr	$t9*/
-  /*      28:*/	00 00 00 00                                  /*	nop*/
-  /*      2c:*/	00 00 00 00                                  /*	nop*/
+  /*     1b0:*/	02 eb 00 04 /*	st	$lr, 4($gp)*/
+  /*     1b4:*/	02 cb 00 08 /*	st	$fp, 8($gp)*/
+  /*     1b8:*/	02 db 00 0c /*	st	$sp, 12($gp)*/
+  /*     1bc:*/	36 00 09 c8 /*	jmp	2504*/
+  /*     1c0:*/	00 00 00 00 /*	nop*/
+  /*     1c4:*/	00 00 00 00 /*	nop*/
+  /*     1c8:*/	00 00 00 00 /*	nop*/
+  /*     1cc:*/	00 00 00 00 /*	nop*/
 
   /*__plt__Z3fooii:*/
-  /*      30:*/	01 6b 00 1c                                  /* ld	$t9, 28($gp)
-  /*      34:*/	3c 60 00 00                                  /*	jr	$t9*/
-  /*      38:*/	00 00 00 00                                  /*	nop*/
-  /*      3c:*/	00 00 00 00                                  /*	nop*/
+  /*     1d0:*/	01 6b 00 18                                  /* ld	$t9, 24($gp)
+  /*     1d4:*/	3c 60 00 00 /*	jr	$t9*/
+  /*     1d8:*/	00 00 00 00 /*	nop*/
+  /*     1dc:*/	00 00 00 00 /*	nop*/
+
+  /*__plt__Z3barv:*/
+  /*     1e0:*/	01 6b 00 1c                                  /* ld	$t9, 28($gp)
+  /*     1e4:*/	3c 60 00 00 /*	jr	$t9*/
+  /*     1e8:*/	00 00 00 00 /*	nop*/
+  /*     1ec:*/	00 00 00 00 /*	nop*/
   ...
 
   /*main:*/
   ...
-  /*     d68:*/	3b ff f2 b4                                  /*	jsub	16773812*/ // call foo()
+  /*     ... */	3b ff f2 b4                                  /*	jsub	16773812*/ // call foo()
   ...
-  /*     d80:*/	3b ff f3 28                                  /*	jsub	16773928*/ // call printf()
-  /*     d84:*/	3b ff f2 a8                                  /*	jsub	16773800*/ // call bar()
+  /*     ... */	3b ff f3 28                                  /*	jsub	16773928*/ // call printf()
+  /*     ... */	3b ff f2 a8                                  /*	jsub	16773800*/ // call bar()
   ...
-  /*     d9c:*/	3b ff f3 0c                                  /*	jsub	16773900*/ // call printf()
+  /*     ... */	3b ff f3 0c                                  /*	jsub	16773900*/ // call printf()
   ...
-  /*     db8:*/	3c e0 00 00                                  /*	jr	$lr*/
+  /*     ... */	3c e0 00 00                                  /*	jr	$lr*/
   ...
   /*Contents of section .data:*/
-  /*20a8 */00 00 00 01  00 00 00 01  00 00 00 01  00 00 00 01 /*  ................*/
+  /*     ... */00 00 00 01  00 00 00 01  00 00 00 01  00 00 00 01 /*  ................*/
   ...
 
 .. rubric:: lbdex/verilog/dynstr
 .. code-block:: bash
 
-  00 5f 5f 74 6c 73 5f 67 65 74 5f 61 64 64 72 00 5f 5a 32 6c 61 69 69 00 5f 5a 
-  35 70 6f 77 65 72 69 00 5f 5a 33 66 6f 6f 69 69 00 5f 5a 33 62 61 72 76 00 5f 
-  47 4c 4f 42 41 4c 5f 4f 46 46 53 45 54 5f 54 41 42 4c 45 5f 00 5f 44 59 4e 41 
-  4d 49 43 00 
+  00 5f 5a 32 6c 61 69 69 00 5f 5a 33 66 6f 6f 69 69 00 5f 5a 33 62 61 72 76 00 
+  5f 67 70 5f 64 69 73 70 00 
 
 .. rubric:: exlbt/verilog/dynsym
 .. code-block:: c++
 
-  00 00 00 00 00 00 00 01 00 00 00 10 00 00 00 18 00 00 00 22 00 00 00 2b 00 00 
-  00 33 00 00 00 49 
+  00 00 00 00 00 00 00 01 00 00 00 09 00 00 00 12 00 00 00 1a 
 
 .. rubric:: lbdex/verilog/global_offset
 .. code-block:: bash
 
-  00 00 20 68 
+  00 00 20 58 
 
 .. rubric:: exlbt/input/num_dyn_entry
 .. code-block:: bash
 
-  6
+  4
 
 .. rubric:: exlbt/input/libfoobar.cpu0.so
 .. code-block:: bash
@@ -1284,19 +1284,16 @@ After run build-dlinker.sh, the following files are created.
   Contents of section :
   ...
   Contents of section .dynsym:
-   00e4 00000000 00000000 00000000 00000000  ................
-   00f4 00000001 0000019c 00000000 12000004  ................
-   0104 00000010 0000019c 0000003c 12000004  ...........<....
-   0114 00000018 000001d8 00000038 12000004  ...........8....
-   0124 00000021 00000210 00000070 12000004  ...!.......p....
-   0134 00000029 00001040 00000000 10000006  ...)...@........
-   0144 0000003f 00001040 00000000 11000005  ...?...@........
+   00bc 00000000 00000000 00000000 00000000  ................
+   00cc 00000001 00000130 00000038 12000004  .......0...8....
+   00dc 00000009 00000168 00000034 12000004  .......h...4....
+   00ec 00000012 0000019c 00000074 12000004  ...........t....
+   00fc 0000001a 00000000 00000000 10000000  ................
   Contents of section .dynstr:
-   0154 005f5f74 6c735f67 65745f61 64647200  .__tls_get_addr.
-   0164 5f5a326c 61696900 5f5a3366 6f6f6969  _Z2laii._Z3fooii
-   0174 005f5a33 62617276 005f474c 4f42414c  ._Z3barv._GLOBAL
-   0184 5f4f4646 5345545f 5441424c 455f005f  _OFFSET_TABLE_._
-   0194 44594e41 4d494300                    DYNAMIC.
+   010c 005f5a32 6c616969 005f5a33 666f6f69  ._Z2laii._Z3fooi
+   011c 69005f5a 33626172 76005f67 705f6469  i._Z3barv._gp_di
+   012c 737000                               sp.
+
 
 .. rubric:: exlbt/input/a.out
 .. code-block:: bash
@@ -1327,21 +1324,21 @@ After run build-dlinker.sh, the following files are created.
 
 
 File dynstr is section .dynstr of libfoobar.cpu0.so. File dynsym is the first 
-4 bytes of every entry of .dynsym. File global_offset contains the start address 
-of section .got.plt.
+4 bytes of every entry of .dynsym from libfoobar.cpu0.so. 
+File global_offset contains the start address of section .got.plt of a.out.
 
 The code of dynlinker.v will set the memory as follows after program is loaded.
-(gp value below is 2068 came from file global_offset).
+(gp value below is 2068 which come from file global_offset).
 
 .. rubric:: memory contents
 .. code-block:: bash
 
   //                                    -----------------------------------
   // gp ------------------------------> | all 0                           | (16 bytes)
-  // gp+16 ---------------------------> | 0                          |
-  // gp+16+1*4 -----------------------> | 1st plt entry address      | (4 bytes)
-  //                                    | ...                        |
-  // gp+16+(numDynEntry-1)*4 ---------> | the last plt entry address |
+  // gp+16 ---------------------------> | 0                               |
+  // gp+16+1*4 -----------------------> | 1st plt entry address           | (4 bytes)
+  //                                    | ...                             |
+  // gp+16+(numDynEntry-1)*4 ---------> | the last plt entry address      |
   //                                    -----------------------------------
   // gpPlt ---------------------------> | all 0                           | (16 bytes)
   // gpPlt+16+0*8'h10 ----------------> | 32'h10: pointer to plt0         |
@@ -1351,10 +1348,10 @@ The code of dynlinker.v will set the memory as follows after program is loaded.
   // gpPlt+16+(numDynEntry-1)*8'h10 --> | the last plt entry              |
   //                                    -----------------------------------
 
-For example code of ch_dynamiclinker.cpp and foobar.cpp, gp is 2068, numDynEntry is 
-the contents of file num_dyn_entry which is 6. Every plt entry above (memory 
+For example code of ch_dynamiclinker.cpp and foobar.cpp, gp is 2058, numDynEntry is 
+the contents of file num_dyn_entry which is 4. Every plt entry above (memory 
 address gp+16+1*8'h10..gp+16+(numDynEntry-1)*8'h10) is initialized to "addiu $t9, 
-$zero, 4($gp); st $t9, 0($gp); ld $t9, 16($gp); ret $t9" as follows,
+$zero, 4($gp); st $t9, 0($gp); ld $t9, 16($gp); jr $t9" as follows,
 
 
 .. rubric:: memory contents
@@ -1362,26 +1359,25 @@ $zero, 4($gp); st $t9, 0($gp); ld $t9, 16($gp); ret $t9" as follows,
 
   //                                    -----------------------------------
   // gp ------------------------------> | all 0                           | (16 bytes)
-  // gp+16 ---------------------------> | 0                          |
-  // gp+16+1*4 -----------------------> | 1st plt entry address      | (4 bytes)
-  //                                    | ...                        |
-  // gp+16+(numDynEntry-1)*4 ---------> | the last plt entry address |
+  // gp+16 ---------------------------> | 0                               |
+  // gp+16+1*4 -----------------------> | 1st plt entry address           | (4 bytes)
+  //                                    | ...                             |
+  // gp+16+(numDynEntry-1)*4 ---------> | the last plt entry address      |
   //                                    -----------------------------------
   // gpPlt ---------------------------> | all 0                           | (16 bytes)
   // gpPlt+16+0*8'h10 ----------------> | 32'h10: pointer to plt0         |
   // gpPlt+16+1*8'h10 ----------------> | addiu $t9, $zero, 4             |
   //                                    | st  $t9, 0($gp)                 |
   //                                    | ld  $t9, 16($gp)                |
-  //                                    | jr $t9                         |
+  //                                    | jr $t9                          |
   // gpPlt+16+2*8'h10 ----------------> | addiu $t9, $zero, 4             |
   //                                    | st  $t9, 0($gp)                 |
   //                                    | ld  $t9, 16($gp)                |
-  //                                    | jr $t9                         |
-  // ...                                | ...                             |
-  // gpPlt+16+(6-1)*8'h10 ------------> | addiu $t9, $zero, 4             |
+  //                                    | jr $t9                          |
+  // gpPlt+16+3*8'h10 ------------>     | addiu $t9, $zero, 4             |
   //                                    | st  $t9, 0($gp)                 |
   //                                    | ld  $t9, 16($gp)                |
-  //                                    | jr $t9                         |
+  //                                    | jr $t9                          |
   //                                    -----------------------------------
 
 
@@ -1405,23 +1401,23 @@ $zero, 4($gp); st $t9, 0($gp); ld $t9, 16($gp); ret $t9" as follows,
 main() to dynamic linker. 
 After the first time of ch_dynamiclinker.cpp call foo(), it 
 jump to __plt_Z3fooii plt entry. 
-In __plt_Z3fooii, "ld \$t9, 1c($gp)" and "ret \$t9" will jump to "Plt foo:". 
-Since foo is the 3rd plt entry in "Plt foo:", it save 3 to 0(\$gp) memory 
+In __plt_Z3fooii, "ld \$t9, 1c($gp)" and "jr \$t9" will jump to "Plt foo:". 
+Since foo is the 2nd plt entry in "Plt foo:", it save 2 to 0(\$gp) memory 
 address then jump to PLT0. 
 The purpose of PLT0 is to save \$lr, \$fp, \$sp and jump to dynamic linker. 
 Now, the control flow transfers to dynamic linker.
 Dynamic linker will get the loaded function name and function offset of shared 
-library by the value of 0(\$gp) which is 3 now (set in "Plt foo:"). The value 
-3 tells dynamic linker loading foo() (3rd string in .dynstr) from offset of 
-shared library, 0x3c (3rd value of Function offset area in Figure).
+library by the value of 0(\$gp) which is 2 now (set in "Plt foo:"). The value 
+2 tells dynamic linker loading foo() (2nd string in .dynstr) from offset of 
+shared library, 0x38 (2nd value of Function offset area in Figure).
 Now, dynamic linker can load foo() function from flash to memory, set the 
-address gp+16+3*4(=gp+28) to 0x40000 where the address 0x40000 is the memory 
+address gp+16+2*4(=gp+24) to 0x40000 where the address 0x40000 is the memory 
 address of foo() function loaded to, and then prepare jump to the foo() memory 
 address. 
 Remind we say the prepare jump to foo(). Because before jump to foo(), dynamic 
 linker needs to restore the \$lr, \$fp, \$sp to the 
-value of just before caller calling foo() (they are saved in 4, 8, 12 of \$gp 
-offset in PLT0, so them can be restored from that address).
+value of just before caller calling foo() (they are saved in offset 4, 8, 12 of 
+\$gp in PLT0, so them can be restored from that address).
 
 .. _lld-f8: 
 .. figure:: ../Fig/lld/8.png
@@ -1431,7 +1427,7 @@ offset in PLT0, so them can be restored from that address).
   Transfer from dynamic linker to foo() and back to main()
 
 As :num:`Figure #lld-f8` depicted, control flow from dynamic linker to foo() and
-back to caller main() when it meets the instruction "ret \$lr" in foo().
+back to caller main() when it meets the instruction "jr \$lr" in foo().
 
 .. _lld-f9: 
 .. figure:: ../Fig/lld/9.png
@@ -1444,11 +1440,12 @@ Now the program run at the next instruction of call foo() in main() as
 :num:`Figure #lld-f9` depicted. When it runs 
 to address 0xd84 "jsub __plt__Z3barv", the control flow will transfer from 
 main through __plt_Z3barv, "Plt bar:" and PLT0 to dynamic linker as 
-:num:`Figure #lld-f9` depicted. Then load and run bar() from flash to memory 
-as :num:`Figure #lld-f10` depicted. It just like the calling __plt__Z3fooii.
+:num:`Figure #lld-f9` depicted. Then loading and running bar() from flash to 
+memory as :num:`Figure #lld-f10` depicted. 
+It just like the calling __plt__Z3fooii.
 The difference is bar() will call foo() first and call la() next. 
 The call foo() in bar() will jump to foo() directly as :num:`Figure #lld-f10` 
-because the content of gp+28 is the address of 0x40000 which is
+because the content of gp+24 is the address of 0x40000 which is
 set by dynamic linker when the first time of foo() function is called. 
 
 .. _lld-f10: 
@@ -1459,7 +1456,7 @@ set by dynamic linker when the first time of foo() function is called.
   Dynamic linker load bar() from flash to memory
   
 
-Finally when bar() call la() function it will jump to "Plt la:" since the 
+Finally when bar() call la() function, it will jump to "Plt la:" since the 
 content of \$gp+24 point to "Plt la:". 
 The "Plt la:" code will call dynamic linker
 to load la() function, run la() and back to bar() as :num:`Figure #lld-f11`.
@@ -1476,8 +1473,8 @@ co-work between linker and dynamic linker/loader. It uses the pointers (the area
 from gp+16+1*4 to gp+16+(numDynEntry-1)*4). When the code is loaded, this 
 corresponding pointer in this area points to the loaded memory. Otherwise, it 
 points to dynamic linker. The Plt or __plt_Z3fooii, __pltZ3barv are coding in 
-our cpu0PltAtomContent[] of Cpu0RelocationPass.cpp. It is called linkage editor 
-implementation.
+our cpu0PltAtomContent[] of Cpu0RelocationPass.cpp. Page 5-12 of Mips ABI has
+sample stub code [#pic-call-stub]_.
 
 
 Summary
@@ -1522,10 +1519,11 @@ programmers best opportunity to understand the code and enhance/extend the
 code function. But it can be better, we believe the documentation is the next 
 most important thing to improve the open source code development. 
 The Open Source Organization recognized this point and set 
-Open Source Document Project years ago [#]_ [#]_ [#]_ [#]_ [#]_.
+Open Source Document Project years ago [#BSDLicense]_ [#docproj]_ 
+[#freebsdLicense]_ [#gnuLicense]_ [#fdl]_.
 Open Source grows up and becomes a giant software infrastructure with the forces 
-of company [#]_  [#]_, school research team and countless talent engineers 
-passion. 
+of company [#apple-opensource]_  [#ibm-opensource]_, school research team and 
+countless talent engineers passion. 
 It terminated the situation of everyone trying to re-invent wheels during 10 
 years ago.
 Extend your software from the re-usable source code is the right way. 
@@ -1538,7 +1536,7 @@ We think this book cannot exists in traditional paper book form since only
 few number of readers interested in study llvm backend even though
 there are many paper published books in concept of compiler. So, this book 
 is published via electric media form and try to match the Open Document License 
-Expection [#]_.
+Expection [#gnu-phi]_.
 There are distance between the concept and the realistic program implemenation. 
 Keep note through learning a large complicate software such as this llvm backend 
 is not enough. 
@@ -1546,44 +1544,46 @@ We all learned the knowledge through books during school and after school.
 So, if you cannot find a good way to produce documents, you can consider to 
 write documents like this book. This book document uses sphinx tool 
 just like the llvm development team. Sphinx uses restructured text format here
-[#]_ [#]_ [#]_.
+[#rst-ref]_ [#rst-directives]_ [#rst]_.
 Appendix A of lbd book tell you how to install sphinx tool. 
 Documentation work will help yourself to re-examine your software and make your 
 program better in structure, reliability and more important "Extend your code 
 to somewhere you didn't expect".
 
 
-.. [#] http://lld.llvm.org/
+.. [#lldweb] http://lld.llvm.org/
 
-.. [#] http://lld.llvm.org/getting_started.html#on-unix-like-systems
+.. [#lld-install] http://lld.llvm.org/getting_started.html#on-unix-like-systems
 
-.. [#] http://llvm.org/releases/download.html#3.5
+.. [#llvm-download] http://llvm.org/releases/download.html#3.5
 
-.. [#] http://www.cplusplus.com/reference/memory/unique_ptr/
+.. [#effectiveC++] http://www.cplusplus.com/reference/memory/unique_ptr/
 
-.. [#] http://www.cplusplus.com/reference/memory/unique_ptr/get/
+.. [#get] http://www.cplusplus.com/reference/memory/unique_ptr/get/
 
-.. [#] http://www.cplusplus.com/reference/utility/move/
+.. [#move] http://www.cplusplus.com/reference/utility/move/
 
-.. [#] http://en.wikipedia.org/wiki/BSD_Documentation_License
+.. [#pic-call-stub] Page 5-12 of http://www.linux-mips.org/pub/linux/mips/doc/ABI/mipsabi.pdf
 
-.. [#] http://www.freebsd.org/docproj/
+.. [#BSDLicense] http://en.wikipedia.org/wiki/BSD_Documentation_License
 
-.. [#] http://www.freebsd.org/copyright/freebsd-doc-license.html
+.. [#docproj] http://www.freebsd.org/docproj/
 
-.. [#] http://en.wikipedia.org/wiki/GNU_Free_Documentation_License
+.. [#freebsdLicense] http://www.freebsd.org/copyright/freebsd-doc-license.html
 
-.. [#] http://www.gnu.org/copyleft/fdl.html
+.. [#gnuLicense] http://en.wikipedia.org/wiki/GNU_Free_Documentation_License
 
-.. [#] http://www.apple.com/opensource/
+.. [#fdl] http://www.gnu.org/copyleft/fdl.html
 
-.. [#] https://www.ibm.com/developerworks/opensource/
+.. [#apple-opensource] http://www.apple.com/opensource/
 
-.. [#] http://www.gnu.org/philosophy/free-doc.en.html
+.. [#ibm-opensource] https://www.ibm.com/developerworks/opensource/
 
-.. [#] http://docutils.sourceforge.net/docs/ref/rst/restructuredtext.html
+.. [#gnu-phi] http://www.gnu.org/philosophy/free-doc.en.html
 
-.. [#] http://docutils.sourceforge.net/docs/ref/rst/directives.html
+.. [#rst-ref] http://docutils.sourceforge.net/docs/ref/rst/restructuredtext.html
 
-.. [#] http://docutils.sourceforge.net/rst.html
+.. [#rst-directives] http://docutils.sourceforge.net/docs/ref/rst/directives.html
+
+.. [#rst] http://docutils.sourceforge.net/rst.html
 
