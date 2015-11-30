@@ -47,7 +47,7 @@ const uint8_t cpu0elBootAtomContent[16] = {
 };
 
 // .got values
-const uint8_t cpu0GotAtomContent[32] = { 0 };
+const uint8_t cpu0GotAtomContent[64] = { 0 };
 
 #ifdef DLINKER
 // .plt value (entry 0), big endian
@@ -110,7 +110,7 @@ public:
   Cpu0GOTAtom(const File &f, StringRef secName) : GOTAtom(f, secName) {}
 
   ArrayRef<uint8_t> rawContent() const override {
-    return ArrayRef<uint8_t>(cpu0GotAtomContent, 32);
+    return ArrayRef<uint8_t>(cpu0GotAtomContent, 64);
   }
 };
 
