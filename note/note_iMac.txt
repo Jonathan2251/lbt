@@ -17,3 +17,4 @@
 
   Room in/out: control + finger move up/down on mouse (must check System Preferences -- Accessibility -- Room -- Use scroll gesture with modifier keys to zoom: Control)
 
+2. rsync -avz gem5 /media/cschen/SP\ UFD\ U3/
