@@ -45,9 +45,9 @@ ${TOOLDIR}/lld -flavor gnu -target cpu0-unknown-linux-gnu -o a.out \
 start.cpu0.o \
 printf-stdarg-def.cpu0.o printf-stdarg.cpu0.o dynamic_linker.cpu0.o \
 ch_dynamiclinker.cpu0.o libfoobar.cpu0.so lib_cpu0.o debug.cpu0.o
-${TOOLDIR}/llvm-objdump -elf2hex -le=false -cpu0dumpso libfoobar.cpu0.so \
+${TOOLDIR}/elf2hex -le=false -cpu0dumpso libfoobar.cpu0.so \
 > dlconfig/libso.hex
-${TOOLDIR}/llvm-objdump -elf2hex -le=false -cpu0linkso a.out > cpu0.hex
+${TOOLDIR}/elf2hex -le=false -cpu0linkso a.out > cpu0.hex
 cp -rf dlconfig cpu0.hex ../../lbdex/verilog/.
 echo "0   /* 0: big endian, 1: little endian */" > ../../lbdex/verilog/cpu0.config
 cat ../../lbdex/verilog/cpu0.config

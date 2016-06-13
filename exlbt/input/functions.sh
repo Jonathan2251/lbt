@@ -56,7 +56,7 @@ isLittleEndian() {
 }
 
 elf2hex() {
-  ${TOOLDIR}/llvm-objdump -elf2hex -le=${le} a.out > ${LBDEXDIR}/verilog/cpu0.hex
+  ${TOOLDIR}/elf2hex -le=${le} a.out > ${LBDEXDIR}/verilog/cpu0.hex
   if [ ${le} == "true" ] ; then
     echo "1   /* 0: big endian, 1: little endian */" > ${LBDEXDIR}/verilog/cpu0.config
   else

@@ -33,6 +33,7 @@ Revision history
 
 Version 3.7.2, Not release yet
   Dynamic linker change display from ret \$t9 to jr \$t9.
+  Move llvm-objdump -elf2hex to elf2hex.
 
 Version 3.7.1, Released November 7, 2015
   Remove EM_CPU0_EL.

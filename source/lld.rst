@@ -27,8 +27,7 @@ Cpu0 loader.
 After link with lld,
 the program with global variables can be allocated in ELF file format layout. 
 Meaning the relocation records of global variables is resolved. In addition, 
-llvm-objdump driver is modified for supporting generate Hex file from ELF by
-command ``llvm-objdump -elf2hex``.
+elf2hex is implemented for supporting generate Hex file from ELF.
 With these two tools supported, the global variables exists in 
 section .data and .rodata can be accessed and transfered to Hex file which feeds  
 to Verilog Cpu0 machine and run on your PC/Laptop.
@@ -66,33 +65,29 @@ setting over 1GB to avoid insufficient memory link error.
 ELF to Hex
 -----------
 
-Add elf2hex.h, elf2hex-dlink.h and update llvm-objdump driver to support ELF to 
+Copy exlbt/elf2hex to llvm/test/src/tools/ to supporting ELF to 
 Hex for Cpu0 backend as follows,
 
-.. rubric:: exlbt/llvm-objdump/elf2hex-dlinker.h
-.. literalinclude:: ../exlbt/llvm-objdump/elf2hex-dlinker.h
+.. code-block:: bash
 
-.. rubric:: exlbt/llvm-objdump/elf2hex.h
-.. literalinclude:: ../exlbt/llvm-objdump/elf2hex.h
+  1-160-136-173:tools Jonathan$ pwd
+  /Users/Jonathan/llvm/test/src/tools
+  1-160-136-173:tools Jonathan$ cp -rf ~/test/exlbt/elf2hex .
 
-.. rubric:: exlbt/llvm-objdump/llvm-objdump.cpp
-.. code-block:: c++
+.. rubric:: exlbt/elf2hex/CMakeLists.txt
+.. literalinclude:: ../exlbt/elf2hex/CMakeLists.txt
+
+.. rubric:: exlbt/elf2hex/LLVMBuild.txt
+.. literalinclude:: ../exlbt/elf2hex/LLVMBuild.txt
+
+.. rubric:: exlbt/elf2hex/elf2hex.h
+.. literalinclude:: ../exlbt/elf2hex/elf2hex.h
   
-  template <class ELFT>
-  static std::error_code getRelocationValueString(const ELFObjectFile<ELFT> *Obj,
-                                                  DataRefImpl Rel,
-                                                  SmallVectorImpl<char> &Result) {
-    ...
-    case ELF::EM_CPU0: // llvm-obj -t -r
-    ...
-  }
+.. rubric:: exlbt/elf2hex/elf2hex-dlinker.h
+.. literalinclude:: ../exlbt/elf2hex/elf2hex-dlinker.h
 
-.. literalinclude:: ../exlbt/llvm-objdump/llvm-objdump.cpp
-    :start-after: // 1 llvm-objdump -elf2hex code update begin:
-    :end-before: // 1 llvm-objdump -elf2hex code udpate end:
-.. literalinclude:: ../exlbt/llvm-objdump/llvm-objdump.cpp
-    :start-after: // 2 llvm-objdump -elf2hex code update begin:
-    :end-before: // 2 llvm-objdump -elf2hex code udpate end:
+.. rubric:: exlbt/elf2hex/elf2hex.cpp
+.. literalinclude:: ../exlbt/elf2hex/elf2hex.cpp
 
 The code included in "#ifdef DLINK" are for dynamic linker support.
 The elf2hex.h supports both endian dump.
@@ -129,16 +124,6 @@ Next, setup Cpu0 backend as follows,
   1-160-136-173:lld Jonathan$ pwd
   /Users/Jonathan/llvm/test/src/tools/lld
   1-160-136-173:lld Jonathan$ cp -rf ~/test/lbt/exlbt/lld/* .
-
-
-Finally, update llvm-objdump to support converting ELF file to Hex file as 
-follows,
-
-.. code-block:: bash
-
-  1-160-136-173:llvm-objdump Jonathan$ pwd
-  /Users/Jonathan/llvm/test/src/tools/llvm-objdump
-  1-160-136-173:llvm-objdump Jonathan$ cp -rf ~/test/lbt/exlbt/llvm-objdump/* .
 
 Now, build lld with Cpu0 backend as follows,
 
@@ -1499,9 +1484,9 @@ architecture and CPU design has been translated into a real work and see how it
 is running. Now, these school books knowledge is not limited on paper. 
 We design it, program it, and run it on real world.
 
-The total code size of llvm Cpu0 backend compiler, Cpu0 lld linker, llvm-objdump 
-with elf2hex Cpu0 support and Cpu0 Verilog Language is around 10 thousands lines 
-of source code include comments. 
+The total code size of llvm Cpu0 backend compiler, Cpu0 lld linker, elf2hex and 
+Cpu0 Verilog Language is around 10 thousands lines of source code include 
+comments. 
 The total code size of clang, llvm and lld has 1000 thousands lines exclude the
 test and documents parts. It is only 1 \% of the llvm size.
 More over, the llvm Cpu0 backend and lld Cpu0 backend are 70% of same with llvm 
