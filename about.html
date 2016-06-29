@@ -10,7 +10,6 @@
     
     <link rel="stylesheet" href="_static/haiku.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
-    <link rel="stylesheet" href="_static/print.css" type="text/css" />
     
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
@@ -24,19 +23,17 @@
     <script type="text/javascript" src="_static/jquery.js"></script>
     <script type="text/javascript" src="_static/underscore.js"></script>
     <script type="text/javascript" src="_static/doctools.js"></script>
-    <script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
-    <script type="text/javascript" src="_static/theme_extras.js"></script>
     <link rel="author" title="About these documents" href="#" />
     <link rel="top" title="Tutorial: Creating an LLVM Toolchain for the Cpu0 Architecture" href="index.html" />
     <link rel="next" title="Cpu0 ELF linker" href="lld.html" />
     <link rel="prev" title="Table of Contents" href="index.html" /> 
   </head>
-  <body>
-      <div class="header"><h1 class="heading"><a href="index.html">
+  <body role="document">
+      <div class="header" role="banner"><h1 class="heading"><a href="index.html">
           <span>Tutorial: Creating an LLVM Toolchain for the Cpu0 Architecture</span></a></h1>
         <h2 class="heading"><span>About</span></h2>
       </div>
-      <div class="topnav">
+      <div class="topnav" role="navigation" aria-label="top navigation">
       
         <p>
         «&#160;&#160;<a href="index.html">Table of Contents</a>
@@ -54,18 +51,16 @@
 <span id="sec-about"></span><h1>About<a class="headerlink" href="#about" title="Permalink to this headline">¶</a></h1>
 <div class="contents local topic" id="contents">
 <ul class="simple">
-<li><a class="reference internal" href="#authors" id="id1">Authors</a></li>
-<li><a class="reference internal" href="#acknowledgments" id="id2">Acknowledgments</a></li>
-<li><a class="reference internal" href="#revision-history" id="id3">Revision history</a></li>
-<li><a class="reference internal" href="#licensing" id="id4">Licensing</a></li>
-<li><a class="reference internal" href="#outline-of-chapters" id="id5">Outline of Chapters</a></li>
+<li><a class="reference internal" href="#authors" id="id2">Authors</a></li>
+<li><a class="reference internal" href="#acknowledgments" id="id3">Acknowledgments</a></li>
+<li><a class="reference internal" href="#revision-history" id="id4">Revision history</a></li>
+<li><a class="reference internal" href="#licensing" id="id5">Licensing</a></li>
+<li><a class="reference internal" href="#outline-of-chapters" id="id6">Outline of Chapters</a></li>
 </ul>
 </div>
 <div class="section" id="authors">
-<h2><a class="toc-backref" href="#id1">Authors</a><a class="headerlink" href="#authors" title="Permalink to this headline">¶</a></h2>
-<div class="figure align-right">
-<img alt="_images/Author_ChineseName.png" src="_images/Author_ChineseName.png" />
-</div>
+<h2><a class="toc-backref" href="#id2">Authors</a><a class="headerlink" href="#authors" title="Permalink to this headline">¶</a></h2>
+<img alt="_images/Author_ChineseName.png" class="align-right" src="_images/Author_ChineseName.png" />
 <dl class="docutils">
 <dt>Chen Chung-Shu</dt>
 <dd><p class="first"><a class="reference external" href="mailto:gamma_chen&#37;&#52;&#48;yahoo&#46;com&#46;tw">gamma_chen<span>&#64;</span>yahoo<span>&#46;</span>com<span>&#46;</span>tw</a></p>
@@ -74,16 +69,19 @@
 </dl>
 </div>
 <div class="section" id="acknowledgments">
-<h2><a class="toc-backref" href="#id2">Acknowledgments</a><a class="headerlink" href="#acknowledgments" title="Permalink to this headline">¶</a></h2>
+<h2><a class="toc-backref" href="#id3">Acknowledgments</a><a class="headerlink" href="#acknowledgments" title="Permalink to this headline">¶</a></h2>
 <p>I would like to thank Sean Silva, <a class="reference external" href="mailto:chisophugis&#37;&#52;&#48;gmail&#46;com">chisophugis<span>&#64;</span>gmail<span>&#46;</span>com</a>, for his help,
 encouragement, and assistance with the Sphinx document generator.
 Without his help, this book would not have been finished and published online.
 Also thanking those corrections from readers who make the book more accurate.</p>
 </div>
 <div class="section" id="revision-history">
-<h2><a class="toc-backref" href="#id3">Revision history</a><a class="headerlink" href="#revision-history" title="Permalink to this headline">¶</a></h2>
-<p>Version 3.7.2, Not release yet</p>
+<h2><a class="toc-backref" href="#id4">Revision history</a><a class="headerlink" href="#revision-history" title="Permalink to this headline">¶</a></h2>
 <dl class="docutils">
+<dt>Version 3.7.2, Released June 29, 2016</dt>
+<dd>Dynamic linker change display from ret $t9 to jr $t9.
+Move llvm-objdump -elf2hex to elf2hex.
+Upgrade sphinx to 1.4.4.</dd>
 <dt>Version 3.7.1, Released November 7, 2015</dt>
 <dd>Remove EM_CPU0_EL.
 Add IR blockaddress and indirectbr support.
@@ -102,16 +100,16 @@ Remove warning in build Cpu0 code.</dd>
 </dl>
 </div>
 <div class="section" id="licensing">
-<h2><a class="toc-backref" href="#id4">Licensing</a><a class="headerlink" href="#licensing" title="Permalink to this headline">¶</a></h2>
+<h2><a class="toc-backref" href="#id5">Licensing</a><a class="headerlink" href="#licensing" title="Permalink to this headline">¶</a></h2>
 <p><a class="reference external" href="http://llvm.org/docs/DeveloperPolicy.html#license">http://llvm.org/docs/DeveloperPolicy.html#license</a></p>
 </div>
 <div class="section" id="outline-of-chapters">
-<h2><a class="toc-backref" href="#id5">Outline of Chapters</a><a class="headerlink" href="#outline-of-chapters" title="Permalink to this headline">¶</a></h2>
-<div class="figure align-center" id="about-f1">
-<a class="reference internal image-reference" href="_images/1.png"><img alt="_images/1.png" src="_images/1.png" /></a>
-<p class="caption">Figure 2: Code generation and execution flow</p>
+<h2><a class="toc-backref" href="#id6">Outline of Chapters</a><a class="headerlink" href="#outline-of-chapters" title="Permalink to this headline">¶</a></h2>
+<div class="figure align-center" id="id1">
+<span id="about-f1"></span><a class="reference internal image-reference" href="_images/1.png"><img alt="_images/1.png" src="_images/1.png" style="width: 449.5px; height: 130.5px;" /></a>
+<p class="caption"><span class="caption-number">Fig. 1 </span><span class="caption-text">Code generation and execution flow</span></p>
 </div>
-<p>The upper half of <a class="pageref" href="#about-f1">Figure  2</a> is the work flow and software package
+<p>The upper half of <a class="reference internal" href="#about-f1"><span class="std std-numref">Fig. 1</span></a> is the work flow and software package
 of a computer program be generated and executed. IR stands for Intermediate
 Representation.
 The lower half is this book&#8217;s work flow and software package of the toolchain
@@ -130,18 +128,18 @@ from LLVM compiler-rt.</li>
 <p>With these implementation, reader can generate Cpu0 machine code through Cpu0
 llvm backend compiler, linker and elf2hex, then see how it runs on your
 computer.</p>
-<p><a class="reference internal" href="lld.html#sec-lld"><em>Cpu0 ELF linker</em></a>:</p>
+<p><a class="reference internal" href="lld.html#sec-lld"><span class="std std-ref">Cpu0 ELF linker</span></a>:</p>
 <p>Develop ELF linker for Cpu0 backend based on lld project.</p>
-<p><a class="reference internal" href="opt.html#sec-opt"><em>Optimization</em></a>:</p>
+<p><a class="reference internal" href="opt.html#sec-opt"><span class="std std-ref">Optimization</span></a>:</p>
 <p>Backend independent optimaization.</p>
-<p><a class="reference internal" href="lib.html#sec-lib"><em>Library</em></a>:</p>
+<p><a class="reference internal" href="lib.html#sec-lib"><span class="std std-ref">Library</span></a>:</p>
 <p>Software floating point library and standard C library supporting. Under working.</p>
 </div>
 </div>
 
 
       </div>
-      <div class="bottomnav">
+      <div class="bottomnav" role="navigation" aria-label="bottom navigation">
       
         <p>
         «&#160;&#160;<a href="index.html">Table of Contents</a>
@@ -153,9 +151,9 @@ computer.</p>
 
       </div>
 
-    <div class="footer">
-        &copy; Copyright 2013, LLVM.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.2.
+    <div class="footer" role="contentinfo">
+        &copy; Copyright 2016, Chen Chung-Shu.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.4.4.
     </div>
   </body>
 </html>
