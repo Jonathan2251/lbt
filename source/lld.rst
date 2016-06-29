@@ -20,7 +20,7 @@ supposing readers will easy knowing what it refer to.
 
   Code generation and execution flow
 
-As depicted in :num:`Figure #lld-f-workflow` of chapter About. Beside llvm backend,
+As depicted in :numref:`lld-f-workflow` of chapter About. Beside llvm backend,
 we implement ELF linker and elf2hex to run on Cpu0 verilog simulator.
 This chapter extends lld to support Cpu0 backend as well as elf2hex to replace
 Cpu0 loader.
@@ -492,7 +492,7 @@ Resolving
 .. rubric:: ch13_1.cpp
 .. literalinclude:: ../exlbt/input/ch13_1.cpp
 
-Above code can be reduced to :num:`Figure #lld-deadcodestripping` to perform
+Above code can be reduced to :numref:`lld-deadcodestripping` to perform
 mark and swip in graph for Dead Code Stripping.
 
 .. _lld-deadcodestripping: 
@@ -544,7 +544,7 @@ Passes/Optimizations
   - compact unwind encoding (Darwin specific)
 
 The Cpu0RelocationPass.cpp and Cpu0RelocationPass.h are example codes for lld 
-backend Passes. The Relocation Pass structure shown as :num:`Figure #lld-f3`. 
+backend Passes. The Relocation Pass structure shown as :numref:`lld-f3`. 
 The Cpu0 backend has two Relocation Passes and both of them are children of 
 RelocationPass. The StaticRelocationPass is for static linker and 
 DynamicRelocationPass is for dynamic linker. We will see how to register a 
@@ -976,7 +976,7 @@ code in Cpu0LinkingContext constructor will create Cpu0TargetHandler and passing
 the Cpu0LinkingContext object pointer to Cpu0TargeHandler.
 
 Finally, the Cpu0TargeHandler constructor will create other related objects
-and set up the relation reference object pointers as :num:`Figure #lld-f1`
+and set up the relation reference object pointers as :numref:`lld-f1`
 depicted.
 
 According chapter ELF, the linker stands for resolve the relocation records.
@@ -1028,7 +1028,7 @@ Cpu0TargetHandler by lld ELF driver when it meets each relocation record.
     }
 
 
-Summary as :num:`Figure #lld-f4`. 
+Summary as :numref:`lld-f4`. 
 
 .. _lld-f4: 
 .. figure:: ../Fig/lld/4.png
@@ -1055,14 +1055,14 @@ pattern in Design Pattern book or Smart Pointers in Effective C++ book.
   Cpu0LinkingContext get Cpu0TargetHandler through &getTargetHandler()
 
 
-As :num:`Figure #lld-f1` depicted, the Cpu0TargetHandler include the members or 
+As :numref:`lld-f1` depicted, the Cpu0TargetHandler include the members or 
 pointers which can access to other object. The way to access Cpu0TargetHandler
 object from Cpu0LinkingContext or Cpu0RelocationHandler rely on 
-LinkingContext::getTargetHandler() function. As :num:`Figure #lld-f5` depicted, 
+LinkingContext::getTargetHandler() function. As :numref:`lld-f5` depicted, 
 the unique_ptr point to Cpu0TargetHandler will be saved in LinkingContext 
 contructor function.
 
-List the c++11 unique_ptr::get() and move() which used in :num:`Figure #lld-f5` 
+List the c++11 unique_ptr::get() and move() which used in :numref:`lld-f5` 
 as follows.
 
 .. note:: std::unique_ptr::get() [#get]_
@@ -1338,7 +1338,6 @@ the contents of file num_dyn_entry which is 4. Every plt entry above (memory
 address gp+16+1*8'h10..gp+16+(numDynEntry-1)*8'h10) is initialized to "addiu $t9, 
 $zero, 4($gp); st $t9, 0($gp); ld $t9, 16($gp); jr $t9" as follows,
 
-
 .. rubric:: memory contents
 .. code-block:: bash
 
@@ -1366,7 +1365,7 @@ $zero, 4($gp); st $t9, 0($gp); ld $t9, 16($gp); jr $t9" as follows,
   //                                    -----------------------------------
 
 
-:num:`Figure #lld-f6` is the memory contents after the example program is loaded.
+:numref:`lld-f6` is the memory contents after the example program is loaded.
 
 .. _lld-f6: 
 .. figure:: ../Fig/lld/6.png
@@ -1382,7 +1381,7 @@ $zero, 4($gp); st $t9, 0($gp); ld $t9, 16($gp); jr $t9" as follows,
 
   Control flow transfer from calling foo() instruction of main() to dynamic linker
 
-:num:`Figure #lld-f7` is the Control flow which transfered from call foo() of 
+:numref:`lld-f7` is the Control flow which transfered from call foo() of 
 main() to dynamic linker. 
 After the first time of ch_dynamiclinker.cpp call foo(), it 
 jump to __plt_Z3fooii plt entry. 
@@ -1411,7 +1410,7 @@ value of just before caller calling foo() (they are saved in offset 4, 8, 12 of
 
   Transfer from dynamic linker to foo() and back to main()
 
-As :num:`Figure #lld-f8` depicted, control flow from dynamic linker to foo() and
+As :numref:`lld-f8` depicted, control flow from dynamic linker to foo() and
 back to caller main() when it meets the instruction "jr \$lr" in foo().
 
 .. _lld-f9: 
@@ -1422,14 +1421,14 @@ back to caller main() when it meets the instruction "jr \$lr" in foo().
   Control flow transfer from calling bar() instruction of main() to dynamic linker
   
 Now the program run at the next instruction of call foo() in main() as 
-:num:`Figure #lld-f9` depicted. When it runs 
+:numref:`lld-f9` depicted. When it runs 
 to address 0xd84 "jsub __plt__Z3barv", the control flow will transfer from 
 main through __plt_Z3barv, "Plt bar:" and PLT0 to dynamic linker as 
-:num:`Figure #lld-f9` depicted. Then loading and running bar() from flash to 
-memory as :num:`Figure #lld-f10` depicted. 
+:numref:`lld-f9` depicted. Then loading and running bar() from flash to 
+memory as :numref:`lld-f10` depicted. 
 It just like the calling __plt__Z3fooii.
 The difference is bar() will call foo() first and call la() next. 
-The call foo() in bar() will jump to foo() directly as :num:`Figure #lld-f10` 
+The call foo() in bar() will jump to foo() directly as :numref:`lld-f10` 
 because the content of gp+24 is the address of 0x40000 which is
 set by dynamic linker when the first time of foo() function is called. 
 
@@ -1444,7 +1443,7 @@ set by dynamic linker when the first time of foo() function is called.
 Finally when bar() call la() function, it will jump to "Plt la:" since the 
 content of \$gp+24 point to "Plt la:". 
 The "Plt la:" code will call dynamic linker
-to load la() function, run la() and back to bar() as :num:`Figure #lld-f11`.
+to load la() function, run la() and back to bar() as :numref:`lld-f11`.
 
 .. _lld-f11: 
 .. figure:: ../Fig/lld/11.png
