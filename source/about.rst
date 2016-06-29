@@ -31,7 +31,7 @@ Also thanking those corrections from readers who make the book more accurate.
 Revision history
 ----------------
 
-Version 3.7.2, Not release yet
+Version 3.7.2, Released June 29, 2016
   Dynamic linker change display from ret \$t9 to jr \$t9.
   Move llvm-objdump -elf2hex to elf2hex.
   Upgrade sphinx to 1.4.4.
