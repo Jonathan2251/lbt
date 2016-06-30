@@ -68,7 +68,7 @@ ELF to Hex
 Copy exlbt/elf2hex to llvm/test/src/tools/ to supporting ELF to 
 Hex for Cpu0 backend as follows,
 
-.. code-block:: bash
+.. code-block:: console
 
   1-160-136-173:tools Jonathan$ pwd
   /Users/Jonathan/llvm/test/src/tools
@@ -109,7 +109,7 @@ souce code on {llvm-src}/tools/lld just like we download llvm and clang as
 shown in Appendex A of book "Tutorial: Creating an LLVM Backend for the Cpu0 
 Architecture" as follows.
 
-.. code-block:: bash
+.. code-block:: console
 
   1-160-136-173:tools Jonathan$ pwd
   /Users/Jonathan/llvm/test/src/tools
@@ -119,7 +119,7 @@ Architecture" as follows.
 
 Next, setup Cpu0 backend as follows,
 
-.. code-block:: bash
+.. code-block:: console
 
   1-160-136-173:lld Jonathan$ pwd
   /Users/Jonathan/llvm/test/src/tools/lld
@@ -127,7 +127,7 @@ Next, setup Cpu0 backend as follows,
 
 Now, build lld with Cpu0 backend as follows,
 
-.. code-block:: bash
+.. code-block:: console
 
   1-160-136-173:cmake_debug_build Jonathan$ cmake -DCMAKE_CXX_COMPILER=clang++ -
   DCMAKE_C_COMPILER=clang -DCMAKE_CXX_FLAGS=-std=c++11 -DCMAKE_BUILD_TYPE=Debug
@@ -141,7 +141,7 @@ Now, build lld with Cpu0 backend as follows,
 
 If using VM (guest machine is Linux) or Linux, build as follows,
 
-.. code-block:: bash
+.. code-block:: console
 
   [Gamma@localhost cmake_debug_build]$ cmake -DCMAKE_CXX_COMPILER=g++ -
   DCMAKE_C_COMPILER=gcc -DCMAKE_CXX_FLAGS=-std=c++11 -DCMAKE_BUILD_TYPE=Debug
@@ -171,7 +171,7 @@ The code added on lld to support Cpu0 ELF as follows,
   std::unique_ptr<ELFLinkingContext> createCpu0LinkingContext(llvm::Triple);
 
 .. rubric:: exlbt/lld/lib/Driver/CMakeLists.txt
-.. code-block:: c++
+.. code-block:: cmake
 
   add_llvm_library(lldDriver
       ...
@@ -189,7 +189,7 @@ The code added on lld to support Cpu0 ELF as follows,
   }
 
 .. rubric:: exlbt/lld/lib/ReaderWriter/ELF/CMakeLists.txt
-.. code-block:: c++
+.. code-block:: cmake
 
   add_subdirectory(Cpu0)
 
@@ -635,7 +635,7 @@ will be called by lld driver to finish the address binding in linker stage.
 .. literalinclude:: ../exlbt/input/build-hello.sh
 
 .. rubric:: exlbt/verilog/Cpu0.hex
-.. code-block:: c++
+.. code-block:: console
 
   ...
   /*printf:*/
@@ -691,7 +691,7 @@ The Cpu0 backend code, lbdex.tar.gz, untared in
 the same directory too. The lbdex.tar.gz can be get from the bottom of web, 
 http://jonathan2251.github.io/lbd/index.html.
 
-.. code-block:: bash
+.. code-block:: console
 
   1-160-136-173:input Jonathan$ pwd
   /Users/Jonathan/test/lbt/exlbt/input
@@ -768,7 +768,7 @@ The build-printf-stdarg-2.sh is for my PC setting. Please change this script to
 the directory of your llvm/lld setting. After that run static linker example 
 code as follows,
 
-.. code-block:: bash
+.. code-block:: console
 
   1-160-136-173:input Jonathan$ pwd
   /Users/Jonathan/test/lbt/exlbt/input
@@ -807,7 +807,7 @@ code as follows,
 
 Let's check the result with PC program printf-stdarg-1.c output as follows,
 
-.. code-block:: bash
+.. code-block:: console
 
   1-160-136-173:input Jonathan$ clang printf-stdarg-1.c
   printf-stdarg-1.c:58:19: warning: incomplete format specifier [-Wformat]
@@ -841,7 +841,7 @@ variable cpu from cpu032I to cpu032II as follows,
 .. rubric:: exlbt/input/build-printf-stdarg-2.sh
 
 
-.. code-block:: bash
+.. code-block:: console
 
   1-160-136-173:verilog Jonathan$ pwd
   /Users/Jonathan/test/lbt/lbdex/verilog
@@ -881,7 +881,7 @@ is for this purpose.
 .. rubric:: exlbt/input/build-slinker.sh
 .. literalinclude:: ../exlbt/input/build-slinker.sh
   
-.. code-block:: bash
+.. code-block:: console
 
   1-160-136-173:input Jonathan$ pwd
   /Users/Jonathan/test/lbt/exlbt/input
@@ -1126,7 +1126,7 @@ to execute the dynamic linker function on Cpu0 Verilog machine.
 Run
 ```
 
-.. code-block:: bash
+.. code-block:: console
 
   1-160-136-173 input Jonathan$ pwd
   /Users/Jonathan/test/lbt/exlbt/input
@@ -1185,7 +1185,7 @@ How to work
 After run build-dlinker.sh, the following files are created.
 
 .. rubric:: lbdex/verilog/cpu0.hex
-.. code-block:: bash
+.. code-block:: console
   
   /*       0:*/	36 00 01 9c                                  /*	jmp	0x019c */
   /*       4:*/	36 00 00 04                                  /*	jmp	4 */
@@ -1238,28 +1238,28 @@ After run build-dlinker.sh, the following files are created.
   ...
 
 .. rubric:: lbdex/verilog/dynstr
-.. code-block:: bash
+.. code-block:: console
 
   00 5f 5a 32 6c 61 69 69 00 5f 5a 33 66 6f 6f 69 69 00 5f 5a 33 62 61 72 76 00 
   5f 67 70 5f 64 69 73 70 00 
 
 .. rubric:: exlbt/verilog/dynsym
-.. code-block:: c++
+.. code-block:: console
 
   00 00 00 00 00 00 00 01 00 00 00 09 00 00 00 12 00 00 00 1a 
 
 .. rubric:: lbdex/verilog/global_offset
-.. code-block:: bash
+.. code-block:: console
 
   00 00 20 58 
 
 .. rubric:: exlbt/input/num_dyn_entry
-.. code-block:: bash
+.. code-block:: console
 
   4
 
 .. rubric:: exlbt/input/libfoobar.cpu0.so
-.. code-block:: bash
+.. code-block:: console
 
   1-160-136-173:input Jonathan$ ~/llvm/test/cmake_debug_build/Debug/bin/
   llvm-objdump -s libfoobar.cpu0.so 
@@ -1281,7 +1281,7 @@ After run build-dlinker.sh, the following files are created.
 
 
 .. rubric:: exlbt/input/a.out
-.. code-block:: bash
+.. code-block:: console
 
   1-160-136-173:input Jonathan$ ~/llvm/test/cmake_debug_build/Debug/bin/
   llvm-objdump -s a.out
@@ -1316,7 +1316,7 @@ The code of dynlinker.v will set the memory as follows after program is loaded.
 (gp value below is 2068 which come from file global_offset).
 
 .. rubric:: memory contents
-.. code-block:: bash
+.. code-block:: console
 
   //                                    -----------------------------------
   // gp ------------------------------> | all 0                           | (16 bytes)
@@ -1339,7 +1339,7 @@ address gp+16+1*8'h10..gp+16+(numDynEntry-1)*8'h10) is initialized to "addiu $t9
 $zero, 4($gp); st $t9, 0($gp); ld $t9, 16($gp); jr $t9" as follows,
 
 .. rubric:: memory contents
-.. code-block:: bash
+.. code-block:: console
 
   //                                    -----------------------------------
   // gp ------------------------------> | all 0                           | (16 bytes)

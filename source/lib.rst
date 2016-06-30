@@ -64,7 +64,7 @@ Software Float Point Support
 
 Run as follows,
 
-.. code-block:: bash
+.. code-block:: console
 
   JonathantekiiMac:input Jonathan$ bash build-float.sh cpu032II be
   ...
