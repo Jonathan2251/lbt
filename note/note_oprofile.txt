@@ -1,3 +1,0 @@
-ocount --events=l1d_pend_miss:occurences,l1d_pend_miss:pending,l2_l1d_wb_rqsts:miss,l2_l1d_wb_rqsts:hit_e,l2_l1d_wb_rqsts:hit_m,l2_rqsts:rfo_miss,l2_rqsts:rfo_hit,LLC_MISSES,LLC_REFS  ./matmul
-
-ocount --events=l1d_pend_miss:pending  ./matmul
