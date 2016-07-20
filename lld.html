@@ -14,7 +14,7 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    './',
-        VERSION:     '3.7.1',
+        VERSION:     '3.7.2',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -138,9 +138,9 @@ setting over 1GB to avoid insufficient memory link error.</p>
 <h2><a class="toc-backref" href="#id33">ELF to Hex</a><a class="headerlink" href="#elf-to-hex" title="Permalink to this headline">¶</a></h2>
 <p>Copy exlbt/elf2hex to llvm/test/src/tools/ to supporting ELF to
 Hex for Cpu0 backend as follows,</p>
-<div class="highlight-bash"><div class="highlight"><pre><span></span>1-160-136-173:tools Jonathan$ <span class="nb">pwd</span>
-/Users/Jonathan/llvm/test/src/tools
-1-160-136-173:tools Jonathan$ cp -rf ~/test/exlbt/elf2hex .
+<div class="highlight-console"><div class="highlight"><pre><span></span><span class="gp">1-160-136-173:tools Jonathan$</span> <span class="nb">pwd</span>
+<span class="go">/Users/Jonathan/llvm/test/src/tools</span>
+<span class="gp">1-160-136-173:tools Jonathan$</span> cp -rf ~/test/exlbt/elf2hex .
 </pre></div>
 </div>
 <p class="rubric">exlbt/elf2hex/CMakeLists.txt</p>
@@ -1866,41 +1866,41 @@ build lld as Linux platform. Please download lld from llvm web
 souce code on {llvm-src}/tools/lld just like we download llvm and clang as
 shown in Appendex A of book &#8220;Tutorial: Creating an LLVM Backend for the Cpu0
 Architecture&#8221; as follows.</p>
-<div class="highlight-bash"><div class="highlight"><pre><span></span>1-160-136-173:tools Jonathan$ <span class="nb">pwd</span>
-/Users/Jonathan/llvm/test/src/tools
-1-160-136-173:tools Jonathan$ ls
-...
-lld              llvm-config      llvm-extract    llvm-nm           llvm-stress   obj2yaml
+<div class="highlight-console"><div class="highlight"><pre><span></span><span class="gp">1-160-136-173:tools Jonathan$</span> <span class="nb">pwd</span>
+<span class="go">/Users/Jonathan/llvm/test/src/tools</span>
+<span class="gp">1-160-136-173:tools Jonathan$</span> ls
+<span class="go">...</span>
+<span class="go">lld              llvm-config      llvm-extract    llvm-nm           llvm-stress   obj2yaml</span>
 </pre></div>
 </div>
 <p>Next, setup Cpu0 backend as follows,</p>
-<div class="highlight-bash"><div class="highlight"><pre><span></span>1-160-136-173:lld Jonathan$ <span class="nb">pwd</span>
-/Users/Jonathan/llvm/test/src/tools/lld
-1-160-136-173:lld Jonathan$ cp -rf ~/test/lbt/exlbt/lld/* .
+<div class="highlight-console"><div class="highlight"><pre><span></span><span class="gp">1-160-136-173:lld Jonathan$</span> <span class="nb">pwd</span>
+<span class="go">/Users/Jonathan/llvm/test/src/tools/lld</span>
+<span class="gp">1-160-136-173:lld Jonathan$</span> cp -rf ~/test/lbt/exlbt/lld/* .
 </pre></div>
 </div>
 <p>Now, build lld with Cpu0 backend as follows,</p>
-<div class="highlight-bash"><div class="highlight"><pre><span></span>1-160-136-173:cmake_debug_build Jonathan$ cmake -DCMAKE_CXX_COMPILER<span class="o">=</span>clang++ -
-<span class="nv">DCMAKE_C_COMPILER</span><span class="o">=</span>clang -DCMAKE_CXX_FLAGS<span class="o">=</span>-std<span class="o">=</span>c++11 -DCMAKE_BUILD_TYPE<span class="o">=</span>Debug
--G <span class="s2">&quot;Xcode&quot;</span> ../src
-...
--- Targeting Cpu0
-...
--- Configuring <span class="k">done</span>
--- Generating <span class="k">done</span>
--- Build files have been written to: /Users/Jonathan/llvm/test/cmake_debug_build
+<div class="highlight-console"><div class="highlight"><pre><span></span><span class="gp">1-160-136-173:cmake_debug_build Jonathan$</span> cmake -DCMAKE_CXX_COMPILER<span class="o">=</span>clang++ -
+<span class="go">DCMAKE_C_COMPILER=clang -DCMAKE_CXX_FLAGS=-std=c++11 -DCMAKE_BUILD_TYPE=Debug</span>
+<span class="go">-G &quot;Xcode&quot; ../src</span>
+<span class="go">...</span>
+<span class="go">-- Targeting Cpu0</span>
+<span class="go">...</span>
+<span class="go">-- Configuring done</span>
+<span class="go">-- Generating done</span>
+<span class="go">-- Build files have been written to: /Users/Jonathan/llvm/test/cmake_debug_build</span>
 </pre></div>
 </div>
 <p>If using VM (guest machine is Linux) or Linux, build as follows,</p>
-<div class="highlight-bash"><div class="highlight"><pre><span></span><span class="o">[</span>Gamma@localhost cmake_debug_build<span class="o">]</span>$ cmake -DCMAKE_CXX_COMPILER<span class="o">=</span>g++ -
-<span class="nv">DCMAKE_C_COMPILER</span><span class="o">=</span>gcc -DCMAKE_CXX_FLAGS<span class="o">=</span>-std<span class="o">=</span>c++11 -DCMAKE_BUILD_TYPE<span class="o">=</span>Debug
--G <span class="s2">&quot;Unix Makefiles&quot;</span> ../src
-...
--- Targeting Cpu0
-...
--- Configuring <span class="k">done</span>
--- Generating <span class="k">done</span>
--- Build files have been written to: /home/cschen/llvm/test/cmake_debug_build
+<div class="highlight-console"><div class="highlight"><pre><span></span><span class="gp">[Gamma@localhost cmake_debug_build]$</span> cmake -DCMAKE_CXX_COMPILER<span class="o">=</span>g++ -
+<span class="go">DCMAKE_C_COMPILER=gcc -DCMAKE_CXX_FLAGS=-std=c++11 -DCMAKE_BUILD_TYPE=Debug</span>
+<span class="go">-G &quot;Unix Makefiles&quot; ../src</span>
+<span class="go">...</span>
+<span class="go">-- Targeting Cpu0</span>
+<span class="go">...</span>
+<span class="go">-- Configuring done</span>
+<span class="go">-- Generating done</span>
+<span class="go">-- Build files have been written to: /home/cschen/llvm/test/cmake_debug_build</span>
 </pre></div>
 </div>
 </div>
@@ -1917,9 +1917,9 @@ lld              llvm-config      llvm-extract    llvm-nm           llvm-stress 
 </pre></div>
 </div>
 <p class="rubric">exlbt/lld/lib/Driver/CMakeLists.txt</p>
-<div class="highlight-c++"><div class="highlight"><pre><span></span><span class="n">add_llvm_library</span><span class="p">(</span><span class="n">lldDriver</span>
-    <span class="p">...</span>
-    <span class="n">lldCpu0ELFTarget</span>
+<div class="highlight-cmake"><div class="highlight"><pre><span></span><span class="nb">add_llvm_library</span><span class="p">(</span><span class="s">lldDriver</span>
+    <span class="s">...</span>
+    <span class="s">lldCpu0ELFTarget</span>
   <span class="p">)</span>
 </pre></div>
 </div>
@@ -1933,7 +1933,7 @@ lld              llvm-config      llvm-extract    llvm-nm           llvm-stress 
 </pre></div>
 </div>
 <p class="rubric">exlbt/lld/lib/ReaderWriter/ELF/CMakeLists.txt</p>
-<div class="highlight-c++"><div class="highlight"><pre><span></span><span class="n">add_subdirectory</span><span class="p">(</span><span class="n">Cpu0</span><span class="p">)</span>
+<div class="highlight-cmake"><div class="highlight"><pre><span></span><span class="nb">add_subdirectory</span><span class="p">(</span><span class="s">Cpu0</span><span class="p">)</span>
 </pre></div>
 </div>
 <p class="rubric">exlbt/lld/lib/ReaderWriter/ELF/Atoms.h</p>
@@ -3848,21 +3848,21 @@ epilogue;
 </pre></div>
 </div>
 <p class="rubric">exlbt/verilog/Cpu0.hex</p>
-<div class="highlight-c++"><div class="highlight"><pre><span></span><span class="p">...</span>
-<span class="cm">/*printf:*/</span>
-<span class="cm">/*      b4:*/</span> <span class="mi">09</span> <span class="n">dd</span> <span class="n">ff</span> <span class="n">e0</span>                                  <span class="cm">/* addiu   $sp, $sp, -32*/</span>
-<span class="p">...</span>
-<span class="cm">/*main:*/</span>
-<span class="cm">/*     9e0:*/</span> <span class="mi">09</span> <span class="n">dd</span> <span class="n">ff</span> <span class="n">e8</span>                                  <span class="cm">/* addiu   $sp, $sp, -24*/</span>
-<span class="p">...</span>
-<span class="cm">/*     9f0:*/</span> <span class="mf">0f</span> <span class="mi">20</span> <span class="mo">00</span> <span class="mo">00</span>                                  <span class="cm">/* lui     $2, 0*/</span>
-<span class="cm">/*     9f4:*/</span> <span class="mi">0</span><span class="n">d</span> <span class="mi">22</span> <span class="mi">0</span><span class="n">b</span> <span class="mf">9f</span>                                  <span class="cm">/* ori     $2, $2, 2975*/</span>
-<span class="p">...</span>
-<span class="cm">/*     a0c:*/</span> <span class="mi">3</span><span class="n">b</span> <span class="n">ff</span> <span class="n">f6</span> <span class="n">a4</span>                                  <span class="cm">/* jsub    16774820*/</span>
-<span class="p">...</span>
-<span class="cm">/*Contents of section .rodata:*/</span>
-<span class="cm">/*0b98 */</span><span class="mi">28</span> <span class="mi">6</span><span class="n">e</span> <span class="mi">75</span> <span class="mi">6</span><span class="n">c</span>  <span class="mi">6</span><span class="n">c</span> <span class="mi">29</span> <span class="mo">00</span> <span class="mi">48</span>  <span class="mi">65</span> <span class="mi">6</span><span class="n">c</span> <span class="mi">6</span><span class="n">c</span> <span class="mf">6f</span>  <span class="mi">20</span> <span class="mi">77</span> <span class="mf">6f</span> <span class="mi">72</span> <span class="cm">/*  (null).Hello wor*/</span>
-<span class="cm">/*0ba8 */</span><span class="mi">6</span><span class="n">c</span> <span class="mi">64</span> <span class="mi">21</span> <span class="mo">00</span>  <span class="mi">25</span> <span class="mi">73</span> <span class="mi">0</span><span class="n">a</span> <span class="mo">00</span>   <span class="cm">/*  ld!.\%s..*/</span>
+<div class="highlight-console"><div class="highlight"><pre><span></span><span class="go">...</span>
+<span class="go">/*printf:*/</span>
+<span class="go">/*      b4:*/ 09 dd ff e0                                  /* addiu   $sp, $sp, -32*/</span>
+<span class="go">...</span>
+<span class="go">/*main:*/</span>
+<span class="go">/*     9e0:*/ 09 dd ff e8                                  /* addiu   $sp, $sp, -24*/</span>
+<span class="go">...</span>
+<span class="go">/*     9f0:*/ 0f 20 00 00                                  /* lui     $2, 0*/</span>
+<span class="go">/*     9f4:*/ 0d 22 0b 9f                                  /* ori     $2, $2, 2975*/</span>
+<span class="go">...</span>
+<span class="go">/*     a0c:*/ 3b ff f6 a4                                  /* jsub    16774820*/</span>
+<span class="go">...</span>
+<span class="go">/*Contents of section .rodata:*/</span>
+<span class="go">/*0b98 */28 6e 75 6c  6c 29 00 48  65 6c 6c 6f  20 77 6f 72 /*  (null).Hello wor*/</span>
+<span class="go">/*0ba8 */6c 64 21 00  25 73 0a 00   /*  ld!.\%s..*/</span>
 </pre></div>
 </div>
 <p>As you can see, applyRelocation() get four values for the Relocation Records
@@ -3900,23 +3900,23 @@ untared in directory /Users/Jonathan/test/lbt/.
 The Cpu0 backend code, lbdex.tar.gz, untared in
 the same directory too. The lbdex.tar.gz can be get from the bottom of web,
 <a class="reference external" href="http://jonathan2251.github.io/lbd/index.html">http://jonathan2251.github.io/lbd/index.html</a>.</p>
-<div class="highlight-bash"><div class="highlight"><pre><span></span>1-160-136-173:input Jonathan$ <span class="nb">pwd</span>
-/Users/Jonathan/test/lbt/exlbt/input
-1-160-136-173:input Jonathan$ ls ../..
-... exlbt ... lbdex ...
-/Users/Jonathan/test/lbt/exlbt/input
-1-160-136-173:input Jonathan$ bash build-hello.sh cpu032I be
-1-160-136-173:input Jonathan$ /Users/Jonathan/llvm/test/cmake_debug_build/
-Debug/bin/llvm-objdump -s a.out
-...                .
-Contents of section .plt:
- <span class="m">0140</span> 3600000c <span class="m">36000004</span> <span class="m">36000004</span> 36fffffc  6...6...6...6...
-Contents of section .text:
- <span class="m">0150</span> 09ddfff8 02ed0004 02cd0000 11cd0000  ................
-...
-Contents of section .rodata:
- 0b98 286e756c 6c290048 656c6c6f 20776f72  <span class="o">(</span>null<span class="o">)</span>.Hello wor
- 0ba8 6c642100 25730a00                    ld!.%s..
+<div class="highlight-console"><div class="highlight"><pre><span></span><span class="gp">1-160-136-173:input Jonathan$</span> <span class="nb">pwd</span>
+<span class="go">/Users/Jonathan/test/lbt/exlbt/input</span>
+<span class="gp">1-160-136-173:input Jonathan$</span> ls ../..
+<span class="go">... exlbt ... lbdex ...</span>
+<span class="go">/Users/Jonathan/test/lbt/exlbt/input</span>
+<span class="gp">1-160-136-173:input Jonathan$</span> bash build-hello.sh cpu032I be
+<span class="gp">1-160-136-173:input Jonathan$</span> /Users/Jonathan/llvm/test/cmake_debug_build/
+<span class="go">Debug/bin/llvm-objdump -s a.out</span>
+<span class="go">...                .</span>
+<span class="go">Contents of section .plt:</span>
+<span class="go"> 0140 3600000c 36000004 36000004 36fffffc  6...6...6...6...</span>
+<span class="go">Contents of section .text:</span>
+<span class="go"> 0150 09ddfff8 02ed0004 02cd0000 11cd0000  ................</span>
+<span class="go">...</span>
+<span class="go">Contents of section .rodata:</span>
+<span class="go"> 0b98 286e756c 6c290048 656c6c6f 20776f72  (null).Hello wor</span>
+<span class="go"> 0ba8 6c642100 25730a00                    ld!.%s..</span>
 </pre></div>
 </div>
 <p>Next section will show you how to design your lld backend and register a pass
@@ -4568,82 +4568,82 @@ clean:
 <p>The build-printf-stdarg-2.sh is for my PC setting. Please change this script to
 the directory of your llvm/lld setting. After that run static linker example
 code as follows,</p>
-<div class="highlight-bash"><div class="highlight"><pre><span></span>1-160-136-173:input Jonathan$ <span class="nb">pwd</span>
-/Users/Jonathan/test/lbt/exlbt/input
-1-160-136-173:input Jonathan$ bash build-printf-stdarg-2.sh cpu032I be
-In file included from printf-stdarg-2.cpp:11:
-./printf-stdarg.c:206:15: warning: conversion from string literal to <span class="s1">&#39;char *&#39;</span>
-is deprecated <span class="o">[</span>-Wdeprecated-writable-strings<span class="o">]</span>
-  char *ptr <span class="o">=</span> <span class="s2">&quot;Hello world!&quot;</span><span class="p">;</span>
-              ^
-<span class="m">1</span> warning generated.
+<div class="highlight-console"><div class="highlight"><pre><span></span><span class="gp">1-160-136-173:input Jonathan$</span> <span class="nb">pwd</span>
+<span class="go">/Users/Jonathan/test/lbt/exlbt/input</span>
+<span class="gp">1-160-136-173:input Jonathan$</span> bash build-printf-stdarg-2.sh cpu032I be
+<span class="go">In file included from printf-stdarg-2.cpp:11:</span>
+<span class="go">./printf-stdarg.c:206:15: warning: conversion from string literal to &#39;char *&#39;</span>
+<span class="go">is deprecated [-Wdeprecated-writable-strings]</span>
+<span class="go">  char *ptr = &quot;Hello world!&quot;;</span>
+<span class="go">              ^</span>
+<span class="go">1 warning generated.</span>
 
-1-160-136-173:input Jonathan$ <span class="nb">cd</span> ../../lbdex/verilog/
-1-160-136-173:verilog Jonathan$ <span class="nb">pwd</span>
-/Users/Jonathan/test/lbt/lbdex/verilog
-1-160-136-173:verilog Jonathan$ make
-1-160-136-173:verilog Jonathan$ ls
-... cpu0Isp ... cpu0IIsp ...
-1-160-136-173:verilog Jonathan$ ./cpu0Isp
-Hello world!
-<span class="nb">printf</span> <span class="nb">test</span>
-<span class="o">(</span>null<span class="o">)</span> is null pointer
-<span class="nv">5</span> <span class="o">=</span> 5
--2147483647 <span class="o">=</span> - max int
-char <span class="nv">a</span> <span class="o">=</span> <span class="s1">&#39;a&#39;</span>
-hex <span class="nv">ff</span> <span class="o">=</span> ff
-hex <span class="nv">00</span> <span class="o">=</span> 00
-signed -3 <span class="o">=</span> unsigned <span class="nv">4294967293</span> <span class="o">=</span> hex fffffffd
-<span class="m">0</span> message<span class="o">(</span>s<span class="o">)</span>
-<span class="m">0</span> message<span class="o">(</span>s<span class="o">)</span> with <span class="se">\%</span>
-justif: <span class="s2">&quot;left      &quot;</span>
-justif: <span class="s2">&quot;     right&quot;</span>
- 3: <span class="m">0003</span> zero padded
- 3: <span class="m">3</span>    left justif.
- 3:    <span class="m">3</span> right justif.
--3: -003 zero padded
+<span class="gp">1-160-136-173:input Jonathan$</span> <span class="nb">cd</span> ../../lbdex/verilog/
+<span class="gp">1-160-136-173:verilog Jonathan$</span> <span class="nb">pwd</span>
+<span class="go">/Users/Jonathan/test/lbt/lbdex/verilog</span>
+<span class="gp">1-160-136-173:verilog Jonathan$</span> make
+<span class="gp">1-160-136-173:verilog Jonathan$</span> ls
+<span class="go">... cpu0Isp ... cpu0IIsp ...</span>
+<span class="gp">1-160-136-173:verilog Jonathan$</span> ./cpu0Isp
+<span class="go">Hello world!</span>
+<span class="go">printf test</span>
+<span class="go">(null) is null pointer</span>
+<span class="go">5 = 5</span>
+<span class="go">-2147483647 = - max int</span>
+<span class="go">char a = &#39;a&#39;</span>
+<span class="go">hex ff = ff</span>
+<span class="go">hex 00 = 00</span>
+<span class="go">signed -3 = unsigned 4294967293 = hex fffffffd</span>
+<span class="go">0 message(s)</span>
+<span class="go">0 message(s) with \%</span>
+<span class="go">justif: &quot;left      &quot;</span>
+<span class="go">justif: &quot;     right&quot;</span>
+<span class="go"> 3: 0003 zero padded</span>
+<span class="go"> 3: 3    left justif.</span>
+<span class="go"> 3:    3 right justif.</span>
+<span class="go">-3: -003 zero padded</span>
 </pre></div>
 </div>
 <p>Let&#8217;s check the result with PC program printf-stdarg-1.c output as follows,</p>
-<div class="highlight-bash"><div class="highlight"><pre><span></span>1-160-136-173:input Jonathan$ clang printf-stdarg-1.c
-printf-stdarg-1.c:58:19: warning: incomplete format specifier <span class="o">[</span>-Wformat<span class="o">]</span>
-  printf<span class="o">(</span><span class="s2">&quot;%d %s(s)%&quot;</span>, 0, <span class="s2">&quot;message&quot;</span><span class="o">)</span><span class="p">;</span>
-                  ^
-<span class="m">1</span> warning generated.
-1-160-136-173:input Jonathan$ ./a.out
-Hello world!
-<span class="nb">printf</span> <span class="nb">test</span>
-<span class="o">(</span>null<span class="o">)</span> is null pointer
-<span class="nv">5</span> <span class="o">=</span> 5
--2147483647 <span class="o">=</span> - max int
-char <span class="nv">a</span> <span class="o">=</span> <span class="s1">&#39;a&#39;</span>
-hex <span class="nv">ff</span> <span class="o">=</span> ff
-hex <span class="nv">00</span> <span class="o">=</span> 00
-signed -3 <span class="o">=</span> unsigned <span class="nv">4294967293</span> <span class="o">=</span> hex fffffffd
-<span class="m">0</span> message<span class="o">(</span>s<span class="o">)</span>
-<span class="m">0</span> message<span class="o">(</span>s<span class="o">)</span> with <span class="se">\%</span>
-justif: <span class="s2">&quot;left      &quot;</span>
-justif: <span class="s2">&quot;     right&quot;</span>
- 3: <span class="m">0003</span> zero padded
- 3: <span class="m">3</span>    left justif.
- 3:    <span class="m">3</span> right justif.
--3: -003 zero padded
--3: -3   left justif.
--3:   -3 right justif.
+<div class="highlight-console"><div class="highlight"><pre><span></span><span class="gp">1-160-136-173:input Jonathan$</span> clang printf-stdarg-1.c
+<span class="go">printf-stdarg-1.c:58:19: warning: incomplete format specifier [-Wformat]</span>
+<span class="go">  printf(&quot;%d %s(s)%&quot;, 0, &quot;message&quot;);</span>
+<span class="go">                  ^</span>
+<span class="go">1 warning generated.</span>
+<span class="gp">1-160-136-173:input Jonathan$</span> ./a.out
+<span class="go">Hello world!</span>
+<span class="go">printf test</span>
+<span class="go">(null) is null pointer</span>
+<span class="go">5 = 5</span>
+<span class="go">-2147483647 = - max int</span>
+<span class="go">char a = &#39;a&#39;</span>
+<span class="go">hex ff = ff</span>
+<span class="go">hex 00 = 00</span>
+<span class="go">signed -3 = unsigned 4294967293 = hex fffffffd</span>
+<span class="go">0 message(s)</span>
+<span class="go">0 message(s) with \%</span>
+<span class="go">justif: &quot;left      &quot;</span>
+<span class="go">justif: &quot;     right&quot;</span>
+<span class="go"> 3: 0003 zero padded</span>
+<span class="go"> 3: 3    left justif.</span>
+<span class="go"> 3:    3 right justif.</span>
+<span class="go">-3: -003 zero padded</span>
+<span class="go">-3: -3   left justif.</span>
+<span class="go">-3:   -3 right justif.</span>
 </pre></div>
 </div>
 <p>They are same. You can verify the slt instructions is work fine too by change
 variable cpu from cpu032I to cpu032II as follows,</p>
 <p class="rubric">exlbt/input/build-printf-stdarg-2.sh</p>
-<div class="highlight-bash"><div class="highlight"><pre><span></span>1-160-136-173:verilog Jonathan$ <span class="nb">pwd</span>
-/Users/Jonathan/test/lbt/lbdex/verilog
-1-160-136-173:verilog Jonathan$ <span class="nb">cd</span> ../../exlbt/input
-1-160-136-173:input Jonathan$ <span class="nb">pwd</span>
-/Users/Jonathan/test/lbt/exlbt/input
-1-160-136-173:input Jonathan$ bash build-printf-stdarg-2.sh cpu032II be
-...
-1-160-136-173:input Jonathan$ <span class="nb">cd</span> ../lbdex/verilog/
-1-160-136-173:verilog Jonathan$ ./cpu0IIsp
+<div class="highlight-console"><div class="highlight"><pre><span></span><span class="gp">1-160-136-173:verilog Jonathan$</span> <span class="nb">pwd</span>
+<span class="go">/Users/Jonathan/test/lbt/lbdex/verilog</span>
+<span class="gp">1-160-136-173:verilog Jonathan$</span> <span class="nb">cd</span> ../../exlbt/input
+<span class="gp">1-160-136-173:input Jonathan$</span> <span class="nb">pwd</span>
+<span class="go">/Users/Jonathan/test/lbt/exlbt/input</span>
+<span class="gp">1-160-136-173:input Jonathan$</span> bash build-printf-stdarg-2.sh cpu032II be
+<span class="go">...</span>
+<span class="gp">1-160-136-173:input Jonathan$</span> <span class="nb">cd</span> ../lbdex/verilog/
+<span class="gp">1-160-136-173:verilog Jonathan$</span> ./cpu0IIsp
 </pre></div>
 </div>
 <p>The verilog machine cpu0IIs include all instructions of cpu032I and add
@@ -4983,56 +4983,56 @@ epilogue;
 
 </pre></div>
 </div>
-<div class="highlight-bash"><div class="highlight"><pre><span></span>1-160-136-173:input Jonathan$ <span class="nb">pwd</span>
-/Users/Jonathan/test/lbt/exlbt/input
-114-37-148-111:input Jonathan$ bash build-slinker.sh cpu032I le
-...
-In file included from ch_slinker.cpp:23:
-./ch_lld_staticlink.cpp:8:15: warning: conversion from string literal to
-<span class="s1">&#39;char *&#39;</span> is deprecated
-      <span class="o">[</span>-Wdeprecated-writable-strings<span class="o">]</span>
-  char *ptr <span class="o">=</span> <span class="s2">&quot;Hello world!&quot;</span><span class="p">;</span>
-              ^
-<span class="m">1</span> warning generated.
-114-37-148-111:input Jonathan$ <span class="nb">cd</span> ../../lbdex/verilog/
-114-37-148-111:verilog Jonathan$ ./cpu0IIsp
-WARNING: ./cpu0.v:369: <span class="nv">$readmemh</span><span class="o">(</span>cpu0.hex<span class="o">)</span>: Not enough words in the file <span class="k">for</span>
-the requested range <span class="o">[</span>0:524287<span class="o">]</span>.
-taskInterrupt<span class="o">(</span>001<span class="o">)</span>
-...
-test_nolld<span class="o">()</span>: PASS
-taskInterrupt<span class="o">(</span>011<span class="o">)</span>
-Overflow exception
-taskInterrupt<span class="o">(</span>011<span class="o">)</span>
-Overflow exception
-<span class="nv">test_overflow</span> <span class="o">=</span> 0, PASS
-global variable <span class="nv">gI</span> <span class="o">=</span> 100, PASS
-test_ctrl2<span class="o">()</span>: <span class="nv">a</span> <span class="o">=</span> 1, <span class="nv">b</span> <span class="o">=</span> 0, <span class="nv">c</span> <span class="o">=</span> 1, <span class="nv">d</span> <span class="o">=</span> 0, PASS
-test_phinode<span class="o">(</span>3, 1<span class="o">)</span> <span class="o">=</span> 3, PASS
-test_blockaddress<span class="o">(</span>1<span class="o">)</span> <span class="o">=</span> 1, PASS
-test_blockaddress<span class="o">(</span>2<span class="o">)</span> <span class="o">=</span> 2, PASS
-<span class="nv">date1</span> <span class="o">=</span> <span class="m">2012</span> <span class="m">10</span> <span class="m">12</span> <span class="m">1</span> <span class="m">2</span> 3, PASS
-<span class="nv">date2</span> <span class="o">=</span> <span class="m">2012</span> <span class="m">10</span> <span class="m">12</span> <span class="m">1</span> <span class="m">2</span> 3, PASS
-<span class="nv">time2</span> <span class="o">=</span> <span class="m">1</span> <span class="m">10</span> 12, PASS
-<span class="nv">time3</span> <span class="o">=</span> <span class="m">1</span> <span class="m">10</span> 12, PASS
-<span class="nv">date1</span> <span class="o">=</span> <span class="m">2013</span> <span class="m">1</span> <span class="m">26</span> <span class="m">12</span> <span class="m">21</span> 10, PASS
-<span class="nv">date2</span> <span class="o">=</span> <span class="m">2013</span> <span class="m">1</span> <span class="m">26</span> <span class="m">12</span> <span class="m">21</span> 10, PASS
-test_template<span class="o">()</span> <span class="o">=</span> 15, PASS
-test_alloc<span class="o">()</span> <span class="o">=</span> 31, PASS
-<span class="nv">exceptionOccur</span><span class="o">=</span> 1, PASS
-<span class="nv">exceptionOccur</span><span class="o">=</span> 0, PASS
-inlineasm_global<span class="o">()</span> <span class="o">=</span> 4, PASS
-20
-10
-5
-test_cpp_polymorphism<span class="o">()</span> <span class="o">=</span> 0, PASS
-taskInterrupt<span class="o">(</span>011<span class="o">)</span>
-Software interrupt
-taskInterrupt<span class="o">(</span>011<span class="o">)</span>
-Harware interrupt 0
-taskInterrupt<span class="o">(</span>011<span class="o">)</span>
-Harware interrupt 1
-...
+<div class="highlight-console"><div class="highlight"><pre><span></span><span class="gp">1-160-136-173:input Jonathan$</span> <span class="nb">pwd</span>
+<span class="go">/Users/Jonathan/test/lbt/exlbt/input</span>
+<span class="gp">114-37-148-111:input Jonathan$</span> bash build-slinker.sh cpu032I le
+<span class="go">...</span>
+<span class="go">In file included from ch_slinker.cpp:23:</span>
+<span class="go">./ch_lld_staticlink.cpp:8:15: warning: conversion from string literal to</span>
+<span class="go">&#39;char *&#39; is deprecated</span>
+<span class="go">      [-Wdeprecated-writable-strings]</span>
+<span class="go">  char *ptr = &quot;Hello world!&quot;;</span>
+<span class="go">              ^</span>
+<span class="go">1 warning generated.</span>
+<span class="gp">114-37-148-111:input Jonathan$</span> <span class="nb">cd</span> ../../lbdex/verilog/
+<span class="gp">114-37-148-111:verilog Jonathan$</span> ./cpu0IIsp
+<span class="go">WARNING: ./cpu0.v:369: $readmemh(cpu0.hex): Not enough words in the file for</span>
+<span class="go">the requested range [0:524287].</span>
+<span class="go">taskInterrupt(001)</span>
+<span class="go">...</span>
+<span class="go">test_nolld(): PASS</span>
+<span class="go">taskInterrupt(011)</span>
+<span class="go">Overflow exception</span>
+<span class="go">taskInterrupt(011)</span>
+<span class="go">Overflow exception</span>
+<span class="go">test_overflow = 0, PASS</span>
+<span class="go">global variable gI = 100, PASS</span>
+<span class="go">test_ctrl2(): a = 1, b = 0, c = 1, d = 0, PASS</span>
+<span class="go">test_phinode(3, 1) = 3, PASS</span>
+<span class="go">test_blockaddress(1) = 1, PASS</span>
+<span class="go">test_blockaddress(2) = 2, PASS</span>
+<span class="go">date1 = 2012 10 12 1 2 3, PASS</span>
+<span class="go">date2 = 2012 10 12 1 2 3, PASS</span>
+<span class="go">time2 = 1 10 12, PASS</span>
+<span class="go">time3 = 1 10 12, PASS</span>
+<span class="go">date1 = 2013 1 26 12 21 10, PASS</span>
+<span class="go">date2 = 2013 1 26 12 21 10, PASS</span>
+<span class="go">test_template() = 15, PASS</span>
+<span class="go">test_alloc() = 31, PASS</span>
+<span class="go">exceptionOccur= 1, PASS</span>
+<span class="go">exceptionOccur= 0, PASS</span>
+<span class="go">inlineasm_global() = 4, PASS</span>
+<span class="go">20</span>
+<span class="go">10</span>
+<span class="go">5</span>
+<span class="go">test_cpp_polymorphism() = 0, PASS</span>
+<span class="go">taskInterrupt(011)</span>
+<span class="go">Software interrupt</span>
+<span class="go">taskInterrupt(011)</span>
+<span class="go">Harware interrupt 0</span>
+<span class="go">taskInterrupt(011)</span>
+<span class="go">Harware interrupt 1</span>
+<span class="go">...</span>
 </pre></div>
 </div>
 <p>As above, by taking the open source code advantage, Cpu0 got the more stable
@@ -5193,24 +5193,24 @@ exists to support dynamic linker.</p>
   task setDynLinkerInfo; begin
 // below code set memory as follows,
 //                                                            (4 bytes) 
-//                                                      ---------------------------------------
-// DLINKER_INFO_ADDR ----------&gt;                        | numDynEntry                         |
-//                                                      ---------------------------------------
-// DLINKER_INFO_ADDR+4 --------&gt;                        | index of dynsym (0st row)           |
+//                                               ---------------------------------------
+// DLINKER_INFO_ADDR ----------&gt;                 | numDynEntry                         |
+//                                               ---------------------------------------
+// DLINKER_INFO_ADDR+4 --------&gt;                 | index of dynsym (0st row)           |
 //   above is the 1st word of section .dynsym of libfoobar.cpu0.so. 
-// DLINKER_INFO_ADDR+8 --------&gt;                        | index of dynsym (1st row)           |
-//                                                      | ...                                 |
-// DLINKER_INFO_ADDR+(numDynEntry-1)*4 ---------------&gt; | index of dynsym (the last row)      |
-//                                                      ---------------------------------------
-// DLINKER_INFO_ADDR+numDynEntry*4 -------------------&gt; | 1st function (la()) offset in lib   |
-// DLINKER_INFO_ADDR+numDynEntry*4+4 -----------------&gt; | 1st function (la()) name (48 bytes) |
-//                                                      | ...                                 |
-// DLINKER_INFO_ADDR+numDynEntry+(numDynEntry-1)*4 ---&gt; | last function (bar()) offset in lib |
-// DLINKER_INFO_ADDR+numDynEntry+(numDynEntry-1)*4+4 -&gt; | last function (bar()) name          |
-//                                                      ---------------------------------------
-// DLINKER_INFO_ADDR+4+numDynEntry*4+numDynEntry*52 --&gt; | .dynstr of lib                      |
-//                                                      |   ...                               |
-//                                                      ---------------------------------------
+// DLINKER_INFO_ADDR+8 --------&gt;                 | index of dynsym (1st row)           |
+//                                               | ...                                 |
+// DLINKER...+(numDynEntry-1)*4 ---------------&gt; | index of dynsym (the last row)      |
+//                                               ---------------------------------------
+// DLINKER...+numDynEntry*4 -------------------&gt; | 1st function (la()) offset in lib   |
+// DLINKER...+numDynEntry*4+4 -----------------&gt; | 1st function (la()) name (48 bytes) |
+//                                               | ...                                 |
+// DLINKER...+numDynEntry+(numDynEntry-1)*4 ---&gt; | last function (bar()) offset in lib |
+// DLINKER...+numDynEntry+(numDynEntry-1)*4+4 -&gt; | last function (bar()) name          |
+//                                               ---------------------------------------
+// DLINKER...+4+numDynEntry*4+numDynEntry*52 --&gt; | .dynstr of lib                      |
+//                                               |   ...                               |
+//                                               ---------------------------------------
   // caculate number of dynamic entries
     numDynEntry = 0;
     j = 0;
@@ -5842,37 +5842,37 @@ cat ../../lbdex/verilog/cpu0.config
 </div>
 <div class="section" id="id6">
 <h4><a class="toc-backref" href="#id49">Run</a><a class="headerlink" href="#id6" title="Permalink to this headline">¶</a></h4>
-<div class="highlight-bash"><div class="highlight"><pre><span></span>1-160-136-173 input Jonathan$ <span class="nb">pwd</span>
-/Users/Jonathan/test/lbt/exlbt/input
-1-160-136-173:input Jonathan$ bash build-dlinker.sh cpu032II
-1-160-136-173:input Jonathan$ <span class="nb">cd</span> ../../lbdex/verilog/
-1-160-136-173:verilog Jonathan$ <span class="nb">pwd</span>
-/Users/Jonathan/test/lbt/lbdex/verilog
-1-160-136-173:verilog Jonathan$ make
-1-160-136-173:verilog Jonathan$ ls
-...  cpu0IIdsp  ...
-1-160-136-173:verilog Jonathan$ ./cpu0IIdp
-WARNING: ./cpu0.v:371: <span class="nv">$readmemh</span><span class="o">(</span>cpu0.hex<span class="o">)</span>: Not enough words in the file <span class="k">for</span>
-the requested range <span class="o">[</span>0:524287<span class="o">]</span>.
-WARNING: ./dynlinker.v:185: <span class="nv">$readmemh</span><span class="o">(</span>libso.hex<span class="o">)</span>: Not enough words in the
-file <span class="k">for</span> the requested range <span class="o">[</span>0:524287<span class="o">]</span>.
-WARNING: ./dynlinker.v:223: <span class="nv">$readmemh</span><span class="o">(</span>dynsym<span class="o">)</span>: Not enough words in the file
-<span class="k">for</span> the requested range <span class="o">[</span>0:191<span class="o">]</span>.
-WARNING: ./dynlinker.v:224: <span class="nv">$readmemh</span><span class="o">(</span>dynstr<span class="o">)</span>: Not enough words in the file
-<span class="k">for</span> the requested range <span class="o">[</span>0:95<span class="o">]</span>.
-WARNING: ./dynlinker.v:225: <span class="nv">$readmemh</span><span class="o">(</span>so_func_offset<span class="o">)</span>: Not enough words in
-the file <span class="k">for</span> the requested range <span class="o">[</span>0:383<span class="o">]</span>.
-<span class="nv">numDynEntry</span> <span class="o">=</span> 00000005
-taskInterrupt<span class="o">(</span>001<span class="o">)</span>
-loading _Z3fooii...
-run _Z3fooii...
-foo<span class="o">(</span>1, 2<span class="o">)</span> <span class="o">=</span> 3
-loading _Z3barv...
-run _Z3barv...
-loading _Z2laii...
-run _Z2laii...
-bar<span class="o">()</span> <span class="o">=</span> 11
-...
+<div class="highlight-console"><div class="highlight"><pre><span></span><span class="go">1-160-136-173 input Jonathan$ pwd</span>
+<span class="go">/Users/Jonathan/test/lbt/exlbt/input</span>
+<span class="gp">1-160-136-173:input Jonathan$</span> bash build-dlinker.sh cpu032II
+<span class="gp">1-160-136-173:input Jonathan$</span> <span class="nb">cd</span> ../../lbdex/verilog/
+<span class="gp">1-160-136-173:verilog Jonathan$</span> <span class="nb">pwd</span>
+<span class="go">/Users/Jonathan/test/lbt/lbdex/verilog</span>
+<span class="gp">1-160-136-173:verilog Jonathan$</span> make
+<span class="gp">1-160-136-173:verilog Jonathan$</span> ls
+<span class="go">...  cpu0IIdsp  ...</span>
+<span class="gp">1-160-136-173:verilog Jonathan$</span> ./cpu0IIdp
+<span class="go">WARNING: ./cpu0.v:371: $readmemh(cpu0.hex): Not enough words in the file for</span>
+<span class="go">the requested range [0:524287].</span>
+<span class="go">WARNING: ./dynlinker.v:185: $readmemh(libso.hex): Not enough words in the</span>
+<span class="go">file for the requested range [0:524287].</span>
+<span class="go">WARNING: ./dynlinker.v:223: $readmemh(dynsym): Not enough words in the file</span>
+<span class="go">for the requested range [0:191].</span>
+<span class="go">WARNING: ./dynlinker.v:224: $readmemh(dynstr): Not enough words in the file</span>
+<span class="go">for the requested range [0:95].</span>
+<span class="go">WARNING: ./dynlinker.v:225: $readmemh(so_func_offset): Not enough words in</span>
+<span class="go">the file for the requested range [0:383].</span>
+<span class="go">numDynEntry = 00000005</span>
+<span class="go">taskInterrupt(001)</span>
+<span class="go">loading _Z3fooii...</span>
+<span class="go">run _Z3fooii...</span>
+<span class="go">foo(1, 2) = 3</span>
+<span class="go">loading _Z3barv...</span>
+<span class="go">run _Z3barv...</span>
+<span class="go">loading _Z2laii...</span>
+<span class="go">run _Z2laii...</span>
+<span class="go">bar() = 11</span>
+<span class="go">...</span>
 </pre></div>
 </div>
 <p>The &#8220;#ifdef DEBUG_DLINKER&#8221; part of code in dynamic_linker.cpp is for debugging
@@ -5894,118 +5894,118 @@ endian only.</p>
 <h4><a class="toc-backref" href="#id50">How to work</a><a class="headerlink" href="#how-to-work" title="Permalink to this headline">¶</a></h4>
 <p>After run build-dlinker.sh, the following files are created.</p>
 <p class="rubric">lbdex/verilog/cpu0.hex</p>
-<div class="highlight-bash"><div class="highlight"><pre><span></span>/*       0:*/ <span class="m">36</span> <span class="m">00</span> <span class="m">01</span> 9c                                  /* jmp     0x019c */
-/*       4:*/ <span class="m">36</span> <span class="m">00</span> <span class="m">00</span> <span class="m">04</span>                                  /* jmp     <span class="m">4</span> */
-/*       8:*/ <span class="m">36</span> <span class="m">00</span> <span class="m">01</span> 9c                                  /* jmp     0x019c */
-/*       c:*/ <span class="m">36</span> ff ff <span class="nb">fc</span>                                  /* jmp     -4 */
-...
-/*Disassembly of section .plt:*/
-/*.PLT0:*/
-/*     1a0:*/ <span class="m">36</span> <span class="m">00</span> <span class="m">00</span> 5c /*  jmp     92*/
-/*     1a4:*/ <span class="m">36</span> <span class="m">00</span> <span class="m">00</span> <span class="m">04</span> /*  jmp     4*/
-/*     1a8:*/ <span class="m">36</span> <span class="m">00</span> 0f cc /*  jmp     4044*/
-/*     1ac:*/ <span class="m">36</span> ff ff <span class="nb">fc</span> /*  jmp     16777212*/
+<div class="highlight-console"><div class="highlight"><pre><span></span><span class="go">/*       0:*/ 36 00 01 9c                                  /* jmp     0x019c */</span>
+<span class="go">/*       4:*/ 36 00 00 04                                  /* jmp     4 */</span>
+<span class="go">/*       8:*/ 36 00 01 9c                                  /* jmp     0x019c */</span>
+<span class="go">/*       c:*/ 36 ff ff fc                                  /* jmp     -4 */</span>
+<span class="go">...</span>
+<span class="go">/*Disassembly of section .plt:*/</span>
+<span class="go">/*.PLT0:*/</span>
+<span class="go">/*     1a0:*/ 36 00 00 5c /*  jmp     92*/</span>
+<span class="go">/*     1a4:*/ 36 00 00 04 /*  jmp     4*/</span>
+<span class="go">/*     1a8:*/ 36 00 0f cc /*  jmp     4044*/</span>
+<span class="go">/*     1ac:*/ 36 ff ff fc /*  jmp     16777212*/</span>
 
-/*.PLT0:*/
-/*     1b0:*/ <span class="m">02</span> eb <span class="m">00</span> <span class="m">04</span> /*  st      <span class="nv">$lr</span>, 4<span class="o">(</span><span class="nv">$gp</span><span class="o">)</span>*/
-/*     1b4:*/ <span class="m">02</span> cb <span class="m">00</span> <span class="m">08</span> /*  st      <span class="nv">$fp</span>, 8<span class="o">(</span><span class="nv">$gp</span><span class="o">)</span>*/
-/*     1b8:*/ <span class="m">02</span> db <span class="m">00</span> 0c /*  st      <span class="nv">$sp</span>, 12<span class="o">(</span><span class="nv">$gp</span><span class="o">)</span>*/
-/*     1bc:*/ <span class="m">36</span> <span class="m">00</span> <span class="m">09</span> c8 /*  jmp     2504*/
-/*     1c0:*/ <span class="m">00</span> <span class="m">00</span> <span class="m">00</span> <span class="m">00</span> /*  nop*/
-/*     1c4:*/ <span class="m">00</span> <span class="m">00</span> <span class="m">00</span> <span class="m">00</span> /*  nop*/
-/*     1c8:*/ <span class="m">00</span> <span class="m">00</span> <span class="m">00</span> <span class="m">00</span> /*  nop*/
-/*     1cc:*/ <span class="m">00</span> <span class="m">00</span> <span class="m">00</span> <span class="m">00</span> /*  nop*/
+<span class="go">/*.PLT0:*/</span>
+<span class="go">/*     1b0:*/ 02 eb 00 04 /*  st      $lr, 4($gp)*/</span>
+<span class="go">/*     1b4:*/ 02 cb 00 08 /*  st      $fp, 8($gp)*/</span>
+<span class="go">/*     1b8:*/ 02 db 00 0c /*  st      $sp, 12($gp)*/</span>
+<span class="go">/*     1bc:*/ 36 00 09 c8 /*  jmp     2504*/</span>
+<span class="go">/*     1c0:*/ 00 00 00 00 /*  nop*/</span>
+<span class="go">/*     1c4:*/ 00 00 00 00 /*  nop*/</span>
+<span class="go">/*     1c8:*/ 00 00 00 00 /*  nop*/</span>
+<span class="go">/*     1cc:*/ 00 00 00 00 /*  nop*/</span>
 
-/*__plt__Z3fooii:*/
-/*     1d0:*/ <span class="m">01</span> 6b <span class="m">00</span> <span class="m">18</span>                                  /* ld      <span class="nv">$t9</span>, 24<span class="o">(</span><span class="nv">$gp</span><span class="o">)</span>
-/*     1d4:*/ 3c <span class="m">60</span> <span class="m">00</span> <span class="m">00</span> /*  jr      <span class="nv">$t9</span>*/
-/*     1d8:*/ <span class="m">00</span> <span class="m">00</span> <span class="m">00</span> <span class="m">00</span> /*  nop*/
-/*     1dc:*/ <span class="m">00</span> <span class="m">00</span> <span class="m">00</span> <span class="m">00</span> /*  nop*/
+<span class="go">/*__plt__Z3fooii:*/</span>
+<span class="go">/*     1d0:*/ 01 6b 00 18                                  /* ld      $t9, 24($gp)</span>
+<span class="go">/*     1d4:*/ 3c 60 00 00 /*  jr      $t9*/</span>
+<span class="go">/*     1d8:*/ 00 00 00 00 /*  nop*/</span>
+<span class="go">/*     1dc:*/ 00 00 00 00 /*  nop*/</span>
 
-/*__plt__Z3barv:*/
-/*     1e0:*/ <span class="m">01</span> 6b <span class="m">00</span> 1c                                  /* ld      <span class="nv">$t9</span>, 28<span class="o">(</span><span class="nv">$gp</span><span class="o">)</span>
-/*     1e4:*/ 3c <span class="m">60</span> <span class="m">00</span> <span class="m">00</span> /*  jr      <span class="nv">$t9</span>*/
-/*     1e8:*/ <span class="m">00</span> <span class="m">00</span> <span class="m">00</span> <span class="m">00</span> /*  nop*/
-/*     1ec:*/ <span class="m">00</span> <span class="m">00</span> <span class="m">00</span> <span class="m">00</span> /*  nop*/
-...
+<span class="go">/*__plt__Z3barv:*/</span>
+<span class="go">/*     1e0:*/ 01 6b 00 1c                                  /* ld      $t9, 28($gp)</span>
+<span class="go">/*     1e4:*/ 3c 60 00 00 /*  jr      $t9*/</span>
+<span class="go">/*     1e8:*/ 00 00 00 00 /*  nop*/</span>
+<span class="go">/*     1ec:*/ 00 00 00 00 /*  nop*/</span>
+<span class="go">...</span>
 
-/*main:*/
-...
-/*     ... */ 3b ff f2 b4                                  /* jsub    16773812*/ // call foo<span class="o">()</span>
-...
-/*     ... */ 3b ff f3 <span class="m">28</span>                                  /* jsub    16773928*/ // call printf<span class="o">()</span>
-/*     ... */ 3b ff f2 a8                                  /* jsub    16773800*/ // call bar<span class="o">()</span>
-...
-/*     ... */ 3b ff f3 0c                                  /* jsub    16773900*/ // call printf<span class="o">()</span>
-...
-/*     ... */ 3c e0 <span class="m">00</span> <span class="m">00</span>                                  /* jr      <span class="nv">$lr</span>*/
-...
-/*Contents of section .data:*/
-/*     ... */00 <span class="m">00</span> <span class="m">00</span> <span class="m">01</span>  <span class="m">00</span> <span class="m">00</span> <span class="m">00</span> <span class="m">01</span>  <span class="m">00</span> <span class="m">00</span> <span class="m">00</span> <span class="m">01</span>  <span class="m">00</span> <span class="m">00</span> <span class="m">00</span> <span class="m">01</span> /*  ................*/
-...
+<span class="go">/*main:*/</span>
+<span class="go">...</span>
+<span class="go">/*     ... */ 3b ff f2 b4                                  /* jsub    16773812*/ // call foo()</span>
+<span class="go">...</span>
+<span class="go">/*     ... */ 3b ff f3 28                                  /* jsub    16773928*/ // call printf()</span>
+<span class="go">/*     ... */ 3b ff f2 a8                                  /* jsub    16773800*/ // call bar()</span>
+<span class="go">...</span>
+<span class="go">/*     ... */ 3b ff f3 0c                                  /* jsub    16773900*/ // call printf()</span>
+<span class="go">...</span>
+<span class="go">/*     ... */ 3c e0 00 00                                  /* jr      $lr*/</span>
+<span class="go">...</span>
+<span class="go">/*Contents of section .data:*/</span>
+<span class="go">/*     ... */00 00 00 01  00 00 00 01  00 00 00 01  00 00 00 01 /*  ................*/</span>
+<span class="go">...</span>
 </pre></div>
 </div>
 <p class="rubric">lbdex/verilog/dynstr</p>
-<div class="highlight-bash"><div class="highlight"><pre><span></span><span class="m">00</span> 5f 5a <span class="m">32</span> 6c <span class="m">61</span> <span class="m">69</span> <span class="m">69</span> <span class="m">00</span> 5f 5a <span class="m">33</span> <span class="m">66</span> 6f 6f <span class="m">69</span> <span class="m">69</span> <span class="m">00</span> 5f 5a <span class="m">33</span> <span class="m">62</span> <span class="m">61</span> <span class="m">72</span> <span class="m">76</span> 00
-5f <span class="m">67</span> <span class="m">70</span> 5f <span class="m">64</span> <span class="m">69</span> <span class="m">73</span> <span class="m">70</span> 00
+<div class="highlight-console"><div class="highlight"><pre><span></span><span class="go">00 5f 5a 32 6c 61 69 69 00 5f 5a 33 66 6f 6f 69 69 00 5f 5a 33 62 61 72 76 00</span>
+<span class="go">5f 67 70 5f 64 69 73 70 00</span>
 </pre></div>
 </div>
 <p class="rubric">exlbt/verilog/dynsym</p>
-<div class="highlight-c++"><div class="highlight"><pre><span></span><span class="mo">00</span> <span class="mo">00</span> <span class="mo">00</span> <span class="mo">00</span> <span class="mo">00</span> <span class="mo">00</span> <span class="mo">00</span> <span class="mo">01</span> <span class="mo">00</span> <span class="mo">00</span> <span class="mo">00</span> <span class="mi">09</span> <span class="mo">00</span> <span class="mo">00</span> <span class="mo">00</span> <span class="mi">12</span> <span class="mo">00</span> <span class="mo">00</span> <span class="mo">00</span> <span class="mi">1</span><span class="n">a</span>
+<div class="highlight-console"><div class="highlight"><pre><span></span><span class="go">00 00 00 00 00 00 00 01 00 00 00 09 00 00 00 12 00 00 00 1a</span>
 </pre></div>
 </div>
 <p class="rubric">lbdex/verilog/global_offset</p>
-<div class="highlight-bash"><div class="highlight"><pre><span></span><span class="m">00</span> <span class="m">00</span> <span class="m">20</span> 58
+<div class="highlight-console"><div class="highlight"><pre><span></span><span class="go">00 00 20 58</span>
 </pre></div>
 </div>
 <p class="rubric">exlbt/input/num_dyn_entry</p>
-<div class="highlight-bash"><div class="highlight"><pre><span></span>4
+<div class="highlight-console"><div class="highlight"><pre><span></span><span class="go">4</span>
 </pre></div>
 </div>
 <p class="rubric">exlbt/input/libfoobar.cpu0.so</p>
-<div class="highlight-bash"><div class="highlight"><pre><span></span>1-160-136-173:input Jonathan$ ~/llvm/test/cmake_debug_build/Debug/bin/
-llvm-objdump -s libfoobar.cpu0.so
+<div class="highlight-console"><div class="highlight"><pre><span></span><span class="gp">1-160-136-173:input Jonathan$</span> ~/llvm/test/cmake_debug_build/Debug/bin/
+<span class="go">llvm-objdump -s libfoobar.cpu0.so</span>
 
-libfoobar.cpu0.so:    file format ELF32-CPU0
+<span class="go">libfoobar.cpu0.so:    file format ELF32-CPU0</span>
 
-Contents of section :
-...
-Contents of section .dynsym:
- 00bc <span class="m">00000000</span> <span class="m">00000000</span> <span class="m">00000000</span> <span class="m">00000000</span>  ................
- 00cc <span class="m">00000001</span> <span class="m">00000130</span> <span class="m">00000038</span> <span class="m">12000004</span>  .......0...8....
- 00dc <span class="m">00000009</span> <span class="m">00000168</span> <span class="m">00000034</span> <span class="m">12000004</span>  .......h...4....
- 00ec <span class="m">00000012</span> 0000019c <span class="m">00000074</span> <span class="m">12000004</span>  ...........t....
- 00fc 0000001a <span class="m">00000000</span> <span class="m">00000000</span> <span class="m">10000000</span>  ................
-Contents of section .dynstr:
- 010c 005f5a32 6c616969 005f5a33 666f6f69  ._Z2laii._Z3fooi
- 011c 69005f5a <span class="m">33626172</span> 76005f67 705f6469  i._Z3barv._gp_di
- 012c <span class="m">737000</span>                               sp.
+<span class="go">Contents of section :</span>
+<span class="go">...</span>
+<span class="go">Contents of section .dynsym:</span>
+<span class="go"> 00bc 00000000 00000000 00000000 00000000  ................</span>
+<span class="go"> 00cc 00000001 00000130 00000038 12000004  .......0...8....</span>
+<span class="go"> 00dc 00000009 00000168 00000034 12000004  .......h...4....</span>
+<span class="go"> 00ec 00000012 0000019c 00000074 12000004  ...........t....</span>
+<span class="go"> 00fc 0000001a 00000000 00000000 10000000  ................</span>
+<span class="go">Contents of section .dynstr:</span>
+<span class="go"> 010c 005f5a32 6c616969 005f5a33 666f6f69  ._Z2laii._Z3fooi</span>
+<span class="go"> 011c 69005f5a 33626172 76005f67 705f6469  i._Z3barv._gp_di</span>
+<span class="go"> 012c 737000                               sp.</span>
 </pre></div>
 </div>
 <p class="rubric">exlbt/input/a.out</p>
-<div class="highlight-bash"><div class="highlight"><pre><span></span>1-160-136-173:input Jonathan$ ~/llvm/test/cmake_debug_build/Debug/bin/
-llvm-objdump -s a.out
+<div class="highlight-console"><div class="highlight"><pre><span></span><span class="gp">1-160-136-173:input Jonathan$</span> ~/llvm/test/cmake_debug_build/Debug/bin/
+<span class="go">llvm-objdump -s a.out</span>
 
-a.out:        file format ELF32-CPU0
+<span class="go">a.out:        file format ELF32-CPU0</span>
 
-Contents of section :
-...
-Contents of section .dynsym:
- 013c <span class="m">00000000</span> <span class="m">00000000</span> <span class="m">00000000</span> <span class="m">00000000</span>  ................
- 014c <span class="m">00000001</span> <span class="m">00000000</span> <span class="m">00000000</span> <span class="m">12000000</span>  ................
- 015c 0000000a <span class="m">00000000</span> <span class="m">00000000</span> <span class="m">12000000</span>  ................
-Contents of section .dynstr:
- 016c 005f5a33 666f6f69 69005f5a <span class="m">33626172</span>  ._Z3fooii._Z3bar
- 017c 76006c69 62666f6f 6261722e <span class="m">63707530</span>  v.libfoobar.cpu0
- 018c 2e736f00                             .so.
-...
-Contents of section .got.plt:
- <span class="m">2068</span> <span class="m">00000000</span> <span class="m">00000000</span> <span class="m">00000000</span> <span class="m">00000000</span>  ................
- <span class="m">2078</span> <span class="m">00000000</span> <span class="m">00000000</span> <span class="m">00000000</span> <span class="m">00000000</span>  ................
- <span class="m">2088</span> 000001d0 <span class="m">00000000</span> <span class="m">00000000</span> <span class="m">00000000</span>  ................
- <span class="m">2098</span> 000001e0 <span class="m">00000000</span> <span class="m">00000000</span> <span class="m">00000000</span>  ................
-Contents of section .data:
- 20a8 <span class="m">00000001</span> <span class="m">00000001</span> <span class="m">00000001</span> <span class="m">00000001</span>  ................
+<span class="go">Contents of section :</span>
+<span class="go">...</span>
+<span class="go">Contents of section .dynsym:</span>
+<span class="go"> 013c 00000000 00000000 00000000 00000000  ................</span>
+<span class="go"> 014c 00000001 00000000 00000000 12000000  ................</span>
+<span class="go"> 015c 0000000a 00000000 00000000 12000000  ................</span>
+<span class="go">Contents of section .dynstr:</span>
+<span class="go"> 016c 005f5a33 666f6f69 69005f5a 33626172  ._Z3fooii._Z3bar</span>
+<span class="go"> 017c 76006c69 62666f6f 6261722e 63707530  v.libfoobar.cpu0</span>
+<span class="go"> 018c 2e736f00                             .so.</span>
+<span class="go">...</span>
+<span class="go">Contents of section .got.plt:</span>
+<span class="go"> 2068 00000000 00000000 00000000 00000000  ................</span>
+<span class="go"> 2078 00000000 00000000 00000000 00000000  ................</span>
+<span class="go"> 2088 000001d0 00000000 00000000 00000000  ................</span>
+<span class="go"> 2098 000001e0 00000000 00000000 00000000  ................</span>
+<span class="go">Contents of section .data:</span>
+<span class="go"> 20a8 00000001 00000001 00000001 00000001  ................</span>
 </pre></div>
 </div>
 <p>File dynstr is section .dynstr of libfoobar.cpu0.so. File dynsym is the first
@@ -6014,20 +6014,20 @@ File global_offset contains the start address of section .got.plt of a.out.</p>
 <p>The code of dynlinker.v will set the memory as follows after program is loaded.
 (gp value below is 2068 which come from file global_offset).</p>
 <p class="rubric">memory contents</p>
-<div class="highlight-bash"><div class="highlight"><pre><span></span>//                                    -----------------------------------
-// gp ------------------------------&gt; | all 0                           | (16 bytes)
-// gp+16 ---------------------------&gt; | 0                               |
-// gp+16+1*4 -----------------------&gt; | 1st plt entry address           | (4 bytes)
-//                                    | ...                             |
-// gp+16+(numDynEntry-1)*4 ---------&gt; | the last plt entry address      |
-//                                    -----------------------------------
-// gpPlt ---------------------------&gt; | all 0                           | (16 bytes)
-// gpPlt+16+0*8&#39;h10 ----------------&gt; | 32&#39;h10: pointer to plt0         |
-// gpPlt+16+1*8&#39;h10 ----------------&gt; | 1st plt entry                   |
-// gpPlt+16+2*8&#39;h10 ----------------&gt; | 2nd plt entry                   |
-//                                    | ...                             |
-// gpPlt+16+(numDynEntry-1)*8&#39;h10 --&gt; | the last plt entry              |
-//                                    -----------------------------------
+<div class="highlight-console"><div class="highlight"><pre><span></span><span class="go">//                                    -----------------------------------</span>
+<span class="go">// gp ------------------------------&gt; | all 0                           | (16 bytes)</span>
+<span class="go">// gp+16 ---------------------------&gt; | 0                               |</span>
+<span class="go">// gp+16+1*4 -----------------------&gt; | 1st plt entry address           | (4 bytes)</span>
+<span class="go">//                                    | ...                             |</span>
+<span class="go">// gp+16+(numDynEntry-1)*4 ---------&gt; | the last plt entry address      |</span>
+<span class="go">//                                    -----------------------------------</span>
+<span class="go">// gpPlt ---------------------------&gt; | all 0                           | (16 bytes)</span>
+<span class="go">// gpPlt+16+0*8&#39;h10 ----------------&gt; | 32&#39;h10: pointer to plt0         |</span>
+<span class="go">// gpPlt+16+1*8&#39;h10 ----------------&gt; | 1st plt entry                   |</span>
+<span class="go">// gpPlt+16+2*8&#39;h10 ----------------&gt; | 2nd plt entry                   |</span>
+<span class="go">//                                    | ...                             |</span>
+<span class="go">// gpPlt+16+(numDynEntry-1)*8&#39;h10 --&gt; | the last plt entry              |</span>
+<span class="go">//                                    -----------------------------------</span>
 </pre></div>
 </div>
 <p>For example code of ch_dynamiclinker.cpp and foobar.cpp, gp is 2058, numDynEntry is
@@ -6035,28 +6035,28 @@ the contents of file num_dyn_entry which is 4. Every plt entry above (memory
 address gp+16+1*8&#8217;h10..gp+16+(numDynEntry-1)*8&#8217;h10) is initialized to &#8220;addiu $t9,
 $zero, 4($gp); st $t9, 0($gp); ld $t9, 16($gp); jr $t9&#8221; as follows,</p>
 <p class="rubric">memory contents</p>
-<div class="highlight-bash"><div class="highlight"><pre><span></span>//                                    -----------------------------------
-// gp ------------------------------&gt; | all 0                           | (16 bytes)
-// gp+16 ---------------------------&gt; | 0                               |
-// gp+16+1*4 -----------------------&gt; | 1st plt entry address           | (4 bytes)
-//                                    | ...                             |
-// gp+16+(numDynEntry-1)*4 ---------&gt; | the last plt entry address      |
-//                                    -----------------------------------
-// gpPlt ---------------------------&gt; | all 0                           | (16 bytes)
-// gpPlt+16+0*8&#39;h10 ----------------&gt; | 32&#39;h10: pointer to plt0         |
-// gpPlt+16+1*8&#39;h10 ----------------&gt; | addiu $t9, $zero, 4             |
-//                                    | st  $t9, 0($gp)                 |
-//                                    | ld  $t9, 16($gp)                |
-//                                    | jr $t9                          |
-// gpPlt+16+2*8&#39;h10 ----------------&gt; | addiu $t9, $zero, 4             |
-//                                    | st  $t9, 0($gp)                 |
-//                                    | ld  $t9, 16($gp)                |
-//                                    | jr $t9                          |
-// gpPlt+16+3*8&#39;h10 ------------&gt;     | addiu $t9, $zero, 4             |
-//                                    | st  $t9, 0($gp)                 |
-//                                    | ld  $t9, 16($gp)                |
-//                                    | jr $t9                          |
-//                                    -----------------------------------
+<div class="highlight-console"><div class="highlight"><pre><span></span><span class="go">//                                    -----------------------------------</span>
+<span class="go">// gp ------------------------------&gt; | all 0                           | (16 bytes)</span>
+<span class="go">// gp+16 ---------------------------&gt; | 0                               |</span>
+<span class="go">// gp+16+1*4 -----------------------&gt; | 1st plt entry address           | (4 bytes)</span>
+<span class="go">//                                    | ...                             |</span>
+<span class="go">// gp+16+(numDynEntry-1)*4 ---------&gt; | the last plt entry address      |</span>
+<span class="go">//                                    -----------------------------------</span>
+<span class="go">// gpPlt ---------------------------&gt; | all 0                           | (16 bytes)</span>
+<span class="go">// gpPlt+16+0*8&#39;h10 ----------------&gt; | 32&#39;h10: pointer to plt0         |</span>
+<span class="go">// gpPlt+16+1*8&#39;h10 ----------------&gt; | addiu $t9, $zero, 4             |</span>
+<span class="go">//                                    | st  $t9, 0($gp)                 |</span>
+<span class="go">//                                    | ld  $t9, 16($gp)                |</span>
+<span class="go">//                                    | jr $t9                          |</span>
+<span class="go">// gpPlt+16+2*8&#39;h10 ----------------&gt; | addiu $t9, $zero, 4             |</span>
+<span class="go">//                                    | st  $t9, 0($gp)                 |</span>
+<span class="go">//                                    | ld  $t9, 16($gp)                |</span>
+<span class="go">//                                    | jr $t9                          |</span>
+<span class="go">// gpPlt+16+3*8&#39;h10 ------------&gt;     | addiu $t9, $zero, 4             |</span>
+<span class="go">//                                    | st  $t9, 0($gp)                 |</span>
+<span class="go">//                                    | ld  $t9, 16($gp)                |</span>
+<span class="go">//                                    | jr $t9                          |</span>
+<span class="go">//                                    -----------------------------------</span>
 </pre></div>
 </div>
 <p><a class="reference internal" href="#lld-f6"><span class="std std-numref">Fig. 10</span></a> is the memory contents after the example program is loaded.</p>

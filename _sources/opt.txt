@@ -44,7 +44,7 @@ The following steps and examples show this optimization solution in llvm.
     :start-after: /// start
 
 
-.. code-block:: bash
+.. code-block:: console
 
   JonathantekiiMac:input Jonathan$ clang -O3 -target mips-unknown-linux-gnu 
   -c 1.cpp -emit-llvm -o 1.bc
@@ -88,7 +88,7 @@ From the result as above, the **opt** output has lesser number of IR
 instructions. 
 Of course, the backend code will be more effective as follows,
 
-.. code-block:: bash
+.. code-block:: console
 
   JonathantekiiMac:input Jonathan$ /Users/Jonathan/llvm/test/cmake_debug_build/
   bin/Debug/llc -march=cpu0 -relocation-model=pic -filetype=asm a.bc -o -

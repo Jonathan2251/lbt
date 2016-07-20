@@ -54,3 +54,8 @@ Presentation files
     </li>
     </ul>
 
+Search this website
+-------------------
+
+* :ref:`search`
+

@@ -14,7 +14,7 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    './',
-        VERSION:     '3.7.1',
+        VERSION:     '3.7.2',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -481,30 +481,30 @@ epilogue;
 </pre></div>
 </div>
 <p>Run as follows,</p>
-<div class="highlight-bash"><div class="highlight"><pre><span></span>JonathantekiiMac:input Jonathan$ bash build-float.sh cpu032II be
-...
-<span class="nv">endian</span> <span class="o">=</span>  BigEndian
-<span class="m">0</span>   /* 0: big endian, 1: little endian */
+<div class="highlight-console"><div class="highlight"><pre><span></span><span class="gp">JonathantekiiMac:input Jonathan$</span> bash build-float.sh cpu032II be
+<span class="go">...</span>
+<span class="go">endian =  BigEndian</span>
+<span class="go">0   /* 0: big endian, 1: little endian */</span>
 
-JonathantekiiMac:input Jonathan$ iverilog -o cpu0IIs cpu0IIs.v
-JonathantekiiMac:input Jonathan$ ./cpu0IIs
-114-43-184-210:verilog Jonathan$ ./cpu0IIs
-WARNING: ./cpu0.v:458: <span class="nv">$readmemh</span><span class="o">(</span>cpu0.hex<span class="o">)</span>: Not enough words in the file <span class="k">for</span>
-the requested range <span class="o">[</span>0:524287<span class="o">]</span>.
-taskInterrupt<span class="o">(</span>001<span class="o">)</span>
-test_longlong_shift1<span class="o">()</span> <span class="o">=</span> 289
-test_longlong_shift2<span class="o">()</span> <span class="o">=</span> 22
-test_float_to_int<span class="o">()</span> <span class="o">=</span> -2
-test_double_to_int<span class="o">()</span> <span class="o">=</span> -4
-test_double_to_int_2<span class="o">()</span> <span class="o">=</span> 3
-test_float_add<span class="o">()</span> <span class="o">=</span> 1
-test_float_mul<span class="o">()</span> <span class="o">=</span> 31
-test_float_div<span class="o">()</span> <span class="o">=</span> -6
-test_double_add<span class="o">()</span> <span class="o">=</span> 5
-test_double_mul<span class="o">()</span> <span class="o">=</span> -31
-test_double_div<span class="o">()</span> <span class="o">=</span> -6
-total cpu <span class="nv">cycles</span> <span class="o">=</span> 104105
-RET to PC &lt; 0, finished!
+<span class="gp">JonathantekiiMac:input Jonathan$</span> iverilog -o cpu0IIs cpu0IIs.v
+<span class="gp">JonathantekiiMac:input Jonathan$</span> ./cpu0IIs
+<span class="gp">114-43-184-210:verilog Jonathan$</span> ./cpu0IIs
+<span class="go">WARNING: ./cpu0.v:458: $readmemh(cpu0.hex): Not enough words in the file for</span>
+<span class="go">the requested range [0:524287].</span>
+<span class="go">taskInterrupt(001)</span>
+<span class="go">test_longlong_shift1() = 289</span>
+<span class="go">test_longlong_shift2() = 22</span>
+<span class="go">test_float_to_int() = -2</span>
+<span class="go">test_double_to_int() = -4</span>
+<span class="go">test_double_to_int_2() = 3</span>
+<span class="go">test_float_add() = 1</span>
+<span class="go">test_float_mul() = 31</span>
+<span class="go">test_float_div() = -6</span>
+<span class="go">test_double_add() = 5</span>
+<span class="go">test_double_mul() = -31</span>
+<span class="go">test_double_div() = -6</span>
+<span class="go">total cpu cycles = 104105</span>
+<span class="go">RET to PC &lt; 0, finished!</span>
 </pre></div>
 </div>
 <table class="docutils footnote" frame="void" id="id6" rules="none">
