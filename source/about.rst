@@ -31,8 +31,11 @@ Also thanking those corrections from readers who make the book more accurate.
 Revision history
 ----------------
 
-Version 3.7.3, Not release yet.
+Version 3.7.4, Not release yet.
+
+Version 3.7.3, Released July 20, 2016
   Refine code-block according sphinx lexers.
+  Add search this book.
   
 Version 3.7.2, Released June 29, 2016
   Dynamic linker change display from ret \$t9 to jr \$t9.
