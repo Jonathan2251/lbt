@@ -485,7 +485,7 @@ extern const Target *getTarget(const ObjectFile *Obj = nullptr);
 extern uint64_t SectionOffset(const ObjectFile *o, StringRef secName);
 
 #ifdef DLINK
-  static cl::opt<bool>
+  cl::opt<bool>
   DumpSo("cpu0dumpso", 
   cl::desc("Dump shared library .so"));
   
@@ -497,7 +497,7 @@ extern uint64_t SectionOffset(const ObjectFile *o, StringRef secName);
 #endif
 
 // Modify from DisassembleObjectInHexFormat
-static void OutputDlinkerConfig2(const ObjectFile *Obj
+static void OutputGlobalOffset(const ObjectFile *Obj
 /*, bool InlineRelocs*/  , std::unique_ptr<MCDisassembler>& DisAsm, 
   std::unique_ptr<MCInstPrinter>& IP, uint64_t& lastDumpAddr,
   std::unique_ptr<const MCSubtargetInfo>& STI, StringRef ToolName) {
@@ -530,76 +530,6 @@ static void OutputDlinkerConfig2(const ObjectFile *Obj
       #endif
       }
       continue;
-    }
-
-    // It's .text section
-    uint64_t SectionAddr;
-    SectionAddr = Section.getAddress();
-    uint64_t SectSize = Section.getSize();
-    if (!SectSize)
-      continue;
-    // Make a list of all the symbols in this section.
-    std::vector<std::pair<uint64_t, StringRef> > Symbols;
-    for (const SymbolRef &Symbol : Obj->symbols()) {
-      if (Section.containsSymbol(Symbol)) {
-        ErrorOr<uint64_t> AddressOrErr = Symbol.getAddress();
-        if (error(AddressOrErr.getError()))
-          break;
-        uint64_t Address = *AddressOrErr;
-        Address -= SectionAddr;
-        if (Address >= SectSize)
-          continue;
-
-        ErrorOr<StringRef> Name = Symbol.getName();
-        if (error(Name.getError()))
-          break;
-        Symbols.push_back(std::make_pair(Address, *Name));
-      }
-    }
-
-    // Sort the symbols by address, just in case they didn't come in that way.
-    array_pod_sort(Symbols.begin(), Symbols.end());
-  #ifdef ELF2HEX_DEBUG
-    for (unsigned si = 0, se = Symbols.size(); si != se; ++si) {
-        errs() << '\n' << "/*" << Symbols[si].first << "  " << Symbols[si].second << ":*/\n";
-    }
-  #endif
-    // Make a list of all the relocations for this section.
-    std::vector<RelocationRef> Rels;
-
-    // Sort relocations by address.
-    std::sort(Rels.begin(), Rels.end(), RelocAddressLess);
-
-    SmallString<40> Comments;
-    raw_svector_ostream CommentStream(Comments);
-
-    StringRef BytesStr;
-    if (error(Section.getContents(BytesStr))) break;
-    ArrayRef<uint8_t> Bytes(reinterpret_cast<const uint8_t *>(BytesStr.data()),
-                            BytesStr.size());
-    uint64_t Size;
-    uint64_t Index;
-    SectSize = Section.getSize();
-
-    // Disassemble symbol by symbol.
-    for (unsigned si = 0, se = Symbols.size(); si != se; ++si) {
-      uint64_t Start = Symbols[si].first;
-      uint64_t End;
-      // The end is either the size of the section or the beginning of the next
-      // symbol.
-      if (si == se - 1)
-        End = SectSize;
-      // Make sure this symbol takes up space.
-      else if (Symbols[si + 1].first != Start)
-        End = Symbols[si + 1].first - 1;
-      else
-        continue;
-
-#ifndef NDEBUG
-        raw_ostream &DebugOut = DebugFlag ? dbgs() : nulls();
-#else
-        raw_ostream &DebugOut = nulls();
-#endif
     }
   }
 }
@@ -682,9 +612,7 @@ void OutputDlinkerConfig(const ObjectFile *o, bool isLittleEndian,
     PrintSoDataSections(o, lastDumpAddr, isLittleEndian);
   }
   else
-#endif
   {
-  #ifdef DLINK
     std::error_code EC;
     uint64_t pltOffset = SectionOffset(o, ".plt");
     if (LinkSo) {
@@ -694,9 +622,9 @@ void OutputDlinkerConfig(const ObjectFile *o, bool isLittleEndian,
                                     sys::fs::F_Text);
       fd_plt_offset << format("%08" PRIx64 " ", pltOffset);
     }
-    OutputDlinkerConfig2(o, DisAsm, IP, lastDumpAddr, STI, ToolName);
-  #endif
+    OutputGlobalOffset(o, DisAsm, IP, lastDumpAddr, STI, ToolName);
   }
+#endif
 }
 
 #endif

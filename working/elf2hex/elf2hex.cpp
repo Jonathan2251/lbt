@@ -65,6 +65,10 @@ using namespace object;
 #ifdef DLINK
   #include "elf2hex-dlinker.h"
   extern Cpu0DynFunIndex cpu0DynFunIndex;
+  extern cl::opt<bool> DumpSo;
+  extern cl::opt<bool> LinkSo;
+  extern void OutputDlinkerConfig(const ObjectFile *o, bool isLittleEndian, 
+  StringRef ToolName);
 #endif
 
 static cl::list<std::string>
@@ -91,8 +95,6 @@ llvm::NoShowRawInsn("no-show-raw-insn", cl::desc("When disassembling "
 
 static StringRef ToolName;
 static int ReturnValue = EXIT_SUCCESS;
-
-extern cl::opt<bool> LinkSo;
 
 bool llvm::error(std::error_code EC) {
   if (!EC)
@@ -1093,11 +1095,6 @@ static void Elf2Hex(const ObjectFile *o) {
   }
 }
 
-#ifdef DLINK
-extern void OutputDlinkerConfig(const ObjectFile *o, bool isLittleEndian, 
-StringRef ToolName);
-#endif
-
 static void DumpObject(const ObjectFile *o) {
   outs() << "/*";
   outs() << o->getFileName()
@@ -1106,8 +1103,11 @@ static void DumpObject(const ObjectFile *o) {
 
 #ifdef DLINK
   OutputDlinkerConfig(o, LittleEndian, ToolName);
-#endif
+  if (!DumpSo)
+    Elf2Hex(o);
+#else
   Elf2Hex(o);
+#endif
 }
 
 /// @brief Open file and figure out how to dump it.
