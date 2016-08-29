@@ -293,7 +293,7 @@ static void DisassembleSoInHexFormat(const ObjectFile *Obj
         }
 
       #ifdef ELF2HEX_DEBUG
-        outs() << "Size = " << Size <<  " Index = " << Index << " lastDumpAddr = "
+        errs() << "Size = " << Size <<  " Index = " << Index << " lastDumpAddr = "
                << lastDumpAddr << "\n"; // debug
       #endif
         // Print relocation for instruction.
