@@ -64,11 +64,6 @@ using namespace object;
 
 #ifdef DLINK
   #include "elf2hex-dlinker.h"
-  extern Cpu0DynFunIndex cpu0DynFunIndex;
-  extern cl::opt<bool> DumpSo;
-  extern cl::opt<bool> LinkSo;
-  extern void OutputDlinkerConfig(const ObjectFile *o, bool isLittleEndian, 
-  StringRef ToolName);
 #endif
 
 static cl::list<std::string>

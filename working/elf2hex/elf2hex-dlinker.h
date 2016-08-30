@@ -18,6 +18,12 @@ public:
   uint16_t correctDynFunIndex(const char* pltName);
 };
 
+extern Cpu0DynFunIndex cpu0DynFunIndex;
+extern cl::opt<bool> DumpSo;
+extern cl::opt<bool> LinkSo;
+extern void OutputDlinkerConfig(const ObjectFile *o, bool isLittleEndian, 
+StringRef ToolName);
+
 #endif
 
 #endif // DLINK
