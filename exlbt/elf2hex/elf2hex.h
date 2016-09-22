@@ -38,7 +38,6 @@ extern cl::opt<bool> NoShowRawInsn;
 bool error(std::error_code ec);
 bool RelocAddressLess(object::RelocationRef a, object::RelocationRef b);
 
-
 } // end namespace llvm
 
 #endif

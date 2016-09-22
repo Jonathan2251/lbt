@@ -8,4 +8,5 @@ set(LLVM_LINK_COMPONENTS
 
 add_llvm_tool(elf2hex
   elf2hex.cpp
+  elf2hex-dlinker.cpp
   )

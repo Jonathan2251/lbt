@@ -31,7 +31,8 @@ Also thanking those corrections from readers who make the book more accurate.
 Revision history
 ----------------
 
-Version 3.7.4, Not release yet.
+Version 3.7.4, Released September 22, 2016
+  Split elf2hex-dlinker.cpp from elf2hex.cpp in exlbt/elf2hex.
 
 Version 3.7.3, Released July 20, 2016
   Refine code-block according sphinx lexers.

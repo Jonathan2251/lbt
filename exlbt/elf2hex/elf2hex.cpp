@@ -62,6 +62,10 @@
 using namespace llvm;
 using namespace object;
 
+#ifdef DLINK
+  #include "elf2hex-dlinker.h"
+#endif
+
 static cl::list<std::string>
 InputFilenames(cl::Positional, cl::desc("<input object files>"),cl::ZeroOrMore);
 
@@ -103,7 +107,7 @@ static void report_error(StringRef File, std::error_code EC) {
   ReturnValue = EXIT_FAILURE;
 }
 
-static const Target *getTarget(const ObjectFile *Obj = nullptr) {
+const Target *getTarget(const ObjectFile *Obj = nullptr) {
   // Figure out the target triple.
   llvm::Triple TheTriple("unknown-unknown-unknown");
   if (TripleName.empty()) {
@@ -529,7 +533,7 @@ static std::error_code getRelocationValueString(const MachOObjectFile *Obj,
   return std::error_code();
 }
 
-static std::error_code getRelocationValueString(const RelocationRef &Rel,
+std::error_code getRelocationValueString(const RelocationRef &Rel,
                                                 SmallVectorImpl<char> &Result) {
   const ObjectFile *Obj = Rel.getObject();
   if (auto *ELF = dyn_cast<ELFObjectFileBase>(Obj))
@@ -543,7 +547,7 @@ static std::error_code getRelocationValueString(const RelocationRef &Rel,
 /// @brief Indicates whether this relocation should hidden when listing
 /// relocations, usually because it is the trailing part of a multipart
 /// relocation that will be printed as part of the leading relocation.
-static bool getHidden(RelocationRef RelRef) {
+bool getHidden(RelocationRef RelRef) {
   const ObjectFile *Obj = RelRef.getObject();
   auto *MachO = dyn_cast<MachOObjectFile>(Obj);
   if (!MachO)
@@ -578,21 +582,9 @@ static cl::opt<bool>
 LittleEndian("le", 
 cl::desc("Little endian format"));
 
-#ifdef DLINK
-  static cl::opt<bool>
-  DumpSo("cpu0dumpso", 
-  cl::desc("Dump shared library .so"));
-  
-  static cl::opt<bool>
-  LinkSo("cpu0linkso", 
-  cl::desc("Link shared library .so"));
-  
-  #include "elf2hex-dlinker.h"
-#endif
-
 #ifdef ELF2HEX_DEBUG
 // Modified from PrintSectionHeaders()
-static uint64_t GetSectionHeaderStartAddress(const ObjectFile *Obj, 
+uint64_t GetSectionHeaderStartAddress(const ObjectFile *Obj, 
   StringRef sectionName) {
 //  outs() << "Sections:\n"
 //            "Idx Name          Size      Address          Type\n";
@@ -695,7 +687,7 @@ static void DisassembleObjectInHexFormat(const ObjectFile *Obj
   std::unique_ptr<const MCSubtargetInfo>& STI) {
 
 #ifdef ELF2HEX_DEBUG
-  errs() << format("!lastDumpAddr %8" PRIx64 "\n", lastDumpAddr);
+  errs() << __FUNCTION__<< "\t" << format("!lastDumpAddr %8" PRIx64 "\n", lastDumpAddr);
 #endif
   std::error_code ec;
   for (const SectionRef &Section : Obj->sections()) {
@@ -725,16 +717,6 @@ static void DisassembleObjectInHexFormat(const ObjectFile *Obj
       if (Name == ".got.plt") {
         uint64_t BaseAddr;
         BaseAddr = Section.getAddress();
-      #ifdef DLINK
-        if (LinkSo) {
-          raw_fd_ostream fd_global_offset("dlconfig/global_offset", ec, 
-                                          sys::fs::F_Text);
-          fd_global_offset << format("%02" PRIx64 " ", BaseAddr >> 24);
-          fd_global_offset << format("%02" PRIx64 " ", (BaseAddr >> 16) & 0xFF);
-          fd_global_offset << format("%02" PRIx64 " ", (BaseAddr >> 8) & 0xFF);
-          fd_global_offset << format("%02" PRIx64 "    ", BaseAddr & 0xFF);
-        }
-      #endif
         PrintDataSection(Obj, lastDumpAddr, Section);
       }
       else if ((Name == ".bss" || Name == ".sbss") && Contents.size() > 0) {
@@ -858,11 +840,10 @@ static void DisassembleObjectInHexFormat(const ObjectFile *Obj
 
       for (Index = Start; Index < End; Index += Size) {
         MCInst Inst;
-
-    #ifdef DLINK
-  #ifdef ELF2HEX_DEBUG
-    errs() << "funIndex: " << funIndex << "Index: " << Index << "Size: " << Size << "\n";
-  #endif
+      #ifdef DLINK
+        #ifdef ELF2HEX_DEBUG
+        errs() << "funIndex: " << funIndex << "Index: " << Index << "Size: " << Size << "\n";
+        #endif
         if (LinkSo && funIndex && Index == Start) {
           outs() << format("/*%8" PRIx64 ":*/\t", SectionAddr + Index);
           outs() << "01 6b " << format("%02" PRIx64, (funIndex*4+16) & 0xff00)
@@ -871,8 +852,8 @@ static void DisassembleObjectInHexFormat(const ObjectFile *Obj
                  << funIndex*4+16 << "($gp)\n";
         }
         else
-    #endif
-       {
+      #endif
+        {
           if (DisAsm->getInstruction(Inst, Size, Bytes.slice(Index),
                                      SectionAddr + Index, DebugOut,
                                      CommentStream)) {
@@ -932,7 +913,7 @@ static void DisassembleObjectInHexFormat(const ObjectFile *Obj
   }
 }
 
-static uint64_t SectionOffset(const ObjectFile *o, StringRef secName) {
+uint64_t SectionOffset(const ObjectFile *o, StringRef secName) {
   std::error_code ec;
 
   for (const SectionRef &Section : o->sections()) {
@@ -1098,26 +1079,10 @@ static void Elf2Hex(const ObjectFile *o) {
   uint64_t startAddr = GetSectionHeaderStartAddress(o, "_start");
   errs() << format("_start address:%08" PRIx64 "\n", startAddr);
 #endif
-#ifdef DLINK
-  if (DumpSo) {
-    DisassembleSoInHexFormat(o, DisAsm, IP, lastDumpAddr, STI);
-    PrintSoDataSections(o, lastDumpAddr, LittleEndian);
-  }
-  else
-#endif
   {
     std::error_code EC;
     uint64_t pltOffset = SectionOffset(o, ".plt");
     PrintBootSection(pltOffset, LittleEndian);
-  #ifdef DLINK
-    if (LinkSo) {
-      cpu0DynFunIndex.createPltName(o);
-      cpu0DynFunIndex.createStrtab();
-      raw_fd_ostream fd_plt_offset("dlconfig/plt_offset", EC, 
-                                    sys::fs::F_Text);
-      fd_plt_offset << format("%08" PRIx64 " ", pltOffset);
-    }
-  #endif
     lastDumpAddr = BOOT_SIZE;
     Fill0s(lastDumpAddr, 0x100);
     lastDumpAddr = 0x100;
@@ -1131,7 +1096,13 @@ static void DumpObject(const ObjectFile *o) {
          << ":\tfile format " << o->getFileFormatName() << "*/";
   outs() << "\n\n";
 
+#ifdef DLINK
+  OutputDlinkerConfig(o, LittleEndian, ToolName);
+  if (!DumpSo)
+    Elf2Hex(o);
+#else
   Elf2Hex(o);
+#endif
 }
 
 /// @brief Open file and figure out how to dump it.

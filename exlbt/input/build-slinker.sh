@@ -9,28 +9,31 @@ arg2=$2
 
 prologue;
 
-clang -target mips-unknown-linux-gnu -c start.cpp -emit-llvm -o start.bc
-clang -target mips-unknown-linux-gnu -c debug.cpp -emit-llvm -o debug.bc
-clang -target mips-unknown-linux-gnu -c printf-stdarg-def.c -emit-llvm \
--o printf-stdarg-def.bc
-clang -target mips-unknown-linux-gnu -c printf-stdarg.c -emit-llvm \
+${CLANGDIR}/clang -target mips-unknown-linux-gnu -c start.cpp -emit-llvm -o \
+start.bc
+${CLANGDIR}/clang -target mips-unknown-linux-gnu -c debug.cpp -emit-llvm -o \
+debug.bc
+${CLANGDIR}/clang -target mips-unknown-linux-gnu -c printf-stdarg-def.c \
+-emit-llvm -o printf-stdarg-def.bc
+${CLANGDIR}/clang -target mips-unknown-linux-gnu -c printf-stdarg.c -emit-llvm \
 -o printf-stdarg.bc
-clang -target mips-unknown-linux-gnu -c ${LBDEXDIR}/input/ch4_1_addsuboverflow.cpp \
--emit-llvm -o ch4_1_addsuboverflow.bc
-clang -target mips-unknown-linux-gnu -c ${LBDEXDIR}/input/ch8_1_br_jt.cpp \
--emit-llvm -o ch8_1_br_jt.bc
-clang -O3 -target mips-unknown-linux-gnu -c ${LBDEXDIR}/input/ch8_2_phinode.cpp \
--emit-llvm -o ch8_2_phinode.bc
-clang -target mips-unknown-linux-gnu -c ${LBDEXDIR}/input/ch8_1_blockaddr.cpp \
--emit-llvm -o ch8_1_blockaddr.bc
-clang -target mips-unknown-linux-gnu -c ${LBDEXDIR}/input/ch8_2_longbranch.cpp \
--emit-llvm -o ch8_2_longbranch.bc
-clang -O1 -target mips-unknown-linux-gnu -c ${LBDEXDIR}/input/ch9_2_tailcall.cpp \
--emit-llvm -o ch9_2_tailcall.bc
-clang -target mips-unknown-linux-gnu -c ${LBDEXDIR}/input/ch9_3_detect_exception.cpp \
--emit-llvm -o ch9_3_detect_exception.bc
-clang -I${LBDEXDIR}/input/ -target mips-unknown-linux-gnu -c ch_slinker.cpp \
--emit-llvm -o ch_slinker.bc
+${CLANGDIR}/clang -target mips-unknown-linux-gnu -c \
+${LBDEXDIR}/input/ch4_1_addsuboverflow.cpp -emit-llvm -o ch4_1_addsuboverflow.bc
+${CLANGDIR}/clang -target mips-unknown-linux-gnu -c \
+${LBDEXDIR}/input/ch8_1_br_jt.cpp -emit-llvm -o ch8_1_br_jt.bc
+${CLANGDIR}/clang -O3 -target mips-unknown-linux-gnu -c \
+${LBDEXDIR}/input/ch8_2_phinode.cpp -emit-llvm -o ch8_2_phinode.bc
+${CLANGDIR}/clang -target mips-unknown-linux-gnu -c \
+${LBDEXDIR}/input/ch8_1_blockaddr.cpp -emit-llvm -o ch8_1_blockaddr.bc
+${CLANGDIR}/clang -target mips-unknown-linux-gnu -c \
+${LBDEXDIR}/input/ch8_2_longbranch.cpp -emit-llvm -o ch8_2_longbranch.bc
+${CLANGDIR}/clang -O1 -target mips-unknown-linux-gnu -c \
+${LBDEXDIR}/input/ch9_2_tailcall.cpp -emit-llvm -o ch9_2_tailcall.bc
+${CLANGDIR}/clang -target mips-unknown-linux-gnu -c \
+${LBDEXDIR}/input/ch9_3_detect_exception.cpp -emit-llvm -o \
+ch9_3_detect_exception.bc
+${CLANGDIR}/clang -I${LBDEXDIR}/input/ -target mips-unknown-linux-gnu -c \
+ch_slinker.cpp -emit-llvm -o ch_slinker.bc
 ${TOOLDIR}/llc -march=cpu0${endian} -mcpu=${CPU} -relocation-model=static \
 -filetype=obj start.bc -o start.o
 ${TOOLDIR}/llc -march=cpu0${endian} -mcpu=${CPU} -relocation-model=static \
@@ -58,11 +61,11 @@ ${TOOLDIR}/llc -march=cpu0${endian} -mcpu=${CPU} -relocation-model=static \
 ${TOOLDIR}/llc -march=cpu0${endian} -mcpu=${CPU} -relocation-model=static \
 -filetype=obj ch_slinker.bc -o ch_slinker.o
 ${TOOLDIR}/llc -march=cpu0${endian} -mcpu=${CPU} -relocation-model=static \
--filetype=obj lib_cpu0.ll -o lib_o
+-filetype=obj lib_cpu0.ll -o lib_cpu0.o
 ${TOOLDIR}/lld -flavor gnu -target cpu0${endian}-unknown-linux-gnu start.o \
 debug.o printf-stdarg-def.o printf-stdarg.o ch4_1_addsuboverflow.o \
 ch8_1_br_jt.o ch8_2_phinode.o ch8_1_blockaddr.o ch8_2_longbranch.o \
-ch9_2_tailcall.o ch9_3_detect_exception.o ch_slinker.o lib_o -o a.out
+ch9_2_tailcall.o ch9_3_detect_exception.o ch_slinker.o lib_cpu0.o -o a.out
 
 epilogue;
 
