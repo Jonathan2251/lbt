@@ -36,7 +36,7 @@ ${TOOLDIR}/llc -march=cpu0 -mcpu=${CPU} -relocation-model=pic -filetype=obj \
 -cpu0-reserve-gp=true -cpu0-no-cpload=true foobar.cpu0.bc -o foobar.cpu0.o
 ${TOOLDIR}/llc -march=cpu0 -mcpu=${CPU} -relocation-model=static -filetype=obj \
 lib_cpu0.ll -o lib_cpu0.o
-${TOOLDIR}/lld -flavor gnu -target cpu0-unknown-linux-gnu -shared -o \
+${TOOLDIR}/lld -flavor gnu -shared -o \
 libfoobar.cpu0.so foobar.cpu0.o
 ${TOOLDIR}/llc -march=cpu0 -mcpu=${CPU} -relocation-model=static -filetype=obj \
 -cpu0-reserve-gp=true start.bc -o start.cpu0.o
@@ -44,7 +44,7 @@ ${TOOLDIR}/llc -march=cpu0 -mcpu=${CPU} -relocation-model=static \
 -filetype=obj debug.bc -o debug.cpu0.o
 ${TOOLDIR}/llc -march=cpu0 -mcpu=${CPU} -relocation-model=static -filetype=obj \
 -cpu0-reserve-gp=true ch_dynamiclinker.cpu0.bc -o ch_dynamiclinker.cpu0.o
-${TOOLDIR}/lld -flavor gnu -target cpu0-unknown-linux-gnu -o a.out \
+${TOOLDIR}/lld -flavor gnu -o a.out \
 start.cpu0.o \
 printf-stdarg-def.cpu0.o printf-stdarg.cpu0.o dynamic_linker.cpu0.o \
 ch_dynamiclinker.cpu0.o libfoobar.cpu0.so lib_cpu0.o debug.cpu0.o

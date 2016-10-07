@@ -24,7 +24,8 @@ clang -target mips-unknown-linux-gnu -c printf-stdarg-def.c -emit-llvm \
 clang -target mips-unknown-linux-gnu -c printf-stdarg.c -emit-llvm \
 -o printf-stdarg.bc
 clang $INCFLAG -c ch_float.cpp -emit-llvm -o ch_float.bc
-clang $INCFLAG -c ${LBDEXDIR}/input/ch9_7.cpp -emit-llvm -o ch9_7.bc
+clang $INCFLAG -c ${LBDEXDIR}/input/ch9_3_longlongshift.cpp -emit-llvm -o \
+ch9_3_longlongshift.bc
 ${TOOLDIR}/llc -march=cpu0${endian} -mcpu=${CPU} -relocation-model=static \
 -filetype=obj start.bc -o start.cpu0.o
 ${TOOLDIR}/llc -march=cpu0${endian} -mcpu=${CPU} -relocation-model=static \
@@ -34,14 +35,14 @@ ${TOOLDIR}/llc -march=cpu0${endian} -mcpu=${CPU} -relocation-model=static \
 ${TOOLDIR}/llc -march=cpu0${endian} -mcpu=${CPU} -relocation-model=static \
 -filetype=obj printf-stdarg.bc -o printf-stdarg.cpu0.o
 ${TOOLDIR}/llc -march=cpu0${endian} -mcpu=${CPU} -relocation-model=static \
--filetype=obj ch9_7.bc -o ch9_7.cpu0.o
+-filetype=obj ch9_3_longlongshift.bc -o ch9_3_longlongshift.cpu0.o
 ${TOOLDIR}/llc -march=cpu0${endian} -mcpu=${CPU} -relocation-model=static \
 -filetype=obj ch_float.bc -o ch_float.cpu0.o
 ${TOOLDIR}/llc -march=cpu0${endian} -mcpu=${CPU} -relocation-model=static \
 -filetype=obj lib_cpu0.ll -o lib_cpu0.o
-${TOOLDIR}/lld -flavor gnu -target cpu0${endian}-unknown-linux-gnu \
-  -o a.out start.cpu0.o debug.cpu0.o printf-stdarg-def.cpu0.o printf-stdarg.cpu0.o \
-  ch_float.cpu0.o ch9_7.cpu0.o lib_cpu0.o \
+${TOOLDIR}/lld -flavor gnu -o a.out \
+  start.cpu0.o debug.cpu0.o printf-stdarg-def.cpu0.o printf-stdarg.cpu0.o \
+  ch_float.cpu0.o ch9_3_longlongshift.cpu0.o lib_cpu0.o \
   ${olibsf}/libFloat.o
 #  ${olibsf}/fixsfsi.o ${olibsf}/fixsfdi.o ${olibsf}/fixdfsi.o \
 #  ${olibsf}/addsf3.o ${olibsf}/mulsf3.o ${olibsf}/divsf3.o \

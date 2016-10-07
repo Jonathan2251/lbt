@@ -7,7 +7,7 @@ OS=`uname -s`
 echo "OS =" ${OS}
 
 if [ "$OS" == "Linux" ]; then
-  TOOLDIR=~/llvm/release/cmake_debug_build/bin
+  TOOLDIR=~/llvm/release/cmake_release_build/bin
 else
   TOOLDIR=~/test/lld/cmake_debug_build/Debug/bin
 fi
@@ -27,6 +27,6 @@ ${TOOLDIR}/llc -march=mips${endian} -relocation-model=static -filetype=obj \
 ch_hello.bc -o ch_hello.o
 ${TOOLDIR}/llc -march=mips${endian} -relocation-model=static -filetype=obj \
 lib_cpu0.ll -o lib_cpu0.o
-~/llvm/test/cmake_release_build/bin/lld -flavor gnu -target \
-mips${endian}-unknown-linux-gnu printf-stdarg-def.o printf-stdarg.o ch_hello.o \
+~/llvm/release/cmake_release_build/bin/lld -flavor gnu \
+printf-stdarg-def.o printf-stdarg.o ch_hello.o \
 lib_cpu0.o

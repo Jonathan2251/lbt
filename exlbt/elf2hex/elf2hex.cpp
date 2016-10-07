@@ -22,16 +22,17 @@
 #include "llvm/ADT/StringExtras.h"
 #include "llvm/ADT/Triple.h"
 #include "llvm/CodeGen/FaultMaps.h"
+#include "llvm/DebugInfo/DWARF/DWARFContext.h"
 #include "llvm/MC/MCAsmInfo.h"
 #include "llvm/MC/MCContext.h"
-#include "llvm/MC/MCDisassembler.h"
+#include "llvm/MC/MCDisassembler/MCDisassembler.h"
 #include "llvm/MC/MCInst.h"
 #include "llvm/MC/MCInstPrinter.h"
 #include "llvm/MC/MCInstrAnalysis.h"
 #include "llvm/MC/MCInstrInfo.h"
 #include "llvm/MC/MCObjectFileInfo.h"
 #include "llvm/MC/MCRegisterInfo.h"
-#include "llvm/MC/MCRelocationInfo.h"
+#include "llvm/MC/MCDisassembler/MCRelocationInfo.h"
 #include "llvm/MC/MCSubtargetInfo.h"
 #include "llvm/Object/Archive.h"
 #include "llvm/Object/ELFObjectFile.h"
@@ -58,13 +59,10 @@
 #include <cctype>
 #include <cstring>
 #include <system_error>
+#include <utility>
 
 using namespace llvm;
 using namespace object;
-
-#ifdef DLINK
-  #include "elf2hex-dlinker.h"
-#endif
 
 static cl::list<std::string>
 InputFilenames(cl::Positional, cl::desc("<input object files>"),cl::ZeroOrMore);
@@ -78,6 +76,13 @@ llvm::ArchName("arch-name", cl::desc("Target arch to disassemble for, "
                                 "see -version for available targets"));
 
 cl::list<std::string>
+llvm::FilterSections("section", cl::desc("Operate on the specified sections only. "
+                                         "With -macho dump segment,section"));
+cl::alias
+static FilterSectionsj("j", cl::desc("Alias for --section"),
+                 cl::aliasopt(llvm::FilterSections));
+
+cl::list<std::string>
 llvm::MAttrs("mattr",
   cl::CommaSeparated,
   cl::desc("Target specific attributes"),
@@ -89,22 +94,138 @@ llvm::NoShowRawInsn("no-show-raw-insn", cl::desc("When disassembling "
                                                  "the instruction bytes."));
 
 static StringRef ToolName;
-static int ReturnValue = EXIT_SUCCESS;
+namespace {
+typedef std::function<bool(llvm::object::SectionRef const &)> FilterPredicate;
 
-bool llvm::error(std::error_code EC) {
-  if (!EC)
-    return false;
+class SectionFilterIterator {
+public:
+  SectionFilterIterator(FilterPredicate P,
+                        llvm::object::section_iterator const &I,
+                        llvm::object::section_iterator const &E)
+      : Predicate(std::move(P)), Iterator(I), End(E) {
+    ScanPredicate();
+  }
+  const llvm::object::SectionRef &operator*() const { return *Iterator; }
+  SectionFilterIterator &operator++() {
+    ++Iterator;
+    ScanPredicate();
+    return *this;
+  }
+  bool operator!=(SectionFilterIterator const &Other) const {
+    return Iterator != Other.Iterator;
+  }
 
-  outs() << ToolName << ": error reading file: " << EC.message() << ".\n";
-  outs().flush();
-  ReturnValue = EXIT_FAILURE;
-  return true;
+private:
+  void ScanPredicate() {
+    while (Iterator != End && !Predicate(*Iterator)) {
+      ++Iterator;
+    }
+  }
+  FilterPredicate Predicate;
+  llvm::object::section_iterator Iterator;
+  llvm::object::section_iterator End;
+};
+
+class SectionFilter {
+public:
+  SectionFilter(FilterPredicate P, llvm::object::ObjectFile const &O)
+      : Predicate(std::move(P)), Object(O) {}
+  SectionFilterIterator begin() {
+    return SectionFilterIterator(Predicate, Object.section_begin(),
+                                 Object.section_end());
+  }
+  SectionFilterIterator end() {
+    return SectionFilterIterator(Predicate, Object.section_end(),
+                                 Object.section_end());
+  }
+
+private:
+  FilterPredicate Predicate;
+  llvm::object::ObjectFile const &Object;
+};
+
+SectionFilter ToolSectionFilter(llvm::object::ObjectFile const &O) {
+  return SectionFilter([](llvm::object::SectionRef const &S) {
+                         if(FilterSections.empty())
+                           return true;
+                         llvm::StringRef String;
+                         std::error_code error = S.getName(String);
+                         if (error)
+                           return false;
+                         return std::find(FilterSections.begin(),
+                                          FilterSections.end(),
+                                          String) != FilterSections.end();
+                       },
+                       O);
+}
 }
 
-static void report_error(StringRef File, std::error_code EC) {
+void llvm::error(std::error_code EC) {
+  if (!EC)
+    return;
+
+  errs() << ToolName << ": error reading file: " << EC.message() << ".\n";
+  errs().flush();
+  exit(1);
+}
+
+LLVM_ATTRIBUTE_NORETURN void llvm::error(Twine Message) {
+  errs() << ToolName << ": " << Message << ".\n";
+  errs().flush();
+  exit(1);
+}
+
+LLVM_ATTRIBUTE_NORETURN void llvm::report_error(StringRef File,
+                                                std::error_code EC) {
   assert(EC);
   errs() << ToolName << ": '" << File << "': " << EC.message() << ".\n";
-  ReturnValue = EXIT_FAILURE;
+  exit(1);
+}
+
+LLVM_ATTRIBUTE_NORETURN void llvm::report_error(StringRef File,
+                                                llvm::Error E) {
+  assert(E);
+  std::string Buf;
+  raw_string_ostream OS(Buf);
+  logAllUnhandledErrors(std::move(E), OS, "");
+  OS.flush();
+  errs() << ToolName << ": '" << File << "': " << Buf;
+  exit(1);
+}
+
+LLVM_ATTRIBUTE_NORETURN void llvm::report_error(StringRef ArchiveName,
+                                                StringRef FileName,
+                                                llvm::Error E,
+                                                StringRef ArchitectureName) {
+  assert(E);
+  errs() << ToolName << ": ";
+  if (ArchiveName != "")
+    errs() << ArchiveName << "(" << FileName << ")";
+  else
+    errs() << FileName;
+  if (!ArchitectureName.empty())
+    errs() << " (for architecture " << ArchitectureName << ")";
+  std::string Buf;
+  raw_string_ostream OS(Buf);
+  logAllUnhandledErrors(std::move(E), OS, "");
+  OS.flush();
+  errs() << " " << Buf;
+  exit(1);
+}
+
+LLVM_ATTRIBUTE_NORETURN void llvm::report_error(StringRef ArchiveName,
+                                                const object::Archive::Child &C,
+                                                llvm::Error E,
+                                                StringRef ArchitectureName) {
+  ErrorOr<StringRef> NameOrErr = C.getName();
+  // TODO: if we have a error getting the name then it would be nice to print
+  // the index of which archive member this is and or its offset in the
+  // archive instead of "???" as the name.
+  if (NameOrErr.getError())
+    llvm::report_error(ArchiveName, "???", std::move(E), ArchitectureName);
+  else
+    llvm::report_error(ArchiveName, NameOrErr.get(), std::move(E),
+                       ArchitectureName);
 }
 
 const Target *getTarget(const ObjectFile *Obj = nullptr) {
@@ -131,10 +252,8 @@ const Target *getTarget(const ObjectFile *Obj = nullptr) {
   std::string Error;
   const Target *TheTarget = TargetRegistry::lookupTarget(ArchName, TheTriple,
                                                          Error);
-  if (!TheTarget) {
-    errs() << ToolName << ": " << Error;
-    return nullptr;
-  }
+  if (!TheTarget)
+    report_fatal_error("can't find target: " + Error);
 
   // Update the triple name and return the found target.
   TripleName = TheTriple.getTriple();
@@ -145,13 +264,15 @@ bool llvm::RelocAddressLess(RelocationRef a, RelocationRef b) {
   return a.getOffset() < b.getOffset();
 }
 
+
 template <class ELFT>
 static std::error_code getRelocationValueString(const ELFObjectFile<ELFT> *Obj,
-                                                DataRefImpl Rel,
+                                                const RelocationRef &RelRef,
                                                 SmallVectorImpl<char> &Result) {
+  DataRefImpl Rel = RelRef.getRawDataRefImpl();
+
   typedef typename ELFObjectFile<ELFT>::Elf_Sym Elf_Sym;
   typedef typename ELFObjectFile<ELFT>::Elf_Shdr Elf_Shdr;
-  typedef typename ELFObjectFile<ELFT>::Elf_Rel Elf_Rel;
   typedef typename ELFObjectFile<ELFT>::Elf_Rela Elf_Rela;
 
   const ELFFile<ELFT> &EF = *Obj->getELFFile();
@@ -173,43 +294,38 @@ static std::error_code getRelocationValueString(const ELFObjectFile<ELFT> *Obj,
   if (std::error_code EC = StrTabOrErr.getError())
     return EC;
   StringRef StrTab = *StrTabOrErr;
-  uint8_t type;
+  uint8_t type = RelRef.getType();
   StringRef res;
   int64_t addend = 0;
-  uint16_t symbol_index = 0;
   switch (Sec->sh_type) {
   default:
     return object_error::parse_failed;
   case ELF::SHT_REL: {
-    const Elf_Rel *ERel = Obj->getRel(Rel);
-    type = ERel->getType(EF.isMips64EL());
-    symbol_index = ERel->getSymbol(EF.isMips64EL());
     // TODO: Read implicit addend from section data.
     break;
   }
   case ELF::SHT_RELA: {
     const Elf_Rela *ERela = Obj->getRela(Rel);
-    type = ERela->getType(EF.isMips64EL());
-    symbol_index = ERela->getSymbol(EF.isMips64EL());
     addend = ERela->r_addend;
     break;
   }
   }
-  const Elf_Sym *symb =
-      EF.template getEntry<Elf_Sym>(Sec->sh_link, symbol_index);
+  symbol_iterator SI = RelRef.getSymbol();
+  const Elf_Sym *symb = Obj->getSymbol(SI->getRawDataRefImpl());
   StringRef Target;
-  ErrorOr<const Elf_Shdr *> SymSec = EF.getSection(symb);
-  if (std::error_code EC = SymSec.getError())
-    return EC;
   if (symb->getType() == ELF::STT_SECTION) {
-    ErrorOr<StringRef> SecName = EF.getSectionName(*SymSec);
+    Expected<section_iterator> SymSI = SI->getSection();
+    if (!SymSI)
+      return errorToErrorCode(SymSI.takeError());
+    const Elf_Shdr *SymSec = Obj->getSection((*SymSI)->getRawDataRefImpl());
+    ErrorOr<StringRef> SecName = EF.getSectionName(SymSec);
     if (std::error_code EC = SecName.getError())
       return EC;
     Target = *SecName;
   } else {
-    ErrorOr<StringRef> SymName = symb->getName(StrTab);
+    Expected<StringRef> SymName = symb->getName(StrTab);
     if (!SymName)
-      return SymName.getError();
+      return errorToErrorCode(SymName.takeError());
     Target = *SymName;
   }
   switch (EF.getHeader()->e_machine) {
@@ -239,6 +355,7 @@ static std::error_code getRelocationValueString(const ELFObjectFile<ELFT> *Obj,
       res = "Unknown";
     }
     break;
+  case ELF::EM_LANAI:
   case ELF::EM_AARCH64: {
     std::string fmtbuf;
     raw_string_ostream fmt(fmtbuf);
@@ -250,11 +367,29 @@ static std::error_code getRelocationValueString(const ELFObjectFile<ELFT> *Obj,
     break;
   }
   case ELF::EM_386:
+  case ELF::EM_IAMCU:
   case ELF::EM_ARM:
   case ELF::EM_HEXAGON:
   case ELF::EM_MIPS:
-  case ELF::EM_CPU0: // llvm-obj -t -r
+  case ELF::EM_BPF:
     res = Target;
+    break;
+  case ELF::EM_WEBASSEMBLY:
+    switch (type) {
+    case ELF::R_WEBASSEMBLY_DATA: {
+      std::string fmtbuf;
+      raw_string_ostream fmt(fmtbuf);
+      fmt << Target << (addend < 0 ? "" : "+") << addend;
+      fmt.flush();
+      Result.append(fmtbuf.begin(), fmtbuf.end());
+      break;
+    }
+    case ELF::R_WEBASSEMBLY_FUNCTION:
+      res = Target;
+      break;
+    default:
+      res = "Unknown";
+    }
     break;
   default:
     res = "Unknown";
@@ -265,9 +400,8 @@ static std::error_code getRelocationValueString(const ELFObjectFile<ELFT> *Obj,
 }
 
 static std::error_code getRelocationValueString(const ELFObjectFileBase *Obj,
-                                                const RelocationRef &RelRef,
+                                                const RelocationRef &Rel,
                                                 SmallVectorImpl<char> &Result) {
-  DataRefImpl Rel = RelRef.getRawDataRefImpl();
   if (auto *ELF32LE = dyn_cast<ELF32LEObjectFile>(Obj))
     return getRelocationValueString(ELF32LE, Rel, Result);
   if (auto *ELF64LE = dyn_cast<ELF64LEObjectFile>(Obj))
@@ -282,9 +416,9 @@ static std::error_code getRelocationValueString(const COFFObjectFile *Obj,
                                                 const RelocationRef &Rel,
                                                 SmallVectorImpl<char> &Result) {
   symbol_iterator SymI = Rel.getSymbol();
-  ErrorOr<StringRef> SymNameOrErr = SymI->getName();
-  if (std::error_code EC = SymNameOrErr.getError())
-    return EC;
+  Expected<StringRef> SymNameOrErr = SymI->getName();
+  if (!SymNameOrErr)
+    return errorToErrorCode(SymNameOrErr.takeError());
   StringRef SymName = *SymNameOrErr;
   Result.append(SymName.begin(), SymName.end());
   return std::error_code();
@@ -304,21 +438,31 @@ static void printRelocationTargetName(const MachOObjectFile *O,
 
     for (const SymbolRef &Symbol : O->symbols()) {
       std::error_code ec;
-      ErrorOr<uint64_t> Addr = Symbol.getAddress();
-      if ((ec = Addr.getError()))
-        report_fatal_error(ec.message());
+      Expected<uint64_t> Addr = Symbol.getAddress();
+      if (!Addr) {
+        std::string Buf;
+        raw_string_ostream OS(Buf);
+        logAllUnhandledErrors(Addr.takeError(), OS, "");
+        OS.flush();
+        report_fatal_error(Buf);
+      }
       if (*Addr != Val)
         continue;
-      ErrorOr<StringRef> Name = Symbol.getName();
-      if (std::error_code EC = Name.getError())
-        report_fatal_error(EC.message());
+      Expected<StringRef> Name = Symbol.getName();
+      if (!Name) {
+        std::string Buf;
+        raw_string_ostream OS(Buf);
+        logAllUnhandledErrors(Name.takeError(), OS, "");
+        OS.flush();
+        report_fatal_error(Buf);
+      }
       fmt << *Name;
       return;
     }
 
     // If we couldn't find a symbol that this relocation refers to, try
     // to find a section beginning instead.
-    for (const SectionRef &Section : O->sections()) {
+    for (const SectionRef &Section : ToolSectionFilter(*O)) {
       std::error_code ec;
 
       StringRef Name;
@@ -342,9 +486,9 @@ static void printRelocationTargetName(const MachOObjectFile *O,
   if (isExtern) {
     symbol_iterator SI = O->symbol_begin();
     advance(SI, Val);
-    ErrorOr<StringRef> SOrErr = SI->getName();
-    if (!error(SOrErr.getError()))
-      S = *SOrErr;
+    Expected<StringRef> SOrErr = SI->getName();
+    error(errorToErrorCode(SOrErr.takeError()));
+    S = *SOrErr;
   } else {
     section_iterator SI = O->section_begin();
     // Adjust for the fact that sections are 1-indexed.
@@ -591,9 +735,9 @@ uint64_t GetSectionHeaderStartAddress(const ObjectFile *Obj,
   std::error_code ec;
   unsigned i = 0;
   for (const SectionRef &Section : Obj->sections()) {
-    if (error(ec)) return 0;
+    error(ec);
     StringRef Name;
-    if (error(Section.getName(Name))) return 0;
+    error(Section.getName(Name));
     uint64_t Address;
     Address = Section.getAddress();
     uint64_t Size;
@@ -609,6 +753,36 @@ uint64_t GetSectionHeaderStartAddress(const ObjectFile *Obj,
   return 0;
 }
 #endif
+
+// Reference from llvm::PrintSymbolTable of llvm-objdump.cpp
+uint64_t GetSymbolAddress(const ObjectFile *o, StringRef SymbolName) {
+  for (const SymbolRef &Symbol : o->symbols()) {
+    Expected<uint64_t> AddressOrError = Symbol.getAddress();
+    if (!AddressOrError)
+      report_error(SymbolName, o->getFileName(), AddressOrError.takeError());
+    uint64_t Address = *AddressOrError;
+    Expected<SymbolRef::Type> TypeOrError = Symbol.getType();
+    if (!TypeOrError)
+      report_error(SymbolName, o->getFileName(), TypeOrError.takeError());
+    SymbolRef::Type Type = *TypeOrError;
+    Expected<section_iterator> SectionOrErr = Symbol.getSection();
+    error(errorToErrorCode(SectionOrErr.takeError()));
+    section_iterator Section = *SectionOrErr;
+    StringRef Name;
+    if (Type == SymbolRef::ST_Debug && Section != o->section_end()) {
+      Section->getName(Name);
+    } else {
+      Expected<StringRef> NameOrErr = Symbol.getName();
+      if (!NameOrErr)
+        report_error(SymbolName, o->getFileName(), NameOrErr.takeError(),
+                     SymbolName);
+      Name = *NameOrErr;
+    }
+    if (Name == SymbolName)
+      return Address;
+  }
+  return 0;
+}
 
 // Fill /*address*/ 00 00 00 00 [startAddr..endAddr] from startAddr to endAddr. 
 // Include startAddr and endAddr.
@@ -634,8 +808,8 @@ static void PrintDataSection(const ObjectFile *o, uint64_t& lastDumpAddr,
   uint64_t BaseAddr;
   bool BSS;
   uint64_t size;
-  if (error(Section.getName(Name))) return;
-  if (error(Section.getContents(Contents))) return;
+  error(Section.getName(Name));
+  error(Section.getContents(Contents));
   BaseAddr = Section.getAddress();
   BSS = Section.isBSS();
 
@@ -691,12 +865,12 @@ static void DisassembleObjectInHexFormat(const ObjectFile *Obj
 #endif
   std::error_code ec;
   for (const SectionRef &Section : Obj->sections()) {
-    if (error(ec)) break;
+    error(ec);
     StringRef Name;
     StringRef Contents;
     uint64_t BaseAddr;
-    if (error(Section.getName(Name))) continue;
-    if (error(Section.getContents(Contents))) continue;
+    error(Section.getName(Name));
+    error(Section.getContents(Contents));
     BaseAddr = Section.getAddress();
     if (BaseAddr < 0x100)
       continue;
@@ -747,17 +921,15 @@ static void DisassembleObjectInHexFormat(const ObjectFile *Obj
     std::vector<std::pair<uint64_t, StringRef> > Symbols;
     for (const SymbolRef &Symbol : Obj->symbols()) {
       if (Section.containsSymbol(Symbol)) {
-        ErrorOr<uint64_t> AddressOrErr = Symbol.getAddress();
-        if (error(AddressOrErr.getError()))
-          break;
+        Expected<uint64_t> AddressOrErr = Symbol.getAddress();
+        error(errorToErrorCode(AddressOrErr.takeError()));
         uint64_t Address = *AddressOrErr;
         Address -= SectionAddr;
         if (Address >= SectSize)
           continue;
 
-        ErrorOr<StringRef> Name = Symbol.getName();
-        if (error(Name.getError()))
-          break;
+        Expected<StringRef> Name = Symbol.getName();
+        error(errorToErrorCode(Name.takeError()));
         Symbols.push_back(std::make_pair(Address, *Name));
       }
     }
@@ -783,7 +955,7 @@ static void DisassembleObjectInHexFormat(const ObjectFile *Obj
       SegmentName = MachO->getSectionFinalSegmentName(DR);
     }
     StringRef name;
-    if (error(Section.getName(name))) break;
+    error(Section.getName(name));
     outs() << "/*" << "Disassembly of section ";
     if (!SegmentName.empty())
       outs() << SegmentName << ",";
@@ -798,7 +970,7 @@ static void DisassembleObjectInHexFormat(const ObjectFile *Obj
     raw_svector_ostream CommentStream(Comments);
 
     StringRef BytesStr;
-    if (error(Section.getContents(BytesStr))) break;
+    error(Section.getContents(BytesStr));
     ArrayRef<uint8_t> Bytes(reinterpret_cast<const uint8_t *>(BytesStr.data()),
                             BytesStr.size());
     uint64_t Size;
@@ -824,13 +996,6 @@ static void DisassembleObjectInHexFormat(const ObjectFile *Obj
       }
 
       outs() << '\n' << "/*" << Symbols[si].second << ":*/\n";
-    #ifdef DLINK
-      uint16_t funIndex = 0;
-      if (LinkSo) {
-      // correctDynFunIndex
-        funIndex = cpu0DynFunIndex.correctDynFunIndex(Symbols[si].second.data());
-      }
-    #endif
 
 #ifndef NDEBUG
         raw_ostream &DebugOut = DebugFlag ? dbgs() : nulls();
@@ -840,39 +1005,24 @@ static void DisassembleObjectInHexFormat(const ObjectFile *Obj
 
       for (Index = Start; Index < End; Index += Size) {
         MCInst Inst;
-      #ifdef DLINK
-        #ifdef ELF2HEX_DEBUG
-        errs() << "funIndex: " << funIndex << "Index: " << Index << "Size: " << Size << "\n";
-        #endif
-        if (LinkSo && funIndex && Index == Start) {
-          outs() << format("/*%8" PRIx64 ":*/\t", SectionAddr + Index);
-          outs() << "01 6b " << format("%02" PRIx64, (funIndex*4+16) & 0xff00)
-                  << format(" %02" PRIx64, (funIndex*4+16) & 0x00ff);
-          outs() << "                                  /* ld\t$t9, " 
-                 << funIndex*4+16 << "($gp)\n";
-        }
-        else
-      #endif
-        {
-          if (DisAsm->getInstruction(Inst, Size, Bytes.slice(Index),
-                                     SectionAddr + Index, DebugOut,
-                                     CommentStream)) {
-            outs() << format("/*%8" PRIx64 ":*/", SectionAddr + Index);
-            if (!NoShowRawInsn) {
-              outs() << "\t";
-              dumpBytes(Bytes.slice(Index, Size), outs());
-            }
-            outs() << "/*";
-            IP->printInst(&Inst, outs(), "", *STI);
-            outs() << CommentStream.str();
-            outs() << "*/";
-            Comments.clear();
-            outs() << "\n";
-          } else {
-            errs() << ToolName << ": warning: invalid instruction encoding\n";
-            if (Size == 0)
-              Size = 1; // skip illegible bytes
+        if (DisAsm->getInstruction(Inst, Size, Bytes.slice(Index),
+                                   SectionAddr + Index, DebugOut,
+                                   CommentStream)) {
+          outs() << format("/*%8" PRIx64 ":*/", SectionAddr + Index);
+          if (!NoShowRawInsn) {
+            outs() << "\t";
+            dumpBytes(Bytes.slice(Index, Size), outs());
           }
+          outs() << "/*";
+          IP->printInst(&Inst, outs(), "", *STI);
+          outs() << CommentStream.str();
+          outs() << "*/";
+          Comments.clear();
+          outs() << "\n";
+        } else {
+          errs() << ToolName << ": warning: invalid instruction encoding\n";
+          if (Size == 0)
+            Size = 1; // skip illegible bytes
         }
 
         //  outs() << "Size = " << Size <<  "Index = " << Index << "lastDumpAddr = "
@@ -890,8 +1040,7 @@ static void DisassembleObjectInHexFormat(const ObjectFile *Obj
           // Stop when rel_cur's address is past the current instruction.
           if (addr >= Index + Size) break;
           rel_cur->getTypeName(name);
-          if (error(getRelocationValueString(*rel_cur, val)))
-            goto skip_print_rel;
+          error(getRelocationValueString(*rel_cur, val));
 
           outs() << format("\t\t\t/*%8" PRIx64 ": ", SectionAddr + addr) << name
                  << "\t" << val << "*/\n";
@@ -917,13 +1066,13 @@ uint64_t SectionOffset(const ObjectFile *o, StringRef secName) {
   std::error_code ec;
 
   for (const SectionRef &Section : o->sections()) {
-    if (error(ec)) return 0;
+    error(ec);
     StringRef Name;
     StringRef Contents;
     uint64_t BaseAddr;
     bool BSS;
-    if (error(Section.getName(Name))) return 0;
-    if (error(Section.getContents(Contents))) return 0;
+    error(Section.getName(Name));
+    error(Section.getContents(Contents));
     BaseAddr = Section.getAddress();
     BSS = Section.isBSS();
 
@@ -933,43 +1082,52 @@ uint64_t SectionOffset(const ObjectFile *o, StringRef secName) {
   return 0;
 }
 
-static void PrintBootSection(uint64_t pltOffset, bool isLittleEndian) {
-  uint64_t offset = pltOffset - 4;
+static void PrintBootSection(uint64_t textOffset, uint64_t isrAddr, bool isLittleEndian) {
+  uint64_t offset = textOffset - 4;
+
+  // isr instruction at 0x8 and PC counter point to next instruction
+  uint64_t isrOffset = isrAddr - 8 - 4;
   if (isLittleEndian) {
     outs() << "/*       0:*/	";
     outs() << format("%02" PRIx64 " ", (offset & 0xff));
-    outs() << format("%02" PRIx64 "", (offset & 0xff00) >> 8);
-    outs() << " 00 36";
+    outs() << format("%02" PRIx64 " ", (offset & 0xff00) >> 8);
+    outs() << format("%02" PRIx64 "", (offset & 0xff0000) >> 16);
+    outs() << " 36";
     outs() << "                                  /*	jmp	0x";
-    outs() << format("%02" PRIx64 "%02" PRIx64 " */\n", (offset & 0xff00) >> 8, 
-                     (offset & 0xff)); 
+    outs() << format("%02" PRIx64 "%02" PRIx64 "%02" PRIx64 " */\n",
+      (offset & 0xff0000) >> 16, (offset & 0xff00) >> 8, (offset & 0xff));
     outs() <<
       "/*       4:*/	04 00 00 36                                  /*	jmp	4 */\n";
+    offset -= 8;
     outs() << "/*       8:*/	";
-    outs() << format("%02" PRIx64 " ", (offset & 0xff));
-    outs() << format("%02" PRIx64 "", (offset & 0xff00) >> 8);
-    outs() << " 00 36";
+    outs() << format("%02" PRIx64 " ", (isrOffset & 0xff));
+    outs() << format("%02" PRIx64 " ", (isrOffset & 0xff00) >> 8);
+    outs() << format("%02" PRIx64 "", (isrOffset & 0xff0000) >> 16);
+    outs() << " 36";
     outs() << "                                  /*	jmp	0x";
-    outs() << format("%02" PRIx64 "%02" PRIx64 " */\n", (offset & 0xff00) >> 8, 
-                     (offset & 0xff)); 
+    outs() << format("%02" PRIx64 "%02" PRIx64 "%02" PRIx64 " */\n",
+      (isrOffset & 0xff0000) >> 16, (isrOffset & 0xff00) >> 8, (isrOffset & 0xff));
     outs() <<
       "/*       c:*/	fc ff ff 36                                  /*	jmp	-4 */\n";
   }
   else {
-    outs() << "/*       0:*/	36 00 ";
+    outs() << "/*       0:*/	36 ";
+    outs() << format("%02" PRIx64 " ", (offset & 0xff0000) >> 16);
     outs() << format("%02" PRIx64 " ", (offset & 0xff00) >> 8);
     outs() << format("%02" PRIx64 "", (offset & 0xff));
     outs() << "                                  /*	jmp	0x";
-    outs() << format("%02" PRIx64 "%02" PRIx64 " */\n", (offset & 0xff00) >> 8, 
-                     (offset & 0xff)); 
+    outs() << format("%02" PRIx64 "%02" PRIx64 "%02" PRIx64 " */\n",
+      (offset & 0xff0000) >> 16, (offset & 0xff00) >> 8, (offset & 0xff));
     outs() <<
       "/*       4:*/	36 00 00 04                                  /*	jmp	4 */\n";
-    outs() << "/*       8:*/	36 00 ";
-    outs() << format("%02" PRIx64 " ", (offset & 0xff00) >> 8);
-    outs() << format("%02" PRIx64 "", (offset & 0xff));
+    offset -= 8;
+    outs() << "/*       8:*/	36 ";
+    outs() << format("%02" PRIx64 " ", (isrOffset & 0xff0000) >> 16);
+    outs() << format("%02" PRIx64 " ", (isrOffset & 0xff00) >> 8);
+    outs() << format("%02" PRIx64 "", (isrOffset & 0xff));
     outs() << "                                  /*	jmp	0x";
-    outs() << format("%02" PRIx64 "%02" PRIx64 " */\n", (offset & 0xff00) >> 8, 
-                     (offset & 0xff)); 
+    outs() << format("%02" PRIx64 "%02" PRIx64 "%02" PRIx64 " */\n",
+      (isrOffset & 0xff0000) >> 16, (isrOffset & 0xff00) >> 8, (isrOffset & 0xff));
     outs() <<
       "/*       c:*/	36 ff ff fc                                  /*	jmp	-4 */\n";
   }
@@ -1008,60 +1166,45 @@ static void FillJTI(const ObjectFile *o) {
 }
 #endif
 
-static void Elf2Hex(const ObjectFile *o) {
+// Modified from DisassembleObject()
+static void Elf2Hex(const ObjectFile *Obj) {
   uint64_t lastDumpAddr = 0;
 
-  const Target *TheTarget = getTarget(o);
-  // getTarget() will have already issued a diagnostic if necessary, so
-  // just bail here if it failed.
-  if (!TheTarget)
-    return;
+  const Target *TheTarget = getTarget(Obj);
 
   // Package up features to be passed to target/subtarget
-  std::string FeaturesStr;
+  SubtargetFeatures Features = Obj->getFeatures();
   if (MAttrs.size()) {
-    SubtargetFeatures Features;
     for (unsigned i = 0; i != MAttrs.size(); ++i)
       Features.AddFeature(MAttrs[i]);
-    FeaturesStr = Features.getString();
   }
 
   std::unique_ptr<const MCRegisterInfo> MRI(TheTarget->createMCRegInfo(TripleName));
-  if (!MRI) {
-    errs() << "error: no register info for target " << TripleName << "\n";
-    return;
-  }
+  if (!MRI)
+    report_fatal_error("error: no register info for target " + TripleName);
 
   // Set up disassembler.
   std::unique_ptr<const MCAsmInfo> AsmInfo(
     TheTarget->createMCAsmInfo(*MRI, TripleName));
-  if (!AsmInfo) {
-    errs() << "error: no assembly info for target " << TripleName << "\n";
-    return;
-  }
+  if (!AsmInfo)
+    report_fatal_error("error: no assembly info for target " + TripleName);
 
   std::unique_ptr<const MCSubtargetInfo> STI(
-    TheTarget->createMCSubtargetInfo(TripleName, "", FeaturesStr));
-  if (!STI) {
-    errs() << "error: no subtarget info for target " << TripleName << "\n";
-    return;
-  }
+    TheTarget->createMCSubtargetInfo(TripleName, "", Features.getString()));
+  if (!STI)
+    report_fatal_error("error: no subtarget info for target " + TripleName);
 
   std::unique_ptr<const MCInstrInfo> MII(TheTarget->createMCInstrInfo());
-  if (!MII) {
-    errs() << "error: no instruction info for target " << TripleName << "\n";
-    return;
-  }
+  if (!MII)
+    report_fatal_error("error: no instruction info for target " + TripleName);
 
   std::unique_ptr<const MCObjectFileInfo> MOFI(new MCObjectFileInfo);
   MCContext Ctx(AsmInfo.get(), MRI.get(), MOFI.get());
 
   std::unique_ptr<MCDisassembler> DisAsm(
     TheTarget->createMCDisassembler(*STI, Ctx));
-  if (!DisAsm) {
-    errs() << "error: no disassembler for target " << TripleName << "\n";
-    return;
-  }
+  if (!DisAsm)
+    report_fatal_error("error: no disassembler for target " + TripleName);
 
   std::unique_ptr<const MCInstrAnalysis> MIA(
       TheTarget->createMCInstrAnalysis(MII.get()));
@@ -1069,24 +1212,25 @@ static void Elf2Hex(const ObjectFile *o) {
   int AsmPrinterVariant = AsmInfo->getAssemblerDialect();
   std::unique_ptr<MCInstPrinter> IP(TheTarget->createMCInstPrinter(
       Triple(TripleName), AsmPrinterVariant, *AsmInfo, *MII, *MRI));
-  if (!IP) {
-    errs() << "error: no instruction printer for target " << TripleName
-      << '\n';
-    return;
-  }
+  if (!IP)
+    report_fatal_error("error: no instruction printer for target " +
+                       TripleName);
 
 #ifdef ELF2HEX_DEBUG
-  uint64_t startAddr = GetSectionHeaderStartAddress(o, "_start");
+  uint64_t startAddr = GetSectionHeaderStartAddress(Obj, "_start");
   errs() << format("_start address:%08" PRIx64 "\n", startAddr);
 #endif
+  uint64_t isrAddr = GetSymbolAddress(Obj, "ISR");
+  errs() << format("ISR address:%08" PRIx64 "\n", isrAddr);
   {
     std::error_code EC;
-    uint64_t pltOffset = SectionOffset(o, ".plt");
-    PrintBootSection(pltOffset, LittleEndian);
+    //uint64_t pltOffset = SectionOffset(Obj, ".plt");
+    uint64_t textOffset = SectionOffset(Obj, ".text");
+    PrintBootSection(textOffset, isrAddr, LittleEndian);
     lastDumpAddr = BOOT_SIZE;
     Fill0s(lastDumpAddr, 0x100);
     lastDumpAddr = 0x100;
-    DisassembleObjectInHexFormat(o, DisAsm, IP, lastDumpAddr, STI);
+    DisassembleObjectInHexFormat(Obj, DisAsm, IP, lastDumpAddr, STI);
   }
 }
 
@@ -1096,29 +1240,16 @@ static void DumpObject(const ObjectFile *o) {
          << ":\tfile format " << o->getFileFormatName() << "*/";
   outs() << "\n\n";
 
-#ifdef DLINK
-  OutputDlinkerConfig(o, LittleEndian, ToolName);
-  if (!DumpSo)
-    Elf2Hex(o);
-#else
   Elf2Hex(o);
-#endif
 }
 
 /// @brief Open file and figure out how to dump it.
 static void DumpInput(StringRef file) {
-  // If file isn't stdin, check that it exists.
-  if (file != "-" && !sys::fs::exists(file)) {
-    report_error(file, errc::no_such_file_or_directory);
-    return;
-  }
-
   // Attempt to open the binary.
-  ErrorOr<OwningBinary<Binary>> BinaryOrErr = createBinary(file);
-  if (std::error_code EC = BinaryOrErr.getError()) {
-    report_error(file, EC);
-    return;
-  }
+  Expected<OwningBinary<Binary>> BinaryOrErr = createBinary(file);
+  if (!BinaryOrErr)
+    report_error(file, BinaryOrErr.takeError());
+
   Binary &Binary = *BinaryOrErr.get().getBinary();
 
   if (ObjectFile *o = dyn_cast<ObjectFile>(&Binary))
@@ -1129,14 +1260,13 @@ static void DumpInput(StringRef file) {
 
 int main(int argc, char **argv) {
   // Print a stack trace if we signal out.
-  sys::PrintStackTraceOnErrorSignal();
+  sys::PrintStackTraceOnErrorSignal(argv[0]);
   PrettyStackTraceProgram X(argc, argv);
   llvm_shutdown_obj Y;  // Call llvm_shutdown() on exit.
 
   // Initialize targets and assembly printers/parsers.
   llvm::InitializeAllTargetInfos();
   llvm::InitializeAllTargetMCs();
-  llvm::InitializeAllAsmParsers();
   llvm::InitializeAllDisassemblers();
 
   // Register the target printer for --version.
@@ -1154,6 +1284,6 @@ int main(int argc, char **argv) {
   std::for_each(InputFilenames.begin(), InputFilenames.end(),
                 DumpInput);
 
-  return ReturnValue;
+  return EXIT_SUCCESS;
 }
 
