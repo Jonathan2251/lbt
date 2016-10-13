@@ -35,28 +35,11 @@ to Verilog Cpu0 machine and run on your PC/Laptop.
 As the previouse chapters mentioned, Cpu0 has two relocation models for static 
 link and dynamic link, respectively, which controlled by option 
 ``-relocation-model`` in ``llc``. 
-This chapter supports the static link fully, and part of dynamic link for 
-demostration purpose. Since dynamic link needs the OS involement and the 
-Cpu0 is run on Verilog bare metal simulator, the dynamic linker program 
-is added and the Cpu0 Verilog code is extended to demostrate these Cpu0 PIC mode 
-instructions are work correctly in dynamice link. 
-However, these part of Cpu0 Verilog codes are not needed in a real machine with 
-OS support, and the Cpu0 lld's and elf2hex's dynamic linker function is not full 
-implemented. 
-They are programmed by a specific shared library name since the shared library 
-locating needs the OS's help (files management is part of OS's job). 
-Without OS, these things cannot be solved and dynamic link is impossible to 
-finish.
-Anyway, for the dynamic link demostration, we can implement dynamic linker 
-program and adapt lld, elf2hex, and Cpu0 Verilog code to support a specific 
-shared library and verify the dynamic link result.
-In reality, the Micro CPUs without OS or tiny OS inside only support static 
-link for C language.
+This chapter supports the static link.
 
 About lld please refer LLD web site here [#lldweb]_ and LLD install requirement 
 on Linux here [#lld-install]_. 
-Currently, lld can be built by: gcc and clang 3.5 compiler on Ubuntu, and gcc 
-on Fedora, as I have tried. 
+Currently, lld can be built by: gcc and clang compiler on Ubuntu. 
 On iMac, lld can be built by clang with the Xcode version as the next sub 
 section.
 If you run with Virtual Machine (VM), please keep your phisical memory size 
@@ -86,8 +69,19 @@ Hex for Cpu0 backend as follows,
 .. rubric:: exlbt/elf2hex/elf2hex.cpp
 .. literalinclude:: ../exlbt/elf2hex/elf2hex.cpp
 
-The code included in "#ifdef DLINK" are for dynamic linker support.
-The elf2hex.h supports both endian dump.
+In order to support command, **llvm-objdump -d** and **llvm-objdump -t**, for 
+Cpu0, the code add to llvm-objdump.cpp as follows,
+
+.. rubric:: exlbt/llvm-objdump/llvm-objdump.cpp
+.. code-block:: c++
+
+  case ELF::EM_CPU0: //Cpu0
+
+.. code-block:: console
+
+  1-160-136-173:tools Jonathan$ pwd
+  /Users/Jonathan/llvm/test/src/tools
+  1-160-136-173:tools Jonathan$ cp -rf ~/test/exlbt/llvm-objdump/* llvm-objdump/.
 
 
 Create Cpu0 backend under LLD
@@ -96,11 +90,7 @@ Create Cpu0 backend under LLD
 Setup Cpu0 backend under lld
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-LLD project is underdevelopment and can be compiled only with c++11 standard 
-(C++2011 year announced standard). 
-For iMac, our software is OS X version 10.9.1 and Xcode version 5.0.2. 
-For old iMac software version, you can install VM (such as Virtual Box) and 
-build lld as Linux platform. Please download lld from llvm web 
+Please download lld from llvm web 
 [#llvm-download]_ and put lld 
 souce code on {llvm-src}/tools/lld just like we download llvm and clang as 
 shown in Appendex A of book "Tutorial: Creating an LLVM Backend for the Cpu0 
@@ -157,191 +147,7 @@ LLD introduction
 In general, linker do the Relocation Records Resolve as Chapter ELF support 
 depicted, and optimization for those cannot finish in compiler stage. One of 
 the optimization opportunities in linker is Dead Code Stripping which is 
-explained in this section. 
-
-List the LLD project status as follows,
-
-- The lld project aims to to be the built-in linker for clang/llvm.
-  Currently, clang must invoke the system linker to produce executables.
-
-- web site http://lld.llvm.org/
-
-- Current Status
-
-  - lld is in its early stages of development.
-  - It can currently self host on Linux x86-64 with -static.
-
-- How to build
-
-  - cmake -DCMAKE_CXX_COMPILER=g++ -DCMAKE_C_COMPILER=gcc -DCMAKE_CXX_FLAGS=-std
-    =c++11 -DCMAKE_BUILD_TYPE=Debug -G "Unix Makefiles" ../src/
-
-
-This whole book focuses on backend design, and this chapter is same. 
-To help readers 
-understand the lld document, first we list the linking steps from lld web. 
-After that, explain each step with the class of source code and what kind of 
-Cpu0 backend implementation needed in each step. 
-Since some of the following come from our understanding,
-please read the lld design web document first (only a few pages), 
-http://lld.llvm.org/design.html, then reading the following to 
-ensure you agree to our understanding.
-
-
-How LLD do the linker job
-`````````````````````````
-
-- LLD structure
-
-  - Internal structure Atom
-
-    - Like llvm IR, lld operating and optimize in Atom.
-
-  - ELF reader/writer, Mach-O reader/writer, COFF
-
-    - Connect to any specific linker format by implement the concrete Read/Writer.
-
-    - e.g. Implement Microsoft link format Reader/Writer
-      => extend lld to support Microsoft link format.
-
-- Atom
-
-  - An atom is an indivisible chunk of code or data.
-
-  - Typically each user written function or global variable is an atom.
-
-  - In addition, the compiler may emit other atoms, such as for literal c-strings 
-    or floating point constants, or for runtime data structures like dwarf unwind 
-    info or pointers to initializers.
-
-- Atoms classified:
-
-  - The following Hello World code can be classified with these different kinds of 
-    Atoms as follows,
-
-  .. rubric:: Atom example code
-  .. code-block:: c++
-
-    extern int printf(const char *format, ...);
-
-    int main(void)
-    {
-      char *ptr = "Hello world!";
-
-      printf("%s\n", ptr);
-    }
-
-  - DefinedAtom
-
-    - 95% of all atoms. This is a chunk of code or data
-
-  - UndefinedAtom
-
-    - printf in this example.
-
-  - SharedLibraryAtom
-
-    - Symbols defined in shared library (file \*.so).
-
-  - AbsoluteAtom
-
-    - This is for embedded support where some stuff is implemented in ROM at some 
-      fixed address.
-
-.. _lld-atom: 
-.. figure:: ../Fig/lld/atom.png
-  :scale: 100 %
-  :align: center
-
-  Atom classified (from lld web)
-
-
-Linking Steps
-`````````````
-
-- Command line processing
-
-  - lld -flavor gnu hello.o printf-stdarg.o -o a.out
-
-- Parsing input files
-
-  - ELF reader => create lld:File
-
-- Resolving
-
-  - dead code stripping
-
-- Passes/Optimizations
-
-  - Like llvm passes, give backend a chance to do something like optimization. 
-
-- Generate output file
-
-  - Resolving Relocation Records – I guess in this step
-
-Command line processing 
-'''''''''''''''''''''''
-
-To support a new backend, refer to Cpu0 code added above.
-
-Parsing input files 
-'''''''''''''''''''
-
-- Input Files
-
-  - A goal of lld is to be file format independent.
-
-  - The lld::Reader is the base class for all object file readers
-
-  - Every Reader subclass defines its own “options” class (for instance the 
-    mach-o Reader defines the class ReaderOptionsMachO). This options class is 
-    the one-and-only way to control how the Reader operates when parsing an input 
-    file into an Atom graph
-
-- Reader
-
-  - Refer lld/lib/ReaderWriter/ELF/Reader.cpp and it's related files since lld 
-    change quickly.
-
-
-- lld::File representations
-
-  - In memory, abstract C++ classes (lld::Atom, lld::Reference, and lld::File).
-
-    - Data structure keeped in memory to be fast
-
-  - textual (in YAML)
-
-    - target-triple:   x86_64-apple-darwin11
-
-    - atoms:
-
-      - name:    _main
-
-      - scope:   global
-
-      - type:    code
-
-      - content: [ 55, 48, 89, e5, 48, 8d, 3d, 00, 00, 00, 00, 30, c0, e8, 00, 00,
-        00, 00, 31, c0, 5d, c3 ]
-
-  - binary format (“native”)
-
-    - With this model for the native file format, files can be read and turned 
-      into the in-memory graph of lld::Atoms with just a few memory allocations. 
-      And the format can easily adapt over time to new features.
-
-
-Resolving
-'''''''''
-
-- Dead code stripping (if requested) is done at the end of resolving. 
-
-- The linker does a simple mark-and-sweep. It starts with **“root”** atoms (like 
-  “main” in a main executable) and follows each references and marks each Atom 
-  that it visits as **“live”**. 
-
-- When done, all atoms not marked **“live”** are removed.
+explained as follows, 
 
 .. rubric:: Dead code stripping - example (modified from llvm lto document web)
 
@@ -382,80 +188,10 @@ the native linker (such as lld) have the opportunity to do Dead Code Stripping
 while the IR linker hasn't.
 
 
-Passes/Optimizations
-''''''''''''''''''''
-
-- Passes
-
-  - stub (PLT) generation
-
-  - GOT instantiation
-
-  - order_file optimization
-
-  - branch island generation
-
-  - branch shim generation
-
-  - Objective-C optimizations (Darwin specific)
-
-  - TLV instantiation (Darwin specific)
-
-  - DTrace probe processing (Darwin specific)
-
-  - compact unwind encoding (Darwin specific)
-
-
-Generate Output File
-''''''''''''''''''''
-
-- All concrete writers (e.g. ELF, mach-o, etc) are subclasses of the lld::Writer 
-  class.
-
-- Every Writer subclass defines its own “options” class (for instance the mach-o 
-  Writer defines the class WriterOptionsMachO). This options class is the 
-  one-and-only way to control how the Writer operates when producing an output 
-  file from an Atom graph.
-
-
-For the following example code run, the book example code, exlbt.tar.gz, 
-untared in directory /Users/Jonathan/test/lbt/. 
-The Cpu0 backend code, lbdex.tar.gz, untared in
-the same directory too. The lbdex.tar.gz can be get from the bottom of web, 
-http://jonathan2251.github.io/lbd/index.html.
-
-.. code-block:: console
-
-  1-160-136-173:input Jonathan$ pwd
-  /Users/Jonathan/test/lbt/exlbt/input
-  1-160-136-173:input Jonathan$ ls ../..
-  ... exlbt ... lbdex ...
-  /Users/Jonathan/test/lbt/exlbt/input
-  1-160-136-173:input Jonathan$ bash build-hello.sh cpu032I be
-  1-160-136-173:input Jonathan$ /Users/Jonathan/llvm/test/cmake_debug_build/
-  Debug/bin/llvm-objdump -s a.out
-  ...                .
-  Contents of section .plt:
-   0140 3600000c 36000004 36000004 36fffffc  6...6...6...6...
-  Contents of section .text:
-   0150 09ddfff8 02ed0004 02cd0000 11cd0000  ................
-  ...
-  Contents of section .rodata:
-   0b98 286e756c 6c290048 656c6c6f 20776f72  (null).Hello wor
-   0ba8 6c642100 25730a00                    ld!.%s..
-
-
-Next section will show you how to design your lld backend and register a pass 
-for Relocation Records Solve in details through Cpu0 backend code explantation.
-
-
 Static linker 
 ~~~~~~~~~~~~~
 
 Let's run the static linker first and explain it next.
-
-Run
-```
 
 File printf-stdarg.c come from internet download which is GPL2 license. GPL2 
 is more restricted than LLVM license. 

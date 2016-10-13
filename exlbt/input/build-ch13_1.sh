@@ -20,7 +20,7 @@ ${TOOLDIR}/llc -march=cpu0${endian} -mcpu=${CPU} -relocation-model=static \
 -filetype=obj ch13_1.bc -o ch13_1.cpu0.o
 ${TOOLDIR}/llc -march=cpu0${endian} -mcpu=${CPU} -relocation-model=static \
 -filetype=obj a.bc -o a.cpu0.o
-${TOOLDIR}/lld -flavor gnu -target cpu0${endian}-unknown-linux-gnu \
+${TOOLDIR}/lld -flavor gnu \
 start.cpu0.o lib_cpu0.o ch13_1.cpu0.o a.cpu0.o -o a.out
 
 epilogue;
