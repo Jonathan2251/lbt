@@ -11,7 +11,7 @@ extern int main();
 void start() {
   asm("start:");
   
-  asm("lui $sp, 0x6");
+  asm("lui $sp, 0x7");
   asm("addiu $sp, $sp, 0xfffc");
   int *gpaddr;
   gpaddr = (int*)GPADDR;

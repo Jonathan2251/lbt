@@ -254,8 +254,8 @@ code as follows,
   /Users/Jonathan/test/lbt/lbdex/verilog
   1-160-136-173:verilog Jonathan$ make
   1-160-136-173:verilog Jonathan$ ls
-  ... cpu0Isp ... cpu0IIsp ...
-  1-160-136-173:verilog Jonathan$ ./cpu0Isp
+  ... cpu0Is ... cpu0IIs ...
+  1-160-136-173:verilog Jonathan$ ./cpu0Is
   Hello world!
   printf test
   (null) is null pointer
@@ -320,7 +320,7 @@ variable cpu from cpu032I to cpu032II as follows,
   1-160-136-173:input Jonathan$ bash build-printf-stdarg-2.sh cpu032II be
   ...
   1-160-136-173:input Jonathan$ cd ../lbdex/verilog/
-  1-160-136-173:verilog Jonathan$ ./cpu0IIsp
+  1-160-136-173:verilog Jonathan$ ./cpu0IIs
 
 The verilog machine cpu0IIs include all instructions of cpu032I and add 
 slt, beq, ..., instructions.
@@ -364,7 +364,7 @@ is for this purpose.
                 ^
   1 warning generated.
   114-37-148-111:input Jonathan$ cd ../../lbdex/verilog/
-  114-37-148-111:verilog Jonathan$ ./cpu0IIsp
+  114-37-148-111:verilog Jonathan$ ./cpu0IIs
   WARNING: ./cpu0.v:369: $readmemh(cpu0.hex): Not enough words in the file for 
   the requested range [0:524287].
   taskInterrupt(001)
