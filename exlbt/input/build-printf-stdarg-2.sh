@@ -25,7 +25,7 @@ ${TOOLDIR}/llc -march=cpu0${endian} -mcpu=${CPU} -relocation-model=static \
 -filetype=obj printf-stdarg-2.bc -o printf-stdarg-2.cpu0.o
 ${TOOLDIR}/llc -march=cpu0${endian} -mcpu=${CPU} -relocation-model=static \
 -filetype=obj lib_cpu0.ll -o lib_cpu0.o
-${TOOLDIR}/lld -flavor gnu -target cpu0${endian}-unknown-linux-gnu \
+${TOOLDIR}/lld -flavor gnu \
 start.cpu0.o debug.cpu0.o printf-stdarg-def.cpu0.o printf-stdarg-2.cpu0.o \
 lib_cpu0.o -o a.out
 
