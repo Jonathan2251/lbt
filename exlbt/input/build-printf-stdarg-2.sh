@@ -9,11 +9,11 @@ arg2=$2
 
 prologue;
 
-clang -target mips-unknown-linux-gnu -c start.cpp -emit-llvm -o start.bc
-clang -target mips-unknown-linux-gnu -c debug.cpp -emit-llvm -o debug.bc
-clang -target mips-unknown-linux-gnu -c printf-stdarg-def.c -emit-llvm \
+${CLANG} -target mips-unknown-linux-gnu -c start.cpp -emit-llvm -o start.bc
+${CLANG} -target mips-unknown-linux-gnu -c debug.cpp -emit-llvm -o debug.bc
+${CLANG} -target mips-unknown-linux-gnu -c printf-stdarg-def.c -emit-llvm \
 -o printf-stdarg-def.bc
-clang -target mips-unknown-linux-gnu -c printf-stdarg-2.cpp -emit-llvm -o \
+${CLANG} -target mips-unknown-linux-gnu -c printf-stdarg-2.cpp -emit-llvm -o \
 printf-stdarg-2.bc
 ${TOOLDIR}/llc -march=cpu0${endian} -mcpu=${CPU} -relocation-model=static \
 -filetype=obj start.bc -o start.cpu0.o

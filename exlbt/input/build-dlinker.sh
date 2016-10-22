@@ -12,19 +12,19 @@ prologue;
 rm -rf dlconfig
 mkdir dlconfig
 
-${CLANGDIR}/clang -target mips-unknown-linux-gnu -c start.cpp -emit-llvm -o \
+${CLANG} -target mips-unknown-linux-gnu -c start.cpp -emit-llvm -o \
 start.bc
-${CLANGDIR}/clang -target mips-unknown-linux-gnu -c debug.cpp -emit-llvm -o \
+${CLANG} -target mips-unknown-linux-gnu -c debug.cpp -emit-llvm -o \
 debug.bc
-${CLANGDIR}/clang -target mips-unknown-linux-gnu -c dynamic_linker.cpp \
+${CLANG} -target mips-unknown-linux-gnu -c dynamic_linker.cpp \
 -emit-llvm -o dynamic_linker.cpu0.bc
-${CLANGDIR}/clang -target mips-unknown-linux-gnu -c printf-stdarg-def.c \
+${CLANG} -target mips-unknown-linux-gnu -c printf-stdarg-def.c \
 -emit-llvm -o printf-stdarg-def.bc
-${CLANGDIR}/clang -target mips-unknown-linux-gnu -c printf-stdarg.c -emit-llvm \
+${CLANG} -target mips-unknown-linux-gnu -c printf-stdarg.c -emit-llvm \
 -o printf-stdarg.bc
-${CLANGDIR}/clang -target mips-unknown-linux-gnu -c ch_dynamiclinker.cpp \
+${CLANG} -target mips-unknown-linux-gnu -c ch_dynamiclinker.cpp \
 -emit-llvm -o ch_dynamiclinker.cpu0.bc
-${CLANGDIR}/clang -target mips-unknown-linux-gnu -c foobar.cpp -emit-llvm -o \
+${CLANG} -target mips-unknown-linux-gnu -c foobar.cpp -emit-llvm -o \
 foobar.cpu0.bc
 ${TOOLDIR}/llc -march=cpu0 -mcpu=${CPU} -relocation-model=static -filetype=obj \
 -cpu0-reserve-gp=true dynamic_linker.cpu0.bc -o dynamic_linker.cpu0.o

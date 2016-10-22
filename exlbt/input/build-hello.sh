@@ -9,13 +9,13 @@ arg2=$2
 
 prologue;
 
-clang -target mips-unknown-linux-gnu -c start.cpp -emit-llvm -o start.bc
-clang -target mips-unknown-linux-gnu -c debug.cpp -emit-llvm -o debug.bc
-clang -target mips-unknown-linux-gnu -c printf-stdarg-def.c -emit-llvm \
+${CLANG} -target mips-unknown-linux-gnu -c start.cpp -emit-llvm -o start.bc
+${CLANG} -target mips-unknown-linux-gnu -c debug.cpp -emit-llvm -o debug.bc
+${CLANG} -target mips-unknown-linux-gnu -c printf-stdarg-def.c -emit-llvm \
 -o printf-stdarg-def.bc
-clang -target mips-unknown-linux-gnu -c printf-stdarg.c -emit-llvm \
+${CLANG} -target mips-unknown-linux-gnu -c printf-stdarg.c -emit-llvm \
 -o printf-stdarg.bc
-clang -target mips-unknown-linux-gnu -c ch_hello.c -emit-llvm -o ch_hello.bc
+${CLANG} -target mips-unknown-linux-gnu -c ch_hello.c -emit-llvm -o ch_hello.bc
 ${TOOLDIR}/llc -march=cpu0${endian} -mcpu=${CPU} -relocation-model=static \
 -filetype=obj start.bc -o start.cpu0.o
 ${TOOLDIR}/llc -march=cpu0${endian} -mcpu=${CPU} -relocation-model=static \

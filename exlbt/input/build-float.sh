@@ -17,14 +17,14 @@ bash build.sh
 popd
 olibsf=${libsf}/obj
 
-clang -target mips-unknown-linux-gnu -c start.cpp -emit-llvm -o start.bc
-clang -target mips-unknown-linux-gnu -c debug.cpp -emit-llvm -o debug.bc
-clang -target mips-unknown-linux-gnu -c printf-stdarg-def.c -emit-llvm \
+${CLANG} -target mips-unknown-linux-gnu -c start.cpp -emit-llvm -o start.bc
+${CLANG} -target mips-unknown-linux-gnu -c debug.cpp -emit-llvm -o debug.bc
+${CLANG} -target mips-unknown-linux-gnu -c printf-stdarg-def.c -emit-llvm \
 -o printf-stdarg-def.bc
-clang -target mips-unknown-linux-gnu -c printf-stdarg.c -emit-llvm \
+${CLANG} -target mips-unknown-linux-gnu -c printf-stdarg.c -emit-llvm \
 -o printf-stdarg.bc
-clang $INCFLAG -c ch_float.cpp -emit-llvm -o ch_float.bc
-clang $INCFLAG -c ${LBDEXDIR}/input/ch9_3_longlongshift.cpp -emit-llvm -o \
+${CLANG} $INCFLAG -c ch_float.cpp -emit-llvm -o ch_float.bc
+${CLANG} $INCFLAG -c ${LBDEXDIR}/input/ch9_3_longlongshift.cpp -emit-llvm -o \
 ch9_3_longlongshift.bc
 ${TOOLDIR}/llc -march=cpu0${endian} -mcpu=${CPU} -relocation-model=static \
 -filetype=obj start.bc -o start.cpu0.o
