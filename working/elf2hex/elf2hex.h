@@ -61,7 +61,37 @@ LLVM_ATTRIBUTE_NORETURN void report_error(StringRef ArchiveName,
                                                     = StringRef());
 
 namespace elf2hex {
+
 using namespace object;
+
+class HexOut {
+public:
+  virtual void ProcessDisAsmInstruction(MCInst inst, uint64_t Size, 
+                                ArrayRef<uint8_t> Bytes, const ObjectFile *Obj) = 0;
+  virtual void ProcessDataSection(SectionRef Section) {};
+  virtual ~HexOut() {};
+};
+
+class VerilogHex : public HexOut {
+public:
+  VerilogHex(std::unique_ptr<MCInstPrinter>& instructionPointer, 
+             std::unique_ptr<const MCSubtargetInfo>& subTargetInfo,
+             const ObjectFile *Obj);
+  void ProcessDisAsmInstruction(MCInst inst, uint64_t Size, 
+                                ArrayRef<uint8_t> Bytes, const ObjectFile *Obj);
+  void ProcessDataSection(SectionRef Section);
+
+private:
+  void PrintBootSection(uint64_t textOffset, uint64_t isrAddr, bool isLittleEndian);
+  void Fill0s(uint64_t startAddr, uint64_t endAddr);
+  void PrintDataSection(SectionRef Section);
+  std::unique_ptr<MCInstPrinter>& IP;
+  std::unique_ptr<const MCSubtargetInfo>& STI;
+  uint64_t lastDumpAddr;
+  unsigned si;
+  StringRef sectionName;
+};
+
 class Reader {
 public:
   void DisassembleObject(const ObjectFile *Obj, 
@@ -73,41 +103,12 @@ public:
   SectionRef CurrentSection();
   unsigned CurrentSi();
   uint64_t CurrentIndex();
+
 private:
   SectionRef _section;
   std::vector<std::pair<uint64_t, StringRef> > Symbols;
   unsigned si;
   uint64_t Index;
-};
-
-/*
-class HexOut {
-public:
-//  HexOut() {};
-  virtual void SegmentName(StringRef name) {};
-  virtual void Address(StringRef addr) {};
-  virtual void AsmInstruction(MCInst inst) {};
-//  virtual ~HexOut() {};
-};*/
-
-//class VerilogHex : public HexOut {
-class VerilogHex {
-public:
-  VerilogHex(std::unique_ptr<MCInstPrinter>& instructionPointer, 
-             std::unique_ptr<const MCSubtargetInfo>& subTargetInfo,
-             const ObjectFile *Obj);
-  void AsmInstruction(MCInst inst, uint64_t Size, ArrayRef<uint8_t> Bytes, const ObjectFile *Obj);
-  void ProcessDataSection(SectionRef Section);
-private:
-  uint64_t SectionOffset(const ObjectFile *o, StringRef secName);
-  void PrintBootSection(uint64_t textOffset, uint64_t isrAddr, bool isLittleEndian);
-  void Fill0s(uint64_t startAddr, uint64_t endAddr);
-  void PrintDataSection(SectionRef Section);
-  std::unique_ptr<MCInstPrinter>& IP;
-  std::unique_ptr<const MCSubtargetInfo>& STI;
-  uint64_t lastDumpAddr;
-  unsigned si;
-  StringRef sectionName;
 };
 
 } // end namespace elf2hex

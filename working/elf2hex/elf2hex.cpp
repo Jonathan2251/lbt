@@ -787,7 +787,27 @@ uint64_t GetSymbolAddress(const ObjectFile *o, StringRef SymbolName) {
   return 0;
 }
 
-namespace llvm::elf2hex {
+uint64_t SectionOffset(const ObjectFile *o, StringRef secName) {
+  std::error_code ec;
+
+  for (const SectionRef &Section : o->sections()) {
+    error(ec);
+    StringRef Name;
+    StringRef Contents;
+    uint64_t BaseAddr;
+    bool BSS;
+    error(Section.getName(Name));
+    error(Section.getContents(Contents));
+    BaseAddr = Section.getAddress();
+    BSS = Section.isBSS();
+
+    if (Name == secName)
+      return BaseAddr;
+  }
+  return 0;
+}
+
+using namespace llvm::elf2hex;
 
 Reader reader;
 
@@ -808,26 +828,6 @@ VerilogHex::VerilogHex(std::unique_ptr<MCInstPrinter>& instructionPointer,
   lastDumpAddr = BOOT_SIZE;
   Fill0s(lastDumpAddr, 0x100);
   lastDumpAddr = 0x100;
-}
-
-uint64_t VerilogHex::SectionOffset(const ObjectFile *o, StringRef secName) {
-  std::error_code ec;
-
-  for (const SectionRef &Section : o->sections()) {
-    error(ec);
-    StringRef Name;
-    StringRef Contents;
-    uint64_t BaseAddr;
-    bool BSS;
-    error(Section.getName(Name));
-    error(Section.getContents(Contents));
-    BaseAddr = Section.getAddress();
-    BSS = Section.isBSS();
-
-    if (Name == secName)
-      return BaseAddr;
-  }
-  return 0;
 }
 
 void VerilogHex::PrintBootSection(uint64_t textOffset, uint64_t isrAddr, 
@@ -898,7 +898,7 @@ void VerilogHex::Fill0s(uint64_t startAddr, uint64_t endAddr) {
   return;
 }
 
-void VerilogHex::AsmInstruction(MCInst inst, uint64_t Size, 
+void VerilogHex::ProcessDisAsmInstruction(MCInst inst, uint64_t Size, 
                                 ArrayRef<uint8_t> Bytes, const ObjectFile *Obj) {
   SectionRef Section = reader.CurrentSection();
   StringRef Name;
@@ -915,6 +915,8 @@ void VerilogHex::AsmInstruction(MCInst inst, uint64_t Size,
     Fill0s(lastDumpAddr, SectionAddr - 1);
     lastDumpAddr = SectionAddr;
   }
+
+  // print section name when meeting it first time
   if (sectionName != Name) {
     StringRef SegmentName = "";
     if (const MachOObjectFile *MachO =
@@ -928,24 +930,31 @@ void VerilogHex::AsmInstruction(MCInst inst, uint64_t Size,
     outs() << Name << ':' << "*/";
     sectionName = Name;
   }
+
   if (si != reader.CurrentSi()) {
+    // print function name in section .text just before the first instruction 
+    // is printed
     outs() << '\n' << "/*" << reader.CurrentSymbol() << ":*/\n";
     si = reader.CurrentSi();
   }
+
+  // print instruction address
   outs() << format("/*%8" PRIx64 ":*/", SectionAddr + Index);
+ 
   if (!NoShowRawInsn) {
+    // print instruction in hex format
     outs() << "\t";
     dumpBytes(Bytes.slice(Index, Size), outs());
   }
+
   outs() << "/*";
+  // print disassembly instruction to outs()
   IP->printInst(&inst, outs(), "", *STI);
-//  outs() << CommentStream.str();
   outs() << "*/";
-//  Comments.clear();
   outs() << "\n";
 
-  // In section .plt or .text, the Contents.size() maybe < (SectionAddr + Index)
-  if (Contents.size() < (SectionAddr + Index))
+  // In section .plt or .text, the Contents.size() maybe < (SectionAddr + Index + 4)
+  if (Contents.size() < (SectionAddr + Index + 4))
     lastDumpAddr = SectionAddr + Index + 4;
   else
     lastDumpAddr = SectionAddr + Contents.size();
@@ -1051,15 +1060,12 @@ uint64_t Reader::CurrentIndex() {
   return Index;
 }
 
-// Modified from DisassembleObject()
+// Porting from DisassembleObject() of llvm-objump.cpp
 void Reader::DisassembleObject(const ObjectFile *Obj
 /*, bool InlineRelocs*/  , std::unique_ptr<MCDisassembler>& DisAsm, 
   std::unique_ptr<MCInstPrinter>& IP,
   std::unique_ptr<const MCSubtargetInfo>& STI) {
   VerilogHex hexOut(IP, STI, Obj);
-#ifdef ELF2HEX_DEBUG
-  errs() << __FUNCTION__<< "\t" << format("!lastDumpAddr %8" PRIx64 "\n", lastDumpAddr);
-#endif
   std::error_code ec;
   for (const SectionRef &Section : Obj->sections()) {
     _section = Section;
@@ -1074,7 +1080,6 @@ void Reader::DisassembleObject(const ObjectFile *Obj
       continue;
   #ifdef ELF2HEX_DEBUG
     errs() << "Name " << Name << format("  BaseAddr %8" PRIx64 "\n", BaseAddr);
-    errs() << format("!!lastDumpAddr %8" PRIx64 "\n", lastDumpAddr);
   #endif
     bool text;
     text = Section.isText();
@@ -1164,7 +1169,7 @@ void Reader::DisassembleObject(const ObjectFile *Obj
         if (DisAsm->getInstruction(Inst, Size, Bytes.slice(Index),
                                    SectionAddr + Index, DebugOut,
                                    CommentStream)) {
-          hexOut.AsmInstruction(Inst, Size, Bytes, Obj);
+          hexOut.ProcessDisAsmInstruction(Inst, Size, Bytes, Obj);
         } else {
           errs() << ToolName << ": warning: invalid instruction encoding\n";
           if (Size == 0)
@@ -1175,9 +1180,7 @@ void Reader::DisassembleObject(const ObjectFile *Obj
   }
 }
 
-} // namespace llvm::elf2hex
-
-// Modified from DisassembleObject()
+// Porting from DisassembleObject() of llvm-objump.cpp
 static void Elf2Hex(const ObjectFile *Obj) {
 
   const Target *TheTarget = getTarget(Obj);
@@ -1227,7 +1230,7 @@ static void Elf2Hex(const ObjectFile *Obj) {
                        TripleName);
 
   std::error_code EC;
-  llvm::elf2hex::reader.DisassembleObject(Obj, DisAsm, IP, STI);
+  reader.DisassembleObject(Obj, DisAsm, IP, STI);
 }
 
 static void DumpObject(const ObjectFile *o) {
