@@ -94,6 +94,9 @@ llvm::NoShowRawInsn("no-show-raw-insn", cl::desc("When disassembling "
                                                  "the instruction bytes."));
 
 static StringRef ToolName;
+
+
+
 namespace {
 typedef std::function<bool(llvm::object::SectionRef const &)> FilterPredicate;
 
@@ -784,283 +787,6 @@ uint64_t GetSymbolAddress(const ObjectFile *o, StringRef SymbolName) {
   return 0;
 }
 
-// Fill /*address*/ 00 00 00 00 [startAddr..endAddr] from startAddr to endAddr. 
-// Include startAddr and endAddr.
-static void Fill0s(uint64_t startAddr, uint64_t endAddr) {
-  std::size_t addr;
-
-  assert((startAddr <= endAddr) && "startAddr must <= BaseAddr");
-  // Fill /*address*/ 00 00 00 00 for 4 bytes alignment (1 Cpu0 word size)
-  for (addr = startAddr; addr < endAddr; addr += 4) {
-    outs() << format("/*%8" PRIx64 " */", addr);
-    outs() << format("%02" PRIx64 " ", 0) << format("%02" PRIx64 " ", 0) \
-    << format("%02" PRIx64 " ", 0) << format("%02" PRIx64 " ", 0) << '\n';
-  }
-
-  return;
-}
-
-static void PrintDataSection(const ObjectFile *o, uint64_t& lastDumpAddr, 
-  SectionRef Section) {
-  std::string Error;
-  StringRef Name;
-  StringRef Contents;
-  uint64_t BaseAddr;
-  bool BSS;
-  uint64_t size;
-  error(Section.getName(Name));
-  error(Section.getContents(Contents));
-  BaseAddr = Section.getAddress();
-  BSS = Section.isBSS();
-
-  size = (Contents.size()+3)/4*4;
-  if (Contents.size() <= 0) {
-    return;
-  }
-
-  outs() << "/*Contents of section " << Name << ":*/\n";
-  // Dump out the content as hex and printable ascii characters.
-  for (std::size_t addr = 0, end = Contents.size(); addr < end; addr += 16) {
-    outs() << format("/*%8" PRIx64 " */", BaseAddr + addr);
-    // Dump line of hex.
-    for (std::size_t i = 0; i < 16; ++i) {
-      if (i != 0 && i % 4 == 0)
-        outs() << ' ';
-      if (addr + i < end)
-        outs() << hexdigit((Contents[addr + i] >> 4) & 0xF, true)
-               << hexdigit(Contents[addr + i] & 0xF, true) << " ";
-    }
-    // Print ascii.
-    outs() << "/*" << "  ";
-    for (std::size_t i = 0; i < 16 && addr + i < end; ++i) {
-      if (std::isprint(static_cast<unsigned char>(Contents[addr + i]) & 0xFF))
-        outs() << Contents[addr + i];
-      else
-        outs() << ".";
-    }
-    outs() << "*/" << "\n";
-  }
-  for (std::size_t i = Contents.size(); i < size; i++) {
-    outs() << "00 ";
-  }
-  outs() << "\n";
-#ifdef ELF2HEX_DEBUG
-  errs() << "Name " << Name << "  BaseAddr ";
-  errs() << format("%8" PRIx64 " Contents.size() ", BaseAddr);
-  errs() << format("%8" PRIx64 " size ", Contents.size());
-  errs() << format("%8" PRIx64 " \n", size);
-#endif
-  // save the end address of this section to lastDumpAddr
-  lastDumpAddr = BaseAddr + size;
-}
-
-// Modified from DisassembleObject()
-static void DisassembleObjectInHexFormat(const ObjectFile *Obj
-/*, bool InlineRelocs*/  , std::unique_ptr<MCDisassembler>& DisAsm, 
-  std::unique_ptr<MCInstPrinter>& IP, uint64_t& lastDumpAddr,
-  std::unique_ptr<const MCSubtargetInfo>& STI) {
-
-#ifdef ELF2HEX_DEBUG
-  errs() << __FUNCTION__<< "\t" << format("!lastDumpAddr %8" PRIx64 "\n", lastDumpAddr);
-#endif
-  std::error_code ec;
-  for (const SectionRef &Section : Obj->sections()) {
-    error(ec);
-    StringRef Name;
-    StringRef Contents;
-    uint64_t BaseAddr;
-    error(Section.getName(Name));
-    error(Section.getContents(Contents));
-    BaseAddr = Section.getAddress();
-    if (BaseAddr < 0x100)
-      continue;
-  #ifdef ELF2HEX_DEBUG
-    errs() << "Name " << Name << format("  BaseAddr %8" PRIx64 "\n", BaseAddr);
-    errs() << format("!!lastDumpAddr %8" PRIx64 "\n", lastDumpAddr);
-  #endif
-    bool text;
-    text = Section.isText();
-    if (!text) {
-    #ifdef ELF2HEX_DEBUG
-      errs() << "!text\n";
-    #endif
-      if (lastDumpAddr < BaseAddr) {
-        Fill0s(lastDumpAddr, BaseAddr - 1);
-        lastDumpAddr = BaseAddr;
-      }
-      if (Name == ".got.plt") {
-        uint64_t BaseAddr;
-        BaseAddr = Section.getAddress();
-        PrintDataSection(Obj, lastDumpAddr, Section);
-      }
-      else if ((Name == ".bss" || Name == ".sbss") && Contents.size() > 0) {
-        uint64_t size = (Contents.size() + 3)/4*4;
-        Fill0s(BaseAddr, BaseAddr + size - 1);
-        lastDumpAddr = BaseAddr + size;
-        continue;
-      }
-      else {
-        PrintDataSection(Obj, lastDumpAddr, Section);
-      }
-      continue;
-    }
-    else {
-      if (lastDumpAddr < BaseAddr) {
-        Fill0s(lastDumpAddr, BaseAddr - 1);
-        lastDumpAddr = BaseAddr;
-      }
-    }
-    // It's .text section
-    uint64_t SectionAddr;
-    SectionAddr = Section.getAddress();
-    uint64_t SectSize = Section.getSize();
-    if (!SectSize)
-      continue;
-
-    // Make a list of all the symbols in this section.
-    std::vector<std::pair<uint64_t, StringRef> > Symbols;
-    for (const SymbolRef &Symbol : Obj->symbols()) {
-      if (Section.containsSymbol(Symbol)) {
-        Expected<uint64_t> AddressOrErr = Symbol.getAddress();
-        error(errorToErrorCode(AddressOrErr.takeError()));
-        uint64_t Address = *AddressOrErr;
-        Address -= SectionAddr;
-        if (Address >= SectSize)
-          continue;
-
-        Expected<StringRef> Name = Symbol.getName();
-        error(errorToErrorCode(Name.takeError()));
-        Symbols.push_back(std::make_pair(Address, *Name));
-      }
-    }
-
-    // Sort the symbols by address, just in case they didn't come in that way.
-    array_pod_sort(Symbols.begin(), Symbols.end());
-  #ifdef ELF2HEX_DEBUG
-    for (unsigned si = 0, se = Symbols.size(); si != se; ++si) {
-        errs() << '\n' << "/*" << Symbols[si].first << "  " << Symbols[si].second << ":*/\n";
-    }
-  #endif
-
-    // Make a list of all the relocations for this section.
-    std::vector<RelocationRef> Rels;
-
-    // Sort relocations by address.
-    std::sort(Rels.begin(), Rels.end(), RelocAddressLess);
-
-    StringRef SegmentName = "";
-    if (const MachOObjectFile *MachO =
-        dyn_cast<const MachOObjectFile>(Obj)) {
-      DataRefImpl DR = Section.getRawDataRefImpl();
-      SegmentName = MachO->getSectionFinalSegmentName(DR);
-    }
-    StringRef name;
-    error(Section.getName(name));
-    outs() << "/*" << "Disassembly of section ";
-    if (!SegmentName.empty())
-      outs() << SegmentName << ",";
-    outs() << name << ':' << "*/";
-
-    // If the section has no symbols just insert a dummy one and disassemble
-    // the whole section.
-    if (Symbols.empty())
-      Symbols.push_back(std::make_pair(0, name));
-
-    SmallString<40> Comments;
-    raw_svector_ostream CommentStream(Comments);
-
-    StringRef BytesStr;
-    error(Section.getContents(BytesStr));
-    ArrayRef<uint8_t> Bytes(reinterpret_cast<const uint8_t *>(BytesStr.data()),
-                            BytesStr.size());
-    uint64_t Size;
-    uint64_t Index;
-    SectSize = Section.getSize();
-
-    std::vector<RelocationRef>::const_iterator rel_cur = Rels.begin();
-    std::vector<RelocationRef>::const_iterator rel_end = Rels.end();
-    // Disassemble symbol by symbol.
-    for (unsigned si = 0, se = Symbols.size(); si != se; ++si) {
-      uint64_t Start = Symbols[si].first;
-      uint64_t End;
-      // The end is either the size of the section or the beginning of the next
-      // symbol.
-      if (si == se - 1)
-        End = SectSize;
-      // Make sure this symbol takes up space.
-      else if (Symbols[si + 1].first != Start)
-        End = Symbols[si + 1].first - 1;
-      else {
-        continue;
-      }
-
-      outs() << '\n' << "/*" << Symbols[si].second << ":*/\n";
-
-#ifndef NDEBUG
-        raw_ostream &DebugOut = DebugFlag ? dbgs() : nulls();
-#else
-        raw_ostream &DebugOut = nulls();
-#endif
-
-      for (Index = Start; Index < End; Index += Size) {
-        MCInst Inst;
-        if (DisAsm->getInstruction(Inst, Size, Bytes.slice(Index),
-                                   SectionAddr + Index, DebugOut,
-                                   CommentStream)) {
-          outs() << format("/*%8" PRIx64 ":*/", SectionAddr + Index);
-          if (!NoShowRawInsn) {
-            outs() << "\t";
-            dumpBytes(Bytes.slice(Index, Size), outs());
-          }
-          outs() << "/*";
-          IP->printInst(&Inst, outs(), "", *STI);
-          outs() << CommentStream.str();
-          outs() << "*/";
-          Comments.clear();
-          outs() << "\n";
-        } else {
-          errs() << ToolName << ": warning: invalid instruction encoding\n";
-          if (Size == 0)
-            Size = 1; // skip illegible bytes
-        }
-
-        //  outs() << "Size = " << Size <<  "Index = " << Index << "lastDumpAddr = "
-        //         << lastDumpAddr << "\n"; // debug
-        // Print relocation for instruction.
-        while (rel_cur != rel_end) {
-          bool hidden = getHidden(*rel_cur);
-          uint64_t addr = rel_cur->getOffset();
-          SmallString<16> name;
-          SmallString<32> val;
-
-          // If this relocation is hidden, skip it.
-          if (hidden) goto skip_print_rel;
-
-          // Stop when rel_cur's address is past the current instruction.
-          if (addr >= Index + Size) break;
-          rel_cur->getTypeName(name);
-          error(getRelocationValueString(*rel_cur, val));
-
-          outs() << format("\t\t\t/*%8" PRIx64 ": ", SectionAddr + addr) << name
-                 << "\t" << val << "*/\n";
-
-        skip_print_rel:
-          ++rel_cur;
-        }
-      }
-    #ifdef ELF2HEX_DEBUG
-      errs() << format("SectionAddr + Index = %8" PRIx64 "\n", SectionAddr + Index);
-      errs() << format("lastDumpAddr %8" PRIx64 "\n", lastDumpAddr);
-    #endif
-    }
-    // In section .plt or .text, the Contents.size() maybe < (SectionAddr + Index)
-    if (Contents.size() < (SectionAddr + Index))
-      lastDumpAddr = SectionAddr + Index;
-    else
-      lastDumpAddr = SectionAddr + Contents.size();
-  }
-}
-
 uint64_t SectionOffset(const ObjectFile *o, StringRef secName) {
   std::error_code ec;
 
@@ -1081,7 +807,31 @@ uint64_t SectionOffset(const ObjectFile *o, StringRef secName) {
   return 0;
 }
 
-static void PrintBootSection(uint64_t textOffset, uint64_t isrAddr, bool isLittleEndian) {
+using namespace llvm::elf2hex;
+
+Reader reader;
+
+VerilogHex::VerilogHex(std::unique_ptr<MCInstPrinter>& instructionPointer, 
+  std::unique_ptr<const MCSubtargetInfo>& subTargetInfo, const ObjectFile *Obj) :
+  IP(instructionPointer), STI(subTargetInfo) {
+  lastDumpAddr = 0;
+#ifdef ELF2HEX_DEBUG
+  uint64_t startAddr = GetSectionHeaderStartAddress(Obj, "_start");
+  errs() << format("_start address:%08" PRIx64 "\n", startAddr);
+#endif
+  uint64_t isrAddr = GetSymbolAddress(Obj, "ISR");
+  errs() << format("ISR address:%08" PRIx64 "\n", isrAddr);
+
+  //uint64_t pltOffset = SectionOffset(Obj, ".plt");
+  uint64_t textOffset = SectionOffset(Obj, ".text");
+  PrintBootSection(textOffset, isrAddr, LittleEndian);
+  lastDumpAddr = BOOT_SIZE;
+  Fill0s(lastDumpAddr, 0x100);
+  lastDumpAddr = 0x100;
+}
+
+void VerilogHex::PrintBootSection(uint64_t textOffset, uint64_t isrAddr, 
+                                  bool isLittleEndian) {
   uint64_t offset = textOffset - 4;
 
   // isr instruction at 0x8 and PC counter point to next instruction
@@ -1132,42 +882,302 @@ static void PrintBootSection(uint64_t textOffset, uint64_t isrAddr, bool isLittl
   }
 }
 
-#if 0
-// Create by ref PrintSymbolTable()
-static void FillJTI(const ObjectFile *o) {
-  for (const SymbolRef &Symbol : o->symbols()) {
-    StringRef JTIBlockName;
-    uint64_t BBAddr[0x10000];
-    StringRef Name;
-    uint64_t Address;
-    SymbolRef::Type Type;
-    uint64_t Size;
-    uint32_t Flags = Symbol.getFlags();
-    section_iterator Section = o->section_end();
-    if (error(Section->getName(SectionName)))
-      SectionName = "";
-    if (SectionName != ".rodata") continue;
-    if (error(Symbol.getName(Name)))
-      continue;
-  // For example: Name=JTI8_0 => JTIBlockName=BB8 (rule hit until _)
-    if (strncmp(Name.c_str(), "JTI", strlen("JTI") == 0) {
-      int i = 0;
-      for (i = strlen("JTI"); Name[i] != '_'; i++);
-      if (i > strlen("JTI")) 
-        JTIBlockName = "BB" + Name.substr(strlen("JTI"), i-strlen("JTI"));
-    }
-  // Then get all BB8_* address.
-    Address = Section.getAddress();
-    if (error(Symbol.getSection(Section)))
-      continue;
-    if (Section != ".text")
-      continue;
+// Fill /*address*/ 00 00 00 00 [startAddr..endAddr] from startAddr to endAddr. 
+// Include startAddr and endAddr.
+void VerilogHex::Fill0s(uint64_t startAddr, uint64_t endAddr) {
+  std::size_t addr;
+
+  assert((startAddr <= endAddr) && "startAddr must <= BaseAddr");
+  // Fill /*address*/ 00 00 00 00 for 4 bytes alignment (1 Cpu0 word size)
+  for (addr = startAddr; addr < endAddr; addr += 4) {
+    outs() << format("/*%8" PRIx64 " */", addr);
+    outs() << format("%02" PRIx64 " ", 0) << format("%02" PRIx64 " ", 0) \
+    << format("%02" PRIx64 " ", 0) << format("%02" PRIx64 " ", 0) << '\n';
+  }
+
+  return;
 }
+
+void VerilogHex::ProcessDisAsmInstruction(MCInst inst, uint64_t Size, 
+                                ArrayRef<uint8_t> Bytes, const ObjectFile *Obj) {
+  SectionRef Section = reader.CurrentSection();
+  StringRef Name;
+  StringRef Contents;
+  error(Section.getName(Name));
+  error(Section.getContents(Contents));
+  uint64_t SectionAddr = Section.getAddress();
+  uint64_t Index = reader.CurrentIndex();
+#ifdef ELF2HEX_DEBUG
+  errs() << format("SectionAddr + Index = %8" PRIx64 "\n", SectionAddr + Index);
+  errs() << format("lastDumpAddr %8" PRIx64 "\n", lastDumpAddr);
+#endif
+  if (lastDumpAddr < SectionAddr) {
+    Fill0s(lastDumpAddr, SectionAddr - 1);
+    lastDumpAddr = SectionAddr;
+  }
+
+  // print section name when meeting it first time
+  if (sectionName != Name) {
+    StringRef SegmentName = "";
+    if (const MachOObjectFile *MachO =
+        dyn_cast<const MachOObjectFile>(Obj)) {
+      DataRefImpl DR = Section.getRawDataRefImpl();
+      SegmentName = MachO->getSectionFinalSegmentName(DR);
+    }
+    outs() << "/*" << "Disassembly of section ";
+    if (!SegmentName.empty())
+      outs() << SegmentName << ",";
+    outs() << Name << ':' << "*/";
+    sectionName = Name;
+  }
+
+  if (si != reader.CurrentSi()) {
+    // print function name in section .text just before the first instruction 
+    // is printed
+    outs() << '\n' << "/*" << reader.CurrentSymbol() << ":*/\n";
+    si = reader.CurrentSi();
+  }
+
+  // print instruction address
+  outs() << format("/*%8" PRIx64 ":*/", SectionAddr + Index);
+ 
+  if (!NoShowRawInsn) {
+    // print instruction in hex format
+    outs() << "\t";
+    dumpBytes(Bytes.slice(Index, Size), outs());
+  }
+
+  outs() << "/*";
+  // print disassembly instruction to outs()
+  IP->printInst(&inst, outs(), "", *STI);
+  outs() << "*/";
+  outs() << "\n";
+
+  // In section .plt or .text, the Contents.size() maybe < (SectionAddr + Index + 4)
+  if (Contents.size() < (SectionAddr + Index + 4))
+    lastDumpAddr = SectionAddr + Index + 4;
+  else
+    lastDumpAddr = SectionAddr + Contents.size();
+}
+
+void VerilogHex::ProcessDataSection(SectionRef Section) {
+  std::string Error;
+  StringRef Name;
+  StringRef Contents;
+  uint64_t BaseAddr;
+  uint64_t size;
+  error(Section.getName(Name));
+  error(Section.getContents(Contents));
+  BaseAddr = Section.getAddress();
+
+#ifdef ELF2HEX_DEBUG
+  errs() << format("BaseAddr = %8" PRIx64 "\n", BaseAddr);
+  errs() << format("lastDumpAddr %8" PRIx64 "\n", lastDumpAddr);
+#endif
+  if (lastDumpAddr < BaseAddr) {
+    Fill0s(lastDumpAddr, BaseAddr - 1);
+    lastDumpAddr = BaseAddr;
+  }
+  if ((Name == ".bss" || Name == ".sbss") && Contents.size() > 0) {
+    size = (Contents.size() + 3)/4*4;
+    Fill0s(BaseAddr, BaseAddr + size - 1);
+    lastDumpAddr = BaseAddr + size;
+    return;
+  }
+  else {
+    PrintDataSection(Section);
+  }
+}
+
+void VerilogHex::PrintDataSection(SectionRef Section) {
+  std::string Error;
+  StringRef Name;
+  StringRef Contents;
+  uint64_t BaseAddr;
+  uint64_t size;
+  error(Section.getName(Name));
+  error(Section.getContents(Contents));
+  BaseAddr = Section.getAddress();
+
+  if (Contents.size() <= 0) {
+    return;
+  }
+  size = (Contents.size()+3)/4*4;
+
+  outs() << "/*Contents of section " << Name << ":*/\n";
+  // Dump out the content as hex and printable ascii characters.
+  for (std::size_t addr = 0, end = Contents.size(); addr < end; addr += 16) {
+    outs() << format("/*%8" PRIx64 " */", BaseAddr + addr);
+    // Dump line of hex.
+    for (std::size_t i = 0; i < 16; ++i) {
+      if (i != 0 && i % 4 == 0)
+        outs() << ' ';
+      if (addr + i < end)
+        outs() << hexdigit((Contents[addr + i] >> 4) & 0xF, true)
+               << hexdigit(Contents[addr + i] & 0xF, true) << " ";
+    }
+    // Print ascii.
+    outs() << "/*" << "  ";
+    for (std::size_t i = 0; i < 16 && addr + i < end; ++i) {
+      if (std::isprint(static_cast<unsigned char>(Contents[addr + i]) & 0xFF))
+        outs() << Contents[addr + i];
+      else
+        outs() << ".";
+    }
+    outs() << "*/" << "\n";
+  }
+  for (std::size_t i = Contents.size(); i < size; i++) {
+    outs() << "00 ";
+  }
+  outs() << "\n";
+#ifdef ELF2HEX_DEBUG
+  errs() << "Name " << Name << "  BaseAddr ";
+  errs() << format("%8" PRIx64 " Contents.size() ", BaseAddr);
+  errs() << format("%8" PRIx64 " size ", Contents.size());
+  errs() << format("%8" PRIx64 " \n", size);
+#endif
+  // save the end address of this section to lastDumpAddr
+  lastDumpAddr = BaseAddr + size;
+}
+
+StringRef Reader::CurrentSymbol() {
+  return Symbols[si].second;
+}
+
+SectionRef Reader::CurrentSection() {
+  return _section;
+}
+
+unsigned Reader::CurrentSi() {
+  return si;
+}
+
+uint64_t Reader::CurrentIndex() {
+  return Index;
+}
+
+// Porting from DisassembleObject() of llvm-objump.cpp
+void Reader::DisassembleObject(const ObjectFile *Obj
+/*, bool InlineRelocs*/  , std::unique_ptr<MCDisassembler>& DisAsm, 
+  std::unique_ptr<MCInstPrinter>& IP,
+  std::unique_ptr<const MCSubtargetInfo>& STI) {
+  VerilogHex hexOut(IP, STI, Obj);
+  std::error_code ec;
+  for (const SectionRef &Section : Obj->sections()) {
+    _section = Section;
+    error(ec);
+    StringRef Name;
+    StringRef Contents;
+    uint64_t BaseAddr;
+    error(Section.getName(Name));
+    error(Section.getContents(Contents));
+    BaseAddr = Section.getAddress();
+    if (BaseAddr < 0x100)
+      continue;
+  #ifdef ELF2HEX_DEBUG
+    errs() << "Name " << Name << format("  BaseAddr %8" PRIx64 "\n", BaseAddr);
+  #endif
+    bool text;
+    text = Section.isText();
+    if (!text) {
+      hexOut.ProcessDataSection(Section);
+      continue;
+    }
+    // It's .text section
+    uint64_t SectionAddr;
+    SectionAddr = Section.getAddress();
+    uint64_t SectSize = Section.getSize();
+    if (!SectSize)
+      continue;
+
+    // Make a list of all the symbols in this section.
+    for (const SymbolRef &Symbol : Obj->symbols()) {
+      if (Section.containsSymbol(Symbol)) {
+        Expected<uint64_t> AddressOrErr = Symbol.getAddress();
+        error(errorToErrorCode(AddressOrErr.takeError()));
+        uint64_t Address = *AddressOrErr;
+        Address -= SectionAddr;
+        if (Address >= SectSize)
+          continue;
+
+        Expected<StringRef> Name = Symbol.getName();
+        error(errorToErrorCode(Name.takeError()));
+        Symbols.push_back(std::make_pair(Address, *Name));
+      }
+    }
+
+    // Sort the symbols by address, just in case they didn't come in that way.
+    array_pod_sort(Symbols.begin(), Symbols.end());
+  #ifdef ELF2HEX_DEBUG
+    for (unsigned si = 0, se = Symbols.size(); si != se; ++si) {
+        errs() << '\n' << "/*" << Symbols[si].first << "  " << Symbols[si].second << ":*/\n";
+    }
+  #endif
+
+    // Make a list of all the relocations for this section.
+    std::vector<RelocationRef> Rels;
+
+    // Sort relocations by address.
+    std::sort(Rels.begin(), Rels.end(), RelocAddressLess);
+
+    StringRef name;
+    error(Section.getName(name));
+
+    // If the section has no symbols just insert a dummy one and disassemble
+    // the whole section.
+    if (Symbols.empty())
+      Symbols.push_back(std::make_pair(0, name));
+
+    SmallString<40> Comments;
+    raw_svector_ostream CommentStream(Comments);
+
+    StringRef BytesStr;
+    error(Section.getContents(BytesStr));
+    ArrayRef<uint8_t> Bytes(reinterpret_cast<const uint8_t *>(BytesStr.data()),
+                            BytesStr.size());
+    uint64_t Size;
+    SectSize = Section.getSize();
+
+    // Disassemble symbol by symbol.
+    unsigned se;
+    for (si = 0, se = Symbols.size(); si != se; ++si) {
+      uint64_t Start = Symbols[si].first;
+      uint64_t End;
+      // The end is either the size of the section or the beginning of the next
+      // symbol.
+      if (si == se - 1)
+        End = SectSize;
+      // Make sure this symbol takes up space.
+      else if (Symbols[si + 1].first != Start)
+        End = Symbols[si + 1].first - 1;
+      else {
+        continue;
+      }
+
+#ifndef NDEBUG
+      raw_ostream &DebugOut = DebugFlag ? dbgs() : nulls();
+#else
+      raw_ostream &DebugOut = nulls();
 #endif
 
-// Modified from DisassembleObject()
+      for (Index = Start; Index < End; Index += Size) {
+        MCInst Inst;
+        if (DisAsm->getInstruction(Inst, Size, Bytes.slice(Index),
+                                   SectionAddr + Index, DebugOut,
+                                   CommentStream)) {
+          hexOut.ProcessDisAsmInstruction(Inst, Size, Bytes, Obj);
+        } else {
+          errs() << ToolName << ": warning: invalid instruction encoding\n";
+          if (Size == 0)
+            Size = 1; // skip illegible bytes
+        }
+      } // for
+    } // for
+  }
+}
+
+// Porting from DisassembleObject() of llvm-objump.cpp
 static void Elf2Hex(const ObjectFile *Obj) {
-  uint64_t lastDumpAddr = 0;
 
   const Target *TheTarget = getTarget(Obj);
 
@@ -1215,22 +1225,8 @@ static void Elf2Hex(const ObjectFile *Obj) {
     report_fatal_error("error: no instruction printer for target " +
                        TripleName);
 
-#ifdef ELF2HEX_DEBUG
-  uint64_t startAddr = GetSectionHeaderStartAddress(Obj, "_start");
-  errs() << format("_start address:%08" PRIx64 "\n", startAddr);
-#endif
-  uint64_t isrAddr = GetSymbolAddress(Obj, "ISR");
-  errs() << format("ISR address:%08" PRIx64 "\n", isrAddr);
-  {
-    std::error_code EC;
-    //uint64_t pltOffset = SectionOffset(Obj, ".plt");
-    uint64_t textOffset = SectionOffset(Obj, ".text");
-    PrintBootSection(textOffset, isrAddr, LittleEndian);
-    lastDumpAddr = BOOT_SIZE;
-    Fill0s(lastDumpAddr, 0x100);
-    lastDumpAddr = 0x100;
-    DisassembleObjectInHexFormat(Obj, DisAsm, IP, lastDumpAddr, STI);
-  }
+  std::error_code EC;
+  reader.DisassembleObject(Obj, DisAsm, IP, STI);
 }
 
 static void DumpObject(const ObjectFile *o) {
