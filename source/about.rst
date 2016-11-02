@@ -31,7 +31,9 @@ Also thanking those corrections from readers who make the book more accurate.
 Revision history
 ----------------
 
-Version 3.9.0, Not release yet.
+Version 3.9.1, Not release yet.
+
+Version 3.9.0, Released November 22, 2016
   Porting to llvm 3.9.
 
 Version 3.7.4, Released September 22, 2016
