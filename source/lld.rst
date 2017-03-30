@@ -14,7 +14,7 @@ for Cpu0 target machine under lld, llvm compiler backend, or both. But
 supposing readers will easy knowing what it refer to.
 
 .. _lld-f-workflow: 
-.. figure:: ../Fig/about/1.png
+.. figure:: ../Fig/about/mywork_1.png
   :scale: 100 %
   :align: center
 

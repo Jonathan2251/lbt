@@ -78,8 +78,8 @@ Outline of Chapters
 -------------------
 
 .. _about-f1: 
-.. figure:: ../Fig/about/1.png
-  :scale: 50
+.. figure:: ../Fig/about/mywork_1.png
+  :scale: 100 %
   :align: center
 
   Code generation and execution flow
