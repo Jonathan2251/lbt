@@ -55,7 +55,7 @@ ${TOOLDIR}/llc -march=cpu0${endian} -mcpu=${CPU} -relocation-model=pic \
 -filetype=obj -force-cpu0-long-branch ch8_2_longbranch.bc -o \
 ch8_2_longbranch.o
 ${TOOLDIR}/llc -march=cpu0${endian} -mcpu=${CPU} -relocation-model=static \
--filetype=obj ch9_2_tailcall.bc -o ch9_2_tailcall.o
+-filetype=obj -enable-cpu0-tail-calls ch9_2_tailcall.bc -o ch9_2_tailcall.o
 ${TOOLDIR}/llc -march=cpu0${endian} -mcpu=${CPU} -relocation-model=static \
 -filetype=obj ch9_3_detect_exception.bc -o ch9_3_detect_exception.o
 ${TOOLDIR}/llc -march=cpu0${endian} -mcpu=${CPU} -relocation-model=static \
