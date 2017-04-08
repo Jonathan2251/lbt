@@ -97,5 +97,5 @@ ch_slinker.bc: ch_slinker.cpp ${LBDEXDIR}/input/ch_nolld.h
 
 .PHONY: clean
 clean:
-	rm -rf ${OUTPUT_OBJ_DIR} *.bc *.o
+	rm -rf ${OUTPUT_OBJ_DIR} *.bc *.o a.out ../libsoftfloat/compiler-rt/obj
 

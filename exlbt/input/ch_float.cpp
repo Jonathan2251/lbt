@@ -10,110 +10,10 @@
 #define SINGLE_PRECISION
 #include "fp_lib.h"
 
-extern "C" int __fixsfsi(fp_t a);
-extern "C" int __fixdfsi(double a);
-
-extern long long test_longlong_shift1();
-extern long long test_longlong_shift2();
-
-#include "print.cpp"
-
-int test_float_to_int()
-{
-  float a = -2.2;
-  si_int c = __fixsfsi(a);
-
-  return c;
-}
-
-// work
-int test_double_to_int()
-{
-  double a = -4.2;
-  si_int c = __fixdfsi(a);
-
-  return c;
-}
-
-#include "int_lib.h"
-
 extern "C" int printf(const char *format, ...);
 extern "C" int sprintf(char *out, const char *format, ...);
 
-int test_float_add()
-{
-  float a = -2.2;
-  float b = 3.3;
-  
-  int c = (int)(a + b); // 1
-
-  return c;
-}
-
-int test_float_mul()
-{
-  float a = -2.2;
-  float b = 3.3;
-  float c = -4.3;
-  
-  int d = (int)(a * b * c); // 31.218=31
-
-  return d;
-}
-
-int test_float_div()
-{
-  float a = -2.2;
-  float b = 3.3;
-  float c = 1.2;
-  
-  int d = (int)((a * b) / c); // -6
-
-  return d;
-}
-
-int test_double_to_int_2()
-{
-  double b = 3.3;
-  
-  int c = (int)(b);
-
-  return c;
-}
-
-int test_double_add()
-{
-  double a = 2.2;
-  double b = 3.3;
-
-  int c = (int)(a + b);
-
-  return c;
-}
-
-int test_double_mul()
-{
-  double a = -2.2;
-  double b = 3.3;
-  double c = 4.3;
-  
-  int d = (int)(a * b * c); // -31.218=-31
-
-  return d;
-}
-
-int test_double_div()
-{
-  double a = -2.2;
-  double b = 3.3;
-  double c = 1.2;
-  
-  int d = (int)((a * b) / c); // -6
-
-  return d;
-}
-
-#if 0
+#if 1
 //extern "C" di_int __addvdi3(di_int a, di_int b);
 extern "C" di_int __addvdi3(long long a, long long b);
 
@@ -156,7 +56,7 @@ int test_addvdi3()
 }
 #endif
 
-
+#if 1
 extern "C" di_int __absvdi2(di_int a);
 
 int test__absvdi2(di_int a)
@@ -197,7 +97,9 @@ extern "C" si_int __absvsi2(si_int a);
 
 int test__absvsi2(si_int a)
 {
+  //printf("a = %d\n", a);
     si_int x = __absvsi2(a);
+  //printf("x = %d\n\n", x);
     si_int expected = a;
     if (expected < 0)
         expected = -expected;
@@ -228,8 +130,11 @@ int test_absvsi2()
 
     return 0;
 }
+#endif
 
 #if 0
+//current status compiler error: undefined symbol: __absvti2
+
 #define CRT_HAS_128BIT
 
 #ifdef CRT_HAS_128BIT
@@ -307,35 +212,13 @@ int test_absvti2()
 int main() {
   int a;
 
-  a = test_longlong_shift1(); // 0x121 = 289
-  printf("test_longlong_shift1() = %d\n", a);
-  a = test_longlong_shift2(); // 0x16 = 22
-  printf("test_longlong_shift2() = %d\n", a);
-  a = test_float_to_int(); // -2
-  printf("test_float_to_int() = %d\n", a);
-  a = test_double_to_int(); // -4
-  printf("test_double_to_int() = %d\n", a);
-  a = test_double_to_int_2(); // 3
-  printf("test_double_to_int_2() = %d\n", a);
-  a = test_float_add(); // 1
-  printf("test_float_add() = %d\n", a);
-  a = test_float_mul(); // 31
-  printf("test_float_mul() = %d\n", a);
-  a = test_float_div(); // -6
-  printf("test_float_div() = %d\n", a);
-  a = test_double_add(); // 5
-  printf("test_double_add() = %d\n", a);
-  a = test_double_mul(); // -31
-  printf("test_double_mul() = %d\n", a);
-  a = test_double_div(); // -6
-  printf("test_double_div() = %d\n", a);
-
 #if 0
-  test_addvdi3();
+  test_addvdi3(); // will hang
 #endif
-#if 0 // fail
   test_absvdi2();
   test_absvsi2();
+#if 0 // fail
+  test_absvti2();
 #endif
 
   return 0;
