@@ -153,7 +153,7 @@ int main() {
   
 // call __extendsfdf2, __muldf3, __fixdfsi
   a = (int)test_mul&lt;double, float, double&gt;(-2.2, 3.3); // (int)-7.26 = -7
-  printf(&quot;(int)test_mul&lt;float, float, double&gt;(-2.2, 3.3) = %d\n&quot;, a);
+  printf(&quot;(int)test_mul&lt;double, float, double&gt;(-2.2, 3.3) = %d\n&quot;, a);
   
 // call __extendsfdf2, __muldf3, __truncdfsf2, __fixdfsi
 // ! __truncdfsf2 in truncdfsf2.c is not work for Cpu0
@@ -241,12 +241,9 @@ epilogue;
 <span class="go">(int)test_div&lt;float, float, float&gt;(-1.8, 0.5) = -3</span>
 <span class="go">(int)test_add&lt;double, double, float&gt;(-2.2, 3.3) = 1</span>
 <span class="go">(int)test_mul&lt;float, float, double&gt;(-2.2, 3.3) = -7</span>
-<span class="go">4. significand:7b333333 a 1903171</span>
-<span class="go">4. srcSigBits: 52, dstSigBits: 23, denormalizedSignificand:2066953011, dstExpBias:0 srcExpBias:0 aExp:127 aAbs:1023</span>
-<span class="go">4. roundBits: 0 0, absResult: 0</span>
 <span class="go">(int)test_mul&lt;float, float, double&gt;(-2.2, 3.3) = 0</span>
 <span class="go">(int)test_div&lt;double, double, double&gt;(-1.8, 0.5) = -3</span>
-<span class="go">total cpu cycles = 246500</span>
+<span class="go">total cpu cycles = 182585</span>
 <span class="go">RET to PC &lt; 0, finished!</span>
 </pre></div>
 </div>
