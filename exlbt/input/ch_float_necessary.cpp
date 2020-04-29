@@ -71,7 +71,7 @@ int main() {
   
 // call __extendsfdf2, __muldf3, __fixdfsi
   a = (int)test_mul<double, float, double>(-2.2, 3.3); // (int)-7.26 = -7
-  printf("(int)test_mul<float, float, double>(-2.2, 3.3) = %d\n", a);
+  printf("(int)test_mul<double, float, double>(-2.2, 3.3) = %d\n", a);
   
 // call __extendsfdf2, __muldf3, __truncdfsf2, __fixdfsi
 // ! __truncdfsf2 in truncdfsf2.c is not work for Cpu0
