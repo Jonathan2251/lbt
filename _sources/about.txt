@@ -31,7 +31,10 @@ Also thanking those corrections from readers who make the book more accurate.
 Revision history
 ----------------
 
-Version 3.9.1, Not release yet.
+Version 3.9.2, Not release yet.
+
+Version 3.9.1, Released April 29, 2020
+  Enable tailcall test option in build-slinker.sh
 
 Version 3.9.0, Released November 22, 2016
   Porting to llvm 3.9.
@@ -78,8 +81,8 @@ Outline of Chapters
 -------------------
 
 .. _about-f1: 
-.. figure:: ../Fig/about/1.png
-  :scale: 50
+.. figure:: ../Fig/about/mywork_1.png
+  :scale: 100 %
   :align: center
 
   Code generation and execution flow

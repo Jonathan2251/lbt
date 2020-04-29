@@ -55,18 +55,18 @@ Document are here [#avr-libc-doc-web]_ [#avr-libc-doc-pdf]_.
 Software Float Point Support
 -----------------------------
 
-.. rubric:: exlbt/input/ch_float.cpp
-.. literalinclude:: ../exlbt/input/ch_float.cpp
+.. rubric:: exlbt/input/ch_float_necessary.cpp
+.. literalinclude:: ../exlbt/input/ch_float_necessary.cpp
     :start-after: /// start
 
-.. rubric:: exlbt/input/build-float.sh
-.. literalinclude:: ../exlbt/input/build-float.sh
+.. rubric:: exlbt/input/build-float-necessary.sh
+.. literalinclude:: ../exlbt/input/build-float-necessary.sh
 
 Run as follows,
 
 .. code-block:: console
 
-  JonathantekiiMac:input Jonathan$ bash build-float.sh cpu032II be
+  JonathantekiiMac:input Jonathan$ bash build-float-necessary.sh cpu032II be
   ...
   endian =  BigEndian
   0   /* 0: big endian, 1: little endian */
@@ -74,21 +74,22 @@ Run as follows,
   JonathantekiiMac:input Jonathan$ iverilog -o cpu0IIs cpu0IIs.v 
   JonathantekiiMac:input Jonathan$ ./cpu0IIs
   114-43-184-210:verilog Jonathan$ ./cpu0IIs
-  WARNING: ./cpu0.v:458: $readmemh(cpu0.hex): Not enough words in the file for 
-  the requested range [0:524287].
+  ARNING: cpu0.v:487: $readmemh(cpu0.hex): Not enough words in the file for the requested range [0:524287].
   taskInterrupt(001)
-  test_longlong_shift1() = 289
-  test_longlong_shift2() = 22
-  test_float_to_int() = -2
-  test_double_to_int() = -4
-  test_double_to_int_2() = 3
-  test_float_add() = 1
-  test_float_mul() = 31
-  test_float_div() = -6
-  test_double_add() = 5
-  test_double_mul() = -31
-  test_double_div() = -6
-  total cpu cycles = 104105            
+  (int)test_shift_left<long long>(0x12, 4) = 288
+  (int)test_shift_right<long long>(0x001666660000000a, 48) = 22
+  (int)test_shift_right<unsigned long long>(0x001666660000000a, 48) = 22
+  (int)test_add<float, float, float>(-2.2, 3.3) = 1
+  (int)test_mul<float, float, float>(-2.2, 3.3) = -7
+  (int)test_div<float, float, float>(-1.8, 0.5) = -3
+  (int)test_add<double, double, float>(-2.2, 3.3) = 1
+  (int)test_mul<float, float, double>(-2.2, 3.3) = -7
+  4. significand:7b333333 a 1903171
+  4. srcSigBits: 52, dstSigBits: 23, denormalizedSignificand:2066953011, dstExpBias:0 srcExpBias:0 aExp:127 aAbs:1023 
+  4. roundBits: 0 0, absResult: 0
+  (int)test_mul<float, float, double>(-2.2, 3.3) = 0
+  (int)test_div<double, double, double>(-1.8, 0.5) = -3
+  total cpu cycles = 246500              
   RET to PC < 0, finished!
 
 

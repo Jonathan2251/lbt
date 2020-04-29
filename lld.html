@@ -14,7 +14,7 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    './',
-        VERSION:     '3.9.0',
+        VERSION:     '3.9.1',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -73,7 +73,7 @@ The term Cpu0 backend used in this chapter can refer to the ELF format handling
 for Cpu0 target machine under lld, llvm compiler backend, or both. But
 supposing readers will easy knowing what it refer to.</p>
 <div class="figure align-center" id="id15">
-<span id="lld-f-workflow"></span><a class="reference internal image-reference" href="_images/1.png"><img alt="_images/1.png" src="_images/1.png" style="width: 899.0px; height: 261.0px;" /></a>
+<span id="lld-f-workflow"></span><a class="reference internal image-reference" href="_images/mywork_1.png"><img alt="_images/mywork_1.png" src="_images/mywork_1.png" style="width: 971.0px; height: 248.0px;" /></a>
 <p class="caption"><span class="caption-number">Fig. 2 </span><span class="caption-text">Code generation and execution flow</span></p>
 </div>
 <p>As depicted in <a class="reference internal" href="#lld-f-workflow"><span class="std std-numref">Fig. 2</span></a> of chapter About. Beside llvm backend,
@@ -2847,7 +2847,7 @@ ${TOOLDIR}/llc -march=cpu0${endian} -mcpu=${CPU} -relocation-model=pic \
 -filetype=obj -force-cpu0-long-branch ch8_2_longbranch.bc -o \
 ch8_2_longbranch.o
 ${TOOLDIR}/llc -march=cpu0${endian} -mcpu=${CPU} -relocation-model=static \
--filetype=obj ch9_2_tailcall.bc -o ch9_2_tailcall.o
+-filetype=obj -enable-cpu0-tail-calls ch9_2_tailcall.bc -o ch9_2_tailcall.o
 ${TOOLDIR}/llc -march=cpu0${endian} -mcpu=${CPU} -relocation-model=static \
 -filetype=obj ch9_3_detect_exception.bc -o ch9_3_detect_exception.o
 ${TOOLDIR}/llc -march=cpu0${endian} -mcpu=${CPU} -relocation-model=static \
