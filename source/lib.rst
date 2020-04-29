@@ -84,12 +84,9 @@ Run as follows,
   (int)test_div<float, float, float>(-1.8, 0.5) = -3
   (int)test_add<double, double, float>(-2.2, 3.3) = 1
   (int)test_mul<float, float, double>(-2.2, 3.3) = -7
-  4. significand:7b333333 a 1903171
-  4. srcSigBits: 52, dstSigBits: 23, denormalizedSignificand:2066953011, dstExpBias:0 srcExpBias:0 aExp:127 aAbs:1023 
-  4. roundBits: 0 0, absResult: 0
   (int)test_mul<float, float, double>(-2.2, 3.3) = 0
   (int)test_div<double, double, double>(-1.8, 0.5) = -3
-  total cpu cycles = 246500              
+  total cpu cycles = 182585
   RET to PC < 0, finished!
 
 
