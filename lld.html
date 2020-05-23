@@ -74,9 +74,9 @@ for Cpu0 target machine under lld, llvm compiler backend, or both. But
 supposing readers will easy knowing what it refer to.</p>
 <div class="figure align-center" id="id15">
 <span id="lld-f-workflow"></span><a class="reference internal image-reference" href="_images/mywork_1.png"><img alt="_images/mywork_1.png" src="_images/mywork_1.png" style="width: 971.0px; height: 248.0px;" /></a>
-<p class="caption"><span class="caption-number">Fig. 3 </span><span class="caption-text">Code generation and execution flow</span></p>
+<p class="caption"><span class="caption-number">Fig. 2 </span><span class="caption-text">Code generation and execution flow</span></p>
 </div>
-<p>As depicted in <a class="reference internal" href="#lld-f-workflow"><span class="std std-numref">Fig. 3</span></a> of chapter About. Beside llvm backend,
+<p>As depicted in <a class="reference internal" href="#lld-f-workflow"><span class="std std-numref">Fig. 2</span></a> of chapter About. Beside llvm backend,
 we implement ELF linker and elf2hex to run on Cpu0 verilog simulator.
 This chapter extends lld to support Cpu0 backend as well as elf2hex to replace
 Cpu0 loader.
@@ -1788,11 +1788,11 @@ explained as follows,</p>
 
 </pre></div>
 </div>
-<p>Above code can be reduced to <a class="reference internal" href="#lld-deadcodestripping"><span class="std std-numref">Fig. 4</span></a> to perform
+<p>Above code can be reduced to <a class="reference internal" href="#lld-deadcodestripping"><span class="std std-numref">Fig. 3</span></a> to perform
 mark and swip in graph for Dead Code Stripping.</p>
 <div class="figure align-center" id="id16">
 <span id="lld-deadcodestripping"></span><a class="reference internal image-reference" href="_images/deadcodestripping.png"><img alt="_images/deadcodestripping.png" src="_images/deadcodestripping.png" style="width: 144.4px; height: 270.8px;" /></a>
-<p class="caption"><span class="caption-number">Fig. 4 </span><span class="caption-text">Atom classified (from lld web)</span></p>
+<p class="caption"><span class="caption-number">Fig. 3 </span><span class="caption-text">Atom classified (from lld web)</span></p>
 </div>
 <p>As above example, the foo2() is an isolated node without any reference. It&#8217;s
 dead code and can be removed in linker optimization. We test this example by
