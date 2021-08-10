@@ -18,13 +18,8 @@ prologue() {
   OS=`uname -s`
   echo "OS =" ${OS}
 
-  if [ "$OS" == "Linux" ]; then
-    CLANG=~/llvm/release/cmake_release_build/bin/clang
-    TOOLDIR=~/llvm/test/cmake_debug_build/bin
-  else
-    CLANG=clang
-    TOOLDIR=~/llvm/test/cmake_debug_build/Debug/bin
-  fi
+  TOOLDIR=~/llvm/test/build/bin
+  CLANG=~/llvm/test/build/bin/clang
 
   CPU=$arg1
   echo "CPU =" "${CPU}"

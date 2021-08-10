@@ -35,33 +35,33 @@ ch9_3_detect_exception.bc
 ${CLANG} -I${LBDEXDIR}/input/ -target mips-unknown-linux-gnu -c \
 ch_slinker.cpp -emit-llvm -o ch_slinker.bc
 ${TOOLDIR}/llc -march=cpu0${endian} -mcpu=${CPU} -relocation-model=static \
--filetype=obj start.bc -o start.o
+-filetype=obj -has-lld=true start.bc -o start.o
 ${TOOLDIR}/llc -march=cpu0${endian} -mcpu=${CPU} -relocation-model=static \
--filetype=obj debug.bc -o debug.o
+-filetype=obj -has-lld=true debug.bc -o debug.o
 ${TOOLDIR}/llc -march=cpu0${endian} -mcpu=${CPU} -relocation-model=static \
--filetype=obj printf-stdarg-def.bc -o printf-stdarg-def.o
+-filetype=obj -has-lld=true printf-stdarg-def.bc -o printf-stdarg-def.o
 ${TOOLDIR}/llc -march=cpu0${endian} -mcpu=${CPU} -relocation-model=static \
 -filetype=obj printf-stdarg.bc -o printf-stdarg.o
 ${TOOLDIR}/llc -march=cpu0${endian} -mcpu=${CPU} -relocation-model=static \
--filetype=obj -cpu0-enable-overflow=true ch4_1_addsuboverflow.bc -o \
+-filetype=obj -has-lld=true -cpu0-enable-overflow=true ch4_1_addsuboverflow.bc -o \
 ch4_1_addsuboverflow.o
 ${TOOLDIR}/llc -march=cpu0${endian} -mcpu=${CPU} -relocation-model=static \
--filetype=obj ch8_1_br_jt.bc -o ch8_1_br_jt.o
+-filetype=obj -has-lld=true ch8_1_br_jt.bc -o ch8_1_br_jt.o
 ${TOOLDIR}/llc -march=cpu0${endian} -mcpu=${CPU} -relocation-model=static \
 -filetype=obj ch8_2_phinode.bc -o ch8_2_phinode.o
 ${TOOLDIR}/llc -march=cpu0${endian} -mcpu=${CPU} -relocation-model=static \
--filetype=obj ch8_1_blockaddr.bc -o ch8_1_blockaddr.o
+-filetype=obj -has-lld=true ch8_1_blockaddr.bc -o ch8_1_blockaddr.o
 ${TOOLDIR}/llc -march=cpu0${endian} -mcpu=${CPU} -relocation-model=pic \
--filetype=obj -force-cpu0-long-branch ch8_2_longbranch.bc -o \
+-filetype=obj -has-lld=true -force-cpu0-long-branch ch8_2_longbranch.bc -o \
 ch8_2_longbranch.o
 ${TOOLDIR}/llc -march=cpu0${endian} -mcpu=${CPU} -relocation-model=static \
--filetype=obj -enable-cpu0-tail-calls ch9_2_tailcall.bc -o ch9_2_tailcall.o
+-filetype=obj -has-lld=true -enable-cpu0-tail-calls ch9_2_tailcall.bc -o ch9_2_tailcall.o
 ${TOOLDIR}/llc -march=cpu0${endian} -mcpu=${CPU} -relocation-model=static \
--filetype=obj ch9_3_detect_exception.bc -o ch9_3_detect_exception.o
+-filetype=obj -has-lld=true ch9_3_detect_exception.bc -o ch9_3_detect_exception.o
 ${TOOLDIR}/llc -march=cpu0${endian} -mcpu=${CPU} -relocation-model=static \
--filetype=obj ch_slinker.bc -o ch_slinker.o
+-filetype=obj -has-lld=true ch_slinker.bc -o ch_slinker.o
 ${TOOLDIR}/llc -march=cpu0${endian} -mcpu=${CPU} -relocation-model=static \
--filetype=obj lib_cpu0.ll -o lib_cpu0.o
+-filetype=obj -has-lld=true lib_cpu0.ll -o lib_cpu0.o
 ${TOOLDIR}/lld -flavor gnu start.o \
 debug.o printf-stdarg-def.o printf-stdarg.o ch4_1_addsuboverflow.o \
 ch8_1_br_jt.o ch8_2_phinode.o ch8_1_blockaddr.o ch8_2_longbranch.o \

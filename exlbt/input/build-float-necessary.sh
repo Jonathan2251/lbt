@@ -25,17 +25,17 @@ ${CLANG} -target mips-unknown-linux-gnu -c printf-stdarg.c -emit-llvm \
 -o printf-stdarg.bc
 ${CLANG} $INCFLAG -c ch_float_necessary.cpp -emit-llvm -o ch_float_necessary.bc
 ${TOOLDIR}/llc -march=cpu0${endian} -mcpu=${CPU} -relocation-model=static \
--filetype=obj start.bc -o start.cpu0.o
+-filetype=obj -has-lld=true start.bc -o start.cpu0.o
 ${TOOLDIR}/llc -march=cpu0${endian} -mcpu=${CPU} -relocation-model=static \
--filetype=obj debug.bc -o debug.cpu0.o
+-filetype=obj -has-lld=true debug.bc -o debug.cpu0.o
 ${TOOLDIR}/llc -march=cpu0${endian} -mcpu=${CPU} -relocation-model=static \
--filetype=obj printf-stdarg-def.bc -o printf-stdarg-def.cpu0.o
+-filetype=obj -has-lld=true printf-stdarg-def.bc -o printf-stdarg-def.cpu0.o
 ${TOOLDIR}/llc -march=cpu0${endian} -mcpu=${CPU} -relocation-model=static \
--filetype=obj printf-stdarg.bc -o printf-stdarg.cpu0.o
+-filetype=obj -has-lld=true printf-stdarg.bc -o printf-stdarg.cpu0.o
 ${TOOLDIR}/llc -march=cpu0${endian} -mcpu=${CPU} -relocation-model=static \
--filetype=obj ch_float_necessary.bc -o ch_float_necessary.cpu0.o
+-filetype=obj -has-lld=true ch_float_necessary.bc -o ch_float_necessary.cpu0.o
 ${TOOLDIR}/llc -march=cpu0${endian} -mcpu=${CPU} -relocation-model=static \
--filetype=obj lib_cpu0.ll -o lib_cpu0.o
+-filetype=obj -has-lld=true lib_cpu0.ll -o lib_cpu0.o
 ${TOOLDIR}/lld -flavor gnu -o a.out \
   start.cpu0.o debug.cpu0.o printf-stdarg-def.cpu0.o printf-stdarg.cpu0.o \
   ch_float_necessary.cpu0.o lib_cpu0.o ${olibsf}/libFloat.o

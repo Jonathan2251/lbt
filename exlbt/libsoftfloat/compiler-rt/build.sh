@@ -5,11 +5,7 @@ currdir=`pwd`
 OS=`uname -s`
 echo "OS =" ${OS}
 
-if [ "$OS" == "Linux" ]; then
-  TOOLDIR=~/llvm/test/cmake_debug_build/bin
-else
-  TOOLDIR=~/llvm/test/cmake_debug_build/Debug/bin
-fi
+TOOLDIR=~/llvm/test/build/bin
 
 INCFLAG="-I$currdir/../../libc/avr-libc-1.8.1/include"
 

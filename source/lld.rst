@@ -53,9 +53,9 @@ Hex for Cpu0 backend as follows,
 
 .. code-block:: console
 
-  1-160-136-173:tools Jonathan$ pwd
-  /Users/Jonathan/llvm/test/src/tools
-  1-160-136-173:tools Jonathan$ cp -rf ~/test/exlbt/elf2hex .
+  118-165-78-111:exlbt Jonathan$ pwd
+  /Users/Jonathan/Dowload/exlbt
+  118-165-78-111:exlbt Jonathan$ bash build-cpu0-lbt.sh
 
 .. rubric:: exlbt/elf2hex/CMakeLists.txt
 .. literalinclude:: ../exlbt/elf2hex/CMakeLists.txt
@@ -197,60 +197,6 @@ files.
   }
 
 
-Setup Cpu0 backend under lld
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-Please download lld from llvm web 
-[#llvm-download]_ and put lld 
-souce code on {llvm-src}/tools/lld just like we download llvm and clang as 
-shown in Appendex A of book "Tutorial: Creating an LLVM Backend for the Cpu0 
-Architecture" as follows.
-
-.. code-block:: console
-
-  1-160-136-173:tools Jonathan$ pwd
-  /Users/Jonathan/llvm/test/src/tools
-  1-160-136-173:tools Jonathan$ ls
-  ...
-  lld              llvm-config      llvm-extract    llvm-nm           llvm-stress   obj2yaml
-
-Next, setup Cpu0 backend as follows,
-
-.. code-block:: console
-
-  1-160-136-173:lld Jonathan$ pwd
-  /Users/Jonathan/llvm/test/src/tools/lld
-  1-160-136-173:lld Jonathan$ cp -rf ~/test/lbt/exlbt/lld/* .
-
-Now, build lld with Cpu0 backend as follows,
-
-.. code-block:: console
-
-  1-160-136-173:cmake_debug_build Jonathan$ cmake -DCMAKE_CXX_COMPILER=clang++ -
-  DCMAKE_C_COMPILER=clang -DCMAKE_CXX_FLAGS=-std=c++11 -DCMAKE_BUILD_TYPE=Debug
-  -G "Xcode" ../src
-  ...
-  -- Targeting Cpu0
-  ...
-  -- Configuring done
-  -- Generating done
-  -- Build files have been written to: /Users/Jonathan/llvm/test/cmake_debug_build
-
-If using VM (guest machine is Linux) or Linux, build as follows,
-
-.. code-block:: console
-
-  [Gamma@localhost cmake_debug_build]$ cmake -DCMAKE_CXX_COMPILER=g++ -
-  DCMAKE_C_COMPILER=gcc -DCMAKE_CXX_FLAGS=-std=c++11 -DCMAKE_BUILD_TYPE=Debug
-  -G "Unix Makefiles" ../src
-  ...
-  -- Targeting Cpu0
-  ...
-  -- Configuring done
-  -- Generating done
-  -- Build files have been written to: /home/cschen/llvm/test/cmake_debug_build
-
-
 LLD introduction 
 ~~~~~~~~~~~~~~~~
 
@@ -350,7 +296,7 @@ code as follows,
 .. code-block:: console
 
   1-160-136-173:input Jonathan$ pwd
-  /Users/Jonathan/test/lbt/exlbt/input
+  /Users/Jonathan/Downloads/exlbt/input
   1-160-136-173:input Jonathan$ bash build-printf-stdarg-2.sh cpu032I be
   In file included from printf-stdarg-2.cpp:11:
   ./printf-stdarg.c:206:15: warning: conversion from string literal to 'char *' 
@@ -361,7 +307,7 @@ code as follows,
   
   1-160-136-173:input Jonathan$ cd ../../lbdex/verilog/
   1-160-136-173:verilog Jonathan$ pwd
-  /Users/Jonathan/test/lbt/lbdex/verilog
+  /Users/Jonathan/Download/lbdex/verilog
   1-160-136-173:verilog Jonathan$ make
   1-160-136-173:verilog Jonathan$ ls
   ... cpu0Is ... cpu0IIs ...
@@ -423,10 +369,10 @@ variable cpu from cpu032I to cpu032II as follows,
 .. code-block:: console
 
   1-160-136-173:verilog Jonathan$ pwd
-  /Users/Jonathan/test/lbt/lbdex/verilog
+  /Users/Jonathan/Download/lbdex/verilog
   1-160-136-173:verilog Jonathan$ cd ../../exlbt/input
   1-160-136-173:input Jonathan$ pwd
-  /Users/Jonathan/test/lbt/exlbt/input
+  /Users/Jonathan/Download/exlbt/input
   1-160-136-173:input Jonathan$ bash build-printf-stdarg-2.sh cpu032II be
   ...
   1-160-136-173:input Jonathan$ cd ../lbdex/verilog/
@@ -463,7 +409,7 @@ is for this purpose.
 .. code-block:: console
 
   1-160-136-173:input Jonathan$ pwd
-  /Users/Jonathan/test/lbt/exlbt/input
+  /Users/Jonathan/Downloads/exlbt/input
   114-37-148-111:input Jonathan$ bash build-slinker.sh cpu032I le
   ...
   In file included from ch_slinker.cpp:23:
