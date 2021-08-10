@@ -1,7 +1,7 @@
 LBDEXDIR=../../lbdex
 CC=clang
-LLC=~/llvm/test/cmake_debug_build/bin/llc
-LINK=~/llvm/test/cmake_debug_build/bin/lld
+LLC=~/llvm/test/build/bin/llc
+LINK=~/llvm/test/build/bin/lld
 CFLAGS=-emit-llvm -c
 CFLAGS-MIPS=-target mips-unknown-linux-gnu -emit-llvm -c
 LLCFLAGS=-march=cpu0 -relocation-model=static -filetype=obj

@@ -90,8 +90,8 @@ Of course, the backend code will be more effective as follows,
 
 .. code-block:: console
 
-  JonathantekiiMac:input Jonathan$ /Users/Jonathan/llvm/test/cmake_debug_build/
-  bin/Debug/llc -march=cpu0 -relocation-model=pic -filetype=asm a.bc -o -
+  JonathantekiiMac:input Jonathan$ ~/llvm/test/build/
+  bin/llc -march=cpu0 -relocation-model=pic -filetype=asm a.bc -o -
 	  .section .mdebug.abi32
 	  .previous
 	  .file	"a.bc"
@@ -152,8 +152,8 @@ Of course, the backend code will be more effective as follows,
 	  .size	_Z6callerv, ($tmp5)-_Z6callerv
 	  .cfi_endproc
 
-  JonathantekiiMac:input Jonathan$ /Users/Jonathan/llvm/test/cmake_debug_build/
-  bin/Debug/llc -march=cpu0 -relocation-model=pic -filetype=asm a1.bc -o -
+  JonathantekiiMac:input Jonathan$ ~/llvm/test/build/
+  bin/llc -march=cpu0 -relocation-model=pic -filetype=asm a1.bc -o -
 	  .section .mdebug.abi32
 	  .previous
 	  .file	"a1.bc"

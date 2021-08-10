@@ -6,15 +6,9 @@ endian=
 OS=`uname -s`
 echo "OS =" ${OS}
 
-if [ "$OS" == "Linux" ]; then
-  TOOLDIR=~/llvm/release/cmake_debug_build/bin
-  CLANG=~/llvm/release/cmake_debug_build/bin/clang
-  LLD=~/llvm/test/cmake_debug_build/bin/lld
-else
-  TOOLDIR=~/llvm/release/cmake_debug_build/Debug/bin
-  CLANG=~/llvm/release/cmake_debug_build/Debug/bin/clang
-  LLD=~/llvm/test/cmake_debug_build/Debug/bin/lld
-fi
+TOOLDIR=~/llvm/test/build/bin
+CLANG=~/llvm/test/build/bin/clang
+LLD=~/llvm/test/build/bin/lld
 
 bash clean.sh
 

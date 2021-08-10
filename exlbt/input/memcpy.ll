@@ -1,4 +1,4 @@
-; /Users/Jonathan/llvm/test/cmake_debug_build/bin/Debug/llc -march=cpu0 -relocation-model=static < memcpy.ll
+; ~/llvm/test/build/bin/Debug/llc -march=cpu0 -relocation-model=static < memcpy.ll
 
 ; /// start
 ; ModuleID = 'memcpy.bc'

@@ -5,11 +5,8 @@
 // llvm-dis a.bc -o -
 // llvm-dis a1.bc -o -
 
-// /usr/local/llvm/test/cmake_debug_build/bin/llc -march=cpu0 -relocation-model=pic -filetype=asm a.bc -o -
-// /usr/local/llvm/test/cmake_debug_build/bin/llc -march=cpu0 -relocation-model=pic -filetype=asm a1.bc -o -
-
-// /Users/Jonathan/llvm/test/cmake_debug_build/bin/Debug/llc -march=cpu0 -relocation-model=pic -filetype=asm a.bc -o -
-// /Users/Jonathan/llvm/test/cmake_debug_build/bin/Debug/llc -march=cpu0 -relocation-model=pic -filetype=asm a1.bc -o -
+// ~/llvm/test/build/bin/llc -march=cpu0 -relocation-model=pic -filetype=asm a.bc -o -
+// ~/llvm/test/build/bin/llc -march=cpu0 -relocation-model=pic -filetype=asm a1.bc -o -
 
 /// start
 int callee(const int *a) {

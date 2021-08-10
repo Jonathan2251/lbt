@@ -1,7 +1,6 @@
 // clang -I../libsoftfloat/compiler-rt/builtins -I../../lbdex/input -c ch_float_necessary.cpp -emit-llvm -o ch_float_necessary.bc
-// ~/llvm/test/cmake_debug_build/Debug/bin/llc -march=cpu0 -mcpu=cpu032II -relocation-model=static -filetype=asm ch_float_necessary.bc -o -
-// ~/llvm/test/cmake_debug_build/bin/llc -march=cpu0 -mcpu=cpu032II -relocation-model=static -filetype=asm ch_float_necessary.bc -o -
-// ~/llvm/test/cmake_debug_build/bin/llc -march=cpu0 -mcpu=cpu032II -cpu0-s32-calls=true -relocation-model=static -filetype=asm ch_float_necessary.bc -o -
+// ~/llvm/test/build/bin/llc -march=cpu0 -mcpu=cpu032II -relocation-model=static -filetype=asm ch_float_necessary.bc -o -
+// ~/llvm/test/build/bin/llc -march=cpu0 -mcpu=cpu032II -cpu0-s32-calls=true -relocation-model=static -filetype=asm ch_float_necessary.bc -o -
 
 
 /// start
