@@ -48,20 +48,10 @@ setting over 1GB to avoid insufficient memory link error.
 ELF to Hex
 -----------
 
-Copy exlbt/elf2hex to llvm/test/src/tools/ to supporting ELF to 
-Hex for Cpu0 backend as follows,
-
-.. code-block:: console
-
-  118-165-78-111:exlbt Jonathan$ pwd
-  /Users/Jonathan/Dowload/exlbt
-  118-165-78-111:exlbt Jonathan$ bash build-cpu0-lbt.sh
+As follows,
 
 .. rubric:: exlbt/elf2hex/CMakeLists.txt
 .. literalinclude:: ../exlbt/elf2hex/CMakeLists.txt
-
-.. rubric:: exlbt/elf2hex/LLVMBuild.txt
-.. literalinclude:: ../exlbt/elf2hex/LLVMBuild.txt
 
 .. rubric:: exlbt/elf2hex/elf2hex.h
 .. literalinclude:: ../exlbt/elf2hex/elf2hex.h
@@ -77,125 +67,9 @@ Cpu0, the code add to llvm-objdump.cpp as follows,
 
   case ELF::EM_CPU0: //Cpu0
 
-.. code-block:: console
-
-  1-160-136-173:tools Jonathan$ pwd
-  /Users/Jonathan/llvm/test/src/tools
-  1-160-136-173:tools Jonathan$ cp -rf ~/test/exlbt/llvm-objdump/* llvm-objdump/.
-
 
 Create Cpu0 backend under LLD
 -----------------------------
-
-Cpu0 lld source code
-~~~~~~~~~~~~~~~~~~~~
-
-To support Cpu0 ELF linker under lld, add the following code to the following 
-files.
-
-.. rubric:: exlbt/lld/ELF/Driver.cpp
-.. code-block:: c++
-
-  static std::pair<ELFKind, uint16_t> parseEmulation(StringRef S) {
-    ...
-            .Case("elf32btcpu0", {ELF32BEKind, EM_CPU0})
-            .Case("elf32ltcpu0", {ELF32LEKind, EM_CPU0})
-    ...
-  }
-
-.. rubric:: exlbt/lld/ELF/InputFiles.cpp
-.. code-block:: c++
-
-  static uint8_t getMachineKind(MemoryBufferRef MB) {
-    ...
-    case Triple::cpu0:
-    case Triple::cpu0el:
-      return EM_CPU0;
-    ...
-  }
-
-.. rubric:: exlbt/lld/ELF/Target.cpp
-.. code-block:: c++
-
-  template <class ELFT> class Cpu0TargetInfo final : public TargetInfo {
-  public:
-    Cpu0TargetInfo();
-    RelExpr getRelExpr(uint32_t Type, const SymbolBody &S) const override;
-    void writeGotPlt(uint8_t *Buf, const SymbolBody &S) const override;
-    void relocateOne(uint8_t *Loc, uint32_t Type, uint64_t Val) const override;
-  };
-  ...
-
-  template <class ELFT> Cpu0TargetInfo<ELFT>::Cpu0TargetInfo() {
-    GotPltHeaderEntriesNum = 2;
-    PageSize = 65536;
-    GotEntrySize = sizeof(typename ELFT::uint);
-    GotPltEntrySize = sizeof(typename ELFT::uint);
-    PltEntrySize = 16;
-    PltHeaderSize = 32;
-  }
-
-  template <class ELFT>
-  RelExpr Cpu0TargetInfo<ELFT>::getRelExpr(uint32_t Type,
-                                           const SymbolBody &S) const {
-    switch (Type) {
-    default:
-      return R_ABS;
-    case R_CPU0_32:
-    case R_CPU0_HI16:
-    case R_CPU0_LO16:
-      return R_ABS;
-    case R_CPU0_PC24:
-      return R_PC;
-    }
-  }
-
-  template <class ELFT>
-  void Cpu0TargetInfo<ELFT>::writeGotPlt(uint8_t *Buf, const SymbolBody &) const {
-    write32<ELFT::TargetEndianness>(Buf, Out<ELFT>::Plt->getVA());
-  }
-
-  template <endianness E, uint8_t BSIZE, uint8_t SHIFT>
-  static void applyCpu0PcReloc(uint8_t *Loc, uint64_t V) {
-    uint32_t Mask = 0xffffffff >> (32 - BSIZE);
-    uint32_t Instr = read32<E>(Loc);
-    write32<E>(Loc, (Instr & ~Mask) | ((V >> SHIFT) & Mask));
-  }
-
-  template <endianness E>
-  static void writeCpu0Hi16(uint8_t *Loc, uint64_t V) {
-    uint32_t Instr = read32<E>(Loc);
-    write32<E>(Loc, (Instr & 0xffff0000) | mipsHigh(V));
-  }
-
-  template <endianness E>
-  static void writeCpu0Lo16(uint8_t *Loc, uint64_t V) {
-    uint32_t Instr = read32<E>(Loc);
-    write32<E>(Loc, (Instr & 0xffff0000) | (V & 0xffff));
-  }
-
-  template <class ELFT>
-  void Cpu0TargetInfo<ELFT>::relocateOne(uint8_t *Loc, uint32_t Type,
-                                         uint64_t Val) const {
-    const endianness E = ELFT::TargetEndianness;
-    switch (Type) {
-    case R_CPU0_32:
-      write32<E>(Loc, Val);
-      break;
-    case R_CPU0_LO16:
-      writeCpu0Lo16<E>(Loc, Val);
-      break;
-    case R_CPU0_HI16:
-      writeCpu0Hi16<E>(Loc, Val);
-      break;
-    case R_CPU0_PC24:
-      applyCpu0PcReloc<E, 24, 0>(Loc, Val-4);
-      break;
-    default:
-      fatal("unrecognized reloc " + Twine(Type));
-    }
-  }
-
 
 LLD introduction 
 ~~~~~~~~~~~~~~~~

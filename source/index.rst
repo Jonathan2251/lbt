@@ -25,6 +25,12 @@ Table of Contents
   This book's flow
 
 
+Build steps
+-----------
+
+https://github.com/Jonathan2251/lbt/blob/master/README.md
+
+
 Book example code
 -----------------
 
