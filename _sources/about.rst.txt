@@ -11,12 +11,13 @@ Authors
 -------
 
 .. image:: ../Fig/Author_ChineseName.png
-	:align: right
+   :align: right
 
 Chen Chung-Shu
-	gamma_chen@yahoo.com.tw
-	
-	http://jonathan2251.github.io/web/index.html
+
+gamma_chen@yahoo.com.tw
+
+http://jonathan2251.github.io/web/index.html
 
 
 Acknowledgments
@@ -29,7 +30,7 @@ Also thanking those corrections from readers who make the book more accurate.
 
 
 Build steps
-~~~~~~~~~~~
+-----------
 
 https://github.com/Jonathan2251/lbt/blob/master/README.md
 
