@@ -31,7 +31,9 @@ Also thanking those corrections from readers who make the book more accurate.
 Revision history
 ----------------
 
-Version 12.0.0, Not release yet.
+Version 12.0.1, Not release yet.
+
+Version 12.0.0, Release Auguest 11, 2021.
 
 Version 3.9.1, Released April 29, 2020
   Enable tailcall test option in build-slinker.sh
