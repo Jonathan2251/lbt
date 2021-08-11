@@ -42,24 +42,30 @@ Version 12.0.1, Not release yet.
 Version 12.0.0, Release Auguest 11, 2021.
 
 Version 3.9.1, Released April 29, 2020
+
   Enable tailcall test option in build-slinker.sh
 
 Version 3.9.0, Released November 22, 2016
+
   Porting to llvm 3.9.
 
 Version 3.7.4, Released September 22, 2016
+
   Split elf2hex-dlinker.cpp from elf2hex.cpp in exlbt/elf2hex.
 
 Version 3.7.3, Released July 20, 2016
+
   Refine code-block according sphinx lexers.
   Add search this book.
   
 Version 3.7.2, Released June 29, 2016
+
   Dynamic linker change display from ret \$t9 to jr \$t9.
   Move llvm-objdump -elf2hex to elf2hex.
   Upgrade sphinx to 1.4.4.
 
 Version 3.7.1, Released November 7, 2015
+
   Remove EM_CPU0_EL.
   Add IR blockaddress and indirectbr support.
   Add ch_9_3_detect_exception.cpp test.
@@ -67,9 +73,11 @@ Version 3.7.1, Released November 7, 2015
   Add Phi node test.
 
 Version 3.7.0, Released September 24, 2015
+
   Porting to lld 3.7.
 
 Version 3.6.2, Released May 4, 2015
+
   Move some test from lbt to lbd.
   Remove warning in build Cpu0 code.
 
