@@ -25,14 +25,17 @@ Table of Contents
   This book's flow
 
 
+Resources
+----------
+
 Build steps
------------
+~~~~~~~~~~~
 
 https://github.com/Jonathan2251/lbt/blob/master/README.md
 
 
 Book example code
------------------
+~~~~~~~~~~~~~~~~~
 
 The example code exlbt.tar.gz is available in: 
 
@@ -40,7 +43,7 @@ http://jonathan2251.github.io/lbt/exlbt.tar.gz
 
 
 Alternate formats
------------------
+~~~~~~~~~~~~~~~~~
 
 The book is also available in the following formats: 
 
@@ -57,7 +60,7 @@ The book is also available in the following formats:
 
 
 Presentation files
---------------------
+~~~~~~~~~~~~~~~~~~
 
 .. raw:: html
 
@@ -68,7 +71,7 @@ Presentation files
     </ul>
 
 Search this website
--------------------
+~~~~~~~~~~~~~~~~~~~
 
 * :ref:`search`
 

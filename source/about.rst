@@ -28,6 +28,12 @@ Without his help, this book would not have been finished and published online.
 Also thanking those corrections from readers who make the book more accurate.
 
 
+Build steps
+~~~~~~~~~~~
+
+https://github.com/Jonathan2251/lbt/blob/master/README.md
+
+
 Revision history
 ----------------
 
