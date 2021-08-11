@@ -1,34 +1,24 @@
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
-  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 
+<!DOCTYPE html>
 
-<html xmlns="http://www.w3.org/1999/xhtml">
+<html>
   <head>
-    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    
-    <title>About &mdash; Tutorial: Creating an LLVM Toolchain for the Cpu0 Architecture</title>
-    
-    <link rel="stylesheet" href="_static/haiku.css" type="text/css" />
-    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
-    
-    <script type="text/javascript">
-      var DOCUMENTATION_OPTIONS = {
-        URL_ROOT:    './',
-        VERSION:     '3.9.1',
-        COLLAPSE_INDEX: false,
-        FILE_SUFFIX: '.html',
-        HAS_SOURCE:  true
-      };
-    </script>
-    <script type="text/javascript" src="_static/jquery.js"></script>
-    <script type="text/javascript" src="_static/underscore.js"></script>
-    <script type="text/javascript" src="_static/doctools.js"></script>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
+    <title>About &#8212; Tutorial: Creating an LLVM Toolchain for the Cpu0 Architecture</title>
+    <link rel="stylesheet" type="text/css" href="_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="_static/haiku.css" />
+    <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
+    <script src="_static/jquery.js"></script>
+    <script src="_static/underscore.js"></script>
+    <script src="_static/doctools.js"></script>
     <link rel="author" title="About these documents" href="#" />
-    <link rel="top" title="Tutorial: Creating an LLVM Toolchain for the Cpu0 Architecture" href="index.html" />
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
     <link rel="next" title="Cpu0 ELF linker" href="lld.html" />
     <link rel="prev" title="Table of Contents" href="index.html" /> 
-  </head>
-  <body role="document">
+  </head><body>
       <div class="header" role="banner"><h1 class="heading"><a href="index.html">
           <span>Tutorial: Creating an LLVM Toolchain for the Cpu0 Architecture</span></a></h1>
         <h2 class="heading"><span>About</span></h2>
@@ -44,85 +34,87 @@
         </p>
 
       </div>
-      <div class="content">
+      <div class="content" role="main">
         
         
-  <div class="section" id="about">
+  <section id="about">
 <span id="sec-about"></span><h1>About<a class="headerlink" href="#about" title="Permalink to this headline">¶</a></h1>
 <div class="contents local topic" id="contents">
 <ul class="simple">
-<li><a class="reference internal" href="#authors" id="id2">Authors</a></li>
-<li><a class="reference internal" href="#acknowledgments" id="id3">Acknowledgments</a></li>
-<li><a class="reference internal" href="#revision-history" id="id4">Revision history</a></li>
-<li><a class="reference internal" href="#licensing" id="id5">Licensing</a></li>
-<li><a class="reference internal" href="#outline-of-chapters" id="id6">Outline of Chapters</a></li>
+<li><p><a class="reference internal" href="#authors" id="id2">Authors</a></p></li>
+<li><p><a class="reference internal" href="#acknowledgments" id="id3">Acknowledgments</a></p></li>
+<li><p><a class="reference internal" href="#revision-history" id="id4">Revision history</a></p></li>
+<li><p><a class="reference internal" href="#licensing" id="id5">Licensing</a></p></li>
+<li><p><a class="reference internal" href="#outline-of-chapters" id="id6">Outline of Chapters</a></p></li>
 </ul>
 </div>
-<div class="section" id="authors">
+<section id="authors">
 <h2><a class="toc-backref" href="#id2">Authors</a><a class="headerlink" href="#authors" title="Permalink to this headline">¶</a></h2>
 <img alt="_images/Author_ChineseName.png" class="align-right" src="_images/Author_ChineseName.png" />
-<dl class="docutils">
-<dt>Chen Chung-Shu</dt>
-<dd><p class="first"><a class="reference external" href="mailto:gamma_chen&#37;&#52;&#48;yahoo&#46;com&#46;tw">gamma_chen<span>&#64;</span>yahoo<span>&#46;</span>com<span>&#46;</span>tw</a></p>
-<p class="last"><a class="reference external" href="http://jonathan2251.github.io/web/index.html">http://jonathan2251.github.io/web/index.html</a></p>
+<dl>
+<dt>Chen Chung-Shu</dt><dd><p><a class="reference external" href="mailto:gamma_chen&#37;&#52;&#48;yahoo&#46;com&#46;tw">gamma_chen<span>&#64;</span>yahoo<span>&#46;</span>com<span>&#46;</span>tw</a></p>
+<p><a class="reference external" href="http://jonathan2251.github.io/web/index.html">http://jonathan2251.github.io/web/index.html</a></p>
 </dd>
 </dl>
-</div>
-<div class="section" id="acknowledgments">
+</section>
+<section id="acknowledgments">
 <h2><a class="toc-backref" href="#id3">Acknowledgments</a><a class="headerlink" href="#acknowledgments" title="Permalink to this headline">¶</a></h2>
 <p>I would like to thank Sean Silva, <a class="reference external" href="mailto:chisophugis&#37;&#52;&#48;gmail&#46;com">chisophugis<span>&#64;</span>gmail<span>&#46;</span>com</a>, for his help,
 encouragement, and assistance with the Sphinx document generator.
 Without his help, this book would not have been finished and published online.
 Also thanking those corrections from readers who make the book more accurate.</p>
-</div>
-<div class="section" id="revision-history">
+</section>
+<section id="revision-history">
 <h2><a class="toc-backref" href="#id4">Revision history</a><a class="headerlink" href="#revision-history" title="Permalink to this headline">¶</a></h2>
-<p>Version 3.9.2, Not release yet.</p>
-<dl class="docutils">
-<dt>Version 3.9.1, Released April 29, 2020</dt>
-<dd>Enable tailcall test option in build-slinker.sh</dd>
-<dt>Version 3.9.0, Released November 22, 2016</dt>
-<dd>Porting to llvm 3.9.</dd>
-<dt>Version 3.7.4, Released September 22, 2016</dt>
-<dd>Split elf2hex-dlinker.cpp from elf2hex.cpp in exlbt/elf2hex.</dd>
-<dt>Version 3.7.3, Released July 20, 2016</dt>
-<dd>Refine code-block according sphinx lexers.
-Add search this book.</dd>
-<dt>Version 3.7.2, Released June 29, 2016</dt>
-<dd>Dynamic linker change display from ret $t9 to jr $t9.
+<p>Version 12.0.1, Not release yet.</p>
+<p>Version 12.0.0, Release Auguest 11, 2021.</p>
+<dl class="simple">
+<dt>Version 3.9.1, Released April 29, 2020</dt><dd><p>Enable tailcall test option in build-slinker.sh</p>
+</dd>
+<dt>Version 3.9.0, Released November 22, 2016</dt><dd><p>Porting to llvm 3.9.</p>
+</dd>
+<dt>Version 3.7.4, Released September 22, 2016</dt><dd><p>Split elf2hex-dlinker.cpp from elf2hex.cpp in exlbt/elf2hex.</p>
+</dd>
+<dt>Version 3.7.3, Released July 20, 2016</dt><dd><p>Refine code-block according sphinx lexers.
+Add search this book.</p>
+</dd>
+<dt>Version 3.7.2, Released June 29, 2016</dt><dd><p>Dynamic linker change display from ret $t9 to jr $t9.
 Move llvm-objdump -elf2hex to elf2hex.
-Upgrade sphinx to 1.4.4.</dd>
-<dt>Version 3.7.1, Released November 7, 2015</dt>
-<dd>Remove EM_CPU0_EL.
+Upgrade sphinx to 1.4.4.</p>
+</dd>
+<dt>Version 3.7.1, Released November 7, 2015</dt><dd><p>Remove EM_CPU0_EL.
 Add IR blockaddress and indirectbr support.
 Add ch_9_3_detect_exception.cpp test.
-Change display &#8220;ret $rx&#8221; to &#8220;jr $rx&#8221; where $rx is not $lr.
-Add Phi node test.</dd>
-<dt>Version 3.7.0, Released September 24, 2015</dt>
-<dd>Porting to lld 3.7.</dd>
-<dt>Version 3.6.2, Released May 4, 2015</dt>
-<dd>Move some test from lbt to lbd.
-Remove warning in build Cpu0 code.</dd>
-<dt>Version 3.6.1, Released March 22, 2015</dt>
-<dd>Correct typing.</dd>
-<dt>Version 3.6.0, Released March 8, 2015</dt>
-<dd>Porting to lld 3.6.</dd>
+Change display “ret $rx” to “jr $rx” where $rx is not $lr.
+Add Phi node test.</p>
+</dd>
+<dt>Version 3.7.0, Released September 24, 2015</dt><dd><p>Porting to lld 3.7.</p>
+</dd>
+<dt>Version 3.6.2, Released May 4, 2015</dt><dd><p>Move some test from lbt to lbd.
+Remove warning in build Cpu0 code.</p>
+</dd>
+<dt>Version 3.6.1, Released March 22, 2015</dt><dd><p>Correct typing.</p>
+</dd>
+<dt>Version 3.6.0, Released March 8, 2015</dt><dd><p>Porting to lld 3.6.</p>
+</dd>
 </dl>
-</div>
-<div class="section" id="licensing">
+</section>
+<section id="licensing">
 <h2><a class="toc-backref" href="#id5">Licensing</a><a class="headerlink" href="#licensing" title="Permalink to this headline">¶</a></h2>
 <p><a class="reference external" href="http://llvm.org/docs/DeveloperPolicy.html#license">http://llvm.org/docs/DeveloperPolicy.html#license</a></p>
-</div>
-<div class="section" id="outline-of-chapters">
+</section>
+<section id="outline-of-chapters">
 <h2><a class="toc-backref" href="#id6">Outline of Chapters</a><a class="headerlink" href="#outline-of-chapters" title="Permalink to this headline">¶</a></h2>
-<div class="figure align-center" id="id1">
+<figure class="align-center" id="id1">
 <span id="about-f1"></span><a class="reference internal image-reference" href="_images/mywork_1.png"><img alt="_images/mywork_1.png" src="_images/mywork_1.png" style="width: 971.0px; height: 248.0px;" /></a>
-<p class="caption"><span class="caption-number">Fig. 1 </span><span class="caption-text">Code generation and execution flow</span></p>
-</div>
+<figcaption>
+<p><span class="caption-number">Fig. 1 </span><span class="caption-text">Code generation and execution flow</span><a class="headerlink" href="#id1" title="Permalink to this image">¶</a></p>
+</figcaption>
+</figure>
 <p>The upper half of <a class="reference internal" href="#about-f1"><span class="std std-numref">Fig. 1</span></a> is the work flow and software package
 of a computer program be generated and executed. IR stands for Intermediate
 Representation.
-The lower half is this book&#8217;s work flow and software package of the toolchain
+The lower half is this book’s work flow and software package of the toolchain
 extended implementation based on llvm. Except clang, the other blocks need to
 be extended for a new backend development. This book implement the green boxes
 part.
@@ -130,10 +122,10 @@ The Cpu0 llvm backend can be find on
 <a class="reference external" href="http://jonathan2251.github.io/lbd/index.html">http://jonathan2251.github.io/lbd/index.html</a>.</p>
 <p>This book include:</p>
 <ol class="arabic simple">
-<li>The elf2hex extended from llvm-objump. Chapter 2.</li>
-<li>Optimization. Chapter 3.</li>
-<li>Porting C standard library from avr libc and software floating point library
-from LLVM compiler-rt.</li>
+<li><p>The elf2hex extended from llvm-objump. Chapter 2.</p></li>
+<li><p>Optimization. Chapter 3.</p></li>
+<li><p>Porting C standard library from avr libc and software floating point library
+from LLVM compiler-rt.</p></li>
 </ol>
 <p>With these implementation, reader can generate Cpu0 machine code through Cpu0
 llvm backend compiler, linker and elf2hex, then see how it runs on your
@@ -144,8 +136,8 @@ computer.</p>
 <p>Backend independent optimaization.</p>
 <p><a class="reference internal" href="lib.html#sec-lib"><span class="std std-ref">Library</span></a>:</p>
 <p>Software floating point library and standard C library supporting. Under working.</p>
-</div>
-</div>
+</section>
+</section>
 
 
       </div>
@@ -162,8 +154,8 @@ computer.</p>
       </div>
 
     <div class="footer" role="contentinfo">
-        &copy; Copyright 2016, Chen Chung-Shu.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.4.4.
+        &#169; Copyright 2016, Chen Chung-Shu.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 4.0.2.
     </div>
   </body>
 </html>

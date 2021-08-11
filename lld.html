@@ -1,34 +1,24 @@
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
-  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 
+<!DOCTYPE html>
 
-<html xmlns="http://www.w3.org/1999/xhtml">
+<html>
   <head>
-    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    
-    <title>Cpu0 ELF linker &mdash; Tutorial: Creating an LLVM Toolchain for the Cpu0 Architecture</title>
-    
-    <link rel="stylesheet" href="_static/haiku.css" type="text/css" />
-    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
-    
-    <script type="text/javascript">
-      var DOCUMENTATION_OPTIONS = {
-        URL_ROOT:    './',
-        VERSION:     '3.9.1',
-        COLLAPSE_INDEX: false,
-        FILE_SUFFIX: '.html',
-        HAS_SOURCE:  true
-      };
-    </script>
-    <script type="text/javascript" src="_static/jquery.js"></script>
-    <script type="text/javascript" src="_static/underscore.js"></script>
-    <script type="text/javascript" src="_static/doctools.js"></script>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
+    <title>Cpu0 ELF linker &#8212; Tutorial: Creating an LLVM Toolchain for the Cpu0 Architecture</title>
+    <link rel="stylesheet" type="text/css" href="_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="_static/haiku.css" />
+    <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
+    <script src="_static/jquery.js"></script>
+    <script src="_static/underscore.js"></script>
+    <script src="_static/doctools.js"></script>
     <link rel="author" title="About these documents" href="about.html" />
-    <link rel="top" title="Tutorial: Creating an LLVM Toolchain for the Cpu0 Architecture" href="index.html" />
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
     <link rel="next" title="Optimization" href="opt.html" />
     <link rel="prev" title="About" href="about.html" /> 
-  </head>
-  <body role="document">
+  </head><body>
       <div class="header" role="banner"><h1 class="heading"><a href="index.html">
           <span>Tutorial: Creating an LLVM Toolchain for the Cpu0 Architecture</span></a></h1>
         <h2 class="heading"><span>Cpu0 ELF linker</span></h2>
@@ -44,25 +34,25 @@
         </p>
 
       </div>
-      <div class="content">
+      <div class="content" role="main">
         
         
-  <div class="section" id="cpu0-elf-linker">
+  <section id="cpu0-elf-linker">
 <span id="sec-lld"></span><h1>Cpu0 ELF linker<a class="headerlink" href="#cpu0-elf-linker" title="Permalink to this headline">¶</a></h1>
 <div class="contents local topic" id="contents">
 <ul class="simple">
-<li><a class="reference internal" href="#elf-to-hex" id="id17">ELF to Hex</a></li>
-<li><a class="reference internal" href="#create-cpu0-backend-under-lld" id="id18">Create Cpu0 backend under LLD</a><ul>
-<li><a class="reference internal" href="#cpu0-lld-source-code" id="id19">Cpu0 lld source code</a></li>
-<li><a class="reference internal" href="#setup-cpu0-backend-under-lld" id="id20">Setup Cpu0 backend under lld</a></li>
-<li><a class="reference internal" href="#lld-introduction" id="id21">LLD introduction</a></li>
-<li><a class="reference internal" href="#static-linker" id="id22">Static linker</a></li>
-<li><a class="reference internal" href="#dynamic-linker" id="id23">Dynamic linker</a></li>
+<li><p><a class="reference internal" href="#elf-to-hex" id="id16">ELF to Hex</a></p></li>
+<li><p><a class="reference internal" href="#create-cpu0-backend-under-lld" id="id17">Create Cpu0 backend under LLD</a></p>
+<ul>
+<li><p><a class="reference internal" href="#lld-introduction" id="id18">LLD introduction</a></p></li>
+<li><p><a class="reference internal" href="#static-linker" id="id19">Static linker</a></p></li>
+<li><p><a class="reference internal" href="#dynamic-linker" id="id20">Dynamic linker</a></p></li>
 </ul>
 </li>
-<li><a class="reference internal" href="#summary" id="id24">Summary</a><ul>
-<li><a class="reference internal" href="#create-a-new-backend-base-on-llvm" id="id25">Create a new backend base on LLVM</a></li>
-<li><a class="reference internal" href="#contribute-back-to-open-source-through-working-and-learning" id="id26">Contribute back to Open Source through working and learning</a></li>
+<li><p><a class="reference internal" href="#summary" id="id21">Summary</a></p>
+<ul>
+<li><p><a class="reference internal" href="#create-a-new-backend-base-on-llvm" id="id22">Create a new backend base on LLVM</a></p></li>
+<li><p><a class="reference internal" href="#contribute-back-to-open-source-through-working-and-learning" id="id23">Contribute back to Open Source through working and learning</a></p></li>
 </ul>
 </li>
 </ul>
@@ -72,10 +62,12 @@ Like llvm, lld linker include a couple of target in ELF format handling.
 The term Cpu0 backend used in this chapter can refer to the ELF format handling
 for Cpu0 target machine under lld, llvm compiler backend, or both. But
 supposing readers will easy knowing what it refer to.</p>
-<div class="figure align-center" id="id15">
+<figure class="align-center" id="id14">
 <span id="lld-f-workflow"></span><a class="reference internal image-reference" href="_images/mywork_1.png"><img alt="_images/mywork_1.png" src="_images/mywork_1.png" style="width: 971.0px; height: 248.0px;" /></a>
-<p class="caption"><span class="caption-number">Fig. 2 </span><span class="caption-text">Code generation and execution flow</span></p>
-</div>
+<figcaption>
+<p><span class="caption-number">Fig. 2 </span><span class="caption-text">Code generation and execution flow</span><a class="headerlink" href="#id14" title="Permalink to this image">¶</a></p>
+</figcaption>
+</figure>
 <p>As depicted in <a class="reference internal" href="#lld-f-workflow"><span class="std std-numref">Fig. 2</span></a> of chapter About. Beside llvm backend,
 we implement ELF linker and elf2hex to run on Cpu0 verilog simulator.
 This chapter extends lld to support Cpu0 backend as well as elf2hex to replace
@@ -89,38 +81,37 @@ section .data and .rodata can be accessed and transfered to Hex file which feeds
 to Verilog Cpu0 machine and run on your PC/Laptop.</p>
 <p>As the previouse chapters mentioned, Cpu0 has two relocation models for static
 link and dynamic link, respectively, which controlled by option
-<code class="docutils literal"><span class="pre">-relocation-model</span></code> in <code class="docutils literal"><span class="pre">llc</span></code>.
+<code class="docutils literal notranslate"><span class="pre">-relocation-model</span></code> in <code class="docutils literal notranslate"><span class="pre">llc</span></code>.
 This chapter supports the static link.</p>
-<p>About lld please refer LLD web site here <a class="footnote-reference" href="#lldweb" id="id1">[1]</a> and LLD install requirement
-on Linux here <a class="footnote-reference" href="#lld-install" id="id2">[2]</a>.
+<p>About lld please refer LLD web site here <a class="footnote-reference brackets" href="#lldweb" id="id1">1</a> and LLD install requirement
+on Linux here <a class="footnote-reference brackets" href="#lld-install" id="id2">2</a>.
 Currently, lld can be built by: gcc and clang compiler on Ubuntu.
 On iMac, lld can be built by clang with the Xcode version as the next sub
 section.
 If you run with Virtual Machine (VM), please keep your phisical memory size
 setting over 1GB to avoid insufficient memory link error.</p>
-<div class="section" id="elf-to-hex">
-<h2><a class="toc-backref" href="#id17">ELF to Hex</a><a class="headerlink" href="#elf-to-hex" title="Permalink to this headline">¶</a></h2>
-<p>Copy exlbt/elf2hex to llvm/test/src/tools/ to supporting ELF to
-Hex for Cpu0 backend as follows,</p>
-<div class="highlight-console"><div class="highlight"><pre><span></span><span class="gp">1-160-136-173:tools Jonathan$</span> <span class="nb">pwd</span>
-<span class="go">/Users/Jonathan/llvm/test/src/tools</span>
-<span class="gp">1-160-136-173:tools Jonathan$</span> cp -rf ~/test/exlbt/elf2hex .
-</pre></div>
-</div>
+<section id="elf-to-hex">
+<h2><a class="toc-backref" href="#id16">ELF to Hex</a><a class="headerlink" href="#elf-to-hex" title="Permalink to this headline">¶</a></h2>
+<p>As follows,</p>
 <p class="rubric">exlbt/elf2hex/CMakeLists.txt</p>
-<div class="highlight-default"><div class="highlight"><pre><span></span># elf2hex.cpp needs backend related functions, like 
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span># elf2hex.cpp needs backend related functions, like 
 # LLVMInitializeCpu0TargetInfo and LLVMInitializeCpu0Disassembler ... etc.
 # Set LLVM_LINK_COMPONENTS then it can link them during the link stage.
 set(LLVM_LINK_COMPONENTS
-  AllTargetsAsmPrinters
+#  AllTargetsAsmPrinters
   AllTargetsDescs
   AllTargetsDisassemblers
   AllTargetsInfos
+  BinaryFormat
   CodeGen
+  DebugInfoDWARF
+  DebugInfoPDB
+  Demangle
   MC
   MCDisassembler
   Object
   Support
+  Symbolize
   )
 
 add_llvm_tool(elf2hex
@@ -128,37 +119,17 @@ add_llvm_tool(elf2hex
   )
 
 if(HAVE_LIBXAR)
-  target_link_libraries(elf2hex ${XAR_LIB})
+  target_link_libraries(elf2hex PRIVATE ${XAR_LIB})
 endif()
-</pre></div>
-</div>
-<p class="rubric">exlbt/elf2hex/LLVMBuild.txt</p>
-<div class="highlight-default"><div class="highlight"><pre><span></span><span class="p">;</span><span class="o">===-</span> <span class="o">./</span><span class="n">tools</span><span class="o">/</span><span class="n">llvm</span><span class="o">-</span><span class="n">objdump</span><span class="o">/</span><span class="n">LLVMBuild</span><span class="o">.</span><span class="n">txt</span> <span class="o">-----------------------*-</span> <span class="n">Conf</span> <span class="o">-*--===</span><span class="p">;</span>
-<span class="p">;</span>
-<span class="p">;</span>                     <span class="n">The</span> <span class="n">LLVM</span> <span class="n">Compiler</span> <span class="n">Infrastructure</span>
-<span class="p">;</span>
-<span class="p">;</span> <span class="n">This</span> <span class="n">file</span> <span class="ow">is</span> <span class="n">distributed</span> <span class="n">under</span> <span class="n">the</span> <span class="n">University</span> <span class="n">of</span> <span class="n">Illinois</span> <span class="n">Open</span> <span class="n">Source</span>
-<span class="p">;</span> <span class="n">License</span><span class="o">.</span> <span class="n">See</span> <span class="n">LICENSE</span><span class="o">.</span><span class="n">TXT</span> <span class="k">for</span> <span class="n">details</span><span class="o">.</span>
-<span class="p">;</span>
-<span class="p">;</span><span class="o">===------------------------------------------------------------------------===</span><span class="p">;</span>
-<span class="p">;</span>
-<span class="p">;</span> <span class="n">This</span> <span class="ow">is</span> <span class="n">an</span> <span class="n">LLVMBuild</span> <span class="n">description</span> <span class="n">file</span> <span class="k">for</span> <span class="n">the</span> <span class="n">components</span> <span class="ow">in</span> <span class="n">this</span> <span class="n">subdirectory</span><span class="o">.</span>
-<span class="p">;</span>
-<span class="p">;</span> <span class="n">For</span> <span class="n">more</span> <span class="n">information</span> <span class="n">on</span> <span class="n">the</span> <span class="n">LLVMBuild</span> <span class="n">system</span><span class="p">,</span> <span class="n">please</span> <span class="n">see</span><span class="p">:</span>
-<span class="p">;</span>
-<span class="p">;</span>   <span class="n">http</span><span class="p">:</span><span class="o">//</span><span class="n">llvm</span><span class="o">.</span><span class="n">org</span><span class="o">/</span><span class="n">docs</span><span class="o">/</span><span class="n">LLVMBuild</span><span class="o">.</span><span class="n">html</span>
-<span class="p">;</span>
-<span class="p">;</span><span class="o">===------------------------------------------------------------------------===</span><span class="p">;</span>
 
-<span class="p">[</span><span class="n">component_0</span><span class="p">]</span>
-<span class="nb">type</span> <span class="o">=</span> <span class="n">Tool</span>
-<span class="n">name</span> <span class="o">=</span> <span class="n">elf2hex</span>
-<span class="n">parent</span> <span class="o">=</span> <span class="n">Tools</span>
-<span class="n">required_libraries</span> <span class="o">=</span> <span class="n">DebugInfoDWARF</span> <span class="n">MC</span> <span class="n">MCDisassembler</span> <span class="n">MCParser</span> <span class="n">Object</span> <span class="nb">all</span><span class="o">-</span><span class="n">targets</span>
+if(LLVM_INSTALL_BINUTILS_SYMLINKS)
+  add_llvm_tool_symlink(elf2hex elf2hex)
+endif()
+
 </pre></div>
 </div>
 <p class="rubric">exlbt/elf2hex/elf2hex.h</p>
-<div class="highlight-default"><div class="highlight"><pre><span></span><span class="o">//</span>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="o">//</span>
 <span class="o">//</span>                     <span class="n">The</span> <span class="n">LLVM</span> <span class="n">Compiler</span> <span class="n">Infrastructure</span>
 <span class="o">//</span>
 <span class="o">//</span> <span class="n">This</span> <span class="n">file</span> <span class="ow">is</span> <span class="n">distributed</span> <span class="n">under</span> <span class="n">the</span> <span class="n">University</span> <span class="n">of</span> <span class="n">Illinois</span> <span class="n">Open</span> <span class="n">Source</span>
@@ -186,39 +157,6 @@ endif()
 <span class="o">//</span><span class="c1">#define ELF2HEX_DEBUG</span>
 
 <span class="n">namespace</span> <span class="n">llvm</span> <span class="p">{</span>
-<span class="k">class</span> <span class="nc">StringRef</span><span class="p">;</span>
-<span class="k">class</span> <span class="nc">MCInst</span><span class="p">;</span>
-
-<span class="n">namespace</span> <span class="nb">object</span> <span class="p">{</span>
-  <span class="k">class</span> <span class="nc">COFFObjectFile</span><span class="p">;</span>
-  <span class="k">class</span> <span class="nc">MachOObjectFile</span><span class="p">;</span>
-  <span class="k">class</span> <span class="nc">ObjectFile</span><span class="p">;</span>
-  <span class="k">class</span> <span class="nc">Archive</span><span class="p">;</span>
-  <span class="k">class</span> <span class="nc">RelocationRef</span><span class="p">;</span>
-<span class="p">}</span>
-
-<span class="n">extern</span> <span class="n">cl</span><span class="p">::</span><span class="n">opt</span><span class="o">&lt;</span><span class="n">std</span><span class="p">::</span><span class="n">string</span><span class="o">&gt;</span> <span class="n">TripleName</span><span class="p">;</span>
-<span class="n">extern</span> <span class="n">cl</span><span class="p">::</span><span class="n">opt</span><span class="o">&lt;</span><span class="n">std</span><span class="p">::</span><span class="n">string</span><span class="o">&gt;</span> <span class="n">ArchName</span><span class="p">;</span>
-<span class="n">extern</span> <span class="n">cl</span><span class="p">::</span><span class="nb">list</span><span class="o">&lt;</span><span class="n">std</span><span class="p">::</span><span class="n">string</span><span class="o">&gt;</span> <span class="n">MAttrs</span><span class="p">;</span>
-<span class="n">extern</span> <span class="n">cl</span><span class="p">::</span><span class="nb">list</span><span class="o">&lt;</span><span class="n">std</span><span class="p">::</span><span class="n">string</span><span class="o">&gt;</span> <span class="n">FilterSections</span><span class="p">;</span>
-<span class="n">extern</span> <span class="n">cl</span><span class="p">::</span><span class="n">opt</span><span class="o">&lt;</span><span class="nb">bool</span><span class="o">&gt;</span> <span class="n">NoShowRawInsn</span><span class="p">;</span>
-
-<span class="o">//</span> <span class="n">Various</span> <span class="n">helper</span> <span class="n">functions</span><span class="o">.</span>
-<span class="n">void</span> <span class="n">error</span><span class="p">(</span><span class="n">std</span><span class="p">::</span><span class="n">error_code</span> <span class="n">EC</span><span class="p">);</span>
-<span class="nb">bool</span> <span class="n">RelocAddressLess</span><span class="p">(</span><span class="nb">object</span><span class="p">::</span><span class="n">RelocationRef</span> <span class="n">a</span><span class="p">,</span> <span class="nb">object</span><span class="p">::</span><span class="n">RelocationRef</span> <span class="n">b</span><span class="p">);</span>
-<span class="n">LLVM_ATTRIBUTE_NORETURN</span> <span class="n">void</span> <span class="n">error</span><span class="p">(</span><span class="n">Twine</span> <span class="n">Message</span><span class="p">);</span>
-<span class="n">LLVM_ATTRIBUTE_NORETURN</span> <span class="n">void</span> <span class="n">report_error</span><span class="p">(</span><span class="n">StringRef</span> <span class="n">File</span><span class="p">,</span> <span class="n">std</span><span class="p">::</span><span class="n">error_code</span> <span class="n">EC</span><span class="p">);</span>
-<span class="n">LLVM_ATTRIBUTE_NORETURN</span> <span class="n">void</span> <span class="n">report_error</span><span class="p">(</span><span class="n">StringRef</span> <span class="n">File</span><span class="p">,</span> <span class="n">llvm</span><span class="p">::</span><span class="n">Error</span> <span class="n">E</span><span class="p">);</span>
-<span class="n">LLVM_ATTRIBUTE_NORETURN</span> <span class="n">void</span> <span class="n">report_error</span><span class="p">(</span><span class="n">StringRef</span> <span class="n">FileName</span><span class="p">,</span>
-                                          <span class="n">StringRef</span> <span class="n">ArchiveName</span><span class="p">,</span>
-                                          <span class="n">llvm</span><span class="p">::</span><span class="n">Error</span> <span class="n">E</span><span class="p">,</span>
-                                          <span class="n">StringRef</span> <span class="n">ArchitectureName</span>
-                                                    <span class="o">=</span> <span class="n">StringRef</span><span class="p">());</span>
-<span class="n">LLVM_ATTRIBUTE_NORETURN</span> <span class="n">void</span> <span class="n">report_error</span><span class="p">(</span><span class="n">StringRef</span> <span class="n">ArchiveName</span><span class="p">,</span>
-                                          <span class="n">const</span> <span class="nb">object</span><span class="p">::</span><span class="n">Archive</span><span class="p">::</span><span class="n">Child</span> <span class="o">&amp;</span><span class="n">C</span><span class="p">,</span>
-                                          <span class="n">llvm</span><span class="p">::</span><span class="n">Error</span> <span class="n">E</span><span class="p">,</span>
-                                          <span class="n">StringRef</span> <span class="n">ArchitectureName</span>
-                                                    <span class="o">=</span> <span class="n">StringRef</span><span class="p">());</span>
 
 <span class="n">namespace</span> <span class="n">elf2hex</span> <span class="p">{</span>
 
@@ -240,8 +178,8 @@ endif()
              <span class="n">std</span><span class="p">::</span><span class="n">unique_ptr</span><span class="o">&lt;</span><span class="n">const</span> <span class="n">MCSubtargetInfo</span><span class="o">&gt;&amp;</span> <span class="n">subTargetInfo</span><span class="p">,</span>
              <span class="n">const</span> <span class="n">ObjectFile</span> <span class="o">*</span><span class="n">Obj</span><span class="p">);</span>
   <span class="n">void</span> <span class="n">ProcessDisAsmInstruction</span><span class="p">(</span><span class="n">MCInst</span> <span class="n">inst</span><span class="p">,</span> <span class="n">uint64_t</span> <span class="n">Size</span><span class="p">,</span> 
-                                <span class="n">ArrayRef</span><span class="o">&lt;</span><span class="n">uint8_t</span><span class="o">&gt;</span> <span class="n">Bytes</span><span class="p">,</span> <span class="n">const</span> <span class="n">ObjectFile</span> <span class="o">*</span><span class="n">Obj</span><span class="p">);</span>
-  <span class="n">void</span> <span class="n">ProcessDataSection</span><span class="p">(</span><span class="n">SectionRef</span> <span class="n">Section</span><span class="p">);</span>
+                                <span class="n">ArrayRef</span><span class="o">&lt;</span><span class="n">uint8_t</span><span class="o">&gt;</span> <span class="n">Bytes</span><span class="p">,</span> <span class="n">const</span> <span class="n">ObjectFile</span> <span class="o">*</span><span class="n">Obj</span><span class="p">)</span> <span class="n">override</span><span class="p">;</span>
+  <span class="n">void</span> <span class="n">ProcessDataSection</span><span class="p">(</span><span class="n">SectionRef</span> <span class="n">Section</span><span class="p">)</span> <span class="n">override</span><span class="p">;</span>
 
 <span class="n">private</span><span class="p">:</span>
   <span class="n">void</span> <span class="n">PrintBootSection</span><span class="p">(</span><span class="n">uint64_t</span> <span class="n">textOffset</span><span class="p">,</span> <span class="n">uint64_t</span> <span class="n">isrAddr</span><span class="p">,</span> <span class="nb">bool</span> <span class="n">isLittleEndian</span><span class="p">);</span>
@@ -281,7 +219,7 @@ endif()
 </pre></div>
 </div>
 <p class="rubric">exlbt/elf2hex/elf2hex.cpp</p>
-<div class="highlight-default"><div class="highlight"><pre><span></span>//===-- llvm-objdump.cpp - Object file dumping utility for llvm -----------===//
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>//===-- llvm-objdump.cpp - Object file dumping utility for llvm -----------===//
 //
 //                     The LLVM Compiler Infrastructure
 //
@@ -299,712 +237,87 @@ endif()
 //
 //===----------------------------------------------------------------------===//
 
+#define ELF2HEX
+
 #include &quot;elf2hex.h&quot;
-#include &quot;llvm/ADT/Optional.h&quot;
-#include &quot;llvm/ADT/STLExtras.h&quot;
-#include &quot;llvm/ADT/StringExtras.h&quot;
-#include &quot;llvm/ADT/Triple.h&quot;
-#include &quot;llvm/CodeGen/FaultMaps.h&quot;
-#include &quot;llvm/DebugInfo/DWARF/DWARFContext.h&quot;
 #include &quot;llvm/MC/MCAsmInfo.h&quot;
 #include &quot;llvm/MC/MCContext.h&quot;
-#include &quot;llvm/MC/MCDisassembler/MCDisassembler.h&quot;
 #include &quot;llvm/MC/MCInst.h&quot;
-#include &quot;llvm/MC/MCInstPrinter.h&quot;
 #include &quot;llvm/MC/MCInstrAnalysis.h&quot;
 #include &quot;llvm/MC/MCInstrInfo.h&quot;
 #include &quot;llvm/MC/MCObjectFileInfo.h&quot;
-#include &quot;llvm/MC/MCRegisterInfo.h&quot;
-#include &quot;llvm/MC/MCDisassembler/MCRelocationInfo.h&quot;
-#include &quot;llvm/MC/MCSubtargetInfo.h&quot;
-#include &quot;llvm/Object/Archive.h&quot;
-#include &quot;llvm/Object/ELFObjectFile.h&quot;
-#include &quot;llvm/Object/COFF.h&quot;
+#include &quot;llvm/MC/MCTargetOptions.h&quot;
 #include &quot;llvm/Object/MachO.h&quot;
-#include &quot;llvm/Object/ObjectFile.h&quot;
-#include &quot;llvm/Support/Casting.h&quot;
-#include &quot;llvm/Support/CommandLine.h&quot;
-#include &quot;llvm/Support/Debug.h&quot;
-#include &quot;llvm/Support/Errc.h&quot;
-#include &quot;llvm/Support/FileSystem.h&quot;
-#include &quot;llvm/Support/Format.h&quot;
-#include &quot;llvm/Support/GraphWriter.h&quot;
-#include &quot;llvm/Support/Host.h&quot;
-#include &quot;llvm/Support/ManagedStatic.h&quot;
-#include &quot;llvm/Support/MemoryBuffer.h&quot;
-#include &quot;llvm/Support/PrettyStackTrace.h&quot;
-#include &quot;llvm/Support/Signals.h&quot;
-#include &quot;llvm/Support/SourceMgr.h&quot;
+#include &quot;llvm/Support/InitLLVM.h&quot;
 #include &quot;llvm/Support/TargetRegistry.h&quot;
 #include &quot;llvm/Support/TargetSelect.h&quot;
-#include &quot;llvm/Support/raw_ostream.h&quot;
-#include &lt;algorithm&gt;
-#include &lt;cctype&gt;
-#include &lt;cstring&gt;
-#include &lt;system_error&gt;
-#include &lt;utility&gt;
 
 using namespace llvm;
-using namespace object;
-
-static cl::list&lt;std::string&gt;
-InputFilenames(cl::Positional, cl::desc(&quot;&lt;input object files&gt;&quot;),cl::ZeroOrMore);
-
-cl::opt&lt;std::string&gt;
-llvm::TripleName(&quot;triple&quot;, cl::desc(&quot;Target triple to disassemble for, &quot;
-                                    &quot;see -version for available targets&quot;));
-
-cl::opt&lt;std::string&gt;
-llvm::ArchName(&quot;arch-name&quot;, cl::desc(&quot;Target arch to disassemble for, &quot;
-                                &quot;see -version for available targets&quot;));
-
-cl::list&lt;std::string&gt;
-llvm::FilterSections(&quot;section&quot;, cl::desc(&quot;Operate on the specified sections only. &quot;
-                                         &quot;With -macho dump segment,section&quot;));
-cl::alias
-static FilterSectionsj(&quot;j&quot;, cl::desc(&quot;Alias for --section&quot;),
-                 cl::aliasopt(llvm::FilterSections));
-
-cl::list&lt;std::string&gt;
-llvm::MAttrs(&quot;mattr&quot;,
-  cl::CommaSeparated,
-  cl::desc(&quot;Target specific attributes&quot;),
-  cl::value_desc(&quot;a1,+a2,-a3,...&quot;));
-
-cl::opt&lt;bool&gt;
-llvm::NoShowRawInsn(&quot;no-show-raw-insn&quot;, cl::desc(&quot;When disassembling &quot;
-                                                 &quot;instructions, do not print &quot;
-                                                 &quot;the instruction bytes.&quot;));
+using namespace llvm::object;
 
 static StringRef ToolName;
+static StringRef CurrInputFile;
 
-
-
-namespace {
-typedef std::function&lt;bool(llvm::object::SectionRef const &amp;)&gt; FilterPredicate;
-
-class SectionFilterIterator {
-public:
-  SectionFilterIterator(FilterPredicate P,
-                        llvm::object::section_iterator const &amp;I,
-                        llvm::object::section_iterator const &amp;E)
-      : Predicate(std::move(P)), Iterator(I), End(E) {
-    ScanPredicate();
-  }
-  const llvm::object::SectionRef &amp;operator*() const { return *Iterator; }
-  SectionFilterIterator &amp;operator++() {
-    ++Iterator;
-    ScanPredicate();
-    return *this;
-  }
-  bool operator!=(SectionFilterIterator const &amp;Other) const {
-    return Iterator != Other.Iterator;
-  }
-
-private:
-  void ScanPredicate() {
-    while (Iterator != End &amp;&amp; !Predicate(*Iterator)) {
-      ++Iterator;
-    }
-  }
-  FilterPredicate Predicate;
-  llvm::object::section_iterator Iterator;
-  llvm::object::section_iterator End;
-};
-
-class SectionFilter {
-public:
-  SectionFilter(FilterPredicate P, llvm::object::ObjectFile const &amp;O)
-      : Predicate(std::move(P)), Object(O) {}
-  SectionFilterIterator begin() {
-    return SectionFilterIterator(Predicate, Object.section_begin(),
-                                 Object.section_end());
-  }
-  SectionFilterIterator end() {
-    return SectionFilterIterator(Predicate, Object.section_end(),
-                                 Object.section_end());
-  }
-
-private:
-  FilterPredicate Predicate;
-  llvm::object::ObjectFile const &amp;Object;
-};
-
-SectionFilter ToolSectionFilter(llvm::object::ObjectFile const &amp;O) {
-  return SectionFilter([](llvm::object::SectionRef const &amp;S) {
-                         if(FilterSections.empty())
-                           return true;
-                         llvm::StringRef String;
-                         std::error_code error = S.getName(String);
-                         if (error)
-                           return false;
-                         return std::find(FilterSections.begin(),
-                                          FilterSections.end(),
-                                          String) != FilterSections.end();
-                       },
-                       O);
-}
-}
-
-void llvm::error(std::error_code EC) {
-  if (!EC)
-    return;
-
-  errs() &lt;&lt; ToolName &lt;&lt; &quot;: error reading file: &quot; &lt;&lt; EC.message() &lt;&lt; &quot;.\n&quot;;
-  errs().flush();
+// copy from llvm-objdump.cpp
+LLVM_ATTRIBUTE_NORETURN void reportError(StringRef File,
+                                                  const Twine &amp;Message) {
+  outs().flush();
+  WithColor::error(errs(), ToolName) &lt;&lt; &quot;&#39;&quot; &lt;&lt; File &lt;&lt; &quot;&#39;: &quot; &lt;&lt; Message &lt;&lt; &quot;\n&quot;;
   exit(1);
 }
 
-LLVM_ATTRIBUTE_NORETURN void llvm::error(Twine Message) {
-  errs() &lt;&lt; ToolName &lt;&lt; &quot;: &quot; &lt;&lt; Message &lt;&lt; &quot;.\n&quot;;
-  errs().flush();
-  exit(1);
+// copy from llvm-objdump.h
+template &lt;typename T, typename... Ts&gt;
+T unwrapOrError(Expected&lt;T&gt; EO, Ts &amp;&amp;... Args) {
+  if (EO)
+    return std::move(*EO);
+  assert(0 &amp;&amp; &quot;error in unwrapOrError()&quot;);
 }
 
-LLVM_ATTRIBUTE_NORETURN void llvm::report_error(StringRef File,
-                                                std::error_code EC) {
-  assert(EC);
-  errs() &lt;&lt; ToolName &lt;&lt; &quot;: &#39;&quot; &lt;&lt; File &lt;&lt; &quot;&#39;: &quot; &lt;&lt; EC.message() &lt;&lt; &quot;.\n&quot;;
-  exit(1);
-}
+// copy from llvm-objdump.cpp
+static cl::OptionCategory Elf2hexCat(&quot;elf2hex Options&quot;);
 
-LLVM_ATTRIBUTE_NORETURN void llvm::report_error(StringRef File,
-                                                llvm::Error E) {
-  assert(E);
-  std::string Buf;
-  raw_string_ostream OS(Buf);
-  logAllUnhandledErrors(std::move(E), OS, &quot;&quot;);
-  OS.flush();
-  errs() &lt;&lt; ToolName &lt;&lt; &quot;: &#39;&quot; &lt;&lt; File &lt;&lt; &quot;&#39;: &quot; &lt;&lt; Buf;
-  exit(1);
-}
-
-LLVM_ATTRIBUTE_NORETURN void llvm::report_error(StringRef ArchiveName,
-                                                StringRef FileName,
-                                                llvm::Error E,
-                                                StringRef ArchitectureName) {
-  assert(E);
-  errs() &lt;&lt; ToolName &lt;&lt; &quot;: &quot;;
-  if (ArchiveName != &quot;&quot;)
-    errs() &lt;&lt; ArchiveName &lt;&lt; &quot;(&quot; &lt;&lt; FileName &lt;&lt; &quot;)&quot;;
-  else
-    errs() &lt;&lt; FileName;
-  if (!ArchitectureName.empty())
-    errs() &lt;&lt; &quot; (for architecture &quot; &lt;&lt; ArchitectureName &lt;&lt; &quot;)&quot;;
-  std::string Buf;
-  raw_string_ostream OS(Buf);
-  logAllUnhandledErrors(std::move(E), OS, &quot;&quot;);
-  OS.flush();
-  errs() &lt;&lt; &quot; &quot; &lt;&lt; Buf;
-  exit(1);
-}
-
-LLVM_ATTRIBUTE_NORETURN void llvm::report_error(StringRef ArchiveName,
-                                                const object::Archive::Child &amp;C,
-                                                llvm::Error E,
-                                                StringRef ArchitectureName) {
-  ErrorOr&lt;StringRef&gt; NameOrErr = C.getName();
-  // TODO: if we have a error getting the name then it would be nice to print
-  // the index of which archive member this is and or its offset in the
-  // archive instead of &quot;???&quot; as the name.
-  if (NameOrErr.getError())
-    llvm::report_error(ArchiveName, &quot;???&quot;, std::move(E), ArchitectureName);
-  else
-    llvm::report_error(ArchiveName, NameOrErr.get(), std::move(E),
-                       ArchitectureName);
-}
-
-const Target *getTarget(const ObjectFile *Obj = nullptr) {
+static cl::list&lt;std::string&gt; InputFilenames(cl::Positional,
+                                            cl::desc(&quot;&lt;input object files&gt;&quot;),
+                                            cl::ZeroOrMore,
+                                            cl::cat(Elf2hexCat));
+std::string TripleName = &quot;&quot;;
+                                            
+static const Target *getTarget(const ObjectFile *Obj) {
   // Figure out the target triple.
-  llvm::Triple TheTriple(&quot;unknown-unknown-unknown&quot;);
-  if (TripleName.empty()) {
-    if (Obj) {
-      TheTriple.setArch(Triple::ArchType(Obj-&gt;getArch()));
-      // TheTriple defaults to ELF, and COFF doesn&#39;t have an environment:
-      // the best we can do here is indicate that it is mach-o.
-      if (Obj-&gt;isMachO())
-        TheTriple.setObjectFormat(Triple::MachO);
-
-      if (Obj-&gt;isCOFF()) {
-        const auto COFFObj = dyn_cast&lt;COFFObjectFile&gt;(Obj);
-        if (COFFObj-&gt;getArch() == Triple::thumb)
-          TheTriple.setTriple(&quot;thumbv7-windows&quot;);
-      }
-    }
-  } else
-    TheTriple.setTriple(Triple::normalize(TripleName));
+  Triple TheTriple(&quot;unknown-unknown-unknown&quot;);
+  TheTriple = Obj-&gt;makeTriple();
 
   // Get the target specific parser.
   std::string Error;
-  const Target *TheTarget = TargetRegistry::lookupTarget(ArchName, TheTriple,
+  const Target *TheTarget = TargetRegistry::lookupTarget(&quot;&quot;, TheTriple,
                                                          Error);
   if (!TheTarget)
-    report_fatal_error(&quot;can&#39;t find target: &quot; + Error);
+    reportError(Obj-&gt;getFileName(), &quot;can&#39;t find target: &quot; + Error);
 
   // Update the triple name and return the found target.
   TripleName = TheTriple.getTriple();
   return TheTarget;
 }
 
-bool llvm::RelocAddressLess(RelocationRef a, RelocationRef b) {
-  return a.getOffset() &lt; b.getOffset();
+bool isRelocAddressLess(RelocationRef A, RelocationRef B) {
+  return A.getOffset() &lt; B.getOffset();
 }
 
-
-template &lt;class ELFT&gt;
-static std::error_code getRelocationValueString(const ELFObjectFile&lt;ELFT&gt; *Obj,
-                                                const RelocationRef &amp;RelRef,
-                                                SmallVectorImpl&lt;char&gt; &amp;Result) {
-  DataRefImpl Rel = RelRef.getRawDataRefImpl();
-
-  typedef typename ELFObjectFile&lt;ELFT&gt;::Elf_Sym Elf_Sym;
-  typedef typename ELFObjectFile&lt;ELFT&gt;::Elf_Shdr Elf_Shdr;
-  typedef typename ELFObjectFile&lt;ELFT&gt;::Elf_Rela Elf_Rela;
-
-  const ELFFile&lt;ELFT&gt; &amp;EF = *Obj-&gt;getELFFile();
-
-  ErrorOr&lt;const Elf_Shdr *&gt; SecOrErr = EF.getSection(Rel.d.a);
-  if (std::error_code EC = SecOrErr.getError())
-    return EC;
-  const Elf_Shdr *Sec = *SecOrErr;
-  ErrorOr&lt;const Elf_Shdr *&gt; SymTabOrErr = EF.getSection(Sec-&gt;sh_link);
-  if (std::error_code EC = SymTabOrErr.getError())
-    return EC;
-  const Elf_Shdr *SymTab = *SymTabOrErr;
-  assert(SymTab-&gt;sh_type == ELF::SHT_SYMTAB ||
-         SymTab-&gt;sh_type == ELF::SHT_DYNSYM);
-  ErrorOr&lt;const Elf_Shdr *&gt; StrTabSec = EF.getSection(SymTab-&gt;sh_link);
-  if (std::error_code EC = StrTabSec.getError())
-    return EC;
-  ErrorOr&lt;StringRef&gt; StrTabOrErr = EF.getStringTable(*StrTabSec);
-  if (std::error_code EC = StrTabOrErr.getError())
-    return EC;
-  StringRef StrTab = *StrTabOrErr;
-  uint8_t type = RelRef.getType();
-  StringRef res;
-  int64_t addend = 0;
-  switch (Sec-&gt;sh_type) {
-  default:
-    return object_error::parse_failed;
-  case ELF::SHT_REL: {
-    // TODO: Read implicit addend from section data.
-    break;
-  }
-  case ELF::SHT_RELA: {
-    const Elf_Rela *ERela = Obj-&gt;getRela(Rel);
-    addend = ERela-&gt;r_addend;
-    break;
-  }
-  }
-  symbol_iterator SI = RelRef.getSymbol();
-  const Elf_Sym *symb = Obj-&gt;getSymbol(SI-&gt;getRawDataRefImpl());
-  StringRef Target;
-  if (symb-&gt;getType() == ELF::STT_SECTION) {
-    Expected&lt;section_iterator&gt; SymSI = SI-&gt;getSection();
-    if (!SymSI)
-      return errorToErrorCode(SymSI.takeError());
-    const Elf_Shdr *SymSec = Obj-&gt;getSection((*SymSI)-&gt;getRawDataRefImpl());
-    ErrorOr&lt;StringRef&gt; SecName = EF.getSectionName(SymSec);
-    if (std::error_code EC = SecName.getError())
-      return EC;
-    Target = *SecName;
-  } else {
-    Expected&lt;StringRef&gt; SymName = symb-&gt;getName(StrTab);
-    if (!SymName)
-      return errorToErrorCode(SymName.takeError());
-    Target = *SymName;
-  }
-  switch (EF.getHeader()-&gt;e_machine) {
-  case ELF::EM_X86_64:
-    switch (type) {
-    case ELF::R_X86_64_PC8:
-    case ELF::R_X86_64_PC16:
-    case ELF::R_X86_64_PC32: {
-      std::string fmtbuf;
-      raw_string_ostream fmt(fmtbuf);
-      fmt &lt;&lt; Target &lt;&lt; (addend &lt; 0 ? &quot;&quot; : &quot;+&quot;) &lt;&lt; addend &lt;&lt; &quot;-P&quot;;
-      fmt.flush();
-      Result.append(fmtbuf.begin(), fmtbuf.end());
-    } break;
-    case ELF::R_X86_64_8:
-    case ELF::R_X86_64_16:
-    case ELF::R_X86_64_32:
-    case ELF::R_X86_64_32S:
-    case ELF::R_X86_64_64: {
-      std::string fmtbuf;
-      raw_string_ostream fmt(fmtbuf);
-      fmt &lt;&lt; Target &lt;&lt; (addend &lt; 0 ? &quot;&quot; : &quot;+&quot;) &lt;&lt; addend;
-      fmt.flush();
-      Result.append(fmtbuf.begin(), fmtbuf.end());
-    } break;
-    default:
-      res = &quot;Unknown&quot;;
-    }
-    break;
-  case ELF::EM_LANAI:
-  case ELF::EM_AARCH64: {
-    std::string fmtbuf;
-    raw_string_ostream fmt(fmtbuf);
-    fmt &lt;&lt; Target;
-    if (addend != 0)
-      fmt &lt;&lt; (addend &lt; 0 ? &quot;&quot; : &quot;+&quot;) &lt;&lt; addend;
-    fmt.flush();
-    Result.append(fmtbuf.begin(), fmtbuf.end());
-    break;
-  }
-  case ELF::EM_386:
-  case ELF::EM_IAMCU:
-  case ELF::EM_ARM:
-  case ELF::EM_HEXAGON:
-  case ELF::EM_MIPS:
-  case ELF::EM_BPF:
-    res = Target;
-    break;
-  case ELF::EM_WEBASSEMBLY:
-    switch (type) {
-    case ELF::R_WEBASSEMBLY_DATA: {
-      std::string fmtbuf;
-      raw_string_ostream fmt(fmtbuf);
-      fmt &lt;&lt; Target &lt;&lt; (addend &lt; 0 ? &quot;&quot; : &quot;+&quot;) &lt;&lt; addend;
-      fmt.flush();
-      Result.append(fmtbuf.begin(), fmtbuf.end());
-      break;
-    }
-    case ELF::R_WEBASSEMBLY_FUNCTION:
-      res = Target;
-      break;
-    default:
-      res = &quot;Unknown&quot;;
-    }
-    break;
-  default:
-    res = &quot;Unknown&quot;;
-  }
-  if (Result.empty())
-    Result.append(res.begin(), res.end());
-  return std::error_code();
-}
-
-static std::error_code getRelocationValueString(const ELFObjectFileBase *Obj,
-                                                const RelocationRef &amp;Rel,
-                                                SmallVectorImpl&lt;char&gt; &amp;Result) {
-  if (auto *ELF32LE = dyn_cast&lt;ELF32LEObjectFile&gt;(Obj))
-    return getRelocationValueString(ELF32LE, Rel, Result);
-  if (auto *ELF64LE = dyn_cast&lt;ELF64LEObjectFile&gt;(Obj))
-    return getRelocationValueString(ELF64LE, Rel, Result);
-  if (auto *ELF32BE = dyn_cast&lt;ELF32BEObjectFile&gt;(Obj))
-    return getRelocationValueString(ELF32BE, Rel, Result);
-  auto *ELF64BE = cast&lt;ELF64BEObjectFile&gt;(Obj);
-  return getRelocationValueString(ELF64BE, Rel, Result);
-}
-
-static std::error_code getRelocationValueString(const COFFObjectFile *Obj,
-                                                const RelocationRef &amp;Rel,
-                                                SmallVectorImpl&lt;char&gt; &amp;Result) {
-  symbol_iterator SymI = Rel.getSymbol();
-  Expected&lt;StringRef&gt; SymNameOrErr = SymI-&gt;getName();
-  if (!SymNameOrErr)
-    return errorToErrorCode(SymNameOrErr.takeError());
-  StringRef SymName = *SymNameOrErr;
-  Result.append(SymName.begin(), SymName.end());
-  return std::error_code();
-}
-
-static void printRelocationTargetName(const MachOObjectFile *O,
-                                      const MachO::any_relocation_info &amp;RE,
-                                      raw_string_ostream &amp;fmt) {
-  bool IsScattered = O-&gt;isRelocationScattered(RE);
-
-  // Target of a scattered relocation is an address.  In the interest of
-  // generating pretty output, scan through the symbol table looking for a
-  // symbol that aligns with that address.  If we find one, print it.
-  // Otherwise, we just print the hex address of the target.
-  if (IsScattered) {
-    uint32_t Val = O-&gt;getPlainRelocationSymbolNum(RE);
-
-    for (const SymbolRef &amp;Symbol : O-&gt;symbols()) {
-      std::error_code ec;
-      Expected&lt;uint64_t&gt; Addr = Symbol.getAddress();
-      if (!Addr) {
-        std::string Buf;
-        raw_string_ostream OS(Buf);
-        logAllUnhandledErrors(Addr.takeError(), OS, &quot;&quot;);
-        OS.flush();
-        report_fatal_error(Buf);
-      }
-      if (*Addr != Val)
-        continue;
-      Expected&lt;StringRef&gt; Name = Symbol.getName();
-      if (!Name) {
-        std::string Buf;
-        raw_string_ostream OS(Buf);
-        logAllUnhandledErrors(Name.takeError(), OS, &quot;&quot;);
-        OS.flush();
-        report_fatal_error(Buf);
-      }
-      fmt &lt;&lt; *Name;
-      return;
-    }
-
-    // If we couldn&#39;t find a symbol that this relocation refers to, try
-    // to find a section beginning instead.
-    for (const SectionRef &amp;Section : ToolSectionFilter(*O)) {
-      std::error_code ec;
-
-      StringRef Name;
-      uint64_t Addr = Section.getAddress();
-      if (Addr != Val)
-        continue;
-      if ((ec = Section.getName(Name)))
-        report_fatal_error(ec.message());
-      fmt &lt;&lt; Name;
-      return;
-    }
-
-    fmt &lt;&lt; format(&quot;0x%x&quot;, Val);
+void error(std::error_code EC) {
+  if (!EC)
     return;
-  }
-
-  StringRef S;
-  bool isExtern = O-&gt;getPlainRelocationExternal(RE);
-  uint64_t Val = O-&gt;getPlainRelocationSymbolNum(RE);
-
-  if (isExtern) {
-    symbol_iterator SI = O-&gt;symbol_begin();
-    advance(SI, Val);
-    Expected&lt;StringRef&gt; SOrErr = SI-&gt;getName();
-    error(errorToErrorCode(SOrErr.takeError()));
-    S = *SOrErr;
-  } else {
-    section_iterator SI = O-&gt;section_begin();
-    // Adjust for the fact that sections are 1-indexed.
-    advance(SI, Val - 1);
-    SI-&gt;getName(S);
-  }
-
-  fmt &lt;&lt; S;
+  WithColor::error(errs(), ToolName)
+      &lt;&lt; &quot;reading file: &quot; &lt;&lt; EC.message() &lt;&lt; &quot;.\n&quot;;
+  errs().flush();
+  exit(1);
 }
 
-static std::error_code getRelocationValueString(const MachOObjectFile *Obj,
-                                                const RelocationRef &amp;RelRef,
-                                                SmallVectorImpl&lt;char&gt; &amp;Result) {
-  DataRefImpl Rel = RelRef.getRawDataRefImpl();
-  MachO::any_relocation_info RE = Obj-&gt;getRelocation(Rel);
-
-  unsigned Arch = Obj-&gt;getArch();
-
-  std::string fmtbuf;
-  raw_string_ostream fmt(fmtbuf);
-  unsigned Type = Obj-&gt;getAnyRelocationType(RE);
-  bool IsPCRel = Obj-&gt;getAnyRelocationPCRel(RE);
-
-  // Determine any addends that should be displayed with the relocation.
-  // These require decoding the relocation type, which is triple-specific.
-
-  // X86_64 has entirely custom relocation types.
-  if (Arch == Triple::x86_64) {
-    bool isPCRel = Obj-&gt;getAnyRelocationPCRel(RE);
-
-    switch (Type) {
-    case MachO::X86_64_RELOC_GOT_LOAD:
-    case MachO::X86_64_RELOC_GOT: {
-      printRelocationTargetName(Obj, RE, fmt);
-      fmt &lt;&lt; &quot;@GOT&quot;;
-      if (isPCRel)
-        fmt &lt;&lt; &quot;PCREL&quot;;
-      break;
-    }
-    case MachO::X86_64_RELOC_SUBTRACTOR: {
-      DataRefImpl RelNext = Rel;
-      Obj-&gt;moveRelocationNext(RelNext);
-      MachO::any_relocation_info RENext = Obj-&gt;getRelocation(RelNext);
-
-      // X86_64_RELOC_SUBTRACTOR must be followed by a relocation of type
-      // X86_64_RELOC_UNSIGNED.
-      // NOTE: Scattered relocations don&#39;t exist on x86_64.
-      unsigned RType = Obj-&gt;getAnyRelocationType(RENext);
-      if (RType != MachO::X86_64_RELOC_UNSIGNED)
-        report_fatal_error(&quot;Expected X86_64_RELOC_UNSIGNED after &quot;
-                           &quot;X86_64_RELOC_SUBTRACTOR.&quot;);
-
-      // The X86_64_RELOC_UNSIGNED contains the minuend symbol;
-      // X86_64_RELOC_SUBTRACTOR contains the subtrahend.
-      printRelocationTargetName(Obj, RENext, fmt);
-      fmt &lt;&lt; &quot;-&quot;;
-      printRelocationTargetName(Obj, RE, fmt);
-      break;
-    }
-    case MachO::X86_64_RELOC_TLV:
-      printRelocationTargetName(Obj, RE, fmt);
-      fmt &lt;&lt; &quot;@TLV&quot;;
-      if (isPCRel)
-        fmt &lt;&lt; &quot;P&quot;;
-      break;
-    case MachO::X86_64_RELOC_SIGNED_1:
-      printRelocationTargetName(Obj, RE, fmt);
-      fmt &lt;&lt; &quot;-1&quot;;
-      break;
-    case MachO::X86_64_RELOC_SIGNED_2:
-      printRelocationTargetName(Obj, RE, fmt);
-      fmt &lt;&lt; &quot;-2&quot;;
-      break;
-    case MachO::X86_64_RELOC_SIGNED_4:
-      printRelocationTargetName(Obj, RE, fmt);
-      fmt &lt;&lt; &quot;-4&quot;;
-      break;
-    default:
-      printRelocationTargetName(Obj, RE, fmt);
-      break;
-    }
-    // X86 and ARM share some relocation types in common.
-  } else if (Arch == Triple::x86 || Arch == Triple::arm ||
-             Arch == Triple::ppc) {
-    // Generic relocation types...
-    switch (Type) {
-    case MachO::GENERIC_RELOC_PAIR: // prints no info
-      return std::error_code();
-    case MachO::GENERIC_RELOC_SECTDIFF: {
-      DataRefImpl RelNext = Rel;
-      Obj-&gt;moveRelocationNext(RelNext);
-      MachO::any_relocation_info RENext = Obj-&gt;getRelocation(RelNext);
-
-      // X86 sect diff&#39;s must be followed by a relocation of type
-      // GENERIC_RELOC_PAIR.
-      unsigned RType = Obj-&gt;getAnyRelocationType(RENext);
-
-      if (RType != MachO::GENERIC_RELOC_PAIR)
-        report_fatal_error(&quot;Expected GENERIC_RELOC_PAIR after &quot;
-                           &quot;GENERIC_RELOC_SECTDIFF.&quot;);
-
-      printRelocationTargetName(Obj, RE, fmt);
-      fmt &lt;&lt; &quot;-&quot;;
-      printRelocationTargetName(Obj, RENext, fmt);
-      break;
-    }
-    }
-
-    if (Arch == Triple::x86 || Arch == Triple::ppc) {
-      switch (Type) {
-      case MachO::GENERIC_RELOC_LOCAL_SECTDIFF: {
-        DataRefImpl RelNext = Rel;
-        Obj-&gt;moveRelocationNext(RelNext);
-        MachO::any_relocation_info RENext = Obj-&gt;getRelocation(RelNext);
-
-        // X86 sect diff&#39;s must be followed by a relocation of type
-        // GENERIC_RELOC_PAIR.
-        unsigned RType = Obj-&gt;getAnyRelocationType(RENext);
-        if (RType != MachO::GENERIC_RELOC_PAIR)
-          report_fatal_error(&quot;Expected GENERIC_RELOC_PAIR after &quot;
-                             &quot;GENERIC_RELOC_LOCAL_SECTDIFF.&quot;);
-
-        printRelocationTargetName(Obj, RE, fmt);
-        fmt &lt;&lt; &quot;-&quot;;
-        printRelocationTargetName(Obj, RENext, fmt);
-        break;
-      }
-      case MachO::GENERIC_RELOC_TLV: {
-        printRelocationTargetName(Obj, RE, fmt);
-        fmt &lt;&lt; &quot;@TLV&quot;;
-        if (IsPCRel)
-          fmt &lt;&lt; &quot;P&quot;;
-        break;
-      }
-      default:
-        printRelocationTargetName(Obj, RE, fmt);
-      }
-    } else { // ARM-specific relocations
-      switch (Type) {
-      case MachO::ARM_RELOC_HALF:
-      case MachO::ARM_RELOC_HALF_SECTDIFF: {
-        // Half relocations steal a bit from the length field to encode
-        // whether this is an upper16 or a lower16 relocation.
-        bool isUpper = Obj-&gt;getAnyRelocationLength(RE) &gt;&gt; 1;
-
-        if (isUpper)
-          fmt &lt;&lt; &quot;:upper16:(&quot;;
-        else
-          fmt &lt;&lt; &quot;:lower16:(&quot;;
-        printRelocationTargetName(Obj, RE, fmt);
-
-        DataRefImpl RelNext = Rel;
-        Obj-&gt;moveRelocationNext(RelNext);
-        MachO::any_relocation_info RENext = Obj-&gt;getRelocation(RelNext);
-
-        // ARM half relocs must be followed by a relocation of type
-        // ARM_RELOC_PAIR.
-        unsigned RType = Obj-&gt;getAnyRelocationType(RENext);
-        if (RType != MachO::ARM_RELOC_PAIR)
-          report_fatal_error(&quot;Expected ARM_RELOC_PAIR after &quot;
-                             &quot;ARM_RELOC_HALF&quot;);
-
-        // NOTE: The half of the target virtual address is stashed in the
-        // address field of the secondary relocation, but we can&#39;t reverse
-        // engineer the constant offset from it without decoding the movw/movt
-        // instruction to find the other half in its immediate field.
-
-        // ARM_RELOC_HALF_SECTDIFF encodes the second section in the
-        // symbol/section pointer of the follow-on relocation.
-        if (Type == MachO::ARM_RELOC_HALF_SECTDIFF) {
-          fmt &lt;&lt; &quot;-&quot;;
-          printRelocationTargetName(Obj, RENext, fmt);
-        }
-
-        fmt &lt;&lt; &quot;)&quot;;
-        break;
-      }
-      default: { printRelocationTargetName(Obj, RE, fmt); }
-      }
-    }
-  } else
-    printRelocationTargetName(Obj, RE, fmt);
-
-  fmt.flush();
-  Result.append(fmtbuf.begin(), fmtbuf.end());
-  return std::error_code();
-}
-
-std::error_code getRelocationValueString(const RelocationRef &amp;Rel,
-                                                SmallVectorImpl&lt;char&gt; &amp;Result) {
-  const ObjectFile *Obj = Rel.getObject();
-  if (auto *ELF = dyn_cast&lt;ELFObjectFileBase&gt;(Obj))
-    return getRelocationValueString(ELF, Rel, Result);
-  if (auto *COFF = dyn_cast&lt;COFFObjectFile&gt;(Obj))
-    return getRelocationValueString(COFF, Rel, Result);
-  auto *MachO = cast&lt;MachOObjectFile&gt;(Obj);
-  return getRelocationValueString(MachO, Rel, Result);
-}
-
-/// @brief Indicates whether this relocation should hidden when listing
-/// relocations, usually because it is the trailing part of a multipart
-/// relocation that will be printed as part of the leading relocation.
-bool getHidden(RelocationRef RelRef) {
-  const ObjectFile *Obj = RelRef.getObject();
-  auto *MachO = dyn_cast&lt;MachOObjectFile&gt;(Obj);
-  if (!MachO)
-    return false;
-
-  unsigned Arch = MachO-&gt;getArch();
-  DataRefImpl Rel = RelRef.getRawDataRefImpl();
-  uint64_t Type = MachO-&gt;getRelocationType(Rel);
-
-  // On arches that use the generic relocations, GENERIC_RELOC_PAIR
-  // is always hidden.
-  if (Arch == Triple::x86 || Arch == Triple::arm || Arch == Triple::ppc) {
-    if (Type == MachO::GENERIC_RELOC_PAIR)
-      return true;
-  } else if (Arch == Triple::x86_64) {
-    // On x86_64, X86_64_RELOC_UNSIGNED is hidden only when it follows
-    // an X86_64_RELOC_SUBTRACTOR.
-    if (Type == MachO::X86_64_RELOC_UNSIGNED &amp;&amp; Rel.d.a &gt; 0) {
-      DataRefImpl RelPrev = Rel;
-      RelPrev.d.a--;
-      uint64_t PrevType = MachO-&gt;getRelocationType(RelPrev);
-      if (PrevType == MachO::X86_64_RELOC_SUBTRACTOR)
-        return true;
-    }
-  }
-
-  return false;
+static void getName(llvm::object::SectionRef const &amp;Section, StringRef Name) {
+  Name = unwrapOrError(Section.getName(), CurrInputFile);
+#ifdef ELF2HEX_DEBUG
+  llvm::dbgs() &lt;&lt; Name &lt;&lt; &quot;\n&quot;;
+#endif
 }
 
 
@@ -1023,7 +336,7 @@ uint64_t GetSectionHeaderStartAddress(const ObjectFile *Obj,
   for (const SectionRef &amp;Section : Obj-&gt;sections()) {
     error(ec);
     StringRef Name;
-    error(Section.getName(Name));
+    error(getName(Section, Name));
     uint64_t Address;
     Address = Section.getAddress();
     uint64_t Size;
@@ -1040,29 +353,26 @@ uint64_t GetSectionHeaderStartAddress(const ObjectFile *Obj,
 }
 #endif
 
-// Reference from llvm::PrintSymbolTable of llvm-objdump.cpp
+// Reference from llvm::printSymbolTable of llvm-objdump.cpp
 uint64_t GetSymbolAddress(const ObjectFile *o, StringRef SymbolName) {
   for (const SymbolRef &amp;Symbol : o-&gt;symbols()) {
     Expected&lt;uint64_t&gt; AddressOrError = Symbol.getAddress();
     if (!AddressOrError)
-      report_error(SymbolName, o-&gt;getFileName(), AddressOrError.takeError());
+      reportError(o-&gt;getFileName(), SymbolName);
     uint64_t Address = *AddressOrError;
     Expected&lt;SymbolRef::Type&gt; TypeOrError = Symbol.getType();
     if (!TypeOrError)
-      report_error(SymbolName, o-&gt;getFileName(), TypeOrError.takeError());
+      reportError(o-&gt;getFileName(), SymbolName);
     SymbolRef::Type Type = *TypeOrError;
-    Expected&lt;section_iterator&gt; SectionOrErr = Symbol.getSection();
-    error(errorToErrorCode(SectionOrErr.takeError()));
-    section_iterator Section = *SectionOrErr;
+    section_iterator Section = unwrapOrError(Symbol.getSection(), CurrInputFile);
     StringRef Name;
     if (Type == SymbolRef::ST_Debug &amp;&amp; Section != o-&gt;section_end()) {
-      Section-&gt;getName(Name);
+      if (Expected&lt;StringRef&gt; NameOrErr = Section-&gt;getName())
+        Name = *NameOrErr;
+      else
+        consumeError(NameOrErr.takeError());
     } else {
-      Expected&lt;StringRef&gt; NameOrErr = Symbol.getName();
-      if (!NameOrErr)
-        report_error(SymbolName, o-&gt;getFileName(), NameOrErr.takeError(),
-                     SymbolName);
-      Name = *NameOrErr;
+      Name = unwrapOrError(Symbol.getName(), o-&gt;getFileName());
     }
     if (Name == SymbolName)
       return Address;
@@ -1071,18 +381,12 @@ uint64_t GetSymbolAddress(const ObjectFile *o, StringRef SymbolName) {
 }
 
 uint64_t SectionOffset(const ObjectFile *o, StringRef secName) {
-  std::error_code ec;
-
   for (const SectionRef &amp;Section : o-&gt;sections()) {
-    error(ec);
     StringRef Name;
-    StringRef Contents;
     uint64_t BaseAddr;
-    bool BSS;
-    error(Section.getName(Name));
-    error(Section.getContents(Contents));
+    Name = unwrapOrError(Section.getName(), o-&gt;getFileName());
+    unwrapOrError(Section.getContents(), o-&gt;getFileName());
     BaseAddr = Section.getAddress();
-    BSS = Section.isBSS();
 
     if (Name == secName)
       return BaseAddr;
@@ -1099,8 +403,8 @@ VerilogHex::VerilogHex(std::unique_ptr&lt;MCInstPrinter&gt;&amp; instructionPoin
   IP(instructionPointer), STI(subTargetInfo) {
   lastDumpAddr = 0;
 #ifdef ELF2HEX_DEBUG
-  uint64_t startAddr = GetSectionHeaderStartAddress(Obj, &quot;_start&quot;);
-  errs() &lt;&lt; format(&quot;_start address:%08&quot; PRIx64 &quot;\n&quot;, startAddr);
+  //uint64_t startAddr = GetSectionHeaderStartAddress(Obj, &quot;_start&quot;);
+  //errs() &lt;&lt; format(&quot;_start address:%08&quot; PRIx64 &quot;\n&quot;, startAddr);
 #endif
   uint64_t isrAddr = GetSymbolAddress(Obj, &quot;ISR&quot;);
   errs() &lt;&lt; format(&quot;ISR address:%08&quot; PRIx64 &quot;\n&quot;, isrAddr);
@@ -1186,8 +490,8 @@ void VerilogHex::ProcessDisAsmInstruction(MCInst inst, uint64_t Size,
   SectionRef Section = reader.CurrentSection();
   StringRef Name;
   StringRef Contents;
-  error(Section.getName(Name));
-  error(Section.getContents(Contents));
+  Name = unwrapOrError(Section.getName(), Obj-&gt;getFileName());
+  unwrapOrError(Section.getContents(), Obj-&gt;getFileName());
   uint64_t SectionAddr = Section.getAddress();
   uint64_t Index = reader.CurrentIndex();
 #ifdef ELF2HEX_DEBUG
@@ -1224,15 +528,13 @@ void VerilogHex::ProcessDisAsmInstruction(MCInst inst, uint64_t Size,
   // print instruction address
   outs() &lt;&lt; format(&quot;/*%8&quot; PRIx64 &quot;:*/&quot;, SectionAddr + Index);
  
-  if (!NoShowRawInsn) {
-    // print instruction in hex format
-    outs() &lt;&lt; &quot;\t&quot;;
-    dumpBytes(Bytes.slice(Index, Size), outs());
-  }
+  // print instruction in hex format
+  outs() &lt;&lt; &quot;\t&quot;;
+  dumpBytes(Bytes.slice(Index, Size), outs());
 
   outs() &lt;&lt; &quot;/*&quot;;
   // print disassembly instruction to outs()
-  IP-&gt;printInst(&amp;inst, outs(), &quot;&quot;, *STI);
+  IP-&gt;printInst(&amp;inst, 0, &quot;&quot;, *STI, outs());
   outs() &lt;&lt; &quot;*/&quot;;
   outs() &lt;&lt; &quot;\n&quot;;
 
@@ -1249,8 +551,8 @@ void VerilogHex::ProcessDataSection(SectionRef Section) {
   StringRef Contents;
   uint64_t BaseAddr;
   uint64_t size;
-  error(Section.getName(Name));
-  error(Section.getContents(Contents));
+  getName(Section, Name);
+  unwrapOrError(Section.getContents(), CurrInputFile);
   BaseAddr = Section.getAddress();
 
 #ifdef ELF2HEX_DEBUG
@@ -1275,11 +577,10 @@ void VerilogHex::ProcessDataSection(SectionRef Section) {
 void VerilogHex::PrintDataSection(SectionRef Section) {
   std::string Error;
   StringRef Name;
-  StringRef Contents;
   uint64_t BaseAddr;
   uint64_t size;
-  error(Section.getName(Name));
-  error(Section.getContents(Contents));
+  getName(Section, Name);
+  StringRef Contents = unwrapOrError(Section.getContents(), CurrInputFile);
   BaseAddr = Section.getAddress();
 
   if (Contents.size() &lt;= 0) {
@@ -1348,18 +649,21 @@ void Reader::DisassembleObject(const ObjectFile *Obj
   std::error_code ec;
   for (const SectionRef &amp;Section : Obj-&gt;sections()) {
     _section = Section;
-    error(ec);
-    StringRef Name;
-    StringRef Contents;
     uint64_t BaseAddr;
-    error(Section.getName(Name));
-    error(Section.getContents(Contents));
+    unwrapOrError(Section.getContents(), Obj-&gt;getFileName());
     BaseAddr = Section.getAddress();
+    uint64_t SectSize = Section.getSize();
+    if (!SectSize)
+      continue;
+
     if (BaseAddr &lt; 0x100)
       continue;
+ 
   #ifdef ELF2HEX_DEBUG
-    errs() &lt;&lt; &quot;Name &quot; &lt;&lt; Name &lt;&lt; format(&quot;  BaseAddr %8&quot; PRIx64 &quot;\n&quot;, BaseAddr);
+    StringRef SectionName = unwrapOrError(Section.getName(), Obj-&gt;getFileName());
+    errs() &lt;&lt; &quot;SectionName &quot; &lt;&lt; SectionName &lt;&lt; format(&quot;  BaseAddr %8&quot; PRIx64 &quot;\n&quot;, BaseAddr);
   #endif
+ 
     bool text;
     text = Section.isText();
     if (!text) {
@@ -1369,10 +673,7 @@ void Reader::DisassembleObject(const ObjectFile *Obj
     // It&#39;s .text section
     uint64_t SectionAddr;
     SectionAddr = Section.getAddress();
-    uint64_t SectSize = Section.getSize();
-    if (!SectSize)
-      continue;
-
+ 
     // Make a list of all the symbols in this section.
     for (const SymbolRef &amp;Symbol : Obj-&gt;symbols()) {
       if (Section.containsSymbol(Symbol)) {
@@ -1401,10 +702,10 @@ void Reader::DisassembleObject(const ObjectFile *Obj
     std::vector&lt;RelocationRef&gt; Rels;
 
     // Sort relocations by address.
-    std::sort(Rels.begin(), Rels.end(), RelocAddressLess);
+    std::sort(Rels.begin(), Rels.end(), isRelocAddressLess);
 
     StringRef name;
-    error(Section.getName(name));
+    getName(Section, name);
 
     // If the section has no symbols just insert a dummy one and disassemble
     // the whole section.
@@ -1414,10 +715,13 @@ void Reader::DisassembleObject(const ObjectFile *Obj
     SmallString&lt;40&gt; Comments;
     raw_svector_ostream CommentStream(Comments);
 
-    StringRef BytesStr;
-    error(Section.getContents(BytesStr));
+    ArrayRef&lt;uint8_t&gt; Bytes = arrayRefFromStringRef(
+        unwrapOrError(Section.getContents(), Obj-&gt;getFileName()));
+#if 0
+    Section.getContents();
     ArrayRef&lt;uint8_t&gt; Bytes(reinterpret_cast&lt;const uint8_t *&gt;(BytesStr.data()),
                             BytesStr.size());
+#endif
     uint64_t Size;
     SectSize = Section.getSize();
 
@@ -1437,17 +741,10 @@ void Reader::DisassembleObject(const ObjectFile *Obj
         continue;
       }
 
-#ifndef NDEBUG
-      raw_ostream &amp;DebugOut = DebugFlag ? dbgs() : nulls();
-#else
-      raw_ostream &amp;DebugOut = nulls();
-#endif
-
       for (Index = Start; Index &lt; End; Index += Size) {
         MCInst Inst;
         if (DisAsm-&gt;getInstruction(Inst, Size, Bytes.slice(Index),
-                                   SectionAddr + Index, DebugOut,
-                                   CommentStream)) {
+                                   SectionAddr + Index, CommentStream)) {
           hexOut.ProcessDisAsmInstruction(Inst, Size, Bytes, Obj);
         } else {
           errs() &lt;&lt; ToolName &lt;&lt; &quot;: warning: invalid instruction encoding\n&quot;;
@@ -1459,25 +756,22 @@ void Reader::DisassembleObject(const ObjectFile *Obj
   }
 }
 
-// Porting from DisassembleObject() of llvm-objump.cpp
+// Porting from disassembleObject() of llvm-objump.cpp
 static void Elf2Hex(const ObjectFile *Obj) {
 
   const Target *TheTarget = getTarget(Obj);
 
   // Package up features to be passed to target/subtarget
   SubtargetFeatures Features = Obj-&gt;getFeatures();
-  if (MAttrs.size()) {
-    for (unsigned i = 0; i != MAttrs.size(); ++i)
-      Features.AddFeature(MAttrs[i]);
-  }
 
   std::unique_ptr&lt;const MCRegisterInfo&gt; MRI(TheTarget-&gt;createMCRegInfo(TripleName));
   if (!MRI)
     report_fatal_error(&quot;error: no register info for target &quot; + TripleName);
 
   // Set up disassembler.
+  MCTargetOptions MCOptions;
   std::unique_ptr&lt;const MCAsmInfo&gt; AsmInfo(
-    TheTarget-&gt;createMCAsmInfo(*MRI, TripleName));
+    TheTarget-&gt;createMCAsmInfo(*MRI, TripleName, MCOptions));
   if (!AsmInfo)
     report_fatal_error(&quot;error: no assembly info for target &quot; + TripleName);
 
@@ -1490,8 +784,10 @@ static void Elf2Hex(const ObjectFile *Obj) {
   if (!MII)
     report_fatal_error(&quot;error: no instruction info for target &quot; + TripleName);
 
-  std::unique_ptr&lt;const MCObjectFileInfo&gt; MOFI(new MCObjectFileInfo);
-  MCContext Ctx(AsmInfo.get(), MRI.get(), MOFI.get());
+  MCObjectFileInfo MOFI;
+  MCContext Ctx(AsmInfo.get(), MRI.get(), &amp;MOFI);
+  // FIXME: for now initialize MCObjectFileInfo with default values
+  MOFI.InitMCObjectFileInfo(Triple(TripleName), false, Ctx);
 
   std::unique_ptr&lt;MCDisassembler&gt; DisAsm(
     TheTarget-&gt;createMCDisassembler(*STI, Ctx));
@@ -1523,24 +819,28 @@ static void DumpObject(const ObjectFile *o) {
 
 /// @brief Open file and figure out how to dump it.
 static void DumpInput(StringRef file) {
+  CurrInputFile = file;
   // Attempt to open the binary.
   Expected&lt;OwningBinary&lt;Binary&gt;&gt; BinaryOrErr = createBinary(file);
   if (!BinaryOrErr)
-    report_error(file, BinaryOrErr.takeError());
+    reportError(file, &quot;no this file&quot;);
 
   Binary &amp;Binary = *BinaryOrErr.get().getBinary();
 
   if (ObjectFile *o = dyn_cast&lt;ObjectFile&gt;(&amp;Binary))
     DumpObject(o);
   else
-    report_error(file, object_error::invalid_file_type);
+    reportError(file, &quot;invalid_file_type&quot;);
 }
 
 int main(int argc, char **argv) {
   // Print a stack trace if we signal out.
-  sys::PrintStackTraceOnErrorSignal(argv[0]);
-  PrettyStackTraceProgram X(argc, argv);
-  llvm_shutdown_obj Y;  // Call llvm_shutdown() on exit.
+  //sys::PrintStackTraceOnErrorSignal(argv[0]);
+  //PrettyStackTraceProgram X(argc, argv);
+  //llvm_shutdown_obj Y;  // Call llvm_shutdown() on exit.
+
+  using namespace llvm;
+  InitLLVM X(argc, argv);
 
   // Initialize targets and assembly printers/parsers.
   llvm::InitializeAllTargetInfos();
@@ -1551,7 +851,7 @@ int main(int argc, char **argv) {
   cl::AddExtraVersionPrinter(TargetRegistry::printRegisteredTargetsForVersion);
 
   cl::ParseCommandLineOptions(argc, argv, &quot;llvm object file dumper\n&quot;);
-  TripleName = Triple::normalize(TripleName);
+//  TripleName = Triple::normalize(TripleName);
 
   ToolName = argv[0];
 
@@ -1570,183 +870,28 @@ int main(int argc, char **argv) {
 <p>In order to support command, <strong>llvm-objdump -d</strong> and <strong>llvm-objdump -t</strong>, for
 Cpu0, the code add to llvm-objdump.cpp as follows,</p>
 <p class="rubric">exlbt/llvm-objdump/llvm-objdump.cpp</p>
-<div class="highlight-c++"><div class="highlight"><pre><span></span><span class="k">case</span> <span class="n">ELF</span><span class="o">::</span><span class="nl">EM_CPU0</span><span class="p">:</span> <span class="c1">//Cpu0</span>
+<div class="highlight-c++ notranslate"><div class="highlight"><pre><span></span><span class="k">case</span> <span class="n">ELF</span><span class="o">::</span><span class="nl">EM_CPU0</span><span class="p">:</span> <span class="c1">//Cpu0</span>
 </pre></div>
 </div>
-<div class="highlight-console"><div class="highlight"><pre><span></span><span class="gp">1-160-136-173:tools Jonathan$</span> <span class="nb">pwd</span>
-<span class="go">/Users/Jonathan/llvm/test/src/tools</span>
-<span class="gp">1-160-136-173:tools Jonathan$</span> cp -rf ~/test/exlbt/llvm-objdump/* llvm-objdump/.
-</pre></div>
-</div>
-</div>
-<div class="section" id="create-cpu0-backend-under-lld">
-<h2><a class="toc-backref" href="#id18">Create Cpu0 backend under LLD</a><a class="headerlink" href="#create-cpu0-backend-under-lld" title="Permalink to this headline">¶</a></h2>
-<div class="section" id="cpu0-lld-source-code">
-<h3><a class="toc-backref" href="#id19">Cpu0 lld source code</a><a class="headerlink" href="#cpu0-lld-source-code" title="Permalink to this headline">¶</a></h3>
-<p>To support Cpu0 ELF linker under lld, add the following code to the following
-files.</p>
-<p class="rubric">exlbt/lld/ELF/Driver.cpp</p>
-<div class="highlight-c++"><div class="highlight"><pre><span></span><span class="k">static</span> <span class="n">std</span><span class="o">::</span><span class="n">pair</span><span class="o">&lt;</span><span class="n">ELFKind</span><span class="p">,</span> <span class="kt">uint16_t</span><span class="o">&gt;</span> <span class="n">parseEmulation</span><span class="p">(</span><span class="n">StringRef</span> <span class="n">S</span><span class="p">)</span> <span class="p">{</span>
-  <span class="p">...</span>
-          <span class="p">.</span><span class="n">Case</span><span class="p">(</span><span class="s">&quot;elf32btcpu0&quot;</span><span class="p">,</span> <span class="p">{</span><span class="n">ELF32BEKind</span><span class="p">,</span> <span class="n">EM_CPU0</span><span class="p">})</span>
-          <span class="p">.</span><span class="n">Case</span><span class="p">(</span><span class="s">&quot;elf32ltcpu0&quot;</span><span class="p">,</span> <span class="p">{</span><span class="n">ELF32LEKind</span><span class="p">,</span> <span class="n">EM_CPU0</span><span class="p">})</span>
-  <span class="p">...</span>
-<span class="p">}</span>
-</pre></div>
-</div>
-<p class="rubric">exlbt/lld/ELF/InputFiles.cpp</p>
-<div class="highlight-c++"><div class="highlight"><pre><span></span><span class="k">static</span> <span class="kt">uint8_t</span> <span class="nf">getMachineKind</span><span class="p">(</span><span class="n">MemoryBufferRef</span> <span class="n">MB</span><span class="p">)</span> <span class="p">{</span>
-  <span class="p">...</span>
-  <span class="k">case</span> <span class="n">Triple</span><span class="o">::</span><span class="nl">cpu0</span><span class="p">:</span>
-  <span class="k">case</span> <span class="n">Triple</span><span class="o">::</span><span class="nl">cpu0el</span><span class="p">:</span>
-    <span class="k">return</span> <span class="n">EM_CPU0</span><span class="p">;</span>
-  <span class="p">...</span>
-<span class="p">}</span>
-</pre></div>
-</div>
-<p class="rubric">exlbt/lld/ELF/Target.cpp</p>
-<div class="highlight-c++"><div class="highlight"><pre><span></span><span class="k">template</span> <span class="o">&lt;</span><span class="k">class</span> <span class="nc">ELFT</span><span class="o">&gt;</span> <span class="k">class</span> <span class="nc">Cpu0TargetInfo</span> <span class="k">final</span> <span class="o">:</span> <span class="k">public</span> <span class="n">TargetInfo</span> <span class="p">{</span>
-<span class="k">public</span><span class="o">:</span>
-  <span class="n">Cpu0TargetInfo</span><span class="p">();</span>
-  <span class="n">RelExpr</span> <span class="nf">getRelExpr</span><span class="p">(</span><span class="kt">uint32_t</span> <span class="n">Type</span><span class="p">,</span> <span class="k">const</span> <span class="n">SymbolBody</span> <span class="o">&amp;</span><span class="n">S</span><span class="p">)</span> <span class="k">const</span> <span class="k">override</span><span class="p">;</span>
-  <span class="kt">void</span> <span class="nf">writeGotPlt</span><span class="p">(</span><span class="kt">uint8_t</span> <span class="o">*</span><span class="n">Buf</span><span class="p">,</span> <span class="k">const</span> <span class="n">SymbolBody</span> <span class="o">&amp;</span><span class="n">S</span><span class="p">)</span> <span class="k">const</span> <span class="k">override</span><span class="p">;</span>
-  <span class="kt">void</span> <span class="nf">relocateOne</span><span class="p">(</span><span class="kt">uint8_t</span> <span class="o">*</span><span class="n">Loc</span><span class="p">,</span> <span class="kt">uint32_t</span> <span class="n">Type</span><span class="p">,</span> <span class="kt">uint64_t</span> <span class="n">Val</span><span class="p">)</span> <span class="k">const</span> <span class="k">override</span><span class="p">;</span>
-<span class="p">};</span>
-<span class="p">...</span>
-
-<span class="k">template</span> <span class="o">&lt;</span><span class="k">class</span> <span class="nc">ELFT</span><span class="o">&gt;</span> <span class="n">Cpu0TargetInfo</span><span class="o">&lt;</span><span class="n">ELFT</span><span class="o">&gt;::</span><span class="n">Cpu0TargetInfo</span><span class="p">()</span> <span class="p">{</span>
-  <span class="n">GotPltHeaderEntriesNum</span> <span class="o">=</span> <span class="mi">2</span><span class="p">;</span>
-  <span class="n">PageSize</span> <span class="o">=</span> <span class="mi">65536</span><span class="p">;</span>
-  <span class="n">GotEntrySize</span> <span class="o">=</span> <span class="k">sizeof</span><span class="p">(</span><span class="k">typename</span> <span class="n">ELFT</span><span class="o">::</span><span class="n">uint</span><span class="p">);</span>
-  <span class="n">GotPltEntrySize</span> <span class="o">=</span> <span class="k">sizeof</span><span class="p">(</span><span class="k">typename</span> <span class="n">ELFT</span><span class="o">::</span><span class="n">uint</span><span class="p">);</span>
-  <span class="n">PltEntrySize</span> <span class="o">=</span> <span class="mi">16</span><span class="p">;</span>
-  <span class="n">PltHeaderSize</span> <span class="o">=</span> <span class="mi">32</span><span class="p">;</span>
-<span class="p">}</span>
-
-<span class="k">template</span> <span class="o">&lt;</span><span class="k">class</span> <span class="nc">ELFT</span><span class="o">&gt;</span>
-<span class="n">RelExpr</span> <span class="n">Cpu0TargetInfo</span><span class="o">&lt;</span><span class="n">ELFT</span><span class="o">&gt;::</span><span class="n">getRelExpr</span><span class="p">(</span><span class="kt">uint32_t</span> <span class="n">Type</span><span class="p">,</span>
-                                         <span class="k">const</span> <span class="n">SymbolBody</span> <span class="o">&amp;</span><span class="n">S</span><span class="p">)</span> <span class="k">const</span> <span class="p">{</span>
-  <span class="k">switch</span> <span class="p">(</span><span class="n">Type</span><span class="p">)</span> <span class="p">{</span>
-  <span class="k">default</span><span class="o">:</span>
-    <span class="k">return</span> <span class="n">R_ABS</span><span class="p">;</span>
-  <span class="k">case</span> <span class="nl">R_CPU0_32</span><span class="p">:</span>
-  <span class="k">case</span> <span class="nl">R_CPU0_HI16</span><span class="p">:</span>
-  <span class="k">case</span> <span class="nl">R_CPU0_LO16</span><span class="p">:</span>
-    <span class="k">return</span> <span class="n">R_ABS</span><span class="p">;</span>
-  <span class="k">case</span> <span class="nl">R_CPU0_PC24</span><span class="p">:</span>
-    <span class="k">return</span> <span class="n">R_PC</span><span class="p">;</span>
-  <span class="p">}</span>
-<span class="p">}</span>
-
-<span class="k">template</span> <span class="o">&lt;</span><span class="k">class</span> <span class="nc">ELFT</span><span class="o">&gt;</span>
-<span class="kt">void</span> <span class="n">Cpu0TargetInfo</span><span class="o">&lt;</span><span class="n">ELFT</span><span class="o">&gt;::</span><span class="n">writeGotPlt</span><span class="p">(</span><span class="kt">uint8_t</span> <span class="o">*</span><span class="n">Buf</span><span class="p">,</span> <span class="k">const</span> <span class="n">SymbolBody</span> <span class="o">&amp;</span><span class="p">)</span> <span class="k">const</span> <span class="p">{</span>
-  <span class="n">write32</span><span class="o">&lt;</span><span class="n">ELFT</span><span class="o">::</span><span class="n">TargetEndianness</span><span class="o">&gt;</span><span class="p">(</span><span class="n">Buf</span><span class="p">,</span> <span class="n">Out</span><span class="o">&lt;</span><span class="n">ELFT</span><span class="o">&gt;::</span><span class="n">Plt</span><span class="o">-&gt;</span><span class="n">getVA</span><span class="p">());</span>
-<span class="p">}</span>
-
-<span class="k">template</span> <span class="o">&lt;</span><span class="n">endianness</span> <span class="n">E</span><span class="p">,</span> <span class="kt">uint8_t</span> <span class="n">BSIZE</span><span class="p">,</span> <span class="kt">uint8_t</span> <span class="n">SHIFT</span><span class="o">&gt;</span>
-<span class="k">static</span> <span class="kt">void</span> <span class="n">applyCpu0PcReloc</span><span class="p">(</span><span class="kt">uint8_t</span> <span class="o">*</span><span class="n">Loc</span><span class="p">,</span> <span class="kt">uint64_t</span> <span class="n">V</span><span class="p">)</span> <span class="p">{</span>
-  <span class="kt">uint32_t</span> <span class="n">Mask</span> <span class="o">=</span> <span class="mh">0xffffffff</span> <span class="o">&gt;&gt;</span> <span class="p">(</span><span class="mi">32</span> <span class="o">-</span> <span class="n">BSIZE</span><span class="p">);</span>
-  <span class="kt">uint32_t</span> <span class="n">Instr</span> <span class="o">=</span> <span class="n">read32</span><span class="o">&lt;</span><span class="n">E</span><span class="o">&gt;</span><span class="p">(</span><span class="n">Loc</span><span class="p">);</span>
-  <span class="n">write32</span><span class="o">&lt;</span><span class="n">E</span><span class="o">&gt;</span><span class="p">(</span><span class="n">Loc</span><span class="p">,</span> <span class="p">(</span><span class="n">Instr</span> <span class="o">&amp;</span> <span class="o">~</span><span class="n">Mask</span><span class="p">)</span> <span class="o">|</span> <span class="p">((</span><span class="n">V</span> <span class="o">&gt;&gt;</span> <span class="n">SHIFT</span><span class="p">)</span> <span class="o">&amp;</span> <span class="n">Mask</span><span class="p">));</span>
-<span class="p">}</span>
-
-<span class="k">template</span> <span class="o">&lt;</span><span class="n">endianness</span> <span class="n">E</span><span class="o">&gt;</span>
-<span class="k">static</span> <span class="kt">void</span> <span class="n">writeCpu0Hi16</span><span class="p">(</span><span class="kt">uint8_t</span> <span class="o">*</span><span class="n">Loc</span><span class="p">,</span> <span class="kt">uint64_t</span> <span class="n">V</span><span class="p">)</span> <span class="p">{</span>
-  <span class="kt">uint32_t</span> <span class="n">Instr</span> <span class="o">=</span> <span class="n">read32</span><span class="o">&lt;</span><span class="n">E</span><span class="o">&gt;</span><span class="p">(</span><span class="n">Loc</span><span class="p">);</span>
-  <span class="n">write32</span><span class="o">&lt;</span><span class="n">E</span><span class="o">&gt;</span><span class="p">(</span><span class="n">Loc</span><span class="p">,</span> <span class="p">(</span><span class="n">Instr</span> <span class="o">&amp;</span> <span class="mh">0xffff0000</span><span class="p">)</span> <span class="o">|</span> <span class="n">mipsHigh</span><span class="p">(</span><span class="n">V</span><span class="p">));</span>
-<span class="p">}</span>
-
-<span class="k">template</span> <span class="o">&lt;</span><span class="n">endianness</span> <span class="n">E</span><span class="o">&gt;</span>
-<span class="k">static</span> <span class="kt">void</span> <span class="n">writeCpu0Lo16</span><span class="p">(</span><span class="kt">uint8_t</span> <span class="o">*</span><span class="n">Loc</span><span class="p">,</span> <span class="kt">uint64_t</span> <span class="n">V</span><span class="p">)</span> <span class="p">{</span>
-  <span class="kt">uint32_t</span> <span class="n">Instr</span> <span class="o">=</span> <span class="n">read32</span><span class="o">&lt;</span><span class="n">E</span><span class="o">&gt;</span><span class="p">(</span><span class="n">Loc</span><span class="p">);</span>
-  <span class="n">write32</span><span class="o">&lt;</span><span class="n">E</span><span class="o">&gt;</span><span class="p">(</span><span class="n">Loc</span><span class="p">,</span> <span class="p">(</span><span class="n">Instr</span> <span class="o">&amp;</span> <span class="mh">0xffff0000</span><span class="p">)</span> <span class="o">|</span> <span class="p">(</span><span class="n">V</span> <span class="o">&amp;</span> <span class="mh">0xffff</span><span class="p">));</span>
-<span class="p">}</span>
-
-<span class="k">template</span> <span class="o">&lt;</span><span class="k">class</span> <span class="nc">ELFT</span><span class="o">&gt;</span>
-<span class="kt">void</span> <span class="n">Cpu0TargetInfo</span><span class="o">&lt;</span><span class="n">ELFT</span><span class="o">&gt;::</span><span class="n">relocateOne</span><span class="p">(</span><span class="kt">uint8_t</span> <span class="o">*</span><span class="n">Loc</span><span class="p">,</span> <span class="kt">uint32_t</span> <span class="n">Type</span><span class="p">,</span>
-                                       <span class="kt">uint64_t</span> <span class="n">Val</span><span class="p">)</span> <span class="k">const</span> <span class="p">{</span>
-  <span class="k">const</span> <span class="n">endianness</span> <span class="n">E</span> <span class="o">=</span> <span class="n">ELFT</span><span class="o">::</span><span class="n">TargetEndianness</span><span class="p">;</span>
-  <span class="k">switch</span> <span class="p">(</span><span class="n">Type</span><span class="p">)</span> <span class="p">{</span>
-  <span class="k">case</span> <span class="nl">R_CPU0_32</span><span class="p">:</span>
-    <span class="n">write32</span><span class="o">&lt;</span><span class="n">E</span><span class="o">&gt;</span><span class="p">(</span><span class="n">Loc</span><span class="p">,</span> <span class="n">Val</span><span class="p">);</span>
-    <span class="k">break</span><span class="p">;</span>
-  <span class="k">case</span> <span class="nl">R_CPU0_LO16</span><span class="p">:</span>
-    <span class="n">writeCpu0Lo16</span><span class="o">&lt;</span><span class="n">E</span><span class="o">&gt;</span><span class="p">(</span><span class="n">Loc</span><span class="p">,</span> <span class="n">Val</span><span class="p">);</span>
-    <span class="k">break</span><span class="p">;</span>
-  <span class="k">case</span> <span class="nl">R_CPU0_HI16</span><span class="p">:</span>
-    <span class="n">writeCpu0Hi16</span><span class="o">&lt;</span><span class="n">E</span><span class="o">&gt;</span><span class="p">(</span><span class="n">Loc</span><span class="p">,</span> <span class="n">Val</span><span class="p">);</span>
-    <span class="k">break</span><span class="p">;</span>
-  <span class="k">case</span> <span class="nl">R_CPU0_PC24</span><span class="p">:</span>
-    <span class="n">applyCpu0PcReloc</span><span class="o">&lt;</span><span class="n">E</span><span class="p">,</span> <span class="mi">24</span><span class="p">,</span> <span class="mi">0</span><span class="o">&gt;</span><span class="p">(</span><span class="n">Loc</span><span class="p">,</span> <span class="n">Val</span><span class="o">-</span><span class="mi">4</span><span class="p">);</span>
-    <span class="k">break</span><span class="p">;</span>
-  <span class="k">default</span><span class="o">:</span>
-    <span class="n">fatal</span><span class="p">(</span><span class="s">&quot;unrecognized reloc &quot;</span> <span class="o">+</span> <span class="n">Twine</span><span class="p">(</span><span class="n">Type</span><span class="p">));</span>
-  <span class="p">}</span>
-<span class="p">}</span>
-</pre></div>
-</div>
-</div>
-<div class="section" id="setup-cpu0-backend-under-lld">
-<h3><a class="toc-backref" href="#id20">Setup Cpu0 backend under lld</a><a class="headerlink" href="#setup-cpu0-backend-under-lld" title="Permalink to this headline">¶</a></h3>
-<p>Please download lld from llvm web
-<a class="footnote-reference" href="#llvm-download" id="id3">[3]</a> and put lld
-souce code on {llvm-src}/tools/lld just like we download llvm and clang as
-shown in Appendex A of book &#8220;Tutorial: Creating an LLVM Backend for the Cpu0
-Architecture&#8221; as follows.</p>
-<div class="highlight-console"><div class="highlight"><pre><span></span><span class="gp">1-160-136-173:tools Jonathan$</span> <span class="nb">pwd</span>
-<span class="go">/Users/Jonathan/llvm/test/src/tools</span>
-<span class="gp">1-160-136-173:tools Jonathan$</span> ls
-<span class="go">...</span>
-<span class="go">lld              llvm-config      llvm-extract    llvm-nm           llvm-stress   obj2yaml</span>
-</pre></div>
-</div>
-<p>Next, setup Cpu0 backend as follows,</p>
-<div class="highlight-console"><div class="highlight"><pre><span></span><span class="gp">1-160-136-173:lld Jonathan$</span> <span class="nb">pwd</span>
-<span class="go">/Users/Jonathan/llvm/test/src/tools/lld</span>
-<span class="gp">1-160-136-173:lld Jonathan$</span> cp -rf ~/test/lbt/exlbt/lld/* .
-</pre></div>
-</div>
-<p>Now, build lld with Cpu0 backend as follows,</p>
-<div class="highlight-console"><div class="highlight"><pre><span></span><span class="gp">1-160-136-173:cmake_debug_build Jonathan$</span> cmake -DCMAKE_CXX_COMPILER<span class="o">=</span>clang++ -
-<span class="go">DCMAKE_C_COMPILER=clang -DCMAKE_CXX_FLAGS=-std=c++11 -DCMAKE_BUILD_TYPE=Debug</span>
-<span class="go">-G &quot;Xcode&quot; ../src</span>
-<span class="go">...</span>
-<span class="go">-- Targeting Cpu0</span>
-<span class="go">...</span>
-<span class="go">-- Configuring done</span>
-<span class="go">-- Generating done</span>
-<span class="go">-- Build files have been written to: /Users/Jonathan/llvm/test/cmake_debug_build</span>
-</pre></div>
-</div>
-<p>If using VM (guest machine is Linux) or Linux, build as follows,</p>
-<div class="highlight-console"><div class="highlight"><pre><span></span><span class="gp">[Gamma@localhost cmake_debug_build]$</span> cmake -DCMAKE_CXX_COMPILER<span class="o">=</span>g++ -
-<span class="go">DCMAKE_C_COMPILER=gcc -DCMAKE_CXX_FLAGS=-std=c++11 -DCMAKE_BUILD_TYPE=Debug</span>
-<span class="go">-G &quot;Unix Makefiles&quot; ../src</span>
-<span class="go">...</span>
-<span class="go">-- Targeting Cpu0</span>
-<span class="go">...</span>
-<span class="go">-- Configuring done</span>
-<span class="go">-- Generating done</span>
-<span class="go">-- Build files have been written to: /home/cschen/llvm/test/cmake_debug_build</span>
-</pre></div>
-</div>
-</div>
-<div class="section" id="lld-introduction">
-<h3><a class="toc-backref" href="#id21">LLD introduction</a><a class="headerlink" href="#lld-introduction" title="Permalink to this headline">¶</a></h3>
+</section>
+<section id="create-cpu0-backend-under-lld">
+<h2><a class="toc-backref" href="#id17">Create Cpu0 backend under LLD</a><a class="headerlink" href="#create-cpu0-backend-under-lld" title="Permalink to this headline">¶</a></h2>
+<section id="lld-introduction">
+<h3><a class="toc-backref" href="#id18">LLD introduction</a><a class="headerlink" href="#lld-introduction" title="Permalink to this headline">¶</a></h3>
 <p>In general, linker do the Relocation Records Resolve as Chapter ELF support
 depicted, and optimization for those cannot finish in compiler stage. One of
 the optimization opportunities in linker is Dead Code Stripping which is
 explained as follows,</p>
 <p class="rubric">Dead code stripping - example (modified from llvm lto document web)</p>
 <p class="rubric">a.h</p>
-<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">extern</span> <span class="nb">int</span> <span class="n">foo1</span><span class="p">(</span><span class="n">void</span><span class="p">);</span>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">extern</span> <span class="nb">int</span> <span class="n">foo1</span><span class="p">(</span><span class="n">void</span><span class="p">);</span>
 <span class="n">extern</span> <span class="n">void</span> <span class="n">foo2</span><span class="p">(</span><span class="n">void</span><span class="p">);</span>
 <span class="n">extern</span> <span class="nb">int</span> <span class="n">foo4</span><span class="p">(</span><span class="n">void</span><span class="p">);</span>
 
 </pre></div>
 </div>
 <p class="rubric">a.cpp</p>
-<div class="highlight-default"><div class="highlight"><pre><span></span><span class="c1">#include &quot;a.h&quot;</span>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="c1">#include &quot;a.h&quot;</span>
 
 <span class="n">static</span> <span class="n">signed</span> <span class="nb">int</span> <span class="n">i</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
 
@@ -1771,7 +916,7 @@ explained as follows,</p>
 </pre></div>
 </div>
 <p class="rubric">ch13_1.cpp</p>
-<div class="highlight-default"><div class="highlight"><pre><span></span><span class="c1">#include &quot;a.h&quot;</span>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="c1">#include &quot;a.h&quot;</span>
 
 <span class="n">void</span> <span class="n">ISR</span><span class="p">()</span> <span class="p">{</span>
   <span class="n">asm</span><span class="p">(</span><span class="s2">&quot;ISR:&quot;</span><span class="p">);</span>
@@ -1790,35 +935,37 @@ explained as follows,</p>
 </div>
 <p>Above code can be reduced to <a class="reference internal" href="#lld-deadcodestripping"><span class="std std-numref">Fig. 3</span></a> to perform
 mark and swip in graph for Dead Code Stripping.</p>
-<div class="figure align-center" id="id16">
+<figure class="align-center" id="id15">
 <span id="lld-deadcodestripping"></span><a class="reference internal image-reference" href="_images/deadcodestripping.png"><img alt="_images/deadcodestripping.png" src="_images/deadcodestripping.png" style="width: 144.4px; height: 270.8px;" /></a>
-<p class="caption"><span class="caption-number">Fig. 3 </span><span class="caption-text">Atom classified (from lld web)</span></p>
-</div>
-<p>As above example, the foo2() is an isolated node without any reference. It&#8217;s
+<figcaption>
+<p><span class="caption-number">Fig. 3 </span><span class="caption-text">Atom classified (from lld web)</span><a class="headerlink" href="#id15" title="Permalink to this image">¶</a></p>
+</figcaption>
+</figure>
+<p>As above example, the foo2() is an isolated node without any reference. It’s
 dead code and can be removed in linker optimization. We test this example by
 build-ch13_1.sh and find foo2() cannot be removed.
 There are two possibilities for this situation.
 One is we do not trigger lld dead code stripping
-optimization in command (the default is not do it). The other is lld hasn&#8217;t
-implemented it yet at this point. It&#8217;s reasonable since the
-lld is in its early stages of development. We didn&#8217;t dig it more, since the
+optimization in command (the default is not do it). The other is lld hasn’t
+implemented it yet at this point. It’s reasonable since the
+lld is in its early stages of development. We didn’t dig it more, since the
 Cpu0 backend tutorial just need a linker to finish Relocation Records Resolve
 and see how it runs on PC.</p>
 <p>Remind, llvm-linker is the linker works on IR level linker optimization.
 Sometime when you got the obj file only (if you have a.o in this case),
 the native linker (such as lld) have the opportunity to do Dead Code Stripping
-while the IR linker hasn&#8217;t.</p>
-</div>
-<div class="section" id="static-linker">
-<h3><a class="toc-backref" href="#id22">Static linker</a><a class="headerlink" href="#static-linker" title="Permalink to this headline">¶</a></h3>
-<p>Let&#8217;s run the static linker first and explain it next.</p>
+while the IR linker hasn’t.</p>
+</section>
+<section id="static-linker">
+<h3><a class="toc-backref" href="#id19">Static linker</a><a class="headerlink" href="#static-linker" title="Permalink to this headline">¶</a></h3>
+<p>Let’s run the static linker first and explain it next.</p>
 <p>File printf-stdarg.c come from internet download which is GPL2 license. GPL2
 is more restricted than LLVM license.
 File printf-stdarg-1.c is the file for testing the printf() function which
-implemented on PC OS platform. Let&#8217;s run printf-stdarg-2.cpp on Cpu0 and
-compare it against the result of PC&#8217;s printf() as below.</p>
+implemented on PC OS platform. Let’s run printf-stdarg-2.cpp on Cpu0 and
+compare it against the result of PC’s printf() as below.</p>
 <p class="rubric">exlbt/input/printf-stdarg-1.c</p>
-<div class="highlight-default"><div class="highlight"><pre><span></span>/*
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>/*
   Copyright 2001, 2002 Georges Menie (www.menie.org)
   stdarg version contributed by Christian Ettinger
 
@@ -1922,7 +1069,7 @@ int main(void)
 </pre></div>
 </div>
 <p class="rubric">exlbt/input/printf-stdarg-2.cpp</p>
-<div class="highlight-default"><div class="highlight"><pre><span></span>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>
 <span class="c1">#include &quot;debug.h&quot;</span>
 <span class="c1">#include &quot;print.h&quot;</span>
 
@@ -1936,7 +1083,7 @@ int main(void)
 </pre></div>
 </div>
 <p class="rubric">exlbt/input/printf-stdarg-def.c</p>
-<div class="highlight-default"><div class="highlight"><pre><span></span>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>
 <span class="c1">#include &quot;print.h&quot;</span>
 
 <span class="o">//</span> <span class="n">Definition</span> <span class="n">putchar</span><span class="p">(</span><span class="nb">int</span> <span class="n">c</span><span class="p">)</span> <span class="k">for</span> <span class="n">printf</span><span class="o">-</span><span class="n">stdarg</span><span class="o">.</span><span class="n">c</span>
@@ -1951,7 +1098,7 @@ int main(void)
 </pre></div>
 </div>
 <p class="rubric">exlbt/input/printf-stdarg.c</p>
-<div class="highlight-default"><div class="highlight"><pre><span></span>/*
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>/*
   Copyright 2001, 2002 Georges Menie (www.menie.org)
   stdarg version contributed by Christian Ettinger
 
@@ -2220,7 +1367,7 @@ int main(void)
 </pre></div>
 </div>
 <p class="rubric">exlbt/input/start.cpp</p>
-<div class="highlight-default"><div class="highlight"><pre><span></span>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>
 #include &quot;dynamic_linker.h&quot;
 #include &quot;start.h&quot;
 
@@ -2248,7 +1395,7 @@ void start() {
 </pre></div>
 </div>
 <p class="rubric">exlbt/input/lib_cpu0.ll</p>
-<div class="highlight-default"><div class="highlight"><pre><span></span><span class="p">;</span> <span class="n">The</span> <span class="nd">@_start</span><span class="p">()</span> <span class="n">exist</span> <span class="n">to</span> <span class="n">prevent</span> <span class="n">lld</span> <span class="n">linker</span> <span class="n">error</span><span class="o">.</span>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="p">;</span> <span class="n">The</span> <span class="nd">@_start</span><span class="p">()</span> <span class="n">exist</span> <span class="n">to</span> <span class="n">prevent</span> <span class="n">lld</span> <span class="n">linker</span> <span class="n">error</span><span class="o">.</span>
 <span class="p">;</span> <span class="n">Real</span> <span class="n">entry</span> <span class="p">(</span><span class="n">first</span> <span class="n">instruction</span><span class="p">)</span> <span class="ow">is</span> <span class="kn">from</span> <span class="nn">cpu0BootAtomContent</span> <span class="n">of</span> 
 <span class="p">;</span> <span class="n">Cpu0RelocationPass</span><span class="o">.</span><span class="n">cpp</span> <span class="n">jump</span> <span class="n">to</span> <span class="n">asm</span><span class="p">(</span><span class="s2">&quot;start:&quot;</span><span class="p">)</span> <span class="n">of</span> <span class="n">start</span><span class="o">.</span><span class="n">cpp</span><span class="o">.</span>
 <span class="n">define</span> <span class="n">void</span> <span class="nd">@_start</span><span class="p">()</span> <span class="n">nounwind</span> <span class="p">{</span>
@@ -2319,7 +1466,7 @@ void start() {
 </pre></div>
 </div>
 <p class="rubric">exlbt/input/functions.sh</p>
-<div class="highlight-default"><div class="highlight"><pre><span></span>prologue() {
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>prologue() {
   LBDEXDIR=../../lbdex
 
   if [ $argNum == 0 ]; then
@@ -2339,13 +1486,8 @@ void start() {
   OS=`uname -s`
   echo &quot;OS =&quot; ${OS}
 
-  if [ &quot;$OS&quot; == &quot;Linux&quot; ]; then
-    CLANG=~/llvm/release/cmake_release_build/bin/clang
-    TOOLDIR=~/llvm/test/cmake_debug_build/bin
-  else
-    CLANG=clang
-    TOOLDIR=~/llvm/test/cmake_debug_build/Debug/bin
-  fi
+  TOOLDIR=~/llvm/test/build/bin
+  CLANG=~/llvm/test/build/bin/clang
 
   CPU=$arg1
   echo &quot;CPU =&quot; &quot;${CPU}&quot;
@@ -2394,7 +1536,7 @@ epilogue() {
 </pre></div>
 </div>
 <p class="rubric">exlbt/input/build-printf-stdarg-2.sh</p>
-<div class="highlight-default"><div class="highlight"><pre><span></span>#!/usr/bin/env bash
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>#!/usr/bin/env bash
 
 source functions.sh
 
@@ -2430,7 +1572,7 @@ epilogue;
 </pre></div>
 </div>
 <p class="rubric">lbdex/verilog/Makefile</p>
-<div class="highlight-default"><div class="highlight"><pre><span></span>#TRACE=-D TRACE
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>#TRACE=-D TRACE
 all:
 	iverilog ${TRACE} -o cpu0Is cpu0.v 
 	iverilog ${TRACE} -D CPU0II -o cpu0IIs cpu0.v 
@@ -2445,9 +1587,9 @@ clean:
 <p>The build-printf-stdarg-2.sh is for my PC setting. Please change this script to
 the directory of your llvm/lld setting. After that run static linker example
 code as follows,</p>
-<div class="highlight-console"><div class="highlight"><pre><span></span><span class="gp">1-160-136-173:input Jonathan$</span> <span class="nb">pwd</span>
-<span class="go">/Users/Jonathan/test/lbt/exlbt/input</span>
-<span class="gp">1-160-136-173:input Jonathan$</span> bash build-printf-stdarg-2.sh cpu032I be
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">1-160-136-173:input Jonathan$ </span><span class="nb">pwd</span>
+<span class="go">/Users/Jonathan/Downloads/exlbt/input</span>
+<span class="gp">1-160-136-173:input Jonathan$ </span>bash build-printf-stdarg-2.sh cpu032I be
 <span class="go">In file included from printf-stdarg-2.cpp:11:</span>
 <span class="go">./printf-stdarg.c:206:15: warning: conversion from string literal to &#39;char *&#39;</span>
 <span class="go">is deprecated [-Wdeprecated-writable-strings]</span>
@@ -2455,16 +1597,16 @@ code as follows,</p>
 <span class="go">              ^</span>
 <span class="go">1 warning generated.</span>
 
-<span class="gp">1-160-136-173:input Jonathan$</span> <span class="nb">cd</span> ../../lbdex/verilog/
-<span class="gp">1-160-136-173:verilog Jonathan$</span> <span class="nb">pwd</span>
-<span class="go">/Users/Jonathan/test/lbt/lbdex/verilog</span>
-<span class="gp">1-160-136-173:verilog Jonathan$</span> make
-<span class="gp">1-160-136-173:verilog Jonathan$</span> ls
+<span class="gp">1-160-136-173:input Jonathan$ </span><span class="nb">cd</span> ../../lbdex/verilog/
+<span class="gp">1-160-136-173:verilog Jonathan$ </span><span class="nb">pwd</span>
+<span class="go">/Users/Jonathan/Download/lbdex/verilog</span>
+<span class="gp">1-160-136-173:verilog Jonathan$ </span>make
+<span class="gp">1-160-136-173:verilog Jonathan$ </span>ls
 <span class="go">... cpu0Is ... cpu0IIs ...</span>
-<span class="gp">1-160-136-173:verilog Jonathan$</span> ./cpu0Is
+<span class="gp">1-160-136-173:verilog Jonathan$ </span>./cpu0Is
 <span class="go">Hello world!</span>
 <span class="go">printf test</span>
-<span class="go">(null) is null pointer</span>
+<span class="gp gp-VirtualEnv">(null)</span> <span class="go">is null pointer</span>
 <span class="go">5 = 5</span>
 <span class="go">-2147483647 = - max int</span>
 <span class="go">char a = &#39;a&#39;</span>
@@ -2481,16 +1623,16 @@ code as follows,</p>
 <span class="go">-3: -003 zero padded</span>
 </pre></div>
 </div>
-<p>Let&#8217;s check the result with PC program printf-stdarg-1.c output as follows,</p>
-<div class="highlight-console"><div class="highlight"><pre><span></span><span class="gp">1-160-136-173:input Jonathan$</span> clang printf-stdarg-1.c
+<p>Let’s check the result with PC program printf-stdarg-1.c output as follows,</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">1-160-136-173:input Jonathan$ </span>clang printf-stdarg-1.c
 <span class="go">printf-stdarg-1.c:58:19: warning: incomplete format specifier [-Wformat]</span>
 <span class="go">  printf(&quot;%d %s(s)%&quot;, 0, &quot;message&quot;);</span>
 <span class="go">                  ^</span>
 <span class="go">1 warning generated.</span>
-<span class="gp">1-160-136-173:input Jonathan$</span> ./a.out
+<span class="gp">1-160-136-173:input Jonathan$ </span>./a.out
 <span class="go">Hello world!</span>
 <span class="go">printf test</span>
-<span class="go">(null) is null pointer</span>
+<span class="gp gp-VirtualEnv">(null)</span> <span class="go">is null pointer</span>
 <span class="go">5 = 5</span>
 <span class="go">-2147483647 = - max int</span>
 <span class="go">char a = &#39;a&#39;</span>
@@ -2512,26 +1654,26 @@ code as follows,</p>
 <p>They are same. You can verify the slt instructions is work fine too by change
 variable cpu from cpu032I to cpu032II as follows,</p>
 <p class="rubric">exlbt/input/build-printf-stdarg-2.sh</p>
-<div class="highlight-console"><div class="highlight"><pre><span></span><span class="gp">1-160-136-173:verilog Jonathan$</span> <span class="nb">pwd</span>
-<span class="go">/Users/Jonathan/test/lbt/lbdex/verilog</span>
-<span class="gp">1-160-136-173:verilog Jonathan$</span> <span class="nb">cd</span> ../../exlbt/input
-<span class="gp">1-160-136-173:input Jonathan$</span> <span class="nb">pwd</span>
-<span class="go">/Users/Jonathan/test/lbt/exlbt/input</span>
-<span class="gp">1-160-136-173:input Jonathan$</span> bash build-printf-stdarg-2.sh cpu032II be
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">1-160-136-173:verilog Jonathan$ </span><span class="nb">pwd</span>
+<span class="go">/Users/Jonathan/Download/lbdex/verilog</span>
+<span class="gp">1-160-136-173:verilog Jonathan$ </span><span class="nb">cd</span> ../../exlbt/input
+<span class="gp">1-160-136-173:input Jonathan$ </span><span class="nb">pwd</span>
+<span class="go">/Users/Jonathan/Download/exlbt/input</span>
+<span class="gp">1-160-136-173:input Jonathan$ </span>bash build-printf-stdarg-2.sh cpu032II be
 <span class="go">...</span>
-<span class="gp">1-160-136-173:input Jonathan$</span> <span class="nb">cd</span> ../lbdex/verilog/
-<span class="gp">1-160-136-173:verilog Jonathan$</span> ./cpu0IIs
+<span class="gp">1-160-136-173:input Jonathan$ </span><span class="nb">cd</span> ../lbdex/verilog/
+<span class="gp">1-160-136-173:verilog Jonathan$ </span>./cpu0IIs
 </pre></div>
 </div>
 <p>The verilog machine cpu0IIs include all instructions of cpu032I and add
-slt, beq, ..., instructions.
+slt, beq, …, instructions.
 Run build-printf-stdarg-2.sh with cpu=cpu032II will generate slt, beq and bne
-instructions instead of cmp, jeq, ... instructions.</p>
+instructions instead of cmp, jeq, … instructions.</p>
 <p>With the printf() of GPL source code, we can program more test code with it
 to verify the previous llvm Cpu0 backend generated program. The following code
 is for this purpose.</p>
 <p class="rubric">exlbt/input/debug.cpp</p>
-<div class="highlight-default"><div class="highlight"><pre><span></span>#include &quot;debug.h&quot;
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>#include &quot;debug.h&quot;
 
 extern &quot;C&quot; int printf(const char *format, ...);
 
@@ -2620,7 +1762,7 @@ void int_sim() {
 </pre></div>
 </div>
 <p class="rubric">exlbt/input/ch_lld_staticlink.h</p>
-<div class="highlight-default"><div class="highlight"><pre><span></span>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>
 <span class="c1">#include &quot;debug.h&quot;</span>
 <span class="c1">#include &quot;print.h&quot;</span>
 
@@ -2646,7 +1788,7 @@ void int_sim() {
 </pre></div>
 </div>
 <p class="rubric">exlbt/input/ch_lld_staticlink.cpp</p>
-<div class="highlight-default"><div class="highlight"><pre><span></span>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>
 void verify_test_ctrl2()
 {
   int a = -1;
@@ -2767,7 +1909,7 @@ int test_staticlink()
 </pre></div>
 </div>
 <p class="rubric">exlbt/input/ch_slinker.cpp</p>
-<div class="highlight-default"><div class="highlight"><pre><span></span>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>
 <span class="c1">#include &quot;ch_nolld.h&quot;</span>
 <span class="c1">#include &quot;ch_lld_staticlink.h&quot;</span>
 
@@ -2790,7 +1932,7 @@ int test_staticlink()
 </pre></div>
 </div>
 <p class="rubric">exlbt/input/build-slinker.sh</p>
-<div class="highlight-default"><div class="highlight"><pre><span></span>#!/usr/bin/env bash
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>#!/usr/bin/env bash
 
 source functions.sh
 
@@ -2827,33 +1969,33 @@ ch9_3_detect_exception.bc
 ${CLANG} -I${LBDEXDIR}/input/ -target mips-unknown-linux-gnu -c \
 ch_slinker.cpp -emit-llvm -o ch_slinker.bc
 ${TOOLDIR}/llc -march=cpu0${endian} -mcpu=${CPU} -relocation-model=static \
--filetype=obj start.bc -o start.o
+-filetype=obj -has-lld=true start.bc -o start.o
 ${TOOLDIR}/llc -march=cpu0${endian} -mcpu=${CPU} -relocation-model=static \
--filetype=obj debug.bc -o debug.o
+-filetype=obj -has-lld=true debug.bc -o debug.o
 ${TOOLDIR}/llc -march=cpu0${endian} -mcpu=${CPU} -relocation-model=static \
--filetype=obj printf-stdarg-def.bc -o printf-stdarg-def.o
+-filetype=obj -has-lld=true printf-stdarg-def.bc -o printf-stdarg-def.o
 ${TOOLDIR}/llc -march=cpu0${endian} -mcpu=${CPU} -relocation-model=static \
 -filetype=obj printf-stdarg.bc -o printf-stdarg.o
 ${TOOLDIR}/llc -march=cpu0${endian} -mcpu=${CPU} -relocation-model=static \
--filetype=obj -cpu0-enable-overflow=true ch4_1_addsuboverflow.bc -o \
+-filetype=obj -has-lld=true -cpu0-enable-overflow=true ch4_1_addsuboverflow.bc -o \
 ch4_1_addsuboverflow.o
 ${TOOLDIR}/llc -march=cpu0${endian} -mcpu=${CPU} -relocation-model=static \
--filetype=obj ch8_1_br_jt.bc -o ch8_1_br_jt.o
+-filetype=obj -has-lld=true ch8_1_br_jt.bc -o ch8_1_br_jt.o
 ${TOOLDIR}/llc -march=cpu0${endian} -mcpu=${CPU} -relocation-model=static \
 -filetype=obj ch8_2_phinode.bc -o ch8_2_phinode.o
 ${TOOLDIR}/llc -march=cpu0${endian} -mcpu=${CPU} -relocation-model=static \
--filetype=obj ch8_1_blockaddr.bc -o ch8_1_blockaddr.o
+-filetype=obj -has-lld=true ch8_1_blockaddr.bc -o ch8_1_blockaddr.o
 ${TOOLDIR}/llc -march=cpu0${endian} -mcpu=${CPU} -relocation-model=pic \
--filetype=obj -force-cpu0-long-branch ch8_2_longbranch.bc -o \
+-filetype=obj -has-lld=true -force-cpu0-long-branch ch8_2_longbranch.bc -o \
 ch8_2_longbranch.o
 ${TOOLDIR}/llc -march=cpu0${endian} -mcpu=${CPU} -relocation-model=static \
--filetype=obj -enable-cpu0-tail-calls ch9_2_tailcall.bc -o ch9_2_tailcall.o
+-filetype=obj -has-lld=true -enable-cpu0-tail-calls ch9_2_tailcall.bc -o ch9_2_tailcall.o
 ${TOOLDIR}/llc -march=cpu0${endian} -mcpu=${CPU} -relocation-model=static \
--filetype=obj ch9_3_detect_exception.bc -o ch9_3_detect_exception.o
+-filetype=obj -has-lld=true ch9_3_detect_exception.bc -o ch9_3_detect_exception.o
 ${TOOLDIR}/llc -march=cpu0${endian} -mcpu=${CPU} -relocation-model=static \
--filetype=obj ch_slinker.bc -o ch_slinker.o
+-filetype=obj -has-lld=true ch_slinker.bc -o ch_slinker.o
 ${TOOLDIR}/llc -march=cpu0${endian} -mcpu=${CPU} -relocation-model=static \
--filetype=obj lib_cpu0.ll -o lib_cpu0.o
+-filetype=obj -has-lld=true lib_cpu0.ll -o lib_cpu0.o
 ${TOOLDIR}/lld -flavor gnu start.o \
 debug.o printf-stdarg-def.o printf-stdarg.o ch4_1_addsuboverflow.o \
 ch8_1_br_jt.o ch8_2_phinode.o ch8_1_blockaddr.o ch8_2_longbranch.o \
@@ -2863,9 +2005,9 @@ epilogue;
 
 </pre></div>
 </div>
-<div class="highlight-console"><div class="highlight"><pre><span></span><span class="gp">1-160-136-173:input Jonathan$</span> <span class="nb">pwd</span>
-<span class="go">/Users/Jonathan/test/lbt/exlbt/input</span>
-<span class="gp">114-37-148-111:input Jonathan$</span> bash build-slinker.sh cpu032I le
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">1-160-136-173:input Jonathan$ </span><span class="nb">pwd</span>
+<span class="go">/Users/Jonathan/Downloads/exlbt/input</span>
+<span class="gp">114-37-148-111:input Jonathan$ </span>bash build-slinker.sh cpu032I le
 <span class="go">...</span>
 <span class="go">In file included from ch_slinker.cpp:23:</span>
 <span class="go">./ch_lld_staticlink.cpp:8:15: warning: conversion from string literal to</span>
@@ -2874,8 +2016,8 @@ epilogue;
 <span class="go">  char *ptr = &quot;Hello world!&quot;;</span>
 <span class="go">              ^</span>
 <span class="go">1 warning generated.</span>
-<span class="gp">114-37-148-111:input Jonathan$</span> <span class="nb">cd</span> ../../lbdex/verilog/
-<span class="gp">114-37-148-111:verilog Jonathan$</span> ./cpu0IIs
+<span class="gp">114-37-148-111:input Jonathan$ </span><span class="nb">cd</span> ../../lbdex/verilog/
+<span class="gp">114-37-148-111:verilog Jonathan$ </span>./cpu0IIs
 <span class="go">WARNING: ./cpu0.v:369: $readmemh(cpu0.hex): Not enough words in the file for</span>
 <span class="go">the requested range [0:524287].</span>
 <span class="go">taskInterrupt(001)</span>
@@ -2923,37 +2065,37 @@ verified with printf().
 With the quality code of open source printf() program, the Cpu0 toolchain is
 extended from compiler backend to C std library support. (Notice that some GPL
 open source code are not quality code, but some are.)</p>
-<p>The &#8220;Overflow exception is printed twice meaning the ISR() of debug.cpp is
+<p>The “Overflow exception is printed twice meaning the ISR() of debug.cpp is
 called twice from ch4_1_2.cpp.
-The printed &#8220;taskInterrupt(001)&#8221; and &#8220;taskInterrupt(011)&#8221; just are trace
+The printed “taskInterrupt(001)” and “taskInterrupt(011)” just are trace
 message from cpu0.v code.</p>
-</div>
-<div class="section" id="dynamic-linker">
-<h3><a class="toc-backref" href="#id23">Dynamic linker</a><a class="headerlink" href="#dynamic-linker" title="Permalink to this headline">¶</a></h3>
-<p>I remove dynamic linker demostration from 3.9.0 because I don&#8217;t know how to
+</section>
+<section id="dynamic-linker">
+<h3><a class="toc-backref" href="#id20">Dynamic linker</a><a class="headerlink" href="#dynamic-linker" title="Permalink to this headline">¶</a></h3>
+<p>I remove dynamic linker demostration from 3.9.0 because I don’t know how to
 do it from lld 3.9 and this demostration add lots of code in elf2hex, verilog
 and lld of Cpu0 backend. However it can be run with llvm 3.7 with the following
 command.</p>
-<div class="highlight-console"><div class="highlight"><pre><span></span><span class="gp">1-160-136-173:test Jonathan$</span> <span class="nb">pwd</span>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">1-160-136-173:test Jonathan$ </span><span class="nb">pwd</span>
 <span class="go">/Users/Jonathan/test</span>
-<span class="gp">1-160-136-173:test Jonathan$</span> git clone https://github.com/Jonathan2251/lbd
-<span class="gp">1-160-136-173:test Jonathan$</span> git clone https://github.com/Jonathan2251/lbt
-<span class="gp">1-160-136-173:test Jonathan$</span> <span class="nb">cd</span> lbd
-<span class="gp">1-160-136-173:lbd Jonathan$</span> <span class="nb">pwd</span>
+<span class="gp">1-160-136-173:test Jonathan$ </span>git clone https://github.com/Jonathan2251/lbd
+<span class="gp">1-160-136-173:test Jonathan$ </span>git clone https://github.com/Jonathan2251/lbt
+<span class="gp">1-160-136-173:test Jonathan$ </span><span class="nb">cd</span> lbd
+<span class="gp">1-160-136-173:lbd Jonathan$ </span><span class="nb">pwd</span>
 <span class="go">/Users/Jonathan/test/lbd</span>
-<span class="gp">1-160-136-173:lbd Jonathan$</span> git checkout release_374
-<span class="gp">1-160-136-173:lbd Jonathan$</span> <span class="nb">cd</span> ../lbt
-<span class="gp">1-160-136-173:test Jonathan$</span> git checkout release_374
-<span class="gp">1-160-136-173:lbt Jonathan$</span> make html
+<span class="gp">1-160-136-173:lbd Jonathan$ </span>git checkout release_374
+<span class="gp">1-160-136-173:lbd Jonathan$ </span><span class="nb">cd</span> ../lbt
+<span class="gp">1-160-136-173:test Jonathan$ </span>git checkout release_374
+<span class="gp">1-160-136-173:lbt Jonathan$ </span>make html
 </pre></div>
 </div>
 <p>Then reading this section in lld.html for it.</p>
-</div>
-</div>
-<div class="section" id="summary">
-<h2><a class="toc-backref" href="#id24">Summary</a><a class="headerlink" href="#summary" title="Permalink to this headline">¶</a></h2>
-<div class="section" id="create-a-new-backend-base-on-llvm">
-<h3><a class="toc-backref" href="#id25">Create a new backend base on LLVM</a><a class="headerlink" href="#create-a-new-backend-base-on-llvm" title="Permalink to this headline">¶</a></h3>
+</section>
+</section>
+<section id="summary">
+<h2><a class="toc-backref" href="#id21">Summary</a><a class="headerlink" href="#summary" title="Permalink to this headline">¶</a></h2>
+<section id="create-a-new-backend-base-on-llvm">
+<h3><a class="toc-backref" href="#id22">Create a new backend base on LLVM</a><a class="headerlink" href="#create-a-new-backend-base-on-llvm" title="Permalink to this headline">¶</a></h3>
 <p>Thanks the llvm open source project.
 To write a linker and ELF to Hex tools for a new CPU architecture is easy and
 reliable.
@@ -2962,7 +2104,7 @@ in previouse chapters, we design a software
 toolchain to compile C/C++ code, link and run it on Verilog Cpu0 simulator
 without any real hardware investment.
 If you buy the FPGA development hardware, we believe these
-code can run on FPGA CPU even though we didn&#8217;t do it.
+code can run on FPGA CPU even though we didn’t do it.
 Extend system program toolchain to support a new CPU instruction set can be
 finished just like we have shown you at this point.
 School knowledges of system program, compiler, linker, loader, computer
@@ -2978,20 +2120,20 @@ More over, the llvm Cpu0 backend and lld Cpu0 backend are 70% of same with llvm
 Mips and lld X86_64.
 Based on this truth, we believe llvm is a well defined structure in compiler
 architecture.</p>
-</div>
-<div class="section" id="contribute-back-to-open-source-through-working-and-learning">
-<h3><a class="toc-backref" href="#id26">Contribute back to Open Source through working and learning</a><a class="headerlink" href="#contribute-back-to-open-source-through-working-and-learning" title="Permalink to this headline">¶</a></h3>
+</section>
+<section id="contribute-back-to-open-source-through-working-and-learning">
+<h3><a class="toc-backref" href="#id23">Contribute back to Open Source through working and learning</a><a class="headerlink" href="#contribute-back-to-open-source-through-working-and-learning" title="Permalink to this headline">¶</a></h3>
 <p>Finally, 10 thousands lines of source code in Cpu0 backend is very small in UI
-program. But it&#8217;s quite complex in system program which based on llvm.
+program. But it’s quite complex in system program which based on llvm.
 We spent 600 pages of pdf to explain these code. Open source code give
 programmers best opportunity to understand the code and enhance/extend the
 code function. But it can be better, we believe the documentation is the next
 most important thing to improve the open source code development.
 The Open Source Organization recognized this point and set
-Open Source Document Project years ago <a class="footnote-reference" href="#bsdlicense" id="id4">[7]</a> <a class="footnote-reference" href="#docproj" id="id5">[8]</a>
-<a class="footnote-reference" href="#freebsdlicense" id="id6">[9]</a> <a class="footnote-reference" href="#gnulicense" id="id7">[10]</a> <a class="footnote-reference" href="#fdl" id="id8">[11]</a>.
+Open Source Document Project years ago <a class="footnote-reference brackets" href="#bsdlicense" id="id3">7</a> <a class="footnote-reference brackets" href="#docproj" id="id4">8</a>
+<a class="footnote-reference brackets" href="#freebsdlicense" id="id5">9</a> <a class="footnote-reference brackets" href="#gnulicense" id="id6">10</a> <a class="footnote-reference brackets" href="#fdl" id="id7">11</a>.
 Open Source grows up and becomes a giant software infrastructure with the forces
-of company <a class="footnote-reference" href="#apple-opensource" id="id9">[12]</a>  <a class="footnote-reference" href="#ibm-opensource" id="id10">[13]</a>, school research team and
+of company <a class="footnote-reference brackets" href="#apple-opensource" id="id8">12</a>  <a class="footnote-reference brackets" href="#ibm-opensource" id="id9">13</a>, school research team and
 countless talent engineers passion.
 It terminated the situation of everyone trying to re-invent wheels during 10
 years ago.
@@ -3005,7 +2147,7 @@ We think this book cannot exists in traditional paper book form since only
 few number of readers interested in study llvm backend even though
 there are many paper published books in concept of compiler. So, this book
 is published via electric media form and try to match the Open Document License
-Expection <a class="footnote-reference" href="#gnu-phi" id="id11">[14]</a>.
+Expection <a class="footnote-reference brackets" href="#gnu-phi" id="id10">14</a>.
 There are distance between the concept and the realistic program implemenation.
 Keep note through learning a large complicate software such as this llvm backend
 is not enough.
@@ -3013,116 +2155,69 @@ We all learned the knowledge through books during school and after school.
 So, if you cannot find a good way to produce documents, you can consider to
 write documents like this book. This book document uses sphinx tool
 just like the llvm development team. Sphinx uses restructured text format here
-<a class="footnote-reference" href="#rst-ref" id="id12">[15]</a> <a class="footnote-reference" href="#rst-directives" id="id13">[16]</a> <a class="footnote-reference" href="#rst" id="id14">[17]</a>.
+<a class="footnote-reference brackets" href="#rst-ref" id="id11">15</a> <a class="footnote-reference brackets" href="#rst-directives" id="id12">16</a> <a class="footnote-reference brackets" href="#rst" id="id13">17</a>.
 Appendix A of lbd book tell you how to install sphinx tool.
 Documentation work will help yourself to re-examine your software and make your
-program better in structure, reliability and more important &#8220;Extend your code
-to somewhere you didn&#8217;t expect&#8221;.</p>
-<table class="docutils footnote" frame="void" id="lldweb" rules="none">
-<colgroup><col class="label" /><col /></colgroup>
-<tbody valign="top">
-<tr><td class="label"><a class="fn-backref" href="#id1">[1]</a></td><td><a class="reference external" href="http://lld.llvm.org/">http://lld.llvm.org/</a></td></tr>
-</tbody>
-</table>
-<table class="docutils footnote" frame="void" id="lld-install" rules="none">
-<colgroup><col class="label" /><col /></colgroup>
-<tbody valign="top">
-<tr><td class="label"><a class="fn-backref" href="#id2">[2]</a></td><td><a class="reference external" href="http://lld.llvm.org/getting_started.html#on-unix-like-systems">http://lld.llvm.org/getting_started.html#on-unix-like-systems</a></td></tr>
-</tbody>
-</table>
-<table class="docutils footnote" frame="void" id="llvm-download" rules="none">
-<colgroup><col class="label" /><col /></colgroup>
-<tbody valign="top">
-<tr><td class="label"><a class="fn-backref" href="#id3">[3]</a></td><td><a class="reference external" href="http://llvm.org/releases/download.html#3.5">http://llvm.org/releases/download.html#3.5</a></td></tr>
-</tbody>
-</table>
-<table class="docutils footnote" frame="void" id="get" rules="none">
-<colgroup><col class="label" /><col /></colgroup>
-<tbody valign="top">
-<tr><td class="label">[4]</td><td><a class="reference external" href="http://www.cplusplus.com/reference/memory/unique_ptr/get/">http://www.cplusplus.com/reference/memory/unique_ptr/get/</a></td></tr>
-</tbody>
-</table>
-<table class="docutils footnote" frame="void" id="move" rules="none">
-<colgroup><col class="label" /><col /></colgroup>
-<tbody valign="top">
-<tr><td class="label">[5]</td><td><a class="reference external" href="http://www.cplusplus.com/reference/utility/move/">http://www.cplusplus.com/reference/utility/move/</a></td></tr>
-</tbody>
-</table>
-<table class="docutils footnote" frame="void" id="pic-call-stub" rules="none">
-<colgroup><col class="label" /><col /></colgroup>
-<tbody valign="top">
-<tr><td class="label">[6]</td><td>Page 5-12 of <a class="reference external" href="http://www.linux-mips.org/pub/linux/mips/doc/ABI/mipsabi.pdf">http://www.linux-mips.org/pub/linux/mips/doc/ABI/mipsabi.pdf</a></td></tr>
-</tbody>
-</table>
-<table class="docutils footnote" frame="void" id="bsdlicense" rules="none">
-<colgroup><col class="label" /><col /></colgroup>
-<tbody valign="top">
-<tr><td class="label"><a class="fn-backref" href="#id4">[7]</a></td><td><a class="reference external" href="http://en.wikipedia.org/wiki/BSD_Documentation_License">http://en.wikipedia.org/wiki/BSD_Documentation_License</a></td></tr>
-</tbody>
-</table>
-<table class="docutils footnote" frame="void" id="docproj" rules="none">
-<colgroup><col class="label" /><col /></colgroup>
-<tbody valign="top">
-<tr><td class="label"><a class="fn-backref" href="#id5">[8]</a></td><td><a class="reference external" href="http://www.freebsd.org/docproj/">http://www.freebsd.org/docproj/</a></td></tr>
-</tbody>
-</table>
-<table class="docutils footnote" frame="void" id="freebsdlicense" rules="none">
-<colgroup><col class="label" /><col /></colgroup>
-<tbody valign="top">
-<tr><td class="label"><a class="fn-backref" href="#id6">[9]</a></td><td><a class="reference external" href="http://www.freebsd.org/copyright/freebsd-doc-license.html">http://www.freebsd.org/copyright/freebsd-doc-license.html</a></td></tr>
-</tbody>
-</table>
-<table class="docutils footnote" frame="void" id="gnulicense" rules="none">
-<colgroup><col class="label" /><col /></colgroup>
-<tbody valign="top">
-<tr><td class="label"><a class="fn-backref" href="#id7">[10]</a></td><td><a class="reference external" href="http://en.wikipedia.org/wiki/GNU_Free_Documentation_License">http://en.wikipedia.org/wiki/GNU_Free_Documentation_License</a></td></tr>
-</tbody>
-</table>
-<table class="docutils footnote" frame="void" id="fdl" rules="none">
-<colgroup><col class="label" /><col /></colgroup>
-<tbody valign="top">
-<tr><td class="label"><a class="fn-backref" href="#id8">[11]</a></td><td><a class="reference external" href="http://www.gnu.org/copyleft/fdl.html">http://www.gnu.org/copyleft/fdl.html</a></td></tr>
-</tbody>
-</table>
-<table class="docutils footnote" frame="void" id="apple-opensource" rules="none">
-<colgroup><col class="label" /><col /></colgroup>
-<tbody valign="top">
-<tr><td class="label"><a class="fn-backref" href="#id9">[12]</a></td><td><a class="reference external" href="http://www.apple.com/opensource/">http://www.apple.com/opensource/</a></td></tr>
-</tbody>
-</table>
-<table class="docutils footnote" frame="void" id="ibm-opensource" rules="none">
-<colgroup><col class="label" /><col /></colgroup>
-<tbody valign="top">
-<tr><td class="label"><a class="fn-backref" href="#id10">[13]</a></td><td><a class="reference external" href="https://www.ibm.com/developerworks/opensource/">https://www.ibm.com/developerworks/opensource/</a></td></tr>
-</tbody>
-</table>
-<table class="docutils footnote" frame="void" id="gnu-phi" rules="none">
-<colgroup><col class="label" /><col /></colgroup>
-<tbody valign="top">
-<tr><td class="label"><a class="fn-backref" href="#id11">[14]</a></td><td><a class="reference external" href="http://www.gnu.org/philosophy/free-doc.en.html">http://www.gnu.org/philosophy/free-doc.en.html</a></td></tr>
-</tbody>
-</table>
-<table class="docutils footnote" frame="void" id="rst-ref" rules="none">
-<colgroup><col class="label" /><col /></colgroup>
-<tbody valign="top">
-<tr><td class="label"><a class="fn-backref" href="#id12">[15]</a></td><td><a class="reference external" href="http://docutils.sourceforge.net/docs/ref/rst/restructuredtext.html">http://docutils.sourceforge.net/docs/ref/rst/restructuredtext.html</a></td></tr>
-</tbody>
-</table>
-<table class="docutils footnote" frame="void" id="rst-directives" rules="none">
-<colgroup><col class="label" /><col /></colgroup>
-<tbody valign="top">
-<tr><td class="label"><a class="fn-backref" href="#id13">[16]</a></td><td><a class="reference external" href="http://docutils.sourceforge.net/docs/ref/rst/directives.html">http://docutils.sourceforge.net/docs/ref/rst/directives.html</a></td></tr>
-</tbody>
-</table>
-<table class="docutils footnote" frame="void" id="rst" rules="none">
-<colgroup><col class="label" /><col /></colgroup>
-<tbody valign="top">
-<tr><td class="label"><a class="fn-backref" href="#id14">[17]</a></td><td><a class="reference external" href="http://docutils.sourceforge.net/rst.html">http://docutils.sourceforge.net/rst.html</a></td></tr>
-</tbody>
-</table>
-</div>
-</div>
-</div>
+program better in structure, reliability and more important “Extend your code
+to somewhere you didn’t expect”.</p>
+<dl class="footnote brackets">
+<dt class="label" id="lldweb"><span class="brackets"><a class="fn-backref" href="#id1">1</a></span></dt>
+<dd><p><a class="reference external" href="http://lld.llvm.org/">http://lld.llvm.org/</a></p>
+</dd>
+<dt class="label" id="lld-install"><span class="brackets"><a class="fn-backref" href="#id2">2</a></span></dt>
+<dd><p><a class="reference external" href="http://lld.llvm.org/getting_started.html#on-unix-like-systems">http://lld.llvm.org/getting_started.html#on-unix-like-systems</a></p>
+</dd>
+<dt class="label" id="llvm-download"><span class="brackets">3</span></dt>
+<dd><p><a class="reference external" href="http://llvm.org/releases/download.html#3.5">http://llvm.org/releases/download.html#3.5</a></p>
+</dd>
+</dl>
+<dl class="footnote brackets">
+<dt class="label" id="get"><span class="brackets">4</span></dt>
+<dd><p><a class="reference external" href="http://www.cplusplus.com/reference/memory/unique_ptr/get/">http://www.cplusplus.com/reference/memory/unique_ptr/get/</a></p>
+</dd>
+<dt class="label" id="move"><span class="brackets">5</span></dt>
+<dd><p><a class="reference external" href="http://www.cplusplus.com/reference/utility/move/">http://www.cplusplus.com/reference/utility/move/</a></p>
+</dd>
+<dt class="label" id="pic-call-stub"><span class="brackets">6</span></dt>
+<dd><p>Page 5-12 of <a class="reference external" href="http://www.linux-mips.org/pub/linux/mips/doc/ABI/mipsabi.pdf">http://www.linux-mips.org/pub/linux/mips/doc/ABI/mipsabi.pdf</a></p>
+</dd>
+<dt class="label" id="bsdlicense"><span class="brackets"><a class="fn-backref" href="#id3">7</a></span></dt>
+<dd><p><a class="reference external" href="http://en.wikipedia.org/wiki/BSD_Documentation_License">http://en.wikipedia.org/wiki/BSD_Documentation_License</a></p>
+</dd>
+<dt class="label" id="docproj"><span class="brackets"><a class="fn-backref" href="#id4">8</a></span></dt>
+<dd><p><a class="reference external" href="http://www.freebsd.org/docproj/">http://www.freebsd.org/docproj/</a></p>
+</dd>
+<dt class="label" id="freebsdlicense"><span class="brackets"><a class="fn-backref" href="#id5">9</a></span></dt>
+<dd><p><a class="reference external" href="http://www.freebsd.org/copyright/freebsd-doc-license.html">http://www.freebsd.org/copyright/freebsd-doc-license.html</a></p>
+</dd>
+<dt class="label" id="gnulicense"><span class="brackets"><a class="fn-backref" href="#id6">10</a></span></dt>
+<dd><p><a class="reference external" href="http://en.wikipedia.org/wiki/GNU_Free_Documentation_License">http://en.wikipedia.org/wiki/GNU_Free_Documentation_License</a></p>
+</dd>
+<dt class="label" id="fdl"><span class="brackets"><a class="fn-backref" href="#id7">11</a></span></dt>
+<dd><p><a class="reference external" href="http://www.gnu.org/copyleft/fdl.html">http://www.gnu.org/copyleft/fdl.html</a></p>
+</dd>
+<dt class="label" id="apple-opensource"><span class="brackets"><a class="fn-backref" href="#id8">12</a></span></dt>
+<dd><p><a class="reference external" href="http://www.apple.com/opensource/">http://www.apple.com/opensource/</a></p>
+</dd>
+<dt class="label" id="ibm-opensource"><span class="brackets"><a class="fn-backref" href="#id9">13</a></span></dt>
+<dd><p><a class="reference external" href="https://www.ibm.com/developerworks/opensource/">https://www.ibm.com/developerworks/opensource/</a></p>
+</dd>
+<dt class="label" id="gnu-phi"><span class="brackets"><a class="fn-backref" href="#id10">14</a></span></dt>
+<dd><p><a class="reference external" href="http://www.gnu.org/philosophy/free-doc.en.html">http://www.gnu.org/philosophy/free-doc.en.html</a></p>
+</dd>
+<dt class="label" id="rst-ref"><span class="brackets"><a class="fn-backref" href="#id11">15</a></span></dt>
+<dd><p><a class="reference external" href="http://docutils.sourceforge.net/docs/ref/rst/restructuredtext.html">http://docutils.sourceforge.net/docs/ref/rst/restructuredtext.html</a></p>
+</dd>
+<dt class="label" id="rst-directives"><span class="brackets"><a class="fn-backref" href="#id12">16</a></span></dt>
+<dd><p><a class="reference external" href="http://docutils.sourceforge.net/docs/ref/rst/directives.html">http://docutils.sourceforge.net/docs/ref/rst/directives.html</a></p>
+</dd>
+<dt class="label" id="rst"><span class="brackets"><a class="fn-backref" href="#id13">17</a></span></dt>
+<dd><p><a class="reference external" href="http://docutils.sourceforge.net/rst.html">http://docutils.sourceforge.net/rst.html</a></p>
+</dd>
+</dl>
+</section>
+</section>
+</section>
 
 
       </div>
@@ -3139,8 +2234,8 @@ to somewhere you didn&#8217;t expect&#8221;.</p>
       </div>
 
     <div class="footer" role="contentinfo">
-        &copy; Copyright 2016, Chen Chung-Shu.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.4.4.
+        &#169; Copyright 2016, Chen Chung-Shu.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 4.0.2.
     </div>
   </body>
 </html>

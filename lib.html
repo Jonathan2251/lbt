@@ -1,33 +1,23 @@
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
-  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 
+<!DOCTYPE html>
 
-<html xmlns="http://www.w3.org/1999/xhtml">
+<html>
   <head>
-    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    
-    <title>Library &mdash; Tutorial: Creating an LLVM Toolchain for the Cpu0 Architecture</title>
-    
-    <link rel="stylesheet" href="_static/haiku.css" type="text/css" />
-    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
-    
-    <script type="text/javascript">
-      var DOCUMENTATION_OPTIONS = {
-        URL_ROOT:    './',
-        VERSION:     '3.9.1',
-        COLLAPSE_INDEX: false,
-        FILE_SUFFIX: '.html',
-        HAS_SOURCE:  true
-      };
-    </script>
-    <script type="text/javascript" src="_static/jquery.js"></script>
-    <script type="text/javascript" src="_static/underscore.js"></script>
-    <script type="text/javascript" src="_static/doctools.js"></script>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
+    <title>Library &#8212; Tutorial: Creating an LLVM Toolchain for the Cpu0 Architecture</title>
+    <link rel="stylesheet" type="text/css" href="_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="_static/haiku.css" />
+    <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
+    <script src="_static/jquery.js"></script>
+    <script src="_static/underscore.js"></script>
+    <script src="_static/doctools.js"></script>
     <link rel="author" title="About these documents" href="about.html" />
-    <link rel="top" title="Tutorial: Creating an LLVM Toolchain for the Cpu0 Architecture" href="index.html" />
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
     <link rel="prev" title="Optimization" href="opt.html" /> 
-  </head>
-  <body role="document">
+  </head><body>
       <div class="header" role="banner"><h1 class="heading"><a href="index.html">
           <span>Tutorial: Creating an LLVM Toolchain for the Cpu0 Architecture</span></a></h1>
         <h2 class="heading"><span>Library</span></h2>
@@ -41,16 +31,16 @@
         </p>
 
       </div>
-      <div class="content">
+      <div class="content" role="main">
         
         
-  <div class="section" id="library">
+  <section id="library">
 <span id="sec-lib"></span><h1>Library<a class="headerlink" href="#library" title="Permalink to this headline">¶</a></h1>
 <div class="contents local topic" id="contents">
 <ul class="simple">
-<li><a class="reference internal" href="#compiler-rt" id="id8">Compiler-rt</a></li>
-<li><a class="reference internal" href="#avr-libc" id="id9">Avr libc</a></li>
-<li><a class="reference internal" href="#software-float-point-support" id="id10">Software Float Point Support</a></li>
+<li><p><a class="reference internal" href="#compiler-rt" id="id8">Compiler-rt</a></p></li>
+<li><p><a class="reference internal" href="#avr-libc" id="id9">Avr libc</a></p></li>
+<li><p><a class="reference internal" href="#software-float-point-support" id="id10">Software Float Point Support</a></p></li>
 </ul>
 </div>
 <p>Since Cpu0 has not hardware float point instructions, it needs soft float point
@@ -59,20 +49,22 @@ the software floating point library implementation, so we choose it as the
 implementation.</p>
 <p>Since compiler-rt uses unix/linux rootfs structure, we fill the gap by porting
 avr libc.</p>
-<p>Both the compiler-rt and avr libc porting is under going, it&#8217;s not finished.
+<p>Both the compiler-rt and avr libc porting is under going, it’s not finished.
 The flow as follows,</p>
-<div class="figure align-center" id="id7">
+<figure class="align-center" id="id7">
 <span id="lib-f-flow"></span><a class="reference internal image-reference" href="_images/1.png"><img alt="_images/1.png" src="_images/1.png" style="width: 843.0px; height: 103.0px;" /></a>
-<p class="caption"><span class="caption-number">Fig. 5 </span><span class="caption-text">libc/softfloat library flow</span></p>
-</div>
+<figcaption>
+<p><span class="caption-number">Fig. 5 </span><span class="caption-text">libc/softfloat library flow</span><a class="headerlink" href="#id7" title="Permalink to this image">¶</a></p>
+</figcaption>
+</figure>
 <p>The llvm-link which introduced at last chapter can be hired for optimization.</p>
-<div class="section" id="compiler-rt">
+<section id="compiler-rt">
 <h2><a class="toc-backref" href="#id8">Compiler-rt</a><a class="headerlink" href="#compiler-rt" title="Permalink to this headline">¶</a></h2>
 <p>Directory libex/libsoftfloat/compiler-rt include the floating point library
-support for Cpu0 backend. The compiler-rt <a class="footnote-reference" href="#id6" id="id1">[1]</a> version we use is
+support for Cpu0 backend. The compiler-rt <a class="footnote-reference brackets" href="#id6" id="id1">1</a> version we use is
 llvm 3.5 release.</p>
-</div>
-<div class="section" id="avr-libc">
+</section>
+<section id="avr-libc">
 <h2><a class="toc-backref" href="#id9">Avr libc</a><a class="headerlink" href="#avr-libc" title="Permalink to this headline">¶</a></h2>
 <p>Directory libex/libc/avr-libc-1.8.1 include the libc porting.</p>
 <p>AVR Libc is a Free Software project whose goal is to provide a high quality C
@@ -80,14 +72,14 @@ library for use with GCC on Atmel AVR microcontrollers. AVR Libc is licensed
 under a single unified license. This so-called modified Berkeley license is
 intented to be compatible with most Free Software licenses like the GPL, yet
 impose as little restrictions for the use of the library in closed-source
-commercial applications as possible <a class="footnote-reference" href="#avr-libc-license" id="id2">[2]</a>.</p>
-<p>The source code can be download from here <a class="footnote-reference" href="#avr-libc-download" id="id3">[3]</a>.
-Document are here <a class="footnote-reference" href="#avr-libc-doc-web" id="id4">[4]</a> <a class="footnote-reference" href="#avr-libc-doc-pdf" id="id5">[5]</a>.</p>
-</div>
-<div class="section" id="software-float-point-support">
+commercial applications as possible <a class="footnote-reference brackets" href="#avr-libc-license" id="id2">2</a>.</p>
+<p>The source code can be download from here <a class="footnote-reference brackets" href="#avr-libc-download" id="id3">3</a>.
+Document are here <a class="footnote-reference brackets" href="#avr-libc-doc-web" id="id4">4</a> <a class="footnote-reference brackets" href="#avr-libc-doc-pdf" id="id5">5</a>.</p>
+</section>
+<section id="software-float-point-support">
 <h2><a class="toc-backref" href="#id10">Software Float Point Support</a><a class="headerlink" href="#software-float-point-support" title="Permalink to this headline">¶</a></h2>
 <p class="rubric">exlbt/input/ch_float_necessary.cpp</p>
-<div class="highlight-default"><div class="highlight"><pre><span></span>//#include &quot;debug.h&quot;
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>//#include &quot;debug.h&quot;
 
 extern &quot;C&quot; int printf(const char *format, ...);
 extern &quot;C&quot; int sprintf(char *out, const char *format, ...);
@@ -170,7 +162,7 @@ int main() {
 </pre></div>
 </div>
 <p class="rubric">exlbt/input/build-float-necessary.sh</p>
-<div class="highlight-default"><div class="highlight"><pre><span></span>#!/usr/bin/env bash
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>#!/usr/bin/env bash
 
 INCFLAG=&quot;-I../libsoftfloat/compiler-rt/builtins&quot;
 
@@ -197,17 +189,17 @@ ${CLANG} -target mips-unknown-linux-gnu -c printf-stdarg.c -emit-llvm \
 -o printf-stdarg.bc
 ${CLANG} $INCFLAG -c ch_float_necessary.cpp -emit-llvm -o ch_float_necessary.bc
 ${TOOLDIR}/llc -march=cpu0${endian} -mcpu=${CPU} -relocation-model=static \
--filetype=obj start.bc -o start.cpu0.o
+-filetype=obj -has-lld=true start.bc -o start.cpu0.o
 ${TOOLDIR}/llc -march=cpu0${endian} -mcpu=${CPU} -relocation-model=static \
--filetype=obj debug.bc -o debug.cpu0.o
+-filetype=obj -has-lld=true debug.bc -o debug.cpu0.o
 ${TOOLDIR}/llc -march=cpu0${endian} -mcpu=${CPU} -relocation-model=static \
--filetype=obj printf-stdarg-def.bc -o printf-stdarg-def.cpu0.o
+-filetype=obj -has-lld=true printf-stdarg-def.bc -o printf-stdarg-def.cpu0.o
 ${TOOLDIR}/llc -march=cpu0${endian} -mcpu=${CPU} -relocation-model=static \
--filetype=obj printf-stdarg.bc -o printf-stdarg.cpu0.o
+-filetype=obj -has-lld=true printf-stdarg.bc -o printf-stdarg.cpu0.o
 ${TOOLDIR}/llc -march=cpu0${endian} -mcpu=${CPU} -relocation-model=static \
--filetype=obj ch_float_necessary.bc -o ch_float_necessary.cpu0.o
+-filetype=obj -has-lld=true ch_float_necessary.bc -o ch_float_necessary.cpu0.o
 ${TOOLDIR}/llc -march=cpu0${endian} -mcpu=${CPU} -relocation-model=static \
--filetype=obj lib_cpu0.ll -o lib_cpu0.o
+-filetype=obj -has-lld=true lib_cpu0.ll -o lib_cpu0.o
 ${TOOLDIR}/lld -flavor gnu -o a.out \
   start.cpu0.o debug.cpu0.o printf-stdarg-def.cpu0.o printf-stdarg.cpu0.o \
   ch_float_necessary.cpu0.o lib_cpu0.o ${olibsf}/libFloat.o
@@ -223,62 +215,49 @@ epilogue;
 </pre></div>
 </div>
 <p>Run as follows,</p>
-<div class="highlight-console"><div class="highlight"><pre><span></span><span class="gp">JonathantekiiMac:input Jonathan$</span> bash build-float-necessary.sh cpu032II be
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">JonathantekiiMac:input Jonathan$ </span>bash build-float-necessary.sh cpu032II be
 <span class="go">...</span>
 <span class="go">endian =  BigEndian</span>
 <span class="go">0   /* 0: big endian, 1: little endian */</span>
 
-<span class="gp">JonathantekiiMac:input Jonathan$</span> iverilog -o cpu0IIs cpu0IIs.v
-<span class="gp">JonathantekiiMac:input Jonathan$</span> ./cpu0IIs
-<span class="gp">114-43-184-210:verilog Jonathan$</span> ./cpu0IIs
+<span class="gp">JonathantekiiMac:input Jonathan$ </span>iverilog -o cpu0IIs cpu0IIs.v
+<span class="gp">JonathantekiiMac:input Jonathan$ </span>./cpu0IIs
+<span class="gp">114-43-184-210:verilog Jonathan$ </span>./cpu0IIs
 <span class="go">ARNING: cpu0.v:487: $readmemh(cpu0.hex): Not enough words in the file for the requested range [0:524287].</span>
 <span class="go">taskInterrupt(001)</span>
-<span class="go">(int)test_shift_left&lt;long long&gt;(0x12, 4) = 288</span>
-<span class="go">(int)test_shift_right&lt;long long&gt;(0x001666660000000a, 48) = 22</span>
-<span class="go">(int)test_shift_right&lt;unsigned long long&gt;(0x001666660000000a, 48) = 22</span>
-<span class="go">(int)test_add&lt;float, float, float&gt;(-2.2, 3.3) = 1</span>
-<span class="go">(int)test_mul&lt;float, float, float&gt;(-2.2, 3.3) = -7</span>
-<span class="go">(int)test_div&lt;float, float, float&gt;(-1.8, 0.5) = -3</span>
-<span class="go">(int)test_add&lt;double, double, float&gt;(-2.2, 3.3) = 1</span>
-<span class="go">(int)test_mul&lt;float, float, double&gt;(-2.2, 3.3) = -7</span>
-<span class="go">(int)test_mul&lt;float, float, double&gt;(-2.2, 3.3) = 0</span>
-<span class="go">(int)test_div&lt;double, double, double&gt;(-1.8, 0.5) = -3</span>
+<span class="gp gp-VirtualEnv">(int)</span><span class="go">test_shift_left&lt;long long&gt;(0x12, 4) = 288</span>
+<span class="gp gp-VirtualEnv">(int)</span><span class="go">test_shift_right&lt;long long&gt;(0x001666660000000a, 48) = 22</span>
+<span class="gp gp-VirtualEnv">(int)</span><span class="go">test_shift_right&lt;unsigned long long&gt;(0x001666660000000a, 48) = 22</span>
+<span class="gp gp-VirtualEnv">(int)</span><span class="go">test_add&lt;float, float, float&gt;(-2.2, 3.3) = 1</span>
+<span class="gp gp-VirtualEnv">(int)</span><span class="go">test_mul&lt;float, float, float&gt;(-2.2, 3.3) = -7</span>
+<span class="gp gp-VirtualEnv">(int)</span><span class="go">test_div&lt;float, float, float&gt;(-1.8, 0.5) = -3</span>
+<span class="gp gp-VirtualEnv">(int)</span><span class="go">test_add&lt;double, double, float&gt;(-2.2, 3.3) = 1</span>
+<span class="gp gp-VirtualEnv">(int)</span><span class="go">test_mul&lt;float, float, double&gt;(-2.2, 3.3) = -7</span>
+<span class="gp gp-VirtualEnv">(int)</span><span class="go">test_mul&lt;float, float, double&gt;(-2.2, 3.3) = 0</span>
+<span class="gp gp-VirtualEnv">(int)</span><span class="go">test_div&lt;double, double, double&gt;(-1.8, 0.5) = -3</span>
 <span class="go">total cpu cycles = 182585</span>
 <span class="go">RET to PC &lt; 0, finished!</span>
 </pre></div>
 </div>
-<table class="docutils footnote" frame="void" id="id6" rules="none">
-<colgroup><col class="label" /><col /></colgroup>
-<tbody valign="top">
-<tr><td class="label"><a class="fn-backref" href="#id1">[1]</a></td><td><a class="reference external" href="http://compiler-rt.llvm.org/">http://compiler-rt.llvm.org/</a></td></tr>
-</tbody>
-</table>
-<table class="docutils footnote" frame="void" id="avr-libc-license" rules="none">
-<colgroup><col class="label" /><col /></colgroup>
-<tbody valign="top">
-<tr><td class="label"><a class="fn-backref" href="#id2">[2]</a></td><td><a class="reference external" href="http://www.nongnu.org/avr-libc/">http://www.nongnu.org/avr-libc/</a></td></tr>
-</tbody>
-</table>
-<table class="docutils footnote" frame="void" id="avr-libc-download" rules="none">
-<colgroup><col class="label" /><col /></colgroup>
-<tbody valign="top">
-<tr><td class="label"><a class="fn-backref" href="#id3">[3]</a></td><td><a class="reference external" href="http://download.savannah.gnu.org/releases/avr-libc/">http://download.savannah.gnu.org/releases/avr-libc/</a></td></tr>
-</tbody>
-</table>
-<table class="docutils footnote" frame="void" id="avr-libc-doc-web" rules="none">
-<colgroup><col class="label" /><col /></colgroup>
-<tbody valign="top">
-<tr><td class="label"><a class="fn-backref" href="#id4">[4]</a></td><td><a class="reference external" href="http://www.atmel.com/webdoc/AVRLibcReferenceManual/index.html">http://www.atmel.com/webdoc/AVRLibcReferenceManual/index.html</a></td></tr>
-</tbody>
-</table>
-<table class="docutils footnote" frame="void" id="avr-libc-doc-pdf" rules="none">
-<colgroup><col class="label" /><col /></colgroup>
-<tbody valign="top">
-<tr><td class="label"><a class="fn-backref" href="#id5">[5]</a></td><td><a class="reference external" href="http://courses.cs.washington.edu/courses/csep567/04sp/pdfs/avr-libc-user-manual.pdf">http://courses.cs.washington.edu/courses/csep567/04sp/pdfs/avr-libc-user-manual.pdf</a></td></tr>
-</tbody>
-</table>
-</div>
-</div>
+<dl class="footnote brackets">
+<dt class="label" id="id6"><span class="brackets"><a class="fn-backref" href="#id1">1</a></span></dt>
+<dd><p><a class="reference external" href="http://compiler-rt.llvm.org/">http://compiler-rt.llvm.org/</a></p>
+</dd>
+<dt class="label" id="avr-libc-license"><span class="brackets"><a class="fn-backref" href="#id2">2</a></span></dt>
+<dd><p><a class="reference external" href="http://www.nongnu.org/avr-libc/">http://www.nongnu.org/avr-libc/</a></p>
+</dd>
+<dt class="label" id="avr-libc-download"><span class="brackets"><a class="fn-backref" href="#id3">3</a></span></dt>
+<dd><p><a class="reference external" href="http://download.savannah.gnu.org/releases/avr-libc/">http://download.savannah.gnu.org/releases/avr-libc/</a></p>
+</dd>
+<dt class="label" id="avr-libc-doc-web"><span class="brackets"><a class="fn-backref" href="#id4">4</a></span></dt>
+<dd><p><a class="reference external" href="http://www.atmel.com/webdoc/AVRLibcReferenceManual/index.html">http://www.atmel.com/webdoc/AVRLibcReferenceManual/index.html</a></p>
+</dd>
+<dt class="label" id="avr-libc-doc-pdf"><span class="brackets"><a class="fn-backref" href="#id5">5</a></span></dt>
+<dd><p><a class="reference external" href="http://courses.cs.washington.edu/courses/csep567/04sp/pdfs/avr-libc-user-manual.pdf">http://courses.cs.washington.edu/courses/csep567/04sp/pdfs/avr-libc-user-manual.pdf</a></p>
+</dd>
+</dl>
+</section>
+</section>
 
 
       </div>
@@ -293,8 +272,8 @@ epilogue;
       </div>
 
     <div class="footer" role="contentinfo">
-        &copy; Copyright 2016, Chen Chung-Shu.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.4.4.
+        &#169; Copyright 2016, Chen Chung-Shu.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 4.0.2.
     </div>
   </body>
 </html>
