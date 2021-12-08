@@ -1,4 +1,4 @@
-//===--- Mips.h - Declare Mips target feature support -----------*- C++ -*-===//
+//===--- Cpu0.h - Declare Mips target feature support -----------*- C++ -*-===//
 //
 // Part of the LLVM Project, under the Apache License v2.0 with LLVM Exceptions.
 // See https://llvm.org/LICENSE.txt for license information.
@@ -89,11 +89,11 @@ public:
     return TargetInfo::initFeatureMap(Features, Diags, CPU, FeaturesVec);
   }
 
-/*  unsigned getISARev() const;
+  unsigned getISARev() const;
 
   void getTargetDefines(const LangOptions &Opts,
                         MacroBuilder &Builder) const override;
-*/
+
   ArrayRef<Builtin::Info> getTargetBuiltins() const override;
 /*
   bool hasFeature(StringRef Feature) const override;
@@ -101,35 +101,19 @@ public:
   BuiltinVaListKind getBuiltinVaListKind() const override {
     return TargetInfo::VoidPtrBuiltinVaList;
   }
-/*
+
   ArrayRef<const char *> getGCCRegNames() const override {
     static const char *const GCCRegNames[] = {
         // CPU register names
         // Must match second column of GCCRegAliases
         "$0", "$1", "$2", "$3", "$4", "$5", "$6", "$7", "$8", "$9", "$10",
-        "$11", "$12", "$13", "$14", "$15", "$16", "$17", "$18", "$19", "$20",
-        "$21", "$22", "$23", "$24", "$25", "$26", "$27", "$28", "$29", "$30",
-        "$31",
-        // Floating point register names
-        "$f0", "$f1", "$f2", "$f3", "$f4", "$f5", "$f6", "$f7", "$f8", "$f9",
-        "$f10", "$f11", "$f12", "$f13", "$f14", "$f15", "$f16", "$f17", "$f18",
-        "$f19", "$f20", "$f21", "$f22", "$f23", "$f24", "$f25", "$f26", "$f27",
-        "$f28", "$f29", "$f30", "$f31",
+        "$11", "$12", "$13", "$14", "$15",
         // Hi/lo and condition register names
-        "hi", "lo", "", "$fcc0", "$fcc1", "$fcc2", "$fcc3", "$fcc4", "$fcc5",
-        "$fcc6", "$fcc7", "$ac1hi", "$ac1lo", "$ac2hi", "$ac2lo", "$ac3hi",
-        "$ac3lo",
-        // MSA register names
-        "$w0", "$w1", "$w2", "$w3", "$w4", "$w5", "$w6", "$w7", "$w8", "$w9",
-        "$w10", "$w11", "$w12", "$w13", "$w14", "$w15", "$w16", "$w17", "$w18",
-        "$w19", "$w20", "$w21", "$w22", "$w23", "$w24", "$w25", "$w26", "$w27",
-        "$w28", "$w29", "$w30", "$w31",
-        // MSA control register names
-        "$msair", "$msacsr", "$msaaccess", "$msasave", "$msamodify",
-        "$msarequest", "$msamap", "$msaunmap"
+        "hi", "lo", 
     };
     return llvm::makeArrayRef(GCCRegNames);
   }
+
 
   bool validateAsmConstraint(const char *&Name,
                              TargetInfo::ConstraintInfo &Info) const override {
@@ -167,7 +151,7 @@ public:
     }
   }
 
-  std::string convertConstraint(const char *&Constraint) const override {
+/*  std::string convertConstraint(const char *&Constraint) const override {
     std::string R;
     switch (*Constraint) {
     case 'Z': // Two-character constraint; add "^" hint for later parsing.
@@ -179,7 +163,7 @@ public:
       break;
     }
     return TargetInfo::convertConstraint(Constraint);
-  }
+  } */
 
   const char *getClobbers() const override {
     // In GCC, $1 is not widely used in generated code (it's used only in a few
@@ -206,6 +190,7 @@ public:
     return "~{$1}";
   }
 
+/*
   bool handleTargetFeatures(std::vector<std::string> &Features,
                             DiagnosticsEngine &Diags) override {
     IsMips16 = false;
@@ -268,40 +253,20 @@ public:
   }
 
   bool isCLZForZeroUndef() const override { return false; }
+*/
 
   ArrayRef<TargetInfo::GCCRegAlias> getGCCRegAliases() const override {
-    static const TargetInfo::GCCRegAlias O32RegAliases[] = {
+    static const TargetInfo::GCCRegAlias RegAliases[] = {
         {{"at"}, "$1"},  {{"v0"}, "$2"},         {{"v1"}, "$3"},
-        {{"a0"}, "$4"},  {{"a1"}, "$5"},         {{"a2"}, "$6"},
-        {{"a3"}, "$7"},  {{"t0"}, "$8"},         {{"t1"}, "$9"},
-        {{"t2"}, "$10"}, {{"t3"}, "$11"},        {{"t4"}, "$12"},
-        {{"t5"}, "$13"}, {{"t6"}, "$14"},        {{"t7"}, "$15"},
-        {{"s0"}, "$16"}, {{"s1"}, "$17"},        {{"s2"}, "$18"},
-        {{"s3"}, "$19"}, {{"s4"}, "$20"},        {{"s5"}, "$21"},
-        {{"s6"}, "$22"}, {{"s7"}, "$23"},        {{"t8"}, "$24"},
-        {{"t9"}, "$25"}, {{"k0"}, "$26"},        {{"k1"}, "$27"},
-        {{"gp"}, "$28"}, {{"sp", "$sp"}, "$29"}, {{"fp", "$fp"}, "$30"},
-        {{"ra"}, "$31"}
+        {{"a0"}, "$4"},  {{"a1"}, "$5"},         {{"t9"}, "$6"},
+       /* {{""}, "$7"},  {{""}, "$8"},         {{""}, "$9"},
+        {{""}, "$10"},*/ {{"gp"}, "$11"},        {{"fp"}, "$12"},
+        {{"sp"}, "$13"}, {{"lr"}, "$14"},        {{"sw"}, "$15"},
     };
-    static const TargetInfo::GCCRegAlias NewABIRegAliases[] = {
-        {{"at"}, "$1"},  {{"v0"}, "$2"},         {{"v1"}, "$3"},
-        {{"a0"}, "$4"},  {{"a1"}, "$5"},         {{"a2"}, "$6"},
-        {{"a3"}, "$7"},  {{"a4"}, "$8"},         {{"a5"}, "$9"},
-        {{"a6"}, "$10"}, {{"a7"}, "$11"},        {{"t0"}, "$12"},
-        {{"t1"}, "$13"}, {{"t2"}, "$14"},        {{"t3"}, "$15"},
-        {{"s0"}, "$16"}, {{"s1"}, "$17"},        {{"s2"}, "$18"},
-        {{"s3"}, "$19"}, {{"s4"}, "$20"},        {{"s5"}, "$21"},
-        {{"s6"}, "$22"}, {{"s7"}, "$23"},        {{"t8"}, "$24"},
-        {{"t9"}, "$25"}, {{"k0"}, "$26"},        {{"k1"}, "$27"},
-        {{"gp"}, "$28"}, {{"sp", "$sp"}, "$29"}, {{"fp", "$fp"}, "$30"},
-        {{"ra"}, "$31"}
-    };
-    if (ABI == "o32")
-      return llvm::makeArrayRef(O32RegAliases);
-    return llvm::makeArrayRef(NewABIRegAliases);
+    return llvm::makeArrayRef(RegAliases);
   }
 
-  bool hasInt128Type() const override {
+/*  bool hasInt128Type() const override {
     return (ABI == "n32" || ABI == "n64") || getTargetOpts().ForceEnableInt128;
   }
 

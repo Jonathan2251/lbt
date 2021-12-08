@@ -57,65 +57,55 @@ bool MipsTargetInfo::isValidCPUName(StringRef Name) const {
 void MipsTargetInfo::fillValidCPUList(
     SmallVectorImpl<StringRef> &Values) const {
   Values.append(std::begin(ValidCPUNames), std::end(ValidCPUNames));
-}
+}*/
 
-unsigned MipsTargetInfo::getISARev() const {
+unsigned Cpu0TargetInfo::getISARev() const {
   return llvm::StringSwitch<unsigned>(getCPU())
-             .Cases("mips32", "mips64", 1)
-             .Cases("mips32r2", "mips64r2", "octeon", "octeon+", 2)
-             .Cases("mips32r3", "mips64r3", 3)
-             .Cases("mips32r5", "mips64r5", 5)
-             .Cases("mips32r6", "mips64r6", 6)
+             .Case("cpu032I", 1)
+             .Case("cpu032II", 2)
              .Default(0);
 }
 
-void MipsTargetInfo::getTargetDefines(const LangOptions &Opts,
+void Cpu0TargetInfo::getTargetDefines(const LangOptions &Opts,
                                       MacroBuilder &Builder) const {
   if (BigEndian) {
-    DefineStd(Builder, "MIPSEB", Opts);
-    Builder.defineMacro("_MIPSEB");
+    DefineStd(Builder, "CPU0EB", Opts);
+    Builder.defineMacro("_CPU0EB");
   } else {
-    DefineStd(Builder, "MIPSEL", Opts);
-    Builder.defineMacro("_MIPSEL");
+    DefineStd(Builder, "CPU0EL", Opts);
+    Builder.defineMacro("_CPU0EL");
   }
 
-  Builder.defineMacro("__mips__");
-  Builder.defineMacro("_mips");
+  Builder.defineMacro("__cpu0__");
+  Builder.defineMacro("_cpu0");
   if (Opts.GNUMode)
-    Builder.defineMacro("mips");
+    Builder.defineMacro("cpu0");
 
-  if (ABI == "o32") {
-    Builder.defineMacro("__mips", "32");
-    Builder.defineMacro("_MIPS_ISA", "_MIPS_ISA_MIPS32");
+  if (ABI == "o32" || ABI == "s32") {
+    Builder.defineMacro("__cpu0", "32");
+    Builder.defineMacro("_CPU0_ISA", "_CPU0_ISA_CPU032");
   } else {
-    Builder.defineMacro("__mips", "64");
-    Builder.defineMacro("__mips64");
-    Builder.defineMacro("__mips64__");
-    Builder.defineMacro("_MIPS_ISA", "_MIPS_ISA_MIPS64");
+    llvm_unreachable("Invalid ABI.");
   }
 
   const std::string ISARev = std::to_string(getISARev());
 
   if (!ISARev.empty())
-    Builder.defineMacro("__mips_isa_rev", ISARev);
+    Builder.defineMacro("__cpu0_isa_rev", ISARev);
 
   if (ABI == "o32") {
-    Builder.defineMacro("__mips_o32");
+    Builder.defineMacro("__cpu0_o32");
     Builder.defineMacro("_ABIO32", "1");
-    Builder.defineMacro("_MIPS_SIM", "_ABIO32");
-  } else if (ABI == "n32") {
-    Builder.defineMacro("__mips_n32");
-    Builder.defineMacro("_ABIN32", "2");
-    Builder.defineMacro("_MIPS_SIM", "_ABIN32");
-  } else if (ABI == "n64") {
-    Builder.defineMacro("__mips_n64");
-    Builder.defineMacro("_ABI64", "3");
-    Builder.defineMacro("_MIPS_SIM", "_ABI64");
+    Builder.defineMacro("_CPU0_SIM", "_ABIO32");
+  } else if (ABI == "s32") {
+    Builder.defineMacro("__cpu0_n32");
+    Builder.defineMacro("_ABIS32", "2");
+    Builder.defineMacro("_CPU0_SIM", "_ABIN32");
   } else
     llvm_unreachable("Invalid ABI.");
 
   if (!IsNoABICalls) {
-    Builder.defineMacro("__mips_abicalls");
+    Builder.defineMacro("__cpu0_abicalls");
     if (CanUseBSDABICalls)
       Builder.defineMacro("__ABICALLS__");
   }
@@ -124,93 +114,16 @@ void MipsTargetInfo::getTargetDefines(const LangOptions &Opts,
 
   switch (FloatABI) {
   case HardFloat:
-    Builder.defineMacro("__mips_hard_float", Twine(1));
+    //Builder.defineMacro("__cpu0_hard_float", Twine(1));
+    llvm_unreachable("HardFloat is not support in Cpu0");
     break;
   case SoftFloat:
-    Builder.defineMacro("__mips_soft_float", Twine(1));
+    Builder.defineMacro("__cpu0_soft_float", Twine(1));
     break;
   }
-
-  if (IsSingleFloat)
-    Builder.defineMacro("__mips_single_float", Twine(1));
-
-  switch (FPMode) {
-  case FPXX:
-    Builder.defineMacro("__mips_fpr", Twine(0));
-    break;
-  case FP32:
-    Builder.defineMacro("__mips_fpr", Twine(32));
-    break;
-  case FP64:
-    Builder.defineMacro("__mips_fpr", Twine(64));
-    break;
 }
 
-  if (FPMode == FP64 || IsSingleFloat)
-    Builder.defineMacro("_MIPS_FPSET", Twine(32));
-  else
-    Builder.defineMacro("_MIPS_FPSET", Twine(16));
-
-  if (IsMips16)
-    Builder.defineMacro("__mips16", Twine(1));
-
-  if (IsMicromips)
-    Builder.defineMacro("__mips_micromips", Twine(1));
-
-  if (IsNan2008)
-    Builder.defineMacro("__mips_nan2008", Twine(1));
-
-  if (IsAbs2008)
-    Builder.defineMacro("__mips_abs2008", Twine(1));
-
-  switch (DspRev) {
-  default:
-    break;
-  case DSP1:
-    Builder.defineMacro("__mips_dsp_rev", Twine(1));
-    Builder.defineMacro("__mips_dsp", Twine(1));
-    break;
-  case DSP2:
-    Builder.defineMacro("__mips_dsp_rev", Twine(2));
-    Builder.defineMacro("__mips_dspr2", Twine(1));
-    Builder.defineMacro("__mips_dsp", Twine(1));
-    break;
-  }
-
-  if (HasMSA)
-    Builder.defineMacro("__mips_msa", Twine(1));
-
-  if (DisableMadd4)
-    Builder.defineMacro("__mips_no_madd4", Twine(1));
-
-  Builder.defineMacro("_MIPS_SZPTR", Twine(getPointerWidth(0)));
-  Builder.defineMacro("_MIPS_SZINT", Twine(getIntWidth()));
-  Builder.defineMacro("_MIPS_SZLONG", Twine(getLongWidth()));
-
-  Builder.defineMacro("_MIPS_ARCH", "\"" + CPU + "\"");
-  if (CPU == "octeon+")
-    Builder.defineMacro("_MIPS_ARCH_OCTEONP");
-  else
-    Builder.defineMacro("_MIPS_ARCH_" + StringRef(CPU).upper());
-
-  if (StringRef(CPU).startswith("octeon"))
-    Builder.defineMacro("__OCTEON__");
-
-  // These shouldn't be defined for MIPS-I but there's no need to check
-  // for that since MIPS-I isn't supported.
-  Builder.defineMacro("__GCC_HAVE_SYNC_COMPARE_AND_SWAP_1");
-  Builder.defineMacro("__GCC_HAVE_SYNC_COMPARE_AND_SWAP_2");
-  Builder.defineMacro("__GCC_HAVE_SYNC_COMPARE_AND_SWAP_4");
-
-  // 32-bit MIPS processors don't have the necessary lld/scd instructions
-  // found in 64-bit processors. In the case of O32 on a 64-bit processor,
-  // the instructions exist but using them violates the ABI since they
-  // require 64-bit GPRs and O32 only supports 32-bit GPRs.
-  if (ABI == "n32" || ABI == "n64")
-    Builder.defineMacro("__GCC_HAVE_SYNC_COMPARE_AND_SWAP_8");
-}
-
-bool MipsTargetInfo::hasFeature(StringRef Feature) const {
+/*bool MipsTargetInfo::hasFeature(StringRef Feature) const {
   return llvm::StringSwitch<bool>(Feature)
       .Case("mips", true)
       .Case("dsp", DspRev >= DSP1)

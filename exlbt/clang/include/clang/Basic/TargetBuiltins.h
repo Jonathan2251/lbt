@@ -285,7 +285,7 @@ namespace clang {
     enum {
         LastTIBuiltin = clang::Builtin::FirstTSBuiltin-1,
 #define BUILTIN(ID, TYPE, ATTRS) BI##ID,
-//#include "clang/Basic/BuiltinsCpu0.def"
+#include "clang/Basic/BuiltinsCpu0.def"
         LastTSBuiltin
     };
   }
