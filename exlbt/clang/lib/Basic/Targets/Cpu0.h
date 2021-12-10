@@ -1,4 +1,4 @@
-//===--- Cpu0.h - Declare Mips target feature support -----------*- C++ -*-===//
+//===--- Cpu0.h - Declare Cpu0 target feature support -----------*- C++ -*-===//
 //
 // Part of the LLVM Project, under the Apache License v2.0 with LLVM Exceptions.
 // See https://llvm.org/LICENSE.txt for license information.
@@ -6,7 +6,7 @@
 //
 //===----------------------------------------------------------------------===//
 //
-// This file declares Mips TargetInfo objects.
+// This file declares Cpu0 TargetInfo objects.
 //
 //===----------------------------------------------------------------------===//
 
@@ -45,6 +45,7 @@ class LLVM_LIBRARY_VISIBILITY Cpu0TargetInfo : public TargetInfo {
   
 protected:
   std::string ABI;
+  enum Cpu0FloatABI { HardFloat, SoftFloat } FloatABI;
 
 public:
   Cpu0TargetInfo(const llvm::Triple &Triple, const TargetOptions &)
@@ -95,9 +96,9 @@ public:
                         MacroBuilder &Builder) const override;
 
   ArrayRef<Builtin::Info> getTargetBuiltins() const override;
-/*
+
   bool hasFeature(StringRef Feature) const override;
-*/
+
   BuiltinVaListKind getBuiltinVaListKind() const override {
     return TargetInfo::VoidPtrBuiltinVaList;
   }
@@ -151,7 +152,7 @@ public:
     }
   }
 
-/*  std::string convertConstraint(const char *&Constraint) const override {
+  std::string convertConstraint(const char *&Constraint) const override {
     std::string R;
     switch (*Constraint) {
     case 'Z': // Two-character constraint; add "^" hint for later parsing.
@@ -163,7 +164,7 @@ public:
       break;
     }
     return TargetInfo::convertConstraint(Constraint);
-  } */
+  }
 
   const char *getClobbers() const override {
     // In GCC, $1 is not widely used in generated code (it's used only in a few
@@ -190,10 +191,10 @@ public:
     return "~{$1}";
   }
 
-/*
+
   bool handleTargetFeatures(std::vector<std::string> &Features,
                             DiagnosticsEngine &Diags) override {
-    IsMips16 = false;
+/*    IsMips16 = false;
     IsMicromips = false;
     IsNan2008 = isIEEE754_2008Default();
     IsAbs2008 = isIEEE754_2008Default();
@@ -238,13 +239,13 @@ public:
       else if (Feature == "+use-indirect-jump-hazard")
         UseIndirectJumpHazard = true;
     }
-
+*/
     setDataLayout();
 
     return true;
   }
 
-  int getEHDataRegisterNumber(unsigned RegNo) const override {
+/*  int getEHDataRegisterNumber(unsigned RegNo) const override {
     if (RegNo == 0)
       return 4;
     if (RegNo == 1)
@@ -266,11 +267,12 @@ public:
     return llvm::makeArrayRef(RegAliases);
   }
 
-/*  bool hasInt128Type() const override {
-    return (ABI == "n32" || ABI == "n64") || getTargetOpts().ForceEnableInt128;
+  bool hasInt128Type() const override {
+    //return (ABI == "n32" || ABI == "n64") || getTargetOpts().ForceEnableInt128;
+    return false;
   }
 
-  unsigned getUnwindWordWidth() const override;*/
+  unsigned getUnwindWordWidth() const override;
 
   bool validateTarget(DiagnosticsEngine &Diags) const override;
   bool hasExtIntType() const override { return true; }

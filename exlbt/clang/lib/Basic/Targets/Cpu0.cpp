@@ -104,11 +104,12 @@ void Cpu0TargetInfo::getTargetDefines(const LangOptions &Opts,
   } else
     llvm_unreachable("Invalid ABI.");
 
+/*
   if (!IsNoABICalls) {
     Builder.defineMacro("__cpu0_abicalls");
     if (CanUseBSDABICalls)
       Builder.defineMacro("__ABICALLS__");
-  }
+  }*/
 
   Builder.defineMacro("__REGISTER_PREFIX__", "");
 
@@ -123,32 +124,26 @@ void Cpu0TargetInfo::getTargetDefines(const LangOptions &Opts,
   }
 }
 
-/*bool MipsTargetInfo::hasFeature(StringRef Feature) const {
+bool Cpu0TargetInfo::hasFeature(StringRef Feature) const {
   return llvm::StringSwitch<bool>(Feature)
-      .Case("mips", true)
-      .Case("dsp", DspRev >= DSP1)
-      .Case("dspr2", DspRev >= DSP2)
-      .Case("fp64", FPMode == FP64)
-      .Case("msa", HasMSA)
+      .Case("cpu0", true)
       .Default(false);
-}*/
+}
 
 ArrayRef<Builtin::Info> Cpu0TargetInfo::getTargetBuiltins() const {
   return llvm::makeArrayRef(BuiltinInfo, clang::Cpu0::LastTSBuiltin -
                                              Builtin::FirstTSBuiltin);
 }
-/*
-unsigned MipsTargetInfo::getUnwindWordWidth() const {
+
+unsigned Cpu0TargetInfo::getUnwindWordWidth() const {
   return llvm::StringSwitch<unsigned>(ABI)
-      .Case("o32", 32)
-      .Case("n32", 64)
-      .Case("n64", 64)
+      .Cases("o32", "s32", 32)
       .Default(getPointerWidth(0));
-}*/
+}
 
 bool Cpu0TargetInfo::validateTarget(DiagnosticsEngine &Diags) const {
   if (CPU != "cpu032I" && CPU != "cpu032II") {
-    Diags.Report(diag::err_target_unsupported_cpu) << ABI << CPU;
+    Diags.Report(diag::err_target_unknown_cpu) << ABI << CPU;
     return false;
   }
 
