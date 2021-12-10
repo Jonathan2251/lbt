@@ -194,6 +194,7 @@ public:
 
   bool handleTargetFeatures(std::vector<std::string> &Features,
                             DiagnosticsEngine &Diags) override {
+    FloatABI = SoftFloat;
 /*    IsMips16 = false;
     IsMicromips = false;
     IsNan2008 = isIEEE754_2008Default();
