@@ -42,19 +42,16 @@ bool MipsTargetInfo::processorSupportsGPR64() const {
       .Case("octeon", true)
       .Case("octeon+", true)
       .Default(false);
-}
+}*/
 
 static constexpr llvm::StringLiteral ValidCPUNames[] = {
-    {"mips1"},  {"mips2"},    {"mips3"},    {"mips4"},    {"mips5"},
-    {"mips32"}, {"mips32r2"}, {"mips32r3"}, {"mips32r5"}, {"mips32r6"},
-    {"mips64"}, {"mips64r2"}, {"mips64r3"}, {"mips64r5"}, {"mips64r6"},
-    {"octeon"}, {"octeon+"}, {"p5600"}};
+    {"cpu032I"},  {"cpu0i32II"}};
 
-bool MipsTargetInfo::isValidCPUName(StringRef Name) const {
+bool Cpu0TargetInfo::isValidCPUName(StringRef Name) const {
   return llvm::find(ValidCPUNames, Name) != std::end(ValidCPUNames);
 }
 
-void MipsTargetInfo::fillValidCPUList(
+/*void MipsTargetInfo::fillValidCPUList(
     SmallVectorImpl<StringRef> &Values) const {
   Values.append(std::begin(ValidCPUNames), std::end(ValidCPUNames));
 }*/
