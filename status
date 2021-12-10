@@ -1,5 +1,6 @@
 clang:
 pass:
 ~/llvm/test/build/bin/clang -target cpu0-unknown-linux-gnu -S ch3.cpp
+~/llvm/test/build/bin/clang -target cpu0-unknown-linux-gnu -fintegrated-as -c ch3.cpp -v
 fail:
 ~/llvm/test/build/bin/clang -target cpu0-unknown-linux-gnu -c ch3.cpp -v
