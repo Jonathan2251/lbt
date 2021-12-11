@@ -48,7 +48,7 @@ protected:
   enum Cpu0FloatABI { HardFloat, SoftFloat } FloatABI;
 
 public:
-  Cpu0TargetInfo(const llvm::Triple &Triple, const TargetOptions &)
+  Cpu0TargetInfo(const llvm::Triple &Triple, const TargetOptions &Opt)
       : TargetInfo(Triple) {
     TheCXXABI.set(TargetCXXABI::GenericMIPS);
 
@@ -84,7 +84,7 @@ public:
     if (CPU == "cpu032II")
       Features["HasCmp"] = Features["HasSlt"] = true;
     else if (CPU == "cpu032I")
-      Features["HasSlt"] = true;
+      Features["HasCmp"] = true;
     else
       assert(0 && "incorrect CPU");
     return TargetInfo::initFeatureMap(Features, Diags, CPU, FeaturesVec);
@@ -195,52 +195,16 @@ public:
   bool handleTargetFeatures(std::vector<std::string> &Features,
                             DiagnosticsEngine &Diags) override {
     FloatABI = SoftFloat;
-/*    IsMips16 = false;
-    IsMicromips = false;
-    IsNan2008 = isIEEE754_2008Default();
-    IsAbs2008 = isIEEE754_2008Default();
-    IsSingleFloat = false;
-    FloatABI = HardFloat;
-    DspRev = NoDSP;
-    FPMode = isFP64Default() ? FP64 : FPXX;
 
     for (const auto &Feature : Features) {
-      if (Feature == "+single-float")
-        IsSingleFloat = true;
+      if (Feature == "+cpu032I")
+        setCPU("cpu032I");
+      else if (Feature == "+cpu032II")
+        setCPU("cpu032II");
       else if (Feature == "+soft-float")
         FloatABI = SoftFloat;
-      else if (Feature == "+mips16")
-        IsMips16 = true;
-      else if (Feature == "+micromips")
-        IsMicromips = true;
-      else if (Feature == "+dsp")
-        DspRev = std::max(DspRev, DSP1);
-      else if (Feature == "+dspr2")
-        DspRev = std::max(DspRev, DSP2);
-      else if (Feature == "+msa")
-        HasMSA = true;
-      else if (Feature == "+nomadd4")
-        DisableMadd4 = true;
-      else if (Feature == "+fp64")
-        FPMode = FP64;
-      else if (Feature == "-fp64")
-        FPMode = FP32;
-      else if (Feature == "+fpxx")
-        FPMode = FPXX;
-      else if (Feature == "+nan2008")
-        IsNan2008 = true;
-      else if (Feature == "-nan2008")
-        IsNan2008 = false;
-      else if (Feature == "+abs2008")
-        IsAbs2008 = true;
-      else if (Feature == "-abs2008")
-        IsAbs2008 = false;
-      else if (Feature == "+noabicalls")
-        IsNoABICalls = true;
-      else if (Feature == "+use-indirect-jump-hazard")
-        UseIndirectJumpHazard = true;
     }
-*/
+
     setDataLayout();
 
     return true;

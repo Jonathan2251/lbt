@@ -45,7 +45,7 @@ bool MipsTargetInfo::processorSupportsGPR64() const {
 }*/
 
 static constexpr llvm::StringLiteral ValidCPUNames[] = {
-    {"cpu032I"},  {"cpu0i32II"}};
+    {"cpu032I"},  {"cpu032II"}};
 
 bool Cpu0TargetInfo::isValidCPUName(StringRef Name) const {
   return llvm::find(ValidCPUNames, Name) != std::end(ValidCPUNames);
