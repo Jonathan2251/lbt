@@ -115,7 +115,6 @@ public:
     return llvm::makeArrayRef(GCCRegNames);
   }
 
-
   bool validateAsmConstraint(const char *&Name,
                              TargetInfo::ConstraintInfo &Info) const override {
     switch (*Name) {
@@ -124,8 +123,8 @@ public:
     case 'r': // CPU registers.
     case 'd': // Equivalent to "r" unless generating MIPS16 code.
     case 'y': // Equivalent to "r", backward compatibility only.
-    case 'f': // floating-point registers.
-    case 'c': // $25 for indirect jumps
+    //case 'f': // floating-point registers.
+    case 'c': // $6 for indirect jumps
     case 'l': // lo register
     case 'x': // hilo register pair
       Info.setAllowsRegister();
@@ -150,20 +149,6 @@ public:
       }
       return false;
     }
-  }
-
-  std::string convertConstraint(const char *&Constraint) const override {
-    std::string R;
-    switch (*Constraint) {
-    case 'Z': // Two-character constraint; add "^" hint for later parsing.
-      if (Constraint[1] == 'C') {
-        R = std::string("^") + std::string(Constraint, 2);
-        Constraint++;
-        return R;
-      }
-      break;
-    }
-    return TargetInfo::convertConstraint(Constraint);
   }
 
   const char *getClobbers() const override {
@@ -210,30 +195,17 @@ public:
     return true;
   }
 
-/*  int getEHDataRegisterNumber(unsigned RegNo) const override {
-    if (RegNo == 0)
-      return 4;
-    if (RegNo == 1)
-      return 5;
-    return -1;
-  }
-
-  bool isCLZForZeroUndef() const override { return false; }
-*/
-
   ArrayRef<TargetInfo::GCCRegAlias> getGCCRegAliases() const override {
     static const TargetInfo::GCCRegAlias RegAliases[] = {
         {{"at"}, "$1"},  {{"v0"}, "$2"},         {{"v1"}, "$3"},
         {{"a0"}, "$4"},  {{"a1"}, "$5"},         {{"t9"}, "$6"},
-       /* {{""}, "$7"},  {{""}, "$8"},         {{""}, "$9"},
-        {{""}, "$10"},*/ {{"gp"}, "$11"},        {{"fp"}, "$12"},
-        {{"sp"}, "$13"}, {{"lr"}, "$14"},        {{"sw"}, "$15"},
+        {{"gp"}, "$11"}, {{"fp"}, "$12"},        {{"sp"}, "$13"},
+        {{"lr"}, "$14"}, {{"sw"}, "$15"}
     };
     return llvm::makeArrayRef(RegAliases);
   }
 
   bool hasInt128Type() const override {
-    //return (ABI == "n32" || ABI == "n64") || getTargetOpts().ForceEnableInt128;
     return false;
   }
 

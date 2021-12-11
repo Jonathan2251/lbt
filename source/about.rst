@@ -38,7 +38,11 @@ https://github.com/Jonathan2251/lbt/blob/master/README.md
 Revision history
 ----------------
 
-Version 12.0.1, Not release yet.
+Version 12.0.2, Not release yet.
+
+Version 12.0.1, Release December 11, 2021.
+
+  Add target Cpu0 to clang
 
 Version 12.0.0, Release Auguest 11, 2021.
 

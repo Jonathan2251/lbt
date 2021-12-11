@@ -16,6 +16,7 @@ Table of Contents
    lld
    opt
    lib
+   clang
    
 .. _index-f1: 
 .. figure:: ../Fig/lbd_and_lbt.png
