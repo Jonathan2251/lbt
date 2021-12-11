@@ -105,6 +105,9 @@ Cpu0 target
 Verify
 -------
 
+.. rubric:: exlbt/input/build-slinker-2.sh
+.. literalinclude:: ../exlbt/input/build-slinker-2.sh
+
 Build and run as follows,
 
 .. code-block:: console
