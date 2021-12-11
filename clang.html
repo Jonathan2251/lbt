@@ -123,7 +123,7 @@
                       <span class="n">const</span> <span class="n">llvm</span><span class="p">::</span><span class="n">Triple</span> <span class="o">&amp;</span><span class="n">Triple</span><span class="p">,</span> <span class="n">StringRef</span> <span class="o">&amp;</span><span class="n">CPUName</span><span class="p">,</span>
                       <span class="n">StringRef</span> <span class="o">&amp;</span><span class="n">ABIName</span><span class="p">);</span>
 
-<span class="p">}</span> <span class="o">//</span> <span class="n">end</span> <span class="n">namespace</span> <span class="n">mips</span>
+<span class="p">}</span> <span class="o">//</span> <span class="n">end</span> <span class="n">namespace</span> <span class="n">cpu0</span>
 <span class="p">}</span> <span class="o">//</span> <span class="n">end</span> <span class="n">namespace</span> <span class="n">target</span>
 <span class="p">}</span> <span class="o">//</span> <span class="n">end</span> <span class="n">namespace</span> <span class="n">driver</span>
 <span class="p">}</span> <span class="o">//</span> <span class="n">end</span> <span class="n">namespace</span> <span class="n">clang</span>
@@ -447,7 +447,7 @@ public:
 </pre></div>
 </div>
 <p class="rubric">exlbt/clang/lib/Basic/Targets/Cpu0.cpp</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>//===--- Mips.cpp - Implement Mips target feature support -----------------===//
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>//===--- Cpu0.cpp - Implement Cpu0 target feature support -----------------===//
 //
 // Part of the LLVM Project, under the Apache License v2.0 with LLVM Exceptions.
 // See https://llvm.org/LICENSE.txt for license information.
@@ -455,7 +455,7 @@ public:
 //
 //===----------------------------------------------------------------------===//
 //
-// This file implements Mips TargetInfo objects.
+// This file implements Cpu0 TargetInfo objects.
 //
 //===----------------------------------------------------------------------===//
 
@@ -477,33 +477,12 @@ const Builtin::Info Cpu0TargetInfo::BuiltinInfo[] = {
 #include &quot;clang/Basic/BuiltinsCpu0.def&quot;
 };
 
-/*
-bool MipsTargetInfo::processorSupportsGPR64() const {
-  return llvm::StringSwitch&lt;bool&gt;(CPU)
-      .Case(&quot;cpu032&quot;, true)
-      .Case(&quot;mips4&quot;, true)
-      .Case(&quot;mips5&quot;, true)
-      .Case(&quot;mips64&quot;, true)
-      .Case(&quot;mips64r2&quot;, true)
-      .Case(&quot;mips64r3&quot;, true)
-      .Case(&quot;mips64r5&quot;, true)
-      .Case(&quot;mips64r6&quot;, true)
-      .Case(&quot;octeon&quot;, true)
-      .Case(&quot;octeon+&quot;, true)
-      .Default(false);
-}*/
-
 static constexpr llvm::StringLiteral ValidCPUNames[] = {
     {&quot;cpu032I&quot;},  {&quot;cpu032II&quot;}};
 
 bool Cpu0TargetInfo::isValidCPUName(StringRef Name) const {
   return llvm::find(ValidCPUNames, Name) != std::end(ValidCPUNames);
 }
-
-/*void MipsTargetInfo::fillValidCPUList(
-    SmallVectorImpl&lt;StringRef&gt; &amp;Values) const {
-  Values.append(std::begin(ValidCPUNames), std::end(ValidCPUNames));
-}*/
 
 unsigned Cpu0TargetInfo::getISARev() const {
   return llvm::StringSwitch&lt;unsigned&gt;(getCPU())
@@ -550,18 +529,10 @@ void Cpu0TargetInfo::getTargetDefines(const LangOptions &amp;Opts,
   } else
     llvm_unreachable(&quot;Invalid ABI.&quot;);
 
-/*
-  if (!IsNoABICalls) {
-    Builder.defineMacro(&quot;__cpu0_abicalls&quot;);
-    if (CanUseBSDABICalls)
-      Builder.defineMacro(&quot;__ABICALLS__&quot;);
-  }*/
-
   Builder.defineMacro(&quot;__REGISTER_PREFIX__&quot;, &quot;&quot;);
 
   switch (FloatABI) {
   case HardFloat:
-    //Builder.defineMacro(&quot;__cpu0_hard_float&quot;, Twine(1));
     llvm_unreachable(&quot;HardFloat is not support in Cpu0&quot;);
     break;
   case SoftFloat:
