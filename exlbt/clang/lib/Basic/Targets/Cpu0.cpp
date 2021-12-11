@@ -1,4 +1,4 @@
-//===--- Mips.cpp - Implement Mips target feature support -----------------===//
+//===--- Cpu0.cpp - Implement Cpu0 target feature support -----------------===//
 //
 // Part of the LLVM Project, under the Apache License v2.0 with LLVM Exceptions.
 // See https://llvm.org/LICENSE.txt for license information.
@@ -6,7 +6,7 @@
 //
 //===----------------------------------------------------------------------===//
 //
-// This file implements Mips TargetInfo objects.
+// This file implements Cpu0 TargetInfo objects.
 //
 //===----------------------------------------------------------------------===//
 
@@ -28,33 +28,12 @@ const Builtin::Info Cpu0TargetInfo::BuiltinInfo[] = {
 #include "clang/Basic/BuiltinsCpu0.def"
 };
 
-/*
-bool MipsTargetInfo::processorSupportsGPR64() const {
-  return llvm::StringSwitch<bool>(CPU)
-      .Case("cpu032", true)
-      .Case("mips4", true)
-      .Case("mips5", true)
-      .Case("mips64", true)
-      .Case("mips64r2", true)
-      .Case("mips64r3", true)
-      .Case("mips64r5", true)
-      .Case("mips64r6", true)
-      .Case("octeon", true)
-      .Case("octeon+", true)
-      .Default(false);
-}*/
-
 static constexpr llvm::StringLiteral ValidCPUNames[] = {
     {"cpu032I"},  {"cpu032II"}};
 
 bool Cpu0TargetInfo::isValidCPUName(StringRef Name) const {
   return llvm::find(ValidCPUNames, Name) != std::end(ValidCPUNames);
 }
-
-/*void MipsTargetInfo::fillValidCPUList(
-    SmallVectorImpl<StringRef> &Values) const {
-  Values.append(std::begin(ValidCPUNames), std::end(ValidCPUNames));
-}*/
 
 unsigned Cpu0TargetInfo::getISARev() const {
   return llvm::StringSwitch<unsigned>(getCPU())
@@ -101,18 +80,10 @@ void Cpu0TargetInfo::getTargetDefines(const LangOptions &Opts,
   } else
     llvm_unreachable("Invalid ABI.");
 
-/*
-  if (!IsNoABICalls) {
-    Builder.defineMacro("__cpu0_abicalls");
-    if (CanUseBSDABICalls)
-      Builder.defineMacro("__ABICALLS__");
-  }*/
-
   Builder.defineMacro("__REGISTER_PREFIX__", "");
 
   switch (FloatABI) {
   case HardFloat:
-    //Builder.defineMacro("__cpu0_hard_float", Twine(1));
     llvm_unreachable("HardFloat is not support in Cpu0");
     break;
   case SoftFloat:

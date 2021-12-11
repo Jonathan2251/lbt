@@ -26,7 +26,7 @@ void getCpu0CPUAndABI(const llvm::opt::ArgList &Args,
                       const llvm::Triple &Triple, StringRef &CPUName,
                       StringRef &ABIName);
 
-} // end namespace mips
+} // end namespace cpu0
 } // end namespace target
 } // end namespace driver
 } // end namespace clang
