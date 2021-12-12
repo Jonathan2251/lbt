@@ -2,7 +2,7 @@
 
 source functions.sh
 
-sh_name=build-slinker.sh
+sh_name=build-slinker-2.sh
 argNum=$#
 arg1=$1
 arg2=$2
