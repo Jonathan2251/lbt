@@ -277,7 +277,7 @@ protected:
 public:
   Cpu0TargetInfo(const llvm::Triple &amp;Triple, const TargetOptions &amp;Opt)
       : TargetInfo(Triple) {
-    TheCXXABI.set(TargetCXXABI::GenericMIPS);
+    TheCXXABI.set(TargetCXXABI::GenericMIPS); // Cpu0 uses Mips ABI
 
     setABI(&quot;o32&quot;);
 

@@ -159,9 +159,6 @@ compare it against the result of PC's printf() as below.
 .. rubric:: exlbt/input/build-printf-stdarg-2.sh
 .. literalinclude:: ../exlbt/input/build-printf-stdarg-2.sh
 
-.. rubric:: lbdex/verilog/Makefile
-.. literalinclude:: ../lbdex/verilog/Makefile
-
 
 The build-printf-stdarg-2.sh is for my PC setting. Please change this script to
 the directory of your llvm/lld setting. After that run static linker example 
