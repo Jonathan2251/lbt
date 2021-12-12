@@ -4,7 +4,7 @@ INCFLAG="-I../libsoftfloat/compiler-rt/builtins"
 
 source functions.sh
 
-sh_name=build-float.sh
+sh_name=build-float-necessary.sh
 argNum=$#
 arg1=$1
 arg2=$2
