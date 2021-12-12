@@ -124,6 +124,7 @@ This book include:
 2. Optimization. Chapter 3.
 3. Porting C standard library from avr libc and software floating point library
    from LLVM compiler-rt.
+4. Add Cpu0 target to clang.
 
 With these implementation, reader can generate Cpu0 machine code through Cpu0 
 llvm backend compiler, linker and elf2hex, then see how it runs on your 
@@ -141,3 +142,6 @@ Backend independent optimaization.
 
 Software floating point library and standard C library supporting. Under working.
 
+:ref:`sec-clang`:
+
+Add Cpu0 target to clang.
