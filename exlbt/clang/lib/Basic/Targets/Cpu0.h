@@ -50,7 +50,7 @@ protected:
 public:
   Cpu0TargetInfo(const llvm::Triple &Triple, const TargetOptions &Opt)
       : TargetInfo(Triple) {
-    TheCXXABI.set(TargetCXXABI::GenericMIPS);
+    TheCXXABI.set(TargetCXXABI::GenericMIPS); // Cpu0 uses Mips ABI
 
     setABI("o32");
 
