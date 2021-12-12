@@ -577,7 +577,7 @@ bool Cpu0TargetInfo::validateTarget(DiagnosticsEngine &amp;Diags) const {
 
 source functions.sh
 
-sh_name=build-slinker.sh
+sh_name=build-slinker-2.sh
 argNum=$#
 arg1=$1
 arg2=$2
@@ -632,20 +632,92 @@ epilogue;
 
 </pre></div>
 </div>
+<p class="rubric">exlbt/input/build-float-necessary-2.sh</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>#!/usr/bin/env bash
+
+INCFLAG=&quot;-I../libsoftfloat/compiler-rt/builtins&quot;
+
+source functions.sh
+
+sh_name=build-float-necessary-2.sh
+argNum=$#
+arg1=$1
+arg2=$2
+
+prologue;
+
+${CLANG} -target cpu0${endian}-unknown-linux-gnu -c start.cpp -static \
+  -fintegrated-as -o start.o -mcpu=${CPU} -mllvm -has-lld=true
+${CLANG} -target cpu0${endian}-unknown-linux-gnu -c debug.cpp -static \
+  -fintegrated-as -o debug.o -mcpu=${CPU} -mllvm -has-lld=true
+${CLANG} -target cpu0${endian}-unknown-linux-gnu -c printf-stdarg-def.c -static \
+  -fintegrated-as -o printf-stdarg-def.o -mcpu=${CPU} -mllvm -has-lld=true
+${CLANG} -target cpu0${endian}-unknown-linux-gnu -c printf-stdarg.c -static \
+  -fintegrated-as -o printf-stdarg.o -mcpu=${CPU} -mllvm -has-lld=true
+${CLANG} -target cpu0${endian}-unknown-linux-gnu $INCFLAG \
+  -c ch_float_necessary.cpp -static -fintegrated-as -o ch_float_necessary.o \
+  -mcpu=${CPU} -mllvm -has-lld=true
+
+${TOOLDIR}/llc -march=cpu0${endian} -mcpu=${CPU} -relocation-model=static \
+-filetype=obj -has-lld=true lib_cpu0.ll -o lib_cpu0.o
+-
+libsf=../libsoftfloat/compiler-rt
+pushd ${libsf}
+#bash build-2.sh $1
+bash build.sh
+popd
+olibsf=${libsf}/obj
+
+${TOOLDIR}/lld -flavor gnu -o a.out \
+  start.o debug.o printf-stdarg-def.o printf-stdarg.o \
+  ch_float_necessary.o lib_cpu0.o ${olibsf}/libFloat.o
+#  ${olibsf}/fixsfsi.o ${olibsf}/fixsfdi.o ${olibsf}/fixdfsi.o \
+#  ${olibsf}/addsf3.o ${olibsf}/mulsf3.o ${olibsf}/divsf3.o \
+#  ${olibsf}/adddf3.o ${olibsf}/muldf3.o ${olibsf}/divdf3.o \
+#  ${olibsf}/ashrdi3.o ${olibsf}/ashldi3.o ${olibsf}/lshrdi3.o \
+#  ${olibsf}/extendsfdf2.o ${olibsf}/truncdfsf2.o
+
+epilogue;
+
+</pre></div>
+</div>
 <p>Build and run as follows,</p>
-<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">JonathantekiiMac:input Jonathan$ </span>bash build-slinker-2.sh cpu032I le
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">chungshu@ChungShudeMacBook-Air input % </span>bash build-slinker-2.sh cpu032I le
 <span class="go">...</span>
 <span class="go">endian =  LittleEndian</span>
-<span class="gp">JonathantekiiMac:input Jonathan$ </span>iverilog -o cpu0Is cpu0Is.v
-<span class="gp">114-43-184-210:verilog Jonathan$ </span>./cpu0Is
+<span class="go">...</span>
+<span class="gp">chungshu@ChungShudeMacBook-Air verilog % </span>iverilog -o cpu0Is cpu0Is.v
+<span class="gp">chungshu@ChungShudeMacBook-Air verilog % </span>./cpu0Is
 <span class="go">...</span>
 
-<span class="gp">JonathantekiiMac:input Jonathan$ </span>bash build-slinker-2.sh cpu032II be
+<span class="go">Harware interrupt 1</span>
+<span class="go">total cpu cycles = 248047</span>
+<span class="go">RET to PC &lt; 0, finished!</span>
+<span class="gp">chungshu@ChungShudeMacBook-Air input % </span>bash build-slinker-2.sh cpu032II be
 <span class="go">...</span>
 <span class="go">endian =  BigEndian</span>
-<span class="gp">JonathantekiiMac:input Jonathan$ </span>iverilog -o cpu0IIs cpu0IIs.v
-<span class="gp">114-43-184-210:verilog Jonathan$ </span>./cpu0IIs
+<span class="gp">chungshu@ChungShudeMacBook-Air verilog % </span>iverilog -o cpu0IIs cpu0IIs.v
+<span class="gp">chungshu@ChungShudeMacBook-Air verilog % </span>./cpu0IIs
 <span class="go">...</span>
+<span class="go">Harware interrupt 1</span>
+<span class="go">total cpu cycles = 228527</span>
+<span class="go">RET to PC &lt; 0, finished!</span>
+<span class="gp">chungshu@ChungShudeMacBook-Air input % </span>bash build-float-necessary-2.sh cpu032II be
+<span class="gp">chungshu@ChungShudeMacBook-Air verilog % </span>./cpu0IIs
+<span class="go">WARNING: cpu0.v:487: $readmemh(cpu0.hex): Not enough words in the file for the requested range [0:524287].</span>
+<span class="go">taskInterrupt(001)</span>
+<span class="gp gp-VirtualEnv">(int)</span><span class="go">test_shift_left&lt;long long&gt;(0x12, 4) = 288</span>
+<span class="gp gp-VirtualEnv">(int)</span><span class="go">test_shift_right&lt;long long&gt;(0x001666660000000a, 48) = 22</span>
+<span class="gp gp-VirtualEnv">(int)</span><span class="go">test_shift_right&lt;unsigned long long&gt;(0x001666660000000a, 48) = 22</span>
+<span class="gp gp-VirtualEnv">(int)</span><span class="go">test_add&lt;float, float, float&gt;(-2.2, 3.3) = 1</span>
+<span class="gp gp-VirtualEnv">(int)</span><span class="go">test_mul&lt;float, float, float&gt;(-2.2, 3.3) = -7</span>
+<span class="gp gp-VirtualEnv">(int)</span><span class="go">test_div&lt;float, float, float&gt;(-1.8, 0.5) = -3</span>
+<span class="gp gp-VirtualEnv">(int)</span><span class="go">test_add&lt;double, double, float&gt;(-2.2, 3.3) = 1</span>
+<span class="gp gp-VirtualEnv">(int)</span><span class="go">test_mul&lt;double, float, double&gt;(-2.2, 3.3) = -7</span>
+<span class="gp gp-VirtualEnv">(int)</span><span class="go">test_mul&lt;float, float, double&gt;(-2.2, 3.3) = 0</span>
+<span class="gp gp-VirtualEnv">(int)</span><span class="go">test_div&lt;double, double, double&gt;(-1.8, 0.5) = -3</span>
+<span class="go">total cpu cycles = 183630</span>
+<span class="go">RET to PC &lt; 0, finished!</span>
 </pre></div>
 </div>
 </section>
