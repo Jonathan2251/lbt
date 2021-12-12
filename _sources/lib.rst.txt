@@ -41,8 +41,8 @@ The code modified as follows,
 
   chungshu@ChungShudeMacBook-Air compiler-rt % diff -u -r /Users/chungshu/Documents/compiler-rt-3.5.0.src/lib/builtins/ builtins/ &> compiler-rt-diff.patch
   
-.. rubric:: lbt/compiler-rt-diff.patch
-.. literalinclude:: ../compiler-rt-diff.patch
+.. rubric:: lbt/Fig/compiler-rt-diff.patch
+.. literalinclude:: ../Fig/compiler-rt-diff.patch
 
 .. rubric:: lbt/exlbt/libsoftfloat/compiler-rt/builtins/Makefile
 .. literalinclude:: ../exlbt/libsoftfloat/compiler-rt/builtins/Makefile
