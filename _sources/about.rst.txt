@@ -40,7 +40,7 @@ Revision history
 
 Version 12.0.2, Not release yet.
 
-Version 12.0.1, Release December 11, 2021.
+Version 12.0.1, Release December 12, 2021.
 
   Add target Cpu0 to clang
 

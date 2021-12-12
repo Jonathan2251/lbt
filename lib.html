@@ -9,6 +9,7 @@
     <title>Library &#8212; Tutorial: Creating an LLVM Toolchain for the Cpu0 Architecture</title>
     <link rel="stylesheet" type="text/css" href="_static/pygments.css" />
     <link rel="stylesheet" type="text/css" href="_static/haiku.css" />
+    <link rel="stylesheet" type="text/css" href="_static/graphviz.css" />
     <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
     <script src="_static/jquery.js"></script>
     <script src="_static/underscore.js"></script>
@@ -66,6 +67,142 @@ The flow as follows,</p>
 <p>Directory libex/libsoftfloat/compiler-rt include the floating point library
 support for Cpu0 backend. The compiler-rt <a class="footnote-reference brackets" href="#id6" id="id1">1</a> version we use is
 llvm 3.5 release.</p>
+<p>The code modified as follows,</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">chungshu@ChungShudeMacBook-Air compiler-rt % </span>diff -u -r /Users/chungshu/Documents/compiler-rt-3.5.0.src/lib/builtins/ builtins/ <span class="p">&amp;</span>&gt; compiler-rt-diff.patch
+</pre></div>
+</div>
+<p class="rubric">lbt/compiler-rt-diff.patch</p>
+<p class="rubric">lbt/exlbt/libsoftfloat/compiler-rt/builtins/Makefile</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>CC=clang
+LLC=~/llvm/test/cmake_debug_build/bin/llc
+LINK=~/llvm/test/cmake_debug_build/bin/lld
+INCFLAG=-I/home/cschen/test/open-src-libc/avr-libc-1.8.1/include -I/home/cschen/test/open-src-libc/avr-libc-1.8.1/common
+CFLAGS=-target mips-unknown-linux-gnu -emit-llvm ${INCFLAG} -S
+LLCFLAGS=-march=cpu0 -relocation-model=static -filetype=obj
+LDFLAGS=-flavor gnu -target cpu0-unknown-linux-gnu 
+#SOURCES := absvdi2.c absvsi2.c absvti2.c adddf3.c addsf3.c addtf3.c addvdi3.c \
+#  addvsi3.c addvti3.c apple_versioning.c ashldi3.c ashlti3.c ashrdi3.c \
+#  ashrti3.c clear_cache.c clzdi2.c clzsi2.c clzti2.c cmpdi2.c cmpti2.c \
+#  comparedf2.c comparesf2.c ctzdi2.c ctzsi2.c ctzti2.c divdc3.c divdf3.c \
+#  divdi3.c divmoddi4.c divmodsi4.c divsc3.c divsf3.c divsi3.c divti3.c divtf3.c \
+#  divxc3.c
+
+SOURCES := absvdi2.c absvsi2.c absvti2.c 
+
+OUTPUT_OBJ_DIR=obj
+#$(sources:.c=.d)
+#IRS := $(addprefix , $(addsuffix .o, ${SOURCES}))
+IRS := $(SOURCES:.c=.l)
+#IRS=$(SOURCES:.c=.ll)
+OBJECTS=$(IRS:.l=.o)
+EXECUTABLE=compiler-rt.bc
+
+all: $(SOURCES) $(EXECUTABLE)
+	
+$(EXECUTABLE): $(OBJECTS)
+	${LINK} ${LDFLAGS} ${OBJECTS} -o $@
+
+$(OBJECTS): %.o: %.ll
+	${LLC} ${LLCFLAGS} $&lt; -o $@
+
+$(IRS): $(SOURCES)
+	${CC} ${CFLAGS} $&lt; -o $@
+
+.PHONY: clean
+clean:
+	rm -rf ${OUTPUT_OBJ_DIR} *.bc *.ll *.o
+
+</pre></div>
+</div>
+<p class="rubric">lbt/exlbt/libsoftfloat/compiler-rt/builtins/cpu0-porting.c</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>/*
+float __TGMATH_BINARY_REAL_ONLY(Val1, Val2, Fct)
+{
+  return  (__extension__ (((sizeof (Val1) &gt; sizeof (double)
+		       || sizeof (Val2) &gt; sizeof (double))
+		      &amp;&amp; __builtin_classify_type ((Val1) + (Val2)) == 8)
+		     ? (__typeof ((__tgmath_real_type (Val1)) 0
+				   + (__tgmath_real_type (Val2)) 0))
+		       __tgml(Fct) (Val1, Val2)
+		     : (sizeof (Val1) == sizeof (double)
+			|| sizeof (Val2) == sizeof (double)
+			|| __builtin_classify_type (Val1) != 8
+			|| __builtin_classify_type (Val2) != 8)
+		     ? (__typeof ((__tgmath_real_type (Val1)) 0	
+				   + (__tgmath_real_type (Val2)) 0))
+		       Fct (Val1, Val2)
+		     : (__typeof ((__tgmath_real_type (Val1)) 0
+				   + (__tgmath_real_type (Val2)) 0))
+		       Fct##f (Val1, Val2)));
+}
+*/
+
+#define FS_SIGNED_M       0x80000000
+#define FS_EXP_M          0x7f800000
+#define FS_SIGNIFICAND_M  0x007fffff
+
+float fmax(float x, float y)
+{
+  int x_b31 = ((unsigned int)x &amp; FS_SIGNED_M) &gt;&gt; 31;
+  int x_exp_signi = ((unsigned int)x &amp; (FS_EXP_M | FS_SIGNIFICAND_M));
+  int y_b31 = ((unsigned int)y &amp; FS_SIGNED_M) &gt;&gt; 31;
+  int y_exp_signi = ((unsigned int)y &amp; (FS_EXP_M | FS_SIGNIFICAND_M));
+  if (x_b31 == 1 &amp;&amp; y_b31 == 1) {
+    if (x_exp_signi &gt; y_exp_signi) {
+      return y;
+    }
+    else {
+      return x;
+    }
+  }
+  else if (x_b31 == 0 &amp;&amp; y_b31 == 1) {
+    return x;
+  }
+  else if (x_b31 == 1 &amp;&amp; y_b31 == 0) {
+    return y;
+  }
+  else if (x_b31 == 0 &amp;&amp; y_b31 == 0) {
+    if (x_exp_signi &gt;= y_exp_signi) {
+      return x;
+    }
+    else {
+      return y;
+    }
+  }
+}
+
+float fabsf(float x)
+{
+  float* p = &amp;x;
+  int x_b31 = ((unsigned int)(*p) &amp; FS_SIGNED_M) &gt;&gt; 31;
+  if (x_b31 == 1) {
+    x = (float)((unsigned int)(*p) | FS_SIGNED_M);
+    return (float)(*p);
+  }
+  else
+    return (float)(*p);
+}
+
+#define DS_SIGNED_M       0x8000000000000000
+
+double fabsl(double x)
+{
+  double* p = &amp;x;
+  int x_b31 = ((unsigned long long)(*p) &amp; DS_SIGNED_M) &gt;&gt; 63;
+  if (x_b31 == 1) {
+    x = (double)((unsigned long long)(*p) | FS_SIGNED_M);
+    return (double)(*p);
+  }
+  else
+    return (float)(*p);
+}
+
+float fabs(float x)
+{
+  return fabsf(x);
+}
+</pre></div>
+</div>
 </section>
 <section id="avr-libc">
 <h2><a class="toc-backref" href="#id9">Avr libc</a><a class="headerlink" href="#avr-libc" title="Permalink to this headline">¶</a></h2>
@@ -278,7 +415,7 @@ epilogue;
 
     <div class="footer" role="contentinfo">
         &#169; Copyright 2016, Chen Chung-Shu.
-      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 4.3.0.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 4.3.1.
     </div>
   </body>
 </html>
