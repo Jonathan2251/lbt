@@ -5,7 +5,7 @@ digraph G {
 		style=filled;
 		color=lightgrey;
 		label = "Cpu0 flow";
-		node [style=filled,color=white]; clang;
+		node [style=filled,color=green]; clang;
 		node [style=filled,color=yellow]; llc, "Verilog machine";
 		node [style=filled,color=green]; lld, elf2hex;
 	    clang -> llc [ label = "IR" ];

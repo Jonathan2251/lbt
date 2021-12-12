@@ -1,0 +1,404 @@
+Only in builtins/: Makefile
+diff -u -r /Users/chungshu/Documents/compiler-rt-3.5.0.src/lib/builtins/absvdi2.c builtins/absvdi2.c
+--- /Users/chungshu/Documents/compiler-rt-3.5.0.src/lib/builtins/absvdi2.c	2014-02-14 17:20:33.000000000 +0800
++++ builtins/absvdi2.c	2021-12-11 22:37:27.000000000 +0800
+@@ -21,9 +21,26 @@
+ COMPILER_RT_ABI di_int
+ __absvdi2(di_int a)
+ {
++#if 1
+     const int N = (int)(sizeof(di_int) * CHAR_BIT);
+     if (a == ((di_int)1 << (N-1)))
+         compilerrt_abort();
+     const di_int t = a >> (N - 1);
+     return (a ^ t) - t;
++#else
++  // Fix for Cpu0, Not OK!
++    di_int result;
++    const int N = (int)(sizeof(di_int) * CHAR_BIT);
++    if (a == (1 << (N-1))) {
++    // In 2's compliment, positive only reach (power(2, N-1) - 1)
++        compilerrt_abort();
++    }
++    const di_int t = (1 << (N-1));
++    if ((a & t) == t)
++      // negative, t = 0x8000...0
++      result = 0 - a;
++    else
++      result = a;
++    return result;
++#endif
+ }
+diff -u -r /Users/chungshu/Documents/compiler-rt-3.5.0.src/lib/builtins/absvsi2.c builtins/absvsi2.c
+--- /Users/chungshu/Documents/compiler-rt-3.5.0.src/lib/builtins/absvsi2.c	2014-02-14 17:20:33.000000000 +0800
++++ builtins/absvsi2.c	2021-12-11 22:37:27.000000000 +0800
+@@ -18,12 +18,31 @@
+ 
+ /* Effects: aborts if abs(x) < 0 */
+ 
++extern int printf(const char *format, ...);
+ COMPILER_RT_ABI si_int
+ __absvsi2(si_int a)
+ {
++#if 0
+     const int N = (int)(sizeof(si_int) * CHAR_BIT);
+-    if (a == (1 << (N-1)))
++    if (a == (1 << (N-1))) {
+         compilerrt_abort();
++    }
+     const si_int t = a >> (N - 1);
+     return (a ^ t) - t;
++#else
++  // Fix for Cpu0
++    si_int result;
++    const int N = (int)(sizeof(si_int) * CHAR_BIT);
++    if (a == (1 << (N-1))) {
++    // In 2's compliment, positive only reach (power(2, N-1) - 1)
++        compilerrt_abort();
++    }
++    const si_int t = (1 << (N-1));
++    if ((a & t) == t)
++      // negative, t = 0x8000...0
++      result = 0 - a;
++    else
++      result = a;
++    return result;
++#endif
+ }
+diff -u -r /Users/chungshu/Documents/compiler-rt-3.5.0.src/lib/builtins/adddf3.c builtins/adddf3.c
+--- /Users/chungshu/Documents/compiler-rt-3.5.0.src/lib/builtins/adddf3.c	2014-05-28 23:06:25.000000000 +0800
++++ builtins/adddf3.c	2021-12-11 22:37:27.000000000 +0800
+@@ -13,6 +13,7 @@
+ //===----------------------------------------------------------------------===//
+ 
+ #define DOUBLE_PRECISION
++#undef __LP64__
+ #include "fp_add_impl.inc"
+ 
+ ARM_EABI_FNALIAS(dadd, adddf3)
+Only in /Users/chungshu/Documents/compiler-rt-3.5.0.src/lib/builtins/: arm
+Only in /Users/chungshu/Documents/compiler-rt-3.5.0.src/lib/builtins/: armv6m
+Only in builtins/: cpu0-porting.c
+diff -u -r /Users/chungshu/Documents/compiler-rt-3.5.0.src/lib/builtins/divdc3.c builtins/divdc3.c
+--- /Users/chungshu/Documents/compiler-rt-3.5.0.src/lib/builtins/divdc3.c	2014-03-01 23:30:50.000000000 +0800
++++ builtins/divdc3.c	2021-12-11 22:37:27.000000000 +0800
+@@ -21,7 +21,9 @@
+ __divdc3(double __a, double __b, double __c, double __d)
+ {
+     int __ilogbw = 0;
+-    double __logbw = crt_logb(crt_fmax(crt_fabs(__c), crt_fabs(__d)));
++// Cpu0 porting
++//    double __logbw = crt_logb(crt_fmax(crt_fabs(__c), crt_fabs(__d)));
++    double __logbw = crt_logb(fmax(crt_fabs(__c), crt_fabs(__d)));
+     if (crt_isfinite(__logbw))
+     {
+         __ilogbw = (int)__logbw;
+diff -u -r /Users/chungshu/Documents/compiler-rt-3.5.0.src/lib/builtins/fixdfsi.c builtins/fixdfsi.c
+--- /Users/chungshu/Documents/compiler-rt-3.5.0.src/lib/builtins/fixdfsi.c	2014-03-01 23:30:50.000000000 +0800
++++ builtins/fixdfsi.c	2021-12-11 22:37:27.000000000 +0800
+@@ -13,13 +13,18 @@
+ //
+ //===----------------------------------------------------------------------===//
+ 
++//#undef SINGLE_PRECISION
+ #define DOUBLE_PRECISION
++//#define SINGLE_PRECISION
+ #include "fp_lib.h"
+ 
+ #include "int_lib.h"
+ 
+ ARM_EABI_FNALIAS(d2iz, fixdfsi)
+ 
++int printf(const char *format, ...);
++int sprintf(char *out, const char *format, ...);
++
+ COMPILER_RT_ABI int
+ __fixdfsi(fp_t a) {
+     
+@@ -29,14 +34,29 @@
+     const int sign = aRep & signBit ? -1 : 1;
+     const int exponent = (aAbs >> significandBits) - exponentBias;
+     const rep_t significand = (aAbs & significandMask) | implicitBit;
++#if 0
++    printf("__CONCAT(1, ULL)=%08x%08x, REP_C(1)=%08x%08x, implicitBit=%08x%08x\n", (int)(__CONCAT(1, ULL) >> 32), (int)(__CONCAT(1, ULL) & 0xffffffff), (int)(REP_C(1) >> 32), (int)(REP_C(1) & 0xffffffff), (int)(implicitBit >> 32), (int)(implicitBit & 0xffffffff));
++    printf("significandBits=%x, ttt=%x, exponentBias=%x, signBit=%08x%08x\n", significandBits, ttt, exponentBias, (int)(signBit >> 32), (int)(signBit & 0xffffffff));
++    printf("significandMask=%08x%08x\n", (int)(significandMask >> 32), (int)(significandMask & 0xffffffff));
++    printf("sign=%x, exponent=%x, significand=%08x%08x\n", sign, exponent, (int)(significand >> 32), (int)(significand & 0xffffffff));
++    printf("aAbs=%08x%08x, significandBits=%x\n", (int)(aAbs >> 32), (int)(aAbs & 0xffffffff), significandBits);
++#endif
+     
+     // If 0 < exponent < significandBits, right shift to get the result.
+     if ((unsigned int)exponent < significandBits) {
+         return sign * (significand >> (significandBits - exponent));
++#if 0
++        int aa = (int)(significandBits - exponent);
++        int bb = (int)(significand >> aa);
++        int cc = (int)(sign * bb);
++        printf("sign=%08x, significand=%08x%08x, aa=%08x, bb=%08x, cc=%08x\n", sign, (int)(significand >> 32), (int)(significand & 0xffffffff), aa, bb, cc);
++        return cc;
++#endif
+     }
+     
+     // If exponent is negative, the result is zero.
+     else if (exponent < 0) {
++        printf("2\n");
+         return 0;
+     }
+     
+@@ -45,6 +65,7 @@
+     // behavior, but the conversion itself is undefined in that case, so
+     // whatever the compiler decides to do is fine.
+     else {
++        printf("3\n");
+         return sign * (significand << (exponent - significandBits));
+     }
+ }
+diff -u -r /Users/chungshu/Documents/compiler-rt-3.5.0.src/lib/builtins/fixsfsi.c builtins/fixsfsi.c
+--- /Users/chungshu/Documents/compiler-rt-3.5.0.src/lib/builtins/fixsfsi.c	2014-02-14 17:20:33.000000000 +0800
++++ builtins/fixsfsi.c	2021-12-11 22:37:27.000000000 +0800
+@@ -18,6 +18,9 @@
+ 
+ ARM_EABI_FNALIAS(f2iz, fixsfsi)
+ 
++int printf(const char *format, ...);
++int sprintf(char *out, const char *format, ...);
++
+ COMPILER_RT_ABI int
+ __fixsfsi(fp_t a) {
+     // Break a into sign, exponent, significand
+@@ -26,14 +29,28 @@
+     const int sign = aRep & signBit ? -1 : 1;
+     const int exponent = (aAbs >> significandBits) - exponentBias;
+     const rep_t significand = (aAbs & significandMask) | implicitBit;
+-    
++#if 0
++    printf("significandBits=%x, ttt=%x, exponentBias=%x, signBit=%x\n", significandBits, ttt, exponentBias, (int)signBit);
++    printf("REP_C(1)=%x, implicitBit=%x\n", REP_C(1), implicitBit);
++    printf("sign=%x, exponent=%x, significand=%x\n", sign, exponent, significand);
++    printf("aAbs=%x, significandMask=%x, implicitBit=%x, significandBits=%x, ttt=%x\n", aAbs, significandMask, implicitBit, significandBits, ttt);
++#endif
++
+     // If 0 < exponent < significandBits, right shift to get the result.
+     if ((unsigned int)exponent < significandBits) {
+         return sign * (significand >> (significandBits - exponent));
++#if 0
++        int aa = (int)(significandBits - exponent);
++        int bb = (int)(significand >> aa);
++        int cc = (int)(sign * bb);
++        printf("sign=%08x, significand=%08x, aa=%08x, bb=%08x, cc=%08x\n", sign, (int)(significand & 0xffffffff), aa, bb, cc);
++        return cc;
++#endif
+     }
+     
+     // If exponent is negative, the result is zero.
+     else if (exponent < 0) {
++        printf("2\n");
+         return 0;
+     }
+     
+@@ -42,6 +59,7 @@
+     // behavior, but the conversion itself is undefined in that case, so
+     // whatever the compiler decides to do is fine.
+     else {
++        printf("3\n");
+         return sign * (significand << (exponent - significandBits));
+     }
+ }
+diff -u -r /Users/chungshu/Documents/compiler-rt-3.5.0.src/lib/builtins/floatundidf.c builtins/floatundidf.c
+--- /Users/chungshu/Documents/compiler-rt-3.5.0.src/lib/builtins/floatundidf.c	2014-03-01 23:30:50.000000000 +0800
++++ builtins/floatundidf.c	2021-12-11 22:37:27.000000000 +0800
+@@ -21,15 +21,15 @@
+ /* seee eeee eeee mmmm mmmm mmmm mmmm mmmm | mmmm mmmm mmmm mmmm mmmm mmmm mmmm mmmm */
+ 
+ #include "int_lib.h"
+-
+-ARM_EABI_FNALIAS(ul2d, floatundidf)
++#if 1
++//ARM_EABI_FNALIAS(ul2d, floatundidf)
+ 
+ #ifndef __SOFT_FP__
+ /* Support for systems that have hardware floating-point; we'll set the inexact flag
+  * as a side-effect of this computation.
+  */
+ 
+-COMPILER_RT_ABI double
++/*COMPILER_RT_ABI */double
+ __floatundidf(du_int a)
+ {
+ 	static const double twop52 = 0x1.0p52;
+@@ -51,7 +51,7 @@
+  * set, and we don't want to code-gen to an unknown soft-float implementation.
+  */ 
+ 
+-COMPILER_RT_ABI double
++/*COMPILER_RT_ABI */double
+ __floatundidf(du_int a)
+ {
+     if (a == 0)
+@@ -98,9 +98,11 @@
+         /* a is now rounded to DBL_MANT_DIG bits */
+     }
+     double_bits fb;
+-    fb.u.high = ((e + 1023) << 20)      |        /* exponent */
++    fb.u.s.high = ((e + 1023) << 20)      |        /* exponent */
+                 ((su_int)(a >> 32) & 0x000FFFFF); /* mantissa-high */
+-    fb.u.low = (su_int)a;                         /* mantissa-low  */
++    fb.u.s.low = (su_int)a;                         /* mantissa-low  */
+     return fb.f;
+ }
+ #endif
++
++#endif
+diff -u -r /Users/chungshu/Documents/compiler-rt-3.5.0.src/lib/builtins/fp_lib.h builtins/fp_lib.h
+--- /Users/chungshu/Documents/compiler-rt-3.5.0.src/lib/builtins/fp_lib.h	2014-07-08 16:52:57.000000000 +0800
++++ builtins/fp_lib.h	2021-12-11 22:37:27.000000000 +0800
+@@ -38,13 +38,15 @@
+ # endif
+ #endif
+ 
+-#if defined SINGLE_PRECISION
++//#if defined SINGLE_PRECISION
++#if defined(SINGLE_PRECISION)
+ 
+ typedef uint32_t rep_t;
+ typedef int32_t srep_t;
+ typedef float fp_t;
+ #define REP_C UINT32_C
+ #define significandBits 23
++#define ttt 1
+ 
+ static inline int rep_clz(rep_t a) {
+     return __builtin_clz(a);
+@@ -58,13 +60,17 @@
+ }
+ COMPILER_RT_ABI fp_t __addsf3(fp_t a, fp_t b);
+ 
+-#elif defined DOUBLE_PRECISION
++//#elif defined DOUBLE_PRECISION
++#elif defined(DOUBLE_PRECISION)
+ 
+ typedef uint64_t rep_t;
+ typedef int64_t srep_t;
+ typedef double fp_t;
++//#define REP_C UINT64_C
++#undef REP_C
+ #define REP_C UINT64_C
+ #define significandBits 52
++#define ttt 2
+ 
+ static inline int rep_clz(rep_t a) {
+ #if defined __LP64__
+@@ -101,7 +107,8 @@
+ 
+ COMPILER_RT_ABI fp_t __adddf3(fp_t a, fp_t b);
+ 
+-#elif defined QUAD_PRECISION
++//#elif defined QUAD_PRECISION
++#elif defined(QUAD_PRECISION)
+ #if __LDBL_MANT_DIG__ == 113
+ #define CRT_LDBL_128BIT
+ typedef __uint128_t rep_t;
+Only in /Users/chungshu/Documents/compiler-rt-3.5.0.src/lib/builtins/: i386
+diff -u -r /Users/chungshu/Documents/compiler-rt-3.5.0.src/lib/builtins/int_lib.h builtins/int_lib.h
+--- /Users/chungshu/Documents/compiler-rt-3.5.0.src/lib/builtins/int_lib.h	2014-05-13 00:47:01.000000000 +0800
++++ builtins/int_lib.h	2021-12-11 22:37:27.000000000 +0800
+@@ -37,28 +37,15 @@
+ # define COMPILER_RT_ABI COMPILER_RT_EXPORT
+ #endif
+ 
+-#if defined(__NetBSD__) && (defined(_KERNEL) || defined(_STANDALONE))
+-/*
+- * Kernel and boot environment can't use normal headers,
+- * so use the equivalent system headers.
+- */
+-#  include <machine/limits.h>
+-#  include <sys/stdint.h>
+-#  include <sys/types.h>
+-#else
+-/* Include the standard compiler builtin headers we use functionality from. */
+-#  include <limits.h>
+-#  include <stdint.h>
+-#  include <stdbool.h>
+-#  include <float.h>
+-#endif
+-
+ /* Include the commonly used internal type definitions. */
+ #include "int_types.h"
+ 
+ /* Include internal utility function declarations. */
+ #include "int_util.h"
+ 
++/* Include the standard compiler builtin headers we use functionality from. */
++#  include <limits.h>
++
+ COMPILER_RT_ABI si_int __paritysi2(si_int a);
+ COMPILER_RT_ABI si_int __paritydi2(di_int a);
+ 
+@@ -73,4 +60,6 @@
+ COMPILER_RT_ABI tu_int __udivmodti4(tu_int a, tu_int b, tu_int* rem);
+ #endif
+ 
++#define __SOFT_FP__ 1
++
+ #endif /* INT_LIB_H */
+diff -u -r /Users/chungshu/Documents/compiler-rt-3.5.0.src/lib/builtins/int_math.h builtins/int_math.h
+--- /Users/chungshu/Documents/compiler-rt-3.5.0.src/lib/builtins/int_math.h	2014-02-14 17:20:33.000000000 +0800
++++ builtins/int_math.h	2021-12-11 22:37:27.000000000 +0800
+@@ -47,11 +47,11 @@
+ #define crt_copysign(x, y) __builtin_copysign((x), (y))
+ #define crt_copysignf(x, y) __builtin_copysignf((x), (y))
+ #define crt_copysignl(x, y) __builtin_copysignl((x), (y))
+-
++/*
+ #define crt_fabs(x) __builtin_fabs((x))
+ #define crt_fabsf(x) __builtin_fabsf((x))
+ #define crt_fabsl(x) __builtin_fabsl((x))
+-
++*/
+ #define crt_fmax(x, y) __builtin_fmax((x), (y))
+ #define crt_fmaxf(x, y) __builtin_fmaxf((x), (y))
+ #define crt_fmaxl(x, y) __builtin_fmaxl((x), (y))
+diff -u -r /Users/chungshu/Documents/compiler-rt-3.5.0.src/lib/builtins/int_types.h builtins/int_types.h
+--- /Users/chungshu/Documents/compiler-rt-3.5.0.src/lib/builtins/int_types.h	2014-05-19 23:48:46.000000000 +0800
++++ builtins/int_types.h	2021-12-11 22:37:27.000000000 +0800
+@@ -18,7 +18,9 @@
+ #ifndef INT_TYPES_H
+ #define INT_TYPES_H
+ 
+-#include "int_endianness.h"
++//#include "int_endianness.h"
++#define _YUGA_LITTLE_ENDIAN 0
++#define _YUGA_BIG_ENDIAN    1
+ 
+ typedef      int si_int;
+ typedef unsigned su_int;
+@@ -139,5 +141,14 @@
+     long double f;
+ } long_double_bits;
+ 
++#include <stdbool.h>
++//#define bool int
++//typedef unsigned char	uint8_t;
++#define uint32_t unsigned int
++#define uint64_t unsigned long long
++//typedef unsigned int	uintptr_t;
++#define FLT_MANT_DIG 24
++#define DBL_MANT_DIG 53
++
+ #endif /* INT_TYPES_H */
+ 
+diff -u -r /Users/chungshu/Documents/compiler-rt-3.5.0.src/lib/builtins/int_util.c builtins/int_util.c
+--- /Users/chungshu/Documents/compiler-rt-3.5.0.src/lib/builtins/int_util.c	2014-02-14 17:20:33.000000000 +0800
++++ builtins/int_util.c	2021-12-11 22:37:27.000000000 +0800
+@@ -58,4 +58,8 @@
+   abort();
+ }
+ 
++void abort() {
++  return;
++}
++
+ #endif
+Only in builtins/: libFloat.o
+Only in /Users/chungshu/Documents/compiler-rt-3.5.0.src/lib/builtins/: ppc
+Only in /Users/chungshu/Documents/compiler-rt-3.5.0.src/lib/builtins/: x86_64

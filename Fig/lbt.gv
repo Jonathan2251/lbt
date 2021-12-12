@@ -1,0 +1,17 @@
+digraph G {
+
+	rankdir=LR;
+	subgraph cluster_2 {
+		style=filled;
+		color=lightgrey;
+		label = "Flow of lbt";
+		node [style=filled,color=green]; c2clang [label="clang"];
+		node [style=filled,color=yellow]; c2llc [label="llc"];
+		node [style=filled,color=yellow]; c2vm [label="Verilog machine"];
+		node [style=filled,color=green]; lld, elf2hex;
+	    c2clang -> c2llc [ label = "IR" ];
+	    c2llc -> lld [ label = "obj" ];
+	    lld -> elf2hex [ label = "exe" ];
+	    elf2hex -> c2vm [ label = "hex" ];
+	}
+}
