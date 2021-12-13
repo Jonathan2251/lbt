@@ -6,8 +6,10 @@ LLVM_TEST_DIR=${LLVM_DIR}/test
 
 if test -d ${LLVM_TEST_DIR}; then
   pushd ${LLVM_TEST_DIR}
+  ln -s ../llvm-project/clang clang
   ln -s ../llvm-project/lld lld
   popd
+  cp -rf clang/* ${LLVM_TEST_DIR}/clang/.
   cp -rf lld/* ${LLVM_TEST_DIR}/lld/.
   cp -rf llvm-objdump/* ${LLVM_TEST_DIR}/llvm/tools/llvm-objdump/.
   cp -rf elf2hex ${LLVM_TEST_DIR}/llvm/tools/.

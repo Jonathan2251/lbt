@@ -24,18 +24,17 @@ ${CLANG} -target cpu0${endian}-unknown-linux-gnu $INCFLAG \
   -mcpu=${CPU} -mllvm -has-lld=true
 
 ${TOOLDIR}/llc -march=cpu0${endian} -mcpu=${CPU} -relocation-model=static \
--filetype=obj -has-lld=true lib_cpu0.ll -o lib_cpu0.o
--
+  -filetype=obj -has-lld=true lib_cpu0.ll -o lib_cpu0.o
+
 libsf=../libsoftfloat/compiler-rt
 pushd ${libsf}
 #bash build-2.sh $1
-bash build.sh
+make CPU=$1 endian=${endian}
 popd
 olibsf=${libsf}/obj
 
-${TOOLDIR}/lld -flavor gnu -o a.out \
-  start.o debug.o printf-stdarg-def.o printf-stdarg.o \
-  ch_float_necessary.o lib_cpu0.o ${olibsf}/libFloat.o
+${TOOLDIR}/lld -flavor gnu -o a.out start.o debug.o \
+  ch_float_necessary.o lib_cpu0.o ${olibsf}/libFloat.a
 #  ${olibsf}/fixsfsi.o ${olibsf}/fixsfdi.o ${olibsf}/fixdfsi.o \
 #  ${olibsf}/addsf3.o ${olibsf}/mulsf3.o ${olibsf}/divsf3.o \
 #  ${olibsf}/adddf3.o ${olibsf}/muldf3.o ${olibsf}/divdf3.o \
