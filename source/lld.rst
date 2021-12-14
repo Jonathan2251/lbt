@@ -274,47 +274,63 @@ is for this purpose.
 .. literalinclude:: ../exlbt/input/ch_slinker.cpp
     :start-after: /// start
 
-.. rubric:: exlbt/input/build-slinker.sh
-.. literalinclude:: ../exlbt/input/build-slinker.sh
+.. rubric:: exlbt/input/Makefile.slinker
+.. literalinclude:: ../exlbt/input/Makefile.slinker
+
+.. rubric:: exlbt/input/make.sh
+.. literalinclude:: ../exlbt/input/make.sh
   
 .. code-block:: console
 
   1-160-136-173:input Jonathan$ pwd
   /Users/Jonathan/Downloads/exlbt/input
-  114-37-148-111:input Jonathan$ bash build-slinker.sh cpu032I le
+  114-37-148-111:input Jonathan$ bash make.sh cpu032I le Makefile.slinker
   ...
-  In file included from ch_slinker.cpp:23:
-  ./ch_lld_staticlink.cpp:8:15: warning: conversion from string literal to 
-  'char *' is deprecated
-        [-Wdeprecated-writable-strings]
-    char *ptr = "Hello world!";
-                ^
-  1 warning generated.
-  114-37-148-111:input Jonathan$ cd ../../lbdex/verilog/
-  114-37-148-111:verilog Jonathan$ ./cpu0IIs
-  WARNING: ./cpu0.v:369: $readmemh(cpu0.hex): Not enough words in the file for 
-  the requested range [0:524287].
+  endian =  LittleEndian
+  ISR address:00020780
+  1   /* 0: big endian, 1: little endian */
+  chungshu@ChungShudeMacBook-Air verilog % ./cpu0Is       
+  WARNING: cpu0.v:487: $readmemh(cpu0.hex): Not enough words in the file for the requested range [0:524287].
   taskInterrupt(001)
-  ...
+  74
+  7
+  0
+  0
+  253
+  3
+  1
+  14
+  3
+  -126
+  130
+  -32766
+  32770
+  393307
+  16777222
+  -3
+  -4
+  51
+  2
+  3
+  1
+  2147483647
+  -2147483648
+  15
+  5
+  0
+  31
+  49
   test_nolld(): PASS
-  taskInterrupt(011)
-  Overflow exception
-  taskInterrupt(011)
-  Overflow exception
-  test_overflow = 0, PASS
   global variable gI = 100, PASS
   test_ctrl2(): a = 1, b = 0, c = 1, d = 0, PASS
   test_phinode(3, 1) = 3, PASS
   test_blockaddress(1) = 1, PASS
   test_blockaddress(2) = 2, PASS
-  date1 = 2012 10 12 1 2 3, PASS
-  date2 = 2012 10 12 1 2 3, PASS
-  time2 = 1 10 12, PASS
-  time3 = 1 10 12, PASS
-  date1 = 2013 1 26 12 21 10, PASS
-  date2 = 2013 1 26 12 21 10, PASS
+  test_longbranch() = 0, PASS
+  test_func_arg_struct() = 0, PASS
+  test_constructor() = 0, PASS
   test_template() = 15, PASS
-  test_alloc() = 31, PASS
+  test_tailcall(5) = 120, PASS
   exceptionOccur= 1, PASS
   exceptionOccur= 0, PASS
   inlineasm_global() = 4, PASS
@@ -328,7 +344,8 @@ is for this purpose.
   Harware interrupt 0
   taskInterrupt(011)
   Harware interrupt 1
-  ...
+  total cpu cycles = 248282              
+  RET to PC < 0, finished!
 
 As above, by taking the open source code advantage, Cpu0 got the more stable 
 printf() program. 

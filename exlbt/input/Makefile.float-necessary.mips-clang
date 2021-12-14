@@ -2,7 +2,9 @@
 
 # CPU and endian passed from command line, such as 
 #   "make -f Makefile.float-necessary.mips-clang CPU=cpu032II endian="
-#CPU := cpu032II
+#   Ignore argument and set CPU to cpu032II since software float point library, 
+#   libsoftfloat, only supports cpu032II at this point.
+CPU := cpu032II
 #endian :=
 
 TARGET_EXEC := a.out

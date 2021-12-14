@@ -20,10 +20,10 @@ Table of Contents
    :maxdepth: 2
 
    about
+   clang
    lld
    opt
    lib
-   clang
    
 
 Resources

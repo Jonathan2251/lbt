@@ -50,6 +50,9 @@ The code modified as follows,
 .. rubric:: lbt/exlbt/libsoftfloat/compiler-rt/builtins/cpu0-porting.c
 .. literalinclude:: ../exlbt/libsoftfloat/compiler-rt/builtins/cpu0-porting.c
 
+.. rubric:: lbt/exlbt/libsoftfloat/compiler-rt/Makefile
+.. literalinclude:: ../exlbt/libsoftfloat/compiler-rt/Makefile
+
 
 Avr libc
 ---------
@@ -74,21 +77,24 @@ Software Float Point Support
 .. literalinclude:: ../exlbt/input/ch_float_necessary.cpp
     :start-after: /// start
 
-.. rubric:: exlbt/input/build-float-necessary.sh
-.. literalinclude:: ../exlbt/input/build-float-necessary.sh
+.. rubric:: exlbt/input/Makefile.float-necessary
+.. literalinclude:: ../exlbt/input/Makefile.float-necessary
+
+.. rubric:: exlbt/input/make.sh
+.. literalinclude:: ../exlbt/input/make.sh
 
 Run as follows,
 
 .. code-block:: console
 
-  JonathantekiiMac:input Jonathan$ bash build-float-necessary.sh cpu032II be
+  chungshu@ChungShudeMacBook-Air input % bash make.sh cpu032II be Makefile.float-necessary
   ...
   endian =  BigEndian
+  ISR address:00020614
   0   /* 0: big endian, 1: little endian */
 
-  JonathantekiiMac:input Jonathan$ iverilog -o cpu0IIs cpu0IIs.v 
-  JonathantekiiMac:input Jonathan$ ./cpu0IIs
-  114-43-184-210:verilog Jonathan$ ./cpu0IIs
+  chungshu@ChungShudeMacBook-Air verilog % iverilog -o cpu0IIs cpu0IIs.v 
+  chungshu@ChungShudeMacBook-Air verilog % ./cpu0IIs
   ARNING: cpu0.v:487: $readmemh(cpu0.hex): Not enough words in the file for the requested range [0:524287].
   taskInterrupt(001)
   (int)test_shift_left<long long>(0x12, 4) = 288
@@ -101,7 +107,7 @@ Run as follows,
   (int)test_mul<float, float, double>(-2.2, 3.3) = -7
   (int)test_mul<float, float, double>(-2.2, 3.3) = 0
   (int)test_div<double, double, double>(-1.8, 0.5) = -3
-  total cpu cycles = 182585
+  total cpu cycles = 184085
   RET to PC < 0, finished!
 
 
