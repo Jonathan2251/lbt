@@ -39,6 +39,8 @@ Revision history
 ----------------
 
 Version 12.0.2, Not release yet.
+  
+  Replace bash with Makefile
 
 Version 12.0.1, Release December 12, 2021.
 
