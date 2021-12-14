@@ -39,8 +39,8 @@ CPPFLAGS := -MMD -MP -target cpu0${endian}-unknown-linux-gnu -static \
 LLFLAGS := -march=cpu0${endian} -mcpu=${CPU} -relocation-model=static \
   -filetype=obj -has-lld=true
 
-$(TARGET): $(OBJS) $(BUILD_DIR)/lib_cpu0.ll.o
-	$(MAKE) -C ../libsoftfloat/compiler-rt CPU=cpu032II
+$(TARGET): $(OBJS)
+	cd ../libsoftfloat/compiler-rt && $(MAKE) -f ./Makefile CPU=cpu032II
 	$(LD) -o $@ $(OBJS) ../libsoftfloat/compiler-rt/build/libFloat.a
 
 # Build step for C source
