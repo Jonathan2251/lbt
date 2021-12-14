@@ -1,7 +1,9 @@
 #!/usr/bin/env bash
 
 # for example:
-# bash make.sh cpu032II be Makefile.float-necessary-2
+# bash make.sh cpu032I le Makefile.slinker
+# bash make.sh cpu032II be Makefile.float-necessary
+# bash make.sh cpu032I be Makefile.slinker.mips-clang
 
 source functions.sh
 

@@ -11,7 +11,7 @@ TARGET := $(BUILD_DIR)/$(TARGET_EXEC)
 SRC_DIR := ./
 
 TOOLDIR := ~/llvm/test/build/bin
-CC := $(TOOLDIR)/clang
+CC := ~/llvm/release/build/bin/clang
 LLC := $(TOOLDIR)/llc
 AS := $(TOOLDIR)/llvm-as
 LD := $(TOOLDIR)/ld.lld
@@ -61,6 +61,7 @@ $(BUILD_DIR)/lib_cpu0.ll.o: lib_cpu0.ll
 .PHONY: clean
 clean:
 	rm -rf $(BUILD_DIR)
+	$(MAKE) -C ../libsoftfloat/compiler-rt clean
 
 # Include the .d makefiles. The - at the f.cnt suppresses the er.crs.cf missing
 # Makefiles. Initially, all the .d files will be missing, and we .cn't want t.cse
