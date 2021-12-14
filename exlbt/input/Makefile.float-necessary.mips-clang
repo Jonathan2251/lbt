@@ -39,8 +39,7 @@ LLFLAGS := -march=cpu0${endian} -mcpu=${CPU} -relocation-model=static \
   -filetype=obj -has-lld=true
 
 $(TARGET): $(OBJS)
-	$(MAKE) -C ../libsoftfloat/compiler-rt CPU=cpu032II
-	echo "$(LD) -o $@ $(OBJS) ../libsoftfloat/compiler-rt/build/libFloat.a"
+	cd ../libsoftfloat/compiler-rt && $(MAKE) -f ./Makefile.mips-clang CPU=cpu032II
 	$(LD) -o $@ $(OBJS) ../libsoftfloat/compiler-rt/build/libFloat.a
 
 # Build step for C source
