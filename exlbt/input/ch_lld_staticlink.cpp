@@ -1,6 +1,14 @@
 
 /// start
 
+#include "ch4_1_addsuboverflow.cpp"
+#include "ch8_1_br_jt.cpp"
+#include "ch8_2_phinode.cpp"
+#include "ch8_1_blockaddr.cpp"
+#include "ch8_2_longbranch.cpp"
+#include "ch9_2_tailcall.cpp"
+#include "ch9_3_detect_exception.cpp"
+
 void verify_test_ctrl2()
 {
   int a = -1;
