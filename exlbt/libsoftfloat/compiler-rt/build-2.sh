@@ -14,10 +14,13 @@ CPU=$1
 
 pushd builtins
 
-out=${currdir}/obj
+out=${currdir}/build
 
 rm -rf $out
 mkdir $out
+
+TOOLDIR=~/llvm/test/build/bin
+AR=${TOOLDIR}/llvm-ar
 
 files="absvdi2 absvsi2 absvti2 adddf3 addsf3 addtf3 addvdi3 \
   addvsi3 addvti3 ashldi3 ashlti3 ashrdi3 \
@@ -75,7 +78,7 @@ do
 done
 
 pushd $out
-ar -rcs libFloat.a $objs ../../../input/printf-stdarg-def.o ../../../input/printf-stdarg.o
+${AR} -rcs libFloat.a $objs
 popd
 
 popd

@@ -31,10 +31,10 @@ pushd ${libsf}
 #bash build-2.sh $1
 make CPU=$1 endian=${endian}
 popd
-olibsf=${libsf}/obj
+olibsf=${libsf}/build
 
-${TOOLDIR}/lld -flavor gnu -o a.out start.o debug.o \
-  ch_float_necessary.o lib_cpu0.o ${olibsf}/libFloat.a
+${TOOLDIR}/lld -flavor gnu -o a.out start.o debug.o printf-stdarg-def.o \
+  printf-stdarg.o ch_float_necessary.o lib_cpu0.o ${olibsf}/libFloat.a
 #  ${olibsf}/fixsfsi.o ${olibsf}/fixsfdi.o ${olibsf}/fixdfsi.o \
 #  ${olibsf}/addsf3.o ${olibsf}/mulsf3.o ${olibsf}/divsf3.o \
 #  ${olibsf}/adddf3.o ${olibsf}/muldf3.o ${olibsf}/divdf3.o \

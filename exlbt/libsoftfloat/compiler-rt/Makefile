@@ -9,7 +9,9 @@ BUILD_DIR := ./build
 TARGET := $(BUILD_DIR)/$(TARGET_LIB)
 SRC_DIR := ./builtins
 
-CC := ~/llvm/test/build/bin/clang
+TOOLDIR := ~/llvm/test/build/bin
+CC := $(TOOLDIR)/clang
+AR := $(TOOLDIR)/llvm-ar
 
 SRCS := absvdi2.c absvsi2.c absvti2.c adddf3.c addsf3.c addtf3.c addvdi3.c \
   addvsi3.c addvti3.c ashldi3.c ashlti3.c ashrdi3.c \
@@ -56,13 +58,9 @@ INC_FLAGS := $(addprefix -I,$(INC_DIRS)) -I../../libc/avr-libc-1.8.1/include
 CPPFLAGS := -MMD -MP -target cpu0${endian}-unknown-linux-gnu -static \
   -fintegrated-as ${INC_FLAGS} -mcpu=${CPU} -mllvm -has-lld=true
 
-#all:
-#	echo $(SRCS)
-#	echo $(OBJS)
 # The final build step.
 $(TARGET): $(OBJS)
-#	echo "ar -rcs $@ $(OBJS)"
-	ar -rcs $@ $(OBJS)
+	$(AR) -rcs $@ $(OBJS)
 
 # Build step for C source
 $(BUILD_DIR)/%.c.o: %.c
@@ -72,7 +70,7 @@ $(BUILD_DIR)/%.c.o: %.c
 
 .PHONY: clean
 clean:
-	rm -r $(BUILD_DIR)
+	rm -rf $(BUILD_DIR)
 
 # Include the .d makefiles. The - at the f.cnt suppresses the er.crs.cf missing
 # Makefiles. Initially, all the .d files will be missing, and we .cn't want t.cse
