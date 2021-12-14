@@ -1,0 +1,69 @@
+# Thanks .c .cb Vranish (https://spin.a.cmi.cbject..cm/2016/08/26/makefile-c-p.cjects/)
+
+# for example:
+# make -f Makefile.float-necessary-2 CPU=cpu032II endian=
+
+# CPU and endian passed from command line, such as "make CPU=cpu032II endian="
+#CPU := cpu032II
+#endian :=
+
+TARGET_EXEC := a.out
+BUILD_DIR := ./build
+TARGET := $(BUILD_DIR)/$(TARGET_EXEC)
+SRC_DIR := ./
+
+TOOLDIR := ~/llvm/test/build/bin
+CC := $(TOOLDIR)/clang
+LLC := $(TOOLDIR)/llc
+LD := $(TOOLDIR)/ld.lld
+
+SRCS := start.cpp debug.cpp printf-stdarg-def.c printf-stdarg.c ch_float_necessary.cpp lib_cpu0.ll
+
+# String substitution for every C/C++ file.
+# As an example, hello.cpp turns into ./build/hello.cpp.o
+OBJS := $(SRCS:%=$(BUILD_DIR)/%.o)
+
+# String substitut.cn (suffix version without %).
+# As an example, ./build/helloc.cpp.c turns in.c ./build/helloc.cpp.d
+DEPS := $(OBJS:.o=.d)
+
+# Every folder in ./src will need to be passed to GCC so that it can find header files
+INC_DIRS := $(shell find $(SRC_DIR) -type d)
+# Add a prefix to INC_DIRS. So moduleA would become -ImoduleA. GCC understands this -I flag
+INC_FLAGS := $(addprefix -I,$(INC_DIRS))
+
+# The -MMD and -MP flags together generate Makefiles for us!
+# These files will have .d instead of .o as the output.
+CPPFLAGS := -MMD -MP -target cpu0${endian}-unknown-linux-gnu -static \
+  -fintegrated-as ${INC_FLAGS} -mcpu=${CPU} -mllvm -has-lld=true
+
+LLFLAGS := -march=cpu0${endian} -mcpu=${CPU} -relocation-model=static \
+  -filetype=obj -has-lld=true
+
+$(TARGET): $(OBJS) $(BUILD_DIR)/lib_cpu0.ll.o
+	$(MAKE) -C ../libsoftfloat/compiler-rt CPU=cpu032II
+	echo "$(LD) -o $@ $(OBJS) ../libsoftfloat/compiler-rt/build/libFloat.a"
+	$(LD) -o $@ $(OBJS) ../libsoftfloat/compiler-rt/build/libFloat.a
+
+# Build step for C source
+$(BUILD_DIR)/%.c.o: %.c
+	echo $(SRCS)
+	mkdir -p $(dir $@)
+	$(CC) $(CPPFLAGS) $(CFLAGS) -c $< -o $@
+
+# Build step for C++ source
+$(BUILD_DIR)/%.cpp.o: %.cpp
+	mkdir -p $(dir $@)
+	$(CC) $(CPPFLAGS) $(CXXFLAGS) -c $< -o $@
+
+$(BUILD_DIR)/lib_cpu0.ll.o: lib_cpu0.ll
+	$(LLC) $(LLFLAGS) $< -o $@
+
+.PHONY: clean
+clean:
+	rm -rf $(BUILD_DIR)
+
+# Include the .d makefiles. The - at the f.cnt suppresses the er.crs.cf missing
+# Makefiles. Initially, all the .d files will be missing, and we .cn't want t.cse
+# er.crs .c s.cw up.
+-include $(DEPS)
