@@ -103,7 +103,7 @@ mark and swip in graph for Dead Code Stripping.
 
 As above example, the foo2() is an isolated node without any reference. It's 
 dead code and can be removed in linker optimization. We test this example by 
-build-ch13_1.sh and find foo2() cannot be removed. 
+Makefile.ch13_1 and find foo2() cannot be removed. 
 There are two possibilities for this situation. 
 One is we do not trigger lld dead code stripping 
 optimization in command (the default is not do it). The other is lld hasn't 
@@ -153,14 +153,14 @@ compare it against the result of PC's printf() as below.
 .. literalinclude:: ../exlbt/input/lib_cpu0.ll
     :start-after: /// start
 
-.. rubric:: exlbt/input/functions.sh
-.. literalinclude:: ../exlbt/input/functions.sh
+.. rubric:: exlbt/input/Common.mk
+.. literalinclude:: ../exlbt/input/Common.mk
 
-.. rubric:: exlbt/input/build-printf-stdarg-2.sh
-.. literalinclude:: ../exlbt/input/build-printf-stdarg-2.sh
+.. rubric:: exlbt/input/Makefile.printf-stdarg-2
+.. literalinclude:: ../exlbt/input/Makefile.printf-stdarg-2
 
 
-The build-printf-stdarg-2.sh is for my PC setting. Please change this script to
+The Makefile.printf-stdarg-2 is for my PC setting. Please change this script to
 the directory of your llvm/lld setting. After that run static linker example 
 code as follows,
 
@@ -168,7 +168,7 @@ code as follows,
 
   1-160-136-173:input Jonathan$ pwd
   /Users/Jonathan/Downloads/exlbt/input
-  1-160-136-173:input Jonathan$ bash build-printf-stdarg-2.sh cpu032I be
+  1-160-136-173:input Jonathan$ bash Makefile.printf-stdarg-2 cpu032I be
   In file included from printf-stdarg-2.cpp:11:
   ./printf-stdarg.c:206:15: warning: conversion from string literal to 'char *' 
   is deprecated [-Wdeprecated-writable-strings]
@@ -234,7 +234,7 @@ Let's check the result with PC program printf-stdarg-1.c output as follows,
 They are same. You can verify the slt instructions is work fine too by change 
 variable cpu from cpu032I to cpu032II as follows,
 
-.. rubric:: exlbt/input/build-printf-stdarg-2.sh
+.. rubric:: exlbt/input/Makefile.printf-stdarg-2
 
 
 .. code-block:: console
@@ -244,14 +244,14 @@ variable cpu from cpu032I to cpu032II as follows,
   1-160-136-173:verilog Jonathan$ cd ../../exlbt/input
   1-160-136-173:input Jonathan$ pwd
   /Users/Jonathan/Download/exlbt/input
-  1-160-136-173:input Jonathan$ bash build-printf-stdarg-2.sh cpu032II be
+  1-160-136-173:input Jonathan$ bash Makefile.printf-stdarg-2 cpu032II be
   ...
   1-160-136-173:input Jonathan$ cd ../lbdex/verilog/
   1-160-136-173:verilog Jonathan$ ./cpu0IIs
 
 The verilog machine cpu0IIs include all instructions of cpu032I and add 
 slt, beq, ..., instructions.
-Run build-printf-stdarg-2.sh with cpu=cpu032II will generate slt, beq and bne 
+Run Makefile.printf-stdarg-2 with cpu=cpu032II will generate slt, beq and bne 
 instructions instead of cmp, jeq, ... instructions.
 
 With the printf() of GPL source code, we can program more test code with it 

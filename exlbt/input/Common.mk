@@ -23,10 +23,10 @@ INC_FLAGS := $(addprefix -I,$(INC_DIRS))
 
 # The -MMD and -MP flags together generate Makefiles for us!
 # These files will have .d instead of .o as the output.
-CPPFLAGS := -MMD -MP -target cpu0${endian}-unknown-linux-gnu -static \
+CPPFLAGS := -MMD -MP -target cpu0${ENDIAN}-unknown-linux-gnu -static \
   -fintegrated-as ${INC_FLAGS} -mcpu=${CPU} -mllvm -has-lld=true
 
-LLFLAGS := -march=cpu0${endian} -mcpu=${CPU} -relocation-model=static \
+LLFLAGS := -march=cpu0${ENDIAN} -mcpu=${CPU} -relocation-model=static \
   -filetype=obj -has-lld=true
 
 #FIND_LIB_DIR := $(shell find . -iname $(LIB_DIR))

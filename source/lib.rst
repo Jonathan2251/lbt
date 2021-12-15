@@ -80,9 +80,6 @@ Software Float Point Support
 .. rubric:: exlbt/input/Makefile.float-necessary
 .. literalinclude:: ../exlbt/input/Makefile.float-necessary
 
-.. rubric:: exlbt/input/make.sh
-.. literalinclude:: ../exlbt/input/make.sh
-
 Run as follows,
 
 .. code-block:: console
