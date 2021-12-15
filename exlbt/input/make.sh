@@ -20,6 +20,9 @@ fi
 
 prologue;
 
+pushd ../libsoftfloat/compiler-rt
+make -f Makefile clean
+popd
 make -f $FILE clean
 make -f $FILE CPU=$1 endian=${endian}
 
