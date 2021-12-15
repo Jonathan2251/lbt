@@ -29,6 +29,8 @@ CPPFLAGS := -MMD -MP -target cpu0${endian}-unknown-linux-gnu -static \
 LLFLAGS := -march=cpu0${endian} -mcpu=${CPU} -relocation-model=static \
   -filetype=obj -has-lld=true
 
+#FIND_LIB_DIR := $(shell find . -iname $(LIB_DIR))
+
 $(TARGET): $(OBJS) $(LIBS)
 	$(LD) -o $@ $(OBJS) $(LIBS)
 
@@ -49,8 +51,11 @@ $(BUILD_DIR)/lib_cpu0.ll.o: lib_cpu0.ll
 	$(LLC) $(LLFLAGS) $< -o $@
 
 .PHONY: clean
-clean:
+clean: 
 	rm -rf $(BUILD_DIR)
+ifdef LIB_DIR
+	cd $(LIB_DIR) && $(MAKE) -f Makefile clean
+endif
 
 # Include the .d makefiles. The - at the f.cnt suppresses the er.crs.cf missing
 # Makefiles. Initially, all the .d files will be missing, and we .cn't want t.cse
