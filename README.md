@@ -9,7 +9,7 @@ Pre-install: https://github.com/Jonathan2251/lbd/README.rst
 
 $ pwd
 
-$ /Users/Jonathan/git
+$ $HOME/git
 
 $ git clone https://github.com/Jonathan2251/lbt
 
