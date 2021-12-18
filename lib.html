@@ -17,7 +17,6 @@
     <link rel="author" title="About these documents" href="about.html" />
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
-    <link rel="next" title="Clang" href="clang.html" />
     <link rel="prev" title="Optimization" href="opt.html" /> 
   </head><body>
       <div class="header" role="banner"><h1 class="heading"><a href="index.html">
@@ -30,8 +29,6 @@
         «&#160;&#160;<a href="opt.html">Optimization</a>
         &#160;&#160;::&#160;&#160;
         <a class="uplink" href="index.html">Contents</a>
-        &#160;&#160;::&#160;&#160;
-        <a href="clang.html">Clang</a>&#160;&#160;»
         </p>
 
       </div>
@@ -609,6 +606,87 @@ float fabs(float x)
 }
 </pre></div>
 </div>
+<p class="rubric">lbt/exlbt/libsoftfloat/compiler-rt/Makefile</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span># Thanks .c .cb Vranish (https://spin.a.cmi.cbject..cm/2016/08/26/makefile-c-p.cjects/)
+
+# CPU and endian passed from command line, such as &quot;make CPU=cpu032II endian=&quot;
+#CPU := cpu032II
+#endian :=
+
+TARGET_LIB := libFloat.a
+BUILD_DIR := ./build
+TARGET := $(BUILD_DIR)/$(TARGET_LIB)
+SRC_DIR := ./builtins
+
+TOOLDIR := ~/llvm/test/build/bin
+CC := $(TOOLDIR)/clang
+AR := $(TOOLDIR)/llvm-ar
+
+SRCS := absvdi2.c absvsi2.c absvti2.c adddf3.c addsf3.c addtf3.c addvdi3.c \
+  addvsi3.c addvti3.c ashldi3.c ashlti3.c ashrdi3.c \
+  ashrti3.c clear_cache.c clzdi2.c clzsi2.c clzti2.c cmpdi2.c cmpti2.c \
+  comparedf2.c comparesf2.c ctzdi2.c ctzsi2.c ctzti2.c divdf3.c \
+  divdi3.c divmoddi4.c divmodsi4.c divsf3.c divsi3.c divti3.c divtf3.c \
+  extendsfdf2.c ffsdi2.c ffsti2.c \
+  fixdfdi.c fixdfsi.c fixdfti.c fixsfdi.c fixsfsi.c fixsfti.c fixunsdfdi.c \
+  fixunsdfsi.c fixunsdfti.c fixunssfdi.c fixunssfsi.c fixunssfti.c \
+  fixunsxfdi.c fixunsxfsi.c fixunsxfti.c fixxfdi.c fixxfti.c floatundidf.c \
+  floatdisf.c floatdixf.c floatsidf.c floatsisf.c floattidf.c floattisf.c \
+  floattixf.c floatundisf.c floatundixf.c floatunsidf.c \
+  floatunsisf.c floatuntidf.c floatuntisf.c floatuntixf.c \
+  int_util.c lshrdi3.c lshrti3.c moddi3.c \
+  modsi3.c modti3.c muldc3.c muldf3.c muldi3.c mulodi4.c mulosi4.c \
+  muloti4.c mulsc3.c mulsf3.c multi3.c multf3.c mulvdi3.c mulvsi3.c \
+  mulvti3.c mulxc3.c negdf2.c negdi2.c negsf2.c negti2.c negvdi2.c \
+  negvsi2.c negvti2.c paritydi2.c paritysi2.c parityti2.c \
+  popcountdi2.c popcountsi2.c popcountti2.c powidf2.c \
+  powisf2.c powitf2.c powixf2.c subdf3.c subsf3.c subvdi3.c \
+  subvsi3.c subvti3.c subtf3.c trampoline_setup.c truncdfsf2.c \
+  ucmpdi2.c ucmpti2.c udivdi3.c udivmoddi4.c udivmodsi4.c udivmodti4.c \
+  udivsi3.c udivti3.c umoddi3.c umodsi3.c umodti3.c cpu0-porting.c
+
+# String substitution for every C file.
+# As an example, absvdi2.c turns into ./builtins/hello.c
+SRCS := $(SRCS:%=$(SRC_DIR)/%)
+
+# String substitution for every C/C++ file.
+# As an example, hello.cpp turns into ./build/hello.cpp.o
+OBJS := $(SRCS:%=$(BUILD_DIR)/%.o)
+
+# String substitut.cn (suffix version without %).
+# As an example, ./build/helloc.cpp.c turns in.c ./build/helloc.cpp.d
+DEPS := $(OBJS:.o=.d)
+
+# Every folder in ./src will need to be passed to GCC so that it can find header files
+INC_DIRS := $(shell find $(SRC_DIR) -type d) ../../libc/avr-libc-1.8.1/include
+# Add a prefix to INC_DIRS. So moduleA would become -ImoduleA. GCC understands this -I flag
+INC_FLAGS := $(addprefix -I,$(INC_DIRS))
+
+# The -MMD and -MP flags together generate Makefiles for us!
+# These files will have .d instead of .o as the output.
+CPPFLAGS := -MMD -MP -target cpu0${endian}-unknown-linux-gnu -static \
+  -fintegrated-as ${INC_FLAGS} -mcpu=${CPU} -mllvm -has-lld=true
+
+# The final build step.
+$(TARGET): $(OBJS)
+	$(AR) -rcs $@ $(OBJS)
+
+# Build step for C source
+$(BUILD_DIR)/%.c.o: %.c
+	mkdir -p $(dir $@)
+	$(CC) $(CPPFLAGS) $(CFLAGS) -c $&lt; -o $@
+
+
+.PHONY: clean
+clean:
+	rm -rf $(BUILD_DIR)
+
+# Include the .d makefiles. The - at the f.cnt suppresses the er.crs.cf missing
+# Makefiles. Initially, all the .d files will be missing, and we .cn&#39;t want t.cse
+# er.crs .c s.cw up.
+-include $(DEPS)
+</pre></div>
+</div>
 </section>
 <section id="avr-libc">
 <h2><a class="toc-backref" href="#id9">Avr libc</a><a class="headerlink" href="#avr-libc" title="Permalink to this headline">¶</a></h2>
@@ -707,68 +785,31 @@ int main() {
 
 </pre></div>
 </div>
-<p class="rubric">exlbt/input/build-float-necessary.sh</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>#!/usr/bin/env bash
+<p class="rubric">exlbt/input/Makefile.float-necessary</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span># CPU and endian passed from command line, such as 
+#   &quot;make -f Makefile.float-necessary CPU=cpu032II endian=&quot;
+#   Ignore argument and set CPU to cpu032II since software float point library, 
+#   libsoftfloat, only supports cpu032II at this point.
+CPU := cpu032II
+#endian :=
 
-INCFLAG=&quot;-I../libsoftfloat/compiler-rt/builtins&quot;
+SRCS := start.cpp debug.cpp printf-stdarg-def.c printf-stdarg.c ch_float_necessary.cpp lib_cpu0.ll
+INC_DIRS := $(SRC_DIR)
+LIB_DIR := ../libsoftfloat/compiler-rt
+LIBS := $(LIB_DIR)/build/libFloat.a
 
-source functions.sh
-
-sh_name=build-float-necessary.sh
-argNum=$#
-arg1=$1
-arg2=$2
-
-prologue;
-
-libsf=../libsoftfloat/compiler-rt
-pushd ${libsf}
-bash build.sh
-popd
-olibsf=${libsf}/obj
-
-${CLANG} -target mips-unknown-linux-gnu -c start.cpp -emit-llvm -o start.bc
-${CLANG} -target mips-unknown-linux-gnu -c debug.cpp -emit-llvm -o debug.bc
-${CLANG} -target mips-unknown-linux-gnu -c printf-stdarg-def.c -emit-llvm \
--o printf-stdarg-def.bc
-${CLANG} -target mips-unknown-linux-gnu -c printf-stdarg.c -emit-llvm \
--o printf-stdarg.bc
-${CLANG} $INCFLAG -c ch_float_necessary.cpp -emit-llvm -o ch_float_necessary.bc
-${TOOLDIR}/llc -march=cpu0${endian} -mcpu=${CPU} -relocation-model=static \
--filetype=obj -has-lld=true start.bc -o start.cpu0.o
-${TOOLDIR}/llc -march=cpu0${endian} -mcpu=${CPU} -relocation-model=static \
--filetype=obj -has-lld=true debug.bc -o debug.cpu0.o
-${TOOLDIR}/llc -march=cpu0${endian} -mcpu=${CPU} -relocation-model=static \
--filetype=obj -has-lld=true printf-stdarg-def.bc -o printf-stdarg-def.cpu0.o
-${TOOLDIR}/llc -march=cpu0${endian} -mcpu=${CPU} -relocation-model=static \
--filetype=obj -has-lld=true printf-stdarg.bc -o printf-stdarg.cpu0.o
-${TOOLDIR}/llc -march=cpu0${endian} -mcpu=${CPU} -relocation-model=static \
--filetype=obj -has-lld=true ch_float_necessary.bc -o ch_float_necessary.cpu0.o
-${TOOLDIR}/llc -march=cpu0${endian} -mcpu=${CPU} -relocation-model=static \
--filetype=obj -has-lld=true lib_cpu0.ll -o lib_cpu0.o
-${TOOLDIR}/lld -flavor gnu -o a.out \
-  start.cpu0.o debug.cpu0.o printf-stdarg-def.cpu0.o printf-stdarg.cpu0.o \
-  ch_float_necessary.cpu0.o lib_cpu0.o ${olibsf}/libFloat.o
-#  ${olibsf}/fixsfsi.o ${olibsf}/fixsfdi.o ${olibsf}/fixdfsi.o \
-#  ${olibsf}/addsf3.o ${olibsf}/mulsf3.o ${olibsf}/divsf3.o \
-#  ${olibsf}/adddf3.o ${olibsf}/muldf3.o ${olibsf}/divdf3.o \
-#  ${olibsf}/ashrdi3.o ${olibsf}/ashldi3.o ${olibsf}/lshrdi3.o \
-#  ${olibsf}/extendsfdf2.o ${olibsf}/truncdfsf2.o
-
-
-epilogue;
-
+include Common.mk
 </pre></div>
 </div>
 <p>Run as follows,</p>
-<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">JonathantekiiMac:input Jonathan$ </span>bash build-float-necessary.sh cpu032II be
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">chungshu@ChungShudeMacBook-Air input % </span>bash make.sh cpu032II be Makefile.float-necessary
 <span class="go">...</span>
 <span class="go">endian =  BigEndian</span>
+<span class="go">ISR address:00020614</span>
 <span class="go">0   /* 0: big endian, 1: little endian */</span>
 
-<span class="gp">JonathantekiiMac:input Jonathan$ </span>iverilog -o cpu0IIs cpu0IIs.v
-<span class="gp">JonathantekiiMac:input Jonathan$ </span>./cpu0IIs
-<span class="gp">114-43-184-210:verilog Jonathan$ </span>./cpu0IIs
+<span class="gp">chungshu@ChungShudeMacBook-Air verilog % </span>iverilog -o cpu0IIs cpu0IIs.v
+<span class="gp">chungshu@ChungShudeMacBook-Air verilog % </span>./cpu0IIs
 <span class="go">ARNING: cpu0.v:487: $readmemh(cpu0.hex): Not enough words in the file for the requested range [0:524287].</span>
 <span class="go">taskInterrupt(001)</span>
 <span class="gp gp-VirtualEnv">(int)</span><span class="go">test_shift_left&lt;long long&gt;(0x12, 4) = 288</span>
@@ -781,7 +822,7 @@ epilogue;
 <span class="gp gp-VirtualEnv">(int)</span><span class="go">test_mul&lt;float, float, double&gt;(-2.2, 3.3) = -7</span>
 <span class="gp gp-VirtualEnv">(int)</span><span class="go">test_mul&lt;float, float, double&gt;(-2.2, 3.3) = 0</span>
 <span class="gp gp-VirtualEnv">(int)</span><span class="go">test_div&lt;double, double, double&gt;(-1.8, 0.5) = -3</span>
-<span class="go">total cpu cycles = 182585</span>
+<span class="go">total cpu cycles = 184085</span>
 <span class="go">RET to PC &lt; 0, finished!</span>
 </pre></div>
 </div>
@@ -813,8 +854,6 @@ epilogue;
         «&#160;&#160;<a href="opt.html">Optimization</a>
         &#160;&#160;::&#160;&#160;
         <a class="uplink" href="index.html">Contents</a>
-        &#160;&#160;::&#160;&#160;
-        <a href="clang.html">Clang</a>&#160;&#160;»
         </p>
 
       </div>

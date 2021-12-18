@@ -18,7 +18,7 @@
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
     <link rel="next" title="Optimization" href="opt.html" />
-    <link rel="prev" title="About" href="about.html" /> 
+    <link rel="prev" title="Clang" href="clang.html" /> 
   </head><body>
       <div class="header" role="banner"><h1 class="heading"><a href="index.html">
           <span>Tutorial: Creating an LLVM Toolchain for the Cpu0 Architecture</span></a></h1>
@@ -27,7 +27,7 @@
       <div class="topnav" role="navigation" aria-label="top navigation">
       
         <p>
-        «&#160;&#160;<a href="about.html">About</a>
+        «&#160;&#160;<a href="clang.html">Clang</a>
         &#160;&#160;::&#160;&#160;
         <a class="uplink" href="index.html">Contents</a>
         &#160;&#160;::&#160;&#160;
@@ -944,7 +944,7 @@ mark and swip in graph for Dead Code Stripping.</p>
 </figure>
 <p>As above example, the foo2() is an isolated node without any reference. It’s
 dead code and can be removed in linker optimization. We test this example by
-build-ch13_1.sh and find foo2() cannot be removed.
+Makefile.ch13_1 and find foo2() cannot be removed.
 There are two possibilities for this situation.
 One is we do not trigger lld dead code stripping
 optimization in command (the default is not do it). The other is lld hasn’t
@@ -1466,118 +1466,91 @@ void start() {
 
 </pre></div>
 </div>
-<p class="rubric">exlbt/input/functions.sh</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>prologue() {
-  LBDEXDIR=../../lbdex
+<p class="rubric">exlbt/input/Common.mk</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span># Thanks https://makefiletutorial.com
 
-  if [ $argNum == 0 ]; then
-    echo &quot;useage: bash $sh_name cpu_type endian&quot;
-    echo &quot;  cpu_type: cpu032I or cpu032II&quot;
-    echo &quot;  endian: be (big endian, default) or le (little endian)&quot;
-    echo &quot;for example:&quot;
-    echo &quot;  bash build-slinker.sh cpu032I be&quot;
-    exit 1;
-  fi
-  if [ $arg1 != cpu032I ] &amp;&amp; [ $arg1 != cpu032II ]; then
-    echo &quot;1st argument is cpu032I or cpu032II&quot;
-    exit 1
-  fi
+TARGET_EXEC := a.out
+BUILD_DIR := ./build
+TARGET := $(BUILD_DIR)/$(TARGET_EXEC)
+SRC_DIR := ./
 
-  INCDIR=../../lbdex/input
-  OS=`uname -s`
-  echo &quot;OS =&quot; ${OS}
+TOOLDIR := ~/llvm/test/build/bin
+CC := $(TOOLDIR)/clang
+LLC := $(TOOLDIR)/llc
+LD := $(TOOLDIR)/ld.lld
 
-  TOOLDIR=~/llvm/test/build/bin
-  CLANG=~/llvm/test/build/bin/clang
+# String substitution for every C/C++ file.
+# As an example, hello.cpp turns into ./build/hello.cpp.o
+OBJS := $(SRCS:%=$(BUILD_DIR)/%.o)
 
-  CPU=$arg1
-  echo &quot;CPU =&quot; &quot;${CPU}&quot;
+# String substitut.cn (suffix version without %).
+# As an example, ./build/helloc.cpp.c turns in.c ./build/helloc.cpp.d
+DEPS := $(OBJS:.o=.d)
 
-  if [ &quot;$arg2&quot; != &quot;&quot; ] &amp;&amp; [ $arg2 != le ] &amp;&amp; [ $arg2 != be ]; then
-    echo &quot;2nd argument is be (big endian, default) or le (little endian)&quot;
-    exit 1
-  fi
-  if [ &quot;$arg2&quot; == &quot;&quot; ] || [ $arg2 == be ]; then
-    endian=
-  else
-    endian=el
-  fi
-  echo &quot;endian =&quot; &quot;${endian}&quot;
+# Add a prefix to INC_DIRS. So moduleA would become -ImoduleA. GCC understands this -I flag
+INC_FLAGS := $(addprefix -I,$(INC_DIRS))
 
-  bash clean.sh
-}
+# The -MMD and -MP flags together generate Makefiles for us!
+# These files will have .d instead of .o as the output.
+CPPFLAGS := -MMD -MP -target cpu0${ENDIAN}-unknown-linux-gnu -static \
+  -fintegrated-as ${INC_FLAGS} -mcpu=${CPU} -mllvm -has-lld=true
 
-isLittleEndian() {
-  echo &quot;endian = &quot; &quot;$endian&quot;
-  if [ &quot;$endian&quot; == &quot;LittleEndian&quot; ] ; then
-    le=&quot;true&quot;
-  elif [ &quot;$endian&quot; == &quot;BigEndian&quot; ] ; then
-    le=&quot;false&quot;
-  else
-    echo &quot;!endian unknown&quot;
-    exit 1
-  fi
-}
+LLFLAGS := -march=cpu0${ENDIAN} -mcpu=${CPU} -relocation-model=static \
+  -filetype=obj -has-lld=true
 
-elf2hex() {
-  ${TOOLDIR}/elf2hex -le=${le} a.out &gt; ${LBDEXDIR}/verilog/cpu0.hex
-  if [ ${le} == &quot;true&quot; ] ; then
-    echo &quot;1   /* 0: big endian, 1: little endian */&quot; &gt; ${LBDEXDIR}/verilog/cpu0.config
-  else
-    echo &quot;0   /* 0: big endian, 1: little endian */&quot; &gt; ${LBDEXDIR}/verilog/cpu0.config
-  fi
-  cat ${LBDEXDIR}/verilog/cpu0.config
-}
+#FIND_LIB_DIR := $(shell find . -iname $(LIB_DIR))
 
-epilogue() {
-  endian=`${TOOLDIR}/llvm-readobj -h a.out|grep &quot;DataEncoding&quot;|awk &#39;{print $2}&#39;`
-  isLittleEndian;
-  elf2hex;
-}
+$(TARGET): $(OBJS) $(LIBS)
+	$(LD) -o $@ $(OBJS) $(LIBS)
+
+$(LIBS):
+	cd $(LIB_DIR) &amp;&amp; $(MAKE) -f ./Makefile CPU=$(CPU)
+
+# Build step for C source
+$(BUILD_DIR)/%.c.o: %.c
+	mkdir -p $(dir $@)
+	$(CC) $(CPPFLAGS) $(CFLAGS) -c $&lt; -o $@
+
+# Build step for C++ source
+$(BUILD_DIR)/%.cpp.o: %.cpp
+	mkdir -p $(dir $@)
+	$(CC) $(CPPFLAGS) $(CXXFLAGS) -c $&lt; -o $@
+
+$(BUILD_DIR)/lib_cpu0.ll.o: lib_cpu0.ll
+	$(LLC) $(LLFLAGS) $&lt; -o $@
+
+.PHONY: clean
+clean: 
+	rm -rf $(BUILD_DIR)
+ifdef LIB_DIR
+	cd $(LIB_DIR) &amp;&amp; $(MAKE) -f Makefile clean
+endif
+
+# Include the .d makefiles. The - at the f.cnt suppresses the er.crs.cf missing
+# Makefiles. Initially, all the .d files will be missing, and we .cn&#39;t want t.cse
+# er.crs .c s.cw up.
+-include $(DEPS)
 </pre></div>
 </div>
-<p class="rubric">exlbt/input/build-printf-stdarg-2.sh</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>#!/usr/bin/env bash
+<p class="rubric">exlbt/input/Makefile.printf-stdarg-2</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span># CPU and endian passed from command line, such as 
+#   &quot;make -f Makefile.printf-stdarg-2 CPU=cpu032I endian=el&quot;
+#endian :=
 
-source functions.sh
+SRCS := start.cpp debug.cpp printf-stdarg-def.c printf-stdarg-2.cpp lib_cpu0.ll
+INC_DIRS := $(SRC_DIR) ../../lbdex/input
+LIB_DIR :=
+LIBS :=
 
-sh_name=build-printf-stdarg-2.sh
-argNum=$#
-arg1=$1
-arg2=$2
-
-prologue;
-
-${CLANG} -target mips-unknown-linux-gnu -c start.cpp -emit-llvm -o start.bc
-${CLANG} -target mips-unknown-linux-gnu -c debug.cpp -emit-llvm -o debug.bc
-${CLANG} -target mips-unknown-linux-gnu -c printf-stdarg-def.c -emit-llvm \
--o printf-stdarg-def.bc
-${CLANG} -target mips-unknown-linux-gnu -c printf-stdarg-2.cpp -emit-llvm -o \
-printf-stdarg-2.bc
-${TOOLDIR}/llc -march=cpu0${endian} -mcpu=${CPU} -relocation-model=static \
--filetype=obj start.bc -o start.cpu0.o
-${TOOLDIR}/llc -march=cpu0${endian} -mcpu=${CPU} -relocation-model=static \
--filetype=obj debug.bc -o debug.cpu0.o
-${TOOLDIR}/llc -march=cpu0${endian} -mcpu=${CPU} -relocation-model=static \
--filetype=obj printf-stdarg-def.bc -o printf-stdarg-def.cpu0.o
-${TOOLDIR}/llc -march=cpu0${endian} -mcpu=${CPU} -relocation-model=static \
--filetype=obj printf-stdarg-2.bc -o printf-stdarg-2.cpu0.o
-${TOOLDIR}/llc -march=cpu0${endian} -mcpu=${CPU} -relocation-model=static \
--filetype=obj lib_cpu0.ll -o lib_cpu0.o
-${TOOLDIR}/lld -flavor gnu \
-start.cpu0.o debug.cpu0.o printf-stdarg-def.cpu0.o printf-stdarg-2.cpu0.o \
-lib_cpu0.o -o a.out
-
-epilogue;
-
+include Common.mk
 </pre></div>
 </div>
-<p>The build-printf-stdarg-2.sh is for my PC setting. Please change this script to
+<p>The Makefile.printf-stdarg-2 is for my PC setting. Please change this script to
 the directory of your llvm/lld setting. After that run static linker example
 code as follows,</p>
 <div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">1-160-136-173:input Jonathan$ </span><span class="nb">pwd</span>
 <span class="go">/Users/Jonathan/Downloads/exlbt/input</span>
-<span class="gp">1-160-136-173:input Jonathan$ </span>bash build-printf-stdarg-2.sh cpu032I be
+<span class="gp">1-160-136-173:input Jonathan$ </span>bash Makefile.printf-stdarg-2 cpu032I be
 <span class="go">In file included from printf-stdarg-2.cpp:11:</span>
 <span class="go">./printf-stdarg.c:206:15: warning: conversion from string literal to &#39;char *&#39;</span>
 <span class="go">is deprecated [-Wdeprecated-writable-strings]</span>
@@ -1641,13 +1614,13 @@ code as follows,</p>
 </div>
 <p>They are same. You can verify the slt instructions is work fine too by change
 variable cpu from cpu032I to cpu032II as follows,</p>
-<p class="rubric">exlbt/input/build-printf-stdarg-2.sh</p>
+<p class="rubric">exlbt/input/Makefile.printf-stdarg-2</p>
 <div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">1-160-136-173:verilog Jonathan$ </span><span class="nb">pwd</span>
 <span class="go">/Users/Jonathan/Download/lbdex/verilog</span>
 <span class="gp">1-160-136-173:verilog Jonathan$ </span><span class="nb">cd</span> ../../exlbt/input
 <span class="gp">1-160-136-173:input Jonathan$ </span><span class="nb">pwd</span>
 <span class="go">/Users/Jonathan/Download/exlbt/input</span>
-<span class="gp">1-160-136-173:input Jonathan$ </span>bash build-printf-stdarg-2.sh cpu032II be
+<span class="gp">1-160-136-173:input Jonathan$ </span>bash Makefile.printf-stdarg-2 cpu032II be
 <span class="go">...</span>
 <span class="gp">1-160-136-173:input Jonathan$ </span><span class="nb">cd</span> ../lbdex/verilog/
 <span class="gp">1-160-136-173:verilog Jonathan$ </span>./cpu0IIs
@@ -1655,7 +1628,7 @@ variable cpu from cpu032I to cpu032II as follows,</p>
 </div>
 <p>The verilog machine cpu0IIs include all instructions of cpu032I and add
 slt, beq, …, instructions.
-Run build-printf-stdarg-2.sh with cpu=cpu032II will generate slt, beq and bne
+Run Makefile.printf-stdarg-2 with cpu=cpu032II will generate slt, beq and bne
 instructions instead of cmp, jeq, … instructions.</p>
 <p>With the printf() of GPL source code, we can program more test code with it
 to verify the previous llvm Cpu0 backend generated program. The following code
@@ -1777,6 +1750,14 @@ void int_sim() {
 </div>
 <p class="rubric">exlbt/input/ch_lld_staticlink.cpp</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span>
+#include &quot;ch4_1_addsuboverflow.cpp&quot;
+#include &quot;ch8_1_br_jt.cpp&quot;
+#include &quot;ch8_2_phinode.cpp&quot;
+#include &quot;ch8_1_blockaddr.cpp&quot;
+#include &quot;ch8_2_longbranch.cpp&quot;
+#include &quot;ch9_2_tailcall.cpp&quot;
+#include &quot;ch9_3_detect_exception.cpp&quot;
+
 void verify_test_ctrl2()
 {
   int a = -1;
@@ -1894,6 +1875,9 @@ int test_staticlink()
 
   return 0;
 }
+
+// test passing compilation only
+#include &quot;builtins-cpu0.c&quot;
 </pre></div>
 </div>
 <p class="rubric">exlbt/input/ch_slinker.cpp</p>
@@ -1919,75 +1903,113 @@ int test_staticlink()
 <span class="c1">#include &quot;ch_lld_staticlink.cpp&quot;</span>
 </pre></div>
 </div>
-<p class="rubric">exlbt/input/build-slinker.sh</p>
+<p class="rubric">exlbt/input/Makefile.slinker</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span># CPU and endian passed from command line, such as 
+#   &quot;make -f Makefile.slinker CPU=cpu032I endian=le&quot;
+#endian :=
+
+SRCS := start.cpp debug.cpp printf-stdarg-def.c printf-stdarg.c ch_slinker.cpp \
+	lib_cpu0.ll
+INC_DIRS := $(SRC_DIR) ../../lbdex/input
+LIB_DIR :=
+LIBS :=
+
+include Common.mk
+</pre></div>
+</div>
+<p class="rubric">exlbt/input/make.sh</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span>#!/usr/bin/env bash
 
-source functions.sh
+# for example:
+# bash make.sh cpu032I le Makefile.slinker
+# bash make.sh cpu032II be Makefile.float-necessary
+# bash make.sh cpu032II be Makefile.printf-stdarg-2
+# bash make.sh cpu032II be Makefile.ch13_1
 
-sh_name=build-slinker.sh
-argNum=$#
-arg1=$1
-arg2=$2
+ARG_NUM=$#
+ENDIAN=
+
+prologue() {
+  LBDEXDIR=../../lbdex
+
+  if [ $ARG_NUM == 0 ]; then
+    echo &quot;useage: bash $sh_name cpu_type ENDIAN&quot;
+    echo &quot;  cpu_type: cpu032I or cpu032II&quot;
+    echo &quot;  ENDIAN: be (big ENDIAN, default) or le (little ENDIAN)&quot;
+    echo &quot;for example:&quot;
+    echo &quot;  bash build-slinker.sh cpu032I be&quot;
+    exit 1;
+  fi
+  if [ $1 != cpu032I ] &amp;&amp; [ $1 != cpu032II ]; then
+    echo &quot;1st argument is cpu032I or cpu032II&quot;
+    exit 1
+  fi
+
+  INCDIR=../../lbdex/input
+  OS=`uname -s`
+  echo &quot;OS =&quot; ${OS}
+
+  TOOLDIR=~/llvm/test/build/bin
+  CLANG=~/llvm/test/build/bin/clang
+
+  CPU=$1
+  echo &quot;CPU =&quot; &quot;${CPU}&quot;
+
+  if [ &quot;$2&quot; != &quot;&quot; ] &amp;&amp; [ $2 != le ] &amp;&amp; [ $2 != be ]; then
+    echo &quot;2nd argument is be (big ENDIAN, default) or le (little ENDIAN)&quot;
+    exit 1
+  fi
+  if [ &quot;$2&quot; == &quot;&quot; ] || [ $2 == be ]; then
+    ENDIAN=
+  else
+    ENDIAN=el
+  fi
+  echo &quot;ENDIAN =&quot; &quot;${ENDIAN}&quot;
+
+  bash clean.sh
+}
+
+isLittleEndian() {
+  echo &quot;ENDIAN = &quot; &quot;$ENDIAN&quot;
+  if [ &quot;$ENDIAN&quot; == &quot;LittleEndian&quot; ] ; then
+    le=&quot;true&quot;
+  elif [ &quot;$ENDIAN&quot; == &quot;BigEndian&quot; ] ; then
+    le=&quot;false&quot;
+  else
+    echo &quot;!ENDIAN unknown&quot;
+    exit 1
+  fi
+}
+
+elf2hex() {
+  ${TOOLDIR}/elf2hex -le=${le} a.out &gt; ${LBDEXDIR}/verilog/cpu0.hex
+  if [ ${le} == &quot;true&quot; ] ; then
+    echo &quot;1   /* 0: big ENDIAN, 1: little ENDIAN */&quot; &gt; ${LBDEXDIR}/verilog/cpu0.config
+  else
+    echo &quot;0   /* 0: big ENDIAN, 1: little ENDIAN */&quot; &gt; ${LBDEXDIR}/verilog/cpu0.config
+  fi
+  cat ${LBDEXDIR}/verilog/cpu0.config
+}
+
+epilogue() {
+  ENDIAN=`${TOOLDIR}/llvm-readobj -h a.out|grep &quot;DataEncoding&quot;|awk &#39;{print $2}&#39;`
+  isLittleEndian;
+  elf2hex;
+}
+
+FILE=$3
+
+if [ ! -f &quot;$FILE&quot; ]; then
+  echo &quot;$FILE does not exists.&quot;
+  exit 0;
+fi
 
 prologue;
 
-${CLANG} -target mips-unknown-linux-gnu -c start.cpp -emit-llvm -o \
-start.bc
-${CLANG} -target mips-unknown-linux-gnu -c debug.cpp -emit-llvm -o \
-debug.bc
-${CLANG} -target mips-unknown-linux-gnu -c printf-stdarg-def.c \
--emit-llvm -o printf-stdarg-def.bc
-${CLANG} -target mips-unknown-linux-gnu -c printf-stdarg.c -emit-llvm \
--o printf-stdarg.bc
-${CLANG} -target mips-unknown-linux-gnu -c \
-${LBDEXDIR}/input/ch4_1_addsuboverflow.cpp -emit-llvm -o ch4_1_addsuboverflow.bc
-${CLANG} -target mips-unknown-linux-gnu -c \
-${LBDEXDIR}/input/ch8_1_br_jt.cpp -emit-llvm -o ch8_1_br_jt.bc
-${CLANG} -O3 -target mips-unknown-linux-gnu -c \
-${LBDEXDIR}/input/ch8_2_phinode.cpp -emit-llvm -o ch8_2_phinode.bc
-${CLANG} -target mips-unknown-linux-gnu -c \
-${LBDEXDIR}/input/ch8_1_blockaddr.cpp -emit-llvm -o ch8_1_blockaddr.bc
-${CLANG} -target mips-unknown-linux-gnu -c \
-${LBDEXDIR}/input/ch8_2_longbranch.cpp -emit-llvm -o ch8_2_longbranch.bc
-${CLANG} -O1 -target mips-unknown-linux-gnu -c \
-${LBDEXDIR}/input/ch9_2_tailcall.cpp -emit-llvm -o ch9_2_tailcall.bc
-${CLANG} -target mips-unknown-linux-gnu -c \
-${LBDEXDIR}/input/ch9_3_detect_exception.cpp -emit-llvm -o \
-ch9_3_detect_exception.bc
-${CLANG} -I${LBDEXDIR}/input/ -target mips-unknown-linux-gnu -c \
-ch_slinker.cpp -emit-llvm -o ch_slinker.bc
-${TOOLDIR}/llc -march=cpu0${endian} -mcpu=${CPU} -relocation-model=static \
--filetype=obj -has-lld=true start.bc -o start.o
-${TOOLDIR}/llc -march=cpu0${endian} -mcpu=${CPU} -relocation-model=static \
--filetype=obj -has-lld=true debug.bc -o debug.o
-${TOOLDIR}/llc -march=cpu0${endian} -mcpu=${CPU} -relocation-model=static \
--filetype=obj -has-lld=true printf-stdarg-def.bc -o printf-stdarg-def.o
-${TOOLDIR}/llc -march=cpu0${endian} -mcpu=${CPU} -relocation-model=static \
--filetype=obj printf-stdarg.bc -o printf-stdarg.o
-${TOOLDIR}/llc -march=cpu0${endian} -mcpu=${CPU} -relocation-model=static \
--filetype=obj -has-lld=true -cpu0-enable-overflow=true ch4_1_addsuboverflow.bc -o \
-ch4_1_addsuboverflow.o
-${TOOLDIR}/llc -march=cpu0${endian} -mcpu=${CPU} -relocation-model=static \
--filetype=obj -has-lld=true ch8_1_br_jt.bc -o ch8_1_br_jt.o
-${TOOLDIR}/llc -march=cpu0${endian} -mcpu=${CPU} -relocation-model=static \
--filetype=obj ch8_2_phinode.bc -o ch8_2_phinode.o
-${TOOLDIR}/llc -march=cpu0${endian} -mcpu=${CPU} -relocation-model=static \
--filetype=obj -has-lld=true ch8_1_blockaddr.bc -o ch8_1_blockaddr.o
-${TOOLDIR}/llc -march=cpu0${endian} -mcpu=${CPU} -relocation-model=pic \
--filetype=obj -has-lld=true -force-cpu0-long-branch ch8_2_longbranch.bc -o \
-ch8_2_longbranch.o
-${TOOLDIR}/llc -march=cpu0${endian} -mcpu=${CPU} -relocation-model=static \
--filetype=obj -has-lld=true -enable-cpu0-tail-calls ch9_2_tailcall.bc -o ch9_2_tailcall.o
-${TOOLDIR}/llc -march=cpu0${endian} -mcpu=${CPU} -relocation-model=static \
--filetype=obj -has-lld=true ch9_3_detect_exception.bc -o ch9_3_detect_exception.o
-${TOOLDIR}/llc -march=cpu0${endian} -mcpu=${CPU} -relocation-model=static \
--filetype=obj -has-lld=true ch_slinker.bc -o ch_slinker.o
-${TOOLDIR}/llc -march=cpu0${endian} -mcpu=${CPU} -relocation-model=static \
--filetype=obj -has-lld=true lib_cpu0.ll -o lib_cpu0.o
-${TOOLDIR}/lld -flavor gnu start.o \
-debug.o printf-stdarg-def.o printf-stdarg.o ch4_1_addsuboverflow.o \
-ch8_1_br_jt.o ch8_2_phinode.o ch8_1_blockaddr.o ch8_2_longbranch.o \
-ch9_2_tailcall.o ch9_3_detect_exception.o ch_slinker.o lib_cpu0.o -o a.out
+make -f $FILE clean
+make -f $FILE CPU=$1 ENDIAN=${ENDIAN}
+
+cp ./build/a.out .
 
 epilogue;
 
@@ -1995,40 +2017,53 @@ epilogue;
 </div>
 <div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">1-160-136-173:input Jonathan$ </span><span class="nb">pwd</span>
 <span class="go">/Users/Jonathan/Downloads/exlbt/input</span>
-<span class="gp">114-37-148-111:input Jonathan$ </span>bash build-slinker.sh cpu032I le
+<span class="gp">114-37-148-111:input Jonathan$ </span>bash make.sh cpu032I le Makefile.slinker
 <span class="go">...</span>
-<span class="go">In file included from ch_slinker.cpp:23:</span>
-<span class="go">./ch_lld_staticlink.cpp:8:15: warning: conversion from string literal to</span>
-<span class="go">&#39;char *&#39; is deprecated</span>
-<span class="go">      [-Wdeprecated-writable-strings]</span>
-<span class="go">  char *ptr = &quot;Hello world!&quot;;</span>
-<span class="go">              ^</span>
-<span class="go">1 warning generated.</span>
-<span class="gp">114-37-148-111:input Jonathan$ </span><span class="nb">cd</span> ../../lbdex/verilog/
-<span class="gp">114-37-148-111:verilog Jonathan$ </span>./cpu0IIs
-<span class="go">WARNING: ./cpu0.v:369: $readmemh(cpu0.hex): Not enough words in the file for</span>
-<span class="go">the requested range [0:524287].</span>
+<span class="go">endian =  LittleEndian</span>
+<span class="go">ISR address:00020780</span>
+<span class="go">1   /* 0: big endian, 1: little endian */</span>
+<span class="gp">chungshu@ChungShudeMacBook-Air verilog % </span>./cpu0Is
+<span class="go">WARNING: cpu0.v:487: $readmemh(cpu0.hex): Not enough words in the file for the requested range [0:524287].</span>
 <span class="go">taskInterrupt(001)</span>
-<span class="go">...</span>
+<span class="go">74</span>
+<span class="go">7</span>
+<span class="go">0</span>
+<span class="go">0</span>
+<span class="go">253</span>
+<span class="go">3</span>
+<span class="go">1</span>
+<span class="go">14</span>
+<span class="go">3</span>
+<span class="go">-126</span>
+<span class="go">130</span>
+<span class="go">-32766</span>
+<span class="go">32770</span>
+<span class="go">393307</span>
+<span class="go">16777222</span>
+<span class="go">-3</span>
+<span class="go">-4</span>
+<span class="go">51</span>
+<span class="go">2</span>
+<span class="go">3</span>
+<span class="go">1</span>
+<span class="go">2147483647</span>
+<span class="go">-2147483648</span>
+<span class="go">15</span>
+<span class="go">5</span>
+<span class="go">0</span>
+<span class="go">31</span>
+<span class="go">49</span>
 <span class="go">test_nolld(): PASS</span>
-<span class="go">taskInterrupt(011)</span>
-<span class="go">Overflow exception</span>
-<span class="go">taskInterrupt(011)</span>
-<span class="go">Overflow exception</span>
-<span class="go">test_overflow = 0, PASS</span>
 <span class="go">global variable gI = 100, PASS</span>
 <span class="go">test_ctrl2(): a = 1, b = 0, c = 1, d = 0, PASS</span>
 <span class="go">test_phinode(3, 1) = 3, PASS</span>
 <span class="go">test_blockaddress(1) = 1, PASS</span>
 <span class="go">test_blockaddress(2) = 2, PASS</span>
-<span class="go">date1 = 2012 10 12 1 2 3, PASS</span>
-<span class="go">date2 = 2012 10 12 1 2 3, PASS</span>
-<span class="go">time2 = 1 10 12, PASS</span>
-<span class="go">time3 = 1 10 12, PASS</span>
-<span class="go">date1 = 2013 1 26 12 21 10, PASS</span>
-<span class="go">date2 = 2013 1 26 12 21 10, PASS</span>
+<span class="go">test_longbranch() = 0, PASS</span>
+<span class="go">test_func_arg_struct() = 0, PASS</span>
+<span class="go">test_constructor() = 0, PASS</span>
 <span class="go">test_template() = 15, PASS</span>
-<span class="go">test_alloc() = 31, PASS</span>
+<span class="go">test_tailcall(5) = 120, PASS</span>
 <span class="go">exceptionOccur= 1, PASS</span>
 <span class="go">exceptionOccur= 0, PASS</span>
 <span class="go">inlineasm_global() = 4, PASS</span>
@@ -2042,7 +2077,8 @@ epilogue;
 <span class="go">Harware interrupt 0</span>
 <span class="go">taskInterrupt(011)</span>
 <span class="go">Harware interrupt 1</span>
-<span class="go">...</span>
+<span class="go">total cpu cycles = 248282</span>
+<span class="go">RET to PC &lt; 0, finished!</span>
 </pre></div>
 </div>
 <p>As above, by taking the open source code advantage, Cpu0 got the more stable
@@ -2212,7 +2248,7 @@ to somewhere you didn’t expect”.</p>
       <div class="bottomnav" role="navigation" aria-label="bottom navigation">
       
         <p>
-        «&#160;&#160;<a href="about.html">About</a>
+        «&#160;&#160;<a href="clang.html">Clang</a>
         &#160;&#160;::&#160;&#160;
         <a class="uplink" href="index.html">Contents</a>
         &#160;&#160;::&#160;&#160;
