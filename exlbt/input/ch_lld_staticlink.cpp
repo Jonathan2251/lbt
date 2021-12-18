@@ -126,3 +126,6 @@ int test_staticlink()
 
   return 0;
 }
+
+// test passing compilation only
+#include "builtins-cpu0.c"

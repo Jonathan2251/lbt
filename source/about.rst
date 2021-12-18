@@ -38,9 +38,12 @@ https://github.com/Jonathan2251/lbt/blob/master/README.md
 Revision history
 ----------------
 
-Version 12.0.2, Not release yet.
+Version 12.0.3, Not release yet.
   
-  Replace bash with Makefile
+Version 12.0.2, Release December 18, 2021.
+  
+  Replace bash with Makefile.
+  Add builtins-cpu0.c for clang regression test.
 
 Version 12.0.1, Release December 12, 2021.
 

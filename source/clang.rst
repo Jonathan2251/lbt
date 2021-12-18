@@ -107,3 +107,12 @@ Cpu0 target
   chungshu@ChungShudeMacBook-Air input % ~/llvm/test/build/bin/clang --help-hidden|grep cpu0
     -cpu032II               Equivalent to -march=cpu032II
     -cpu032I                Equivalent to -march=cpu032I
+  chungshu@ChungShudeMacBook-Air CodeGen % pwd
+  /Users/chungshu/llvm/test/clang/test/CodeGen
+  chungshu@ChungShudeMacBook-Air CodeGen % ~/llvm/test/build/bin/llvm-lit builtins-cpu0.c
+  ..  
+  -- Testing: 1 tests, 1 workers --
+    PASS: Clang :: CodeGen/builtins-cpu0.c (1 of 1)
+
+  Testing Time: 0.12s
+    Passed: 1
