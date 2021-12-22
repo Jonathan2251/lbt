@@ -23,6 +23,7 @@ INC_FLAGS := $(addprefix -I,$(INC_DIRS))
 
 # The -MMD and -MP flags together generate Makefiles for us!
 # These files will have .d instead of .o as the output.
+# fintegrated-as: for asm code in C/C++
 CPPFLAGS := -MMD -MP -target cpu0${ENDIAN}-unknown-linux-gnu -static \
   -fintegrated-as ${INC_FLAGS} -mcpu=${CPU} -mllvm -has-lld=true
 
