@@ -14,8 +14,8 @@ LD := $(TOOLDIR)/ld.lld
 # As an example, hello.cpp turns into ./build/hello.cpp.o
 OBJS := $(SRCS:%=$(BUILD_DIR)/%.o)
 
-# String substitut.cn (suffix version without %).
-# As an example, ./build/helloc.cpp.c turns in.c ./build/helloc.cpp.d
+# String substitution (suffix version without %).
+# As an example, ./build/helloc.cpp.o turns into ./build/helloc.cpp.d
 DEPS := $(OBJS:.o=.d)
 
 # Add a prefix to INC_DIRS. So moduleA would become -ImoduleA. GCC understands this -I flag

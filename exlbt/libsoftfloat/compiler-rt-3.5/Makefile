@@ -34,7 +34,7 @@ SRCS := absvdi2.c absvsi2.c absvti2.c adddf3.c addsf3.c addtf3.c addvdi3.c \
   powisf2.c powitf2.c powixf2.c subdf3.c subsf3.c subvdi3.c \
   subvsi3.c subvti3.c subtf3.c trampoline_setup.c truncdfsf2.c \
   ucmpdi2.c ucmpti2.c udivdi3.c udivmoddi4.c udivmodsi4.c udivmodti4.c \
-  udivsi3.c udivti3.c umoddi3.c umodsi3.c umodti3.c cpu0-porting.c
+  udivsi3.c udivti3.c umoddi3.c umodsi3.c umodti3.c
 
 # String substitution for every C file.
 # As an example, absvdi2.c turns into ./builtins/hello.c
