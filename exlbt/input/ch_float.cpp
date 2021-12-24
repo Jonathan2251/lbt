@@ -4,7 +4,7 @@
 
 
 /// start
-#include "debug.h"
+//#include "debug.h"
 
 #define SINGLE_PRECISION
 #include "fp_lib.h"
