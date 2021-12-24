@@ -119,7 +119,7 @@ int test_absvsi2()
     test__absvsi2(0x7FFFFFFF);
     test__absvsi2(0x80000001);
     test__absvsi2(0x80000002);
-    test__absvsi2(0xFFFFFFFE);
+    test__absvsi2(0xFFFFFFFE); // a=0xFFFFFFFE, t=0xFFFFFFFE>>31=0x80000001, (0xFFFFFFFE^0x80000001)-0x80000001=0x7FFFFFFF-0x80000001 
     test__absvsi2(0xFFFFFFFF);
 
     int i;
