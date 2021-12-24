@@ -31,27 +31,20 @@ The llvm-link which introduced at last chapter can be hired for optimization.
 Compiler-rt
 -------------
 
-Directory libex/libsoftfloat/compiler-rt include the floating point library
-support for Cpu0 backend. The compiler-rt [#compiler-rt]_ version we use is 
-llvm 3.5 release.
+Directory exlib/libsoftfloat/compiler-rt-12.x/builtins is a symbolic link to 
+llvm-project/compiler-rt/lib/builtins which is the floating point library from
+compiler-rt [#compiler-rt]_. The compiler-rt/lib/builtins is a 
+target-independent C form of software float library implementation. Cpu0 
+implements compiler-rt-12.x/cpu0/fp_mode.h only at this point for supporting 
+this feature.
 
 The code modified as follows,
 
-.. code-block:: console
+.. rubric:: lbt/exlbt/libsoftfloat/compiler-rt-12.x/cpu0/fp_mode.c
+.. literalinclude:: ../exlbt/libsoftfloat/compiler-rt-12.x/cpu0/fp_mode.c
 
-  chungshu@ChungShudeMacBook-Air compiler-rt % diff -u -r /Users/chungshu/Documents/compiler-rt-3.5.0.src/lib/builtins/ builtins/ &> compiler-rt-diff.patch
-  
-.. rubric:: lbt/Fig/compiler-rt-diff.patch
-.. literalinclude:: ../Fig/compiler-rt-diff.patch
-
-.. rubric:: lbt/exlbt/libsoftfloat/compiler-rt/builtins/Makefile
-.. literalinclude:: ../exlbt/libsoftfloat/compiler-rt/builtins/Makefile
-
-.. rubric:: lbt/exlbt/libsoftfloat/compiler-rt/builtins/cpu0-porting.c
-.. literalinclude:: ../exlbt/libsoftfloat/compiler-rt/builtins/cpu0-porting.c
-
-.. rubric:: lbt/exlbt/libsoftfloat/compiler-rt/Makefile
-.. literalinclude:: ../exlbt/libsoftfloat/compiler-rt/Makefile
+.. rubric:: lbt/exlbt/libsoftfloat/compiler-rt-12.x/Makefile
+.. literalinclude:: ../exlbt/libsoftfloat/compiler-rt-12.x/Makefile
 
 
 Avr libc
