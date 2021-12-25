@@ -23,7 +23,7 @@ int test__addvdi3(long long a, long long b)
     di_int x = __addvdi3(a, b);
     di_int expected = a + b;
     if (x != expected)
-        printf("error in test__addvdi3(0x%llX, 0x%llX) = %lld, expected %lld\n",
+      printf("error in test__addvdi3(0x%llX, 0x%llX) = %lld, expected %lld\n",
                 a, b, x, expected);
     return x != expected;
 }
@@ -61,36 +61,38 @@ extern "C" di_int __absvdi2(di_int a);
 
 int test__absvdi2(di_int a)
 {
-    di_int x = __absvdi2(a);
-    di_int expected = a;
-    if (expected < 0)
-        expected = -expected;
-    if (x != expected || expected < 0)
-        printf("error in __absvdi2(0x%08X%08X) = %08d%08d, expected positive %08d%08d\n",
-               (int)(a>>32), (int)a, (int)(x>>32), (int)x, int(expected>>32), (int)expected);
-    return x != expected;
+  di_int x = __absvdi2(a);
+  di_int expected = a;
+  if (expected < 0)
+    expected = -expected;
+  if (x != expected || expected < 0) {
+    printf("error in __absvdi2(0x%08X%08X) = %08d%08d, expected positive %08d%08d\n",
+           (int)(a>>32), (int)a, (int)(x>>32), (int)x, int(expected>>32), (int)expected);
+  }
+  return x != expected;
 }
 
 int test_absvdi2()
 {
+  int res = 0;
 //     if (test__absvdi2(0x8000000000000000LL))  // should abort
 //         return 1;
-    test__absvdi2(0x0000000000000000LL);
-    test__absvdi2(0x0000000000000001LL);
-    test__absvdi2(0x0000000000000002LL);
-    test__absvdi2(0x7FFFFFFFFFFFFFFELL);
-    test__absvdi2(0x7FFFFFFFFFFFFFFFLL);
-    test__absvdi2(0x8000000000000001LL);
-    test__absvdi2(0x8000000000000002LL);
-    test__absvdi2(0xFFFFFFFFFFFFFFFELL);
-    test__absvdi2(0xFFFFFFFFFFFFFFFFLL);
+  res |= test__absvdi2(0x0000000000000000LL);
+  res |= test__absvdi2(0x0000000000000001LL);
+  res |= test__absvdi2(0x0000000000000002LL);
+  res |= test__absvdi2(0x7FFFFFFFFFFFFFFELL);
+  res |= test__absvdi2(0x7FFFFFFFFFFFFFFFLL); // di_int t = a >> (N - 1);  (a ^ t) - t; t=0,a=0x7ff...ff
+  res |= test__absvdi2(0x8000000000000001LL);
+  res |= test__absvdi2(0x8000000000000002LL);
+  res |= test__absvdi2(0xFFFFFFFFFFFFFFFELL);
+  res |= test__absvdi2(0xFFFFFFFFFFFFFFFFLL);
 
-    int i;
-    for (i = 0; i < 100; ++i)
-        if (test__absvdi2(((di_int)i << 32) | 1))
-            return 1;
+  int i;
+  for (i = 0; i < 100; ++i)
+    if (test__absvdi2(((di_int)i << 32) | 1))
+      return 1;
 
-    return 0;
+  return res;
 }
 
 #define SINGLE_PRECISION
@@ -100,37 +102,38 @@ extern "C" si_int __absvsi2(si_int a);
 int test__absvsi2(si_int a)
 {
   //printf("a = %d\n", a);
-    si_int x = __absvsi2(a);
+  si_int x = __absvsi2(a);
   //printf("x = %d\n\n", x);
-    si_int expected = a;
-    if (expected < 0)
-        expected = -expected;
-    if (x != expected || expected < 0)
-        printf("error in __absvsi2(0x%X) = %d, expected positive %d\n",
-               a, x, expected);
-    return x != expected;
+  si_int expected = a;
+  if (expected < 0)
+    expected = -expected;
+  if (x != expected || expected < 0)
+    printf("error in __absvsi2(0x%X) = %d, expected positive %d\n",
+           a, x, expected);
+  return x != expected;
 }
 
 int test_absvsi2()
 {
-//     if (test__absvsi2(0x80000000))  // should abort
-//         return 1;
-    test__absvsi2(0x00000000);
-    test__absvsi2(0x00000001);
-    test__absvsi2(0x00000002);
-    test__absvsi2(0x7FFFFFFE);
-    test__absvsi2(0x7FFFFFFF);
-    test__absvsi2(0x80000001);
-    test__absvsi2(0x80000002);
-    test__absvsi2(0xFFFFFFFE); // a=0xFFFFFFFE, t=0xFFFFFFFE>>31=0xFFFFFFFF, (0xFFFFFFFE^0xFFFFFFFF)-(-1)=1-(-1)=2
-    test__absvsi2(0xFFFFFFFF);
+  int res = 0;
+//  if (test__absvsi2(0x80000000))  // should abort
+//    return 1;
+  res |= test__absvsi2(0x00000000);
+  res |= test__absvsi2(0x00000001);
+  res |= test__absvsi2(0x00000002);
+  res |= test__absvsi2(0x7FFFFFFE);
+  res |= test__absvsi2(0x7FFFFFFF);
+  res |= test__absvsi2(0x80000001);
+  res |= test__absvsi2(0x80000002);
+  res |= test__absvsi2(0xFFFFFFFE); // a=0xFFFFFFFE, t=0xFFFFFFFE>>31=0xFFFFFFFF, (0xFFFFFFFE^0xFFFFFFFF)-(-1)=1-(-1)=2
+  res |= test__absvsi2(0xFFFFFFFF);
 
-    int i;
-    for (i = 0; i < 100; ++i)
-        if (test__absvsi2(i))
-            return 1;
+  int i;
+  for (i = 0; i < 100; ++i)
+    if (test__absvsi2(i))
+      return 1;
 
-    return 0;
+  return res;
 }
 #endif
 
@@ -211,14 +214,24 @@ int test_absvti2()
 }
 #endif
 
+void show_result(char *fn, int res) {
+  if (res)
+    printf("%s: FAIL!\n", fn);
+  else 
+    printf("%s: PASS!\n", fn);
+}
+
 int main() {
-  int a;
+  int res = 0;
+  char *sRes;
 
 #if 0
   test_addvdi3(); // will hang
 #endif
-  test_absvdi2();
+  res = test_absvdi2();
+  show_result("test_absvdi2()", res);
   test_absvsi2();
+  show_result("test_absvdi2()", res);
 #if 0 // fail
   test_absvti2();
 #endif
