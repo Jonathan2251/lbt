@@ -9,6 +9,8 @@
 extern "C" int printf(const char *format, ...);
 extern "C" int sprintf(char *out, const char *format, ...);
 
+#include "../../lbdex/input/ch9_3_longlongshift.cpp"
+
 template <class T>
 T test_shift_left(T a, T b) {
   return (a << b);
@@ -39,6 +41,12 @@ T1 test_div(T2 a, T3 b) {
 
 int main() {
   int a;
+
+  a = test_longlong_shift1();
+  printf("test_longlong_shift1() = %d\n", a);
+
+  a = test_longlong_shift2();
+  printf("test_longlong_shift2() = %d\n", a);
 
 // call __ashldi3
   a = (int)test_shift_left<long long>(0x12, 4); // 0x120 = 288
