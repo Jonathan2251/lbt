@@ -85,6 +85,14 @@ int main() {
   a = (int)test_add<double, double, float>(-2.2, 3.3); // (int)1.1 = 1
   check_result("(int)test_add<double, double, float>(-2.2, 3.3)", a, 1);
   
+// call __extendsfdf2, __adddf3, __fixdfsi
+  a = (int)test_add<double, float, double>(-2.2, 3.3); // (int)1.1 = 1
+  check_result("(int)test_add<double, float, double>(-2.2, 3.3)", a, 1);
+  
+// call __extendsfdf2, __adddf3, __fixdfsi
+  a = (int)test_add<float, float, double>(-2.2, 3.3); // (int)1.1 = 1
+  check_result("(int)test_add<float, float, double>(-2.2, 3.3)", a, 1);
+  
 // call __extendsfdf2, __muldf3, __fixdfsi
   a = (int)test_mul<double, float, double>(-2.2, 3.3); // (int)-7.26 = -7
   check_result("(int)test_mul<double, float, double>(-2.2, 3.3)", a, -7);

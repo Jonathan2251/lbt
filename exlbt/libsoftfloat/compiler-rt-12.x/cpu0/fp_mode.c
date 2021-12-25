@@ -8,12 +8,11 @@
 
 #include "../builtins/fp_mode.h"
 
-#define X87_TONEAREST  0x0000
-
 // __fe_xxx: Float Exception
 
 FE_ROUND_MODE __fe_getround() {
-  return FE_TONEAREST;
+//  return FE_TONEAREST;
+  return FE_DOWNWARD;
 }
 
 int __fe_raise_inexact() {
