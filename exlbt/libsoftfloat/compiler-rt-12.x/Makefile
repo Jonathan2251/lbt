@@ -13,7 +13,7 @@ TOOLDIR := ~/llvm/test/build/bin
 CC := $(TOOLDIR)/clang
 AR := $(TOOLDIR)/llvm-ar
 
-SRCS := absvdi2.c absvsi2.c absvti2.c adddf3.c addsf3.c addtf3.c addvdi3.c \
+SRCS := absvdi2.c absvti2.c adddf3.c addsf3.c addtf3.c addvdi3.c \
   addvsi3.c addvti3.c ashldi3.c ashlti3.c ashrdi3.c \
   ashrti3.c clzdi2.c clzsi2.c clzti2.c cmpdi2.c cmpti2.c \
   comparedf2.c comparesf2.c ctzdi2.c ctzsi2.c ctzti2.c divdf3.c \
@@ -38,7 +38,7 @@ SRCS := absvdi2.c absvsi2.c absvti2.c adddf3.c addsf3.c addtf3.c addvdi3.c \
 
 # String substitution for every C file.
 # As an example, absvdi2.c turns into ./builtins/absvdi2.c
-SRCS := $(SRCS:%=$(SRC_DIR)/%) cpu0/fp_mode.c ../../libc/avr-libc-1.8.1/libc/stdlib/abort.c
+SRCS := $(SRCS:%=$(SRC_DIR)/%) cpu0/fp_mode.c cpu0/absvsi2.c ../../libc/avr-libc-1.8.1/libc/stdlib/abort.c
 
 # String substitution for every C/C++ file.
 # As an example, absvdi2.c turns into ./build/absvdi2.c.o
