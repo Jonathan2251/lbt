@@ -6,8 +6,9 @@
 /// start
 //#include "debug.h"
 
-#define SINGLE_PRECISION
+#define DOUBLE_PRECISION
 #include "fp_lib.h"
+#include "int_lib.h"
 
 extern "C" int printf(const char *format, ...);
 extern "C" int sprintf(char *out, const char *format, ...);
@@ -91,6 +92,8 @@ int test_absvdi2()
 
     return 0;
 }
+
+#define SINGLE_PRECISION
 
 extern "C" si_int __absvsi2(si_int a);
 
