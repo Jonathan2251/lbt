@@ -1,14 +1,4 @@
-/*
-#include "Unit/absvdi2_test.c"
-#include "Unit/absvsi2_test.c"
-#include "Unit/absvti2_test.c"
-#include "Unit/adddf3vfp_test.c"
-#include "Unit/addsf3vfp_test.c"
-#include "Unit/addtf3_test.c"
-#include "Unit/addvdi3_test.c"
-#include "Unit/addvsi3_test.c"
-#include "Unit/addvti3_test.c"
-*/
+#include <stdlib.h>
 
 extern "C" int printf(const char *format, ...);
 extern "C" int sprintf(char *out, const char *format, ...);
@@ -21,12 +11,28 @@ extern "C" int addsf3vfp_test();
 extern "C" int addvdi3_test();
 extern "C" int addvsi3_test();
 extern "C" int addvti3_test();
+extern "C" int ashldi3_test();
+extern "C" int ashlti3_test();
+extern "C" int ashrdi3_test();
+extern "C" int ashrti3_test();
+#if 0 // atomic.c need memcmp(...)
+extern "C" int atomic_test();
+#endif
+extern "C" int clzdi2_test();
+extern "C" int clzsi2_test();
+extern "C" int clzti2_test();
 
 void show_result(const char *fn, int res) {
-  if (res)
+  if (res == 1)
     printf("%s: FAIL!\n", fn);
-  else
+  else if (res == 0)
     printf("%s: PASS!\n", fn);
+  else if (res == -1)
+    printf("%s: SKIPPED!\n", fn);
+  else {
+    printf("FIXME!");
+    abort();
+  }
 }
 
 int main() {
@@ -39,7 +45,7 @@ int main() {
   show_result("absvsi2_test()", res);
 
   res = absvti2_test();
-  //show_result("absvti2_test()", res);
+  show_result("absvti2_test()", res);
 
   res = adddf3vfp_test();
   show_result("adddf3vfp_test()", res);
@@ -55,6 +61,32 @@ int main() {
 
   res = addvti3_test();
   show_result("addvti3_test()", res);
+
+  res = ashldi3_test();
+  show_result("ashldi3_test()", res);
+
+  res = ashlti3_test();
+  show_result("ashlti3_test()", res);
+
+  res = ashrdi3_test();
+  show_result("ashrdi3_test()", res);
+
+  res = ashrti3_test();
+  show_result("ashrti3_test()", res);
+
+#if 0 // atomic.c need memcmp(...)
+  res = atomic_test();
+  show_result("atomic_test()", res);
+#endif
+
+  res = clzdi2_test();
+  show_result("clzdi2_test()", res);
+
+  res = clzsi2_test();
+  show_result("clzsi2_test()", res);
+
+  res = clzti2_test();
+  show_result("clzti2_test()", res);
 
   return 0;
 }

@@ -15,6 +15,13 @@ SRCS :=  start.cpp debug.cpp printf-stdarg-def.c printf-stdarg.c \
   compiler-rt-test/builtins/Unit/addvdi3_test.c \
   compiler-rt-test/builtins/Unit/addvsi3_test.c \
   compiler-rt-test/builtins/Unit/addvti3_test.c \
+  compiler-rt-test/builtins/Unit/ashldi3_test.c \
+  compiler-rt-test/builtins/Unit/ashlti3_test.c \
+  compiler-rt-test/builtins/Unit/ashrdi3_test.c \
+  compiler-rt-test/builtins/Unit/ashrti3_test.c \
+  compiler-rt-test/builtins/Unit/clzdi2_test.c \
+  compiler-rt-test/builtins/Unit/clzsi2_test.c \
+  compiler-rt-test/builtins/Unit/clzti2_test.c \
   ch_builtins.cpp lib_cpu0.ll
 INC_DIRS := $(SRC_DIR) ../libsoftfloat/compiler-rt/builtins \
   ../libc/avr-libc-1.8.1/include ../libc/avr-libc-1.8.1/common

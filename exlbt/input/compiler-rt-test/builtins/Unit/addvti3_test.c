@@ -79,7 +79,8 @@ int addvti3_test()
         return 1;
 
 #else
-    printf("skipped\n");
+    //printf("skipped\n");
+    return -1;
 #endif
     return 0;
 }

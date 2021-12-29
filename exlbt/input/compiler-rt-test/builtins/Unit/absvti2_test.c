@@ -69,7 +69,8 @@ int absvti2_test()
                                   ((ti_int)rand() << 32) | rand())))
             return 1;
 #else
-    printf("skipped\n");
+    //printf("skipped\n");
+    return -1;
 #endif
     return 0;
 }

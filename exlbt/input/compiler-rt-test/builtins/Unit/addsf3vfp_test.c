@@ -33,7 +33,8 @@ int addsf3vfp_test()
     if (test__addsf3vfp(0.0, -0.0))
         return 1;
 #else
-    printf("skipped\n");
+    //printf("skipped\n");
+    return -1;
 #endif
     return 0;
 }

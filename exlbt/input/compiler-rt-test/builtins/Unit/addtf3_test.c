@@ -97,8 +97,8 @@ int addtf3_test()
 #endif
 
 #else
-    printf("skipped\n");
-
+    //printf("skipped\n");
+    return -1;
 #endif
     return 0;
 }
