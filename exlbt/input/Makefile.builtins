@@ -1,0 +1,24 @@
+# CPU and endian passed from command line, such as 
+#   "make -f Makefile.float-necessary CPU=cpu032II endian="
+#   Ignore argument and set CPU to cpu032II since software float point library, 
+#   libsoftfloat, only supports cpu032II at this point.
+CPU := cpu032II
+#endian :=
+
+# start.cpp must be put at beginning
+SRCS :=  start.cpp debug.cpp printf-stdarg-def.c printf-stdarg.c \
+  compiler-rt-test/builtins/Unit/absvdi2_test.c \
+  compiler-rt-test/builtins/Unit/absvsi2_test.c \
+  compiler-rt-test/builtins/Unit/absvti2_test.c \
+  compiler-rt-test/builtins/Unit/adddf3vfp_test.c \
+  compiler-rt-test/builtins/Unit/addsf3vfp_test.c \
+  compiler-rt-test/builtins/Unit/addvdi3_test.c \
+  compiler-rt-test/builtins/Unit/addvsi3_test.c \
+  compiler-rt-test/builtins/Unit/addvti3_test.c \
+  ch_builtins.cpp lib_cpu0.ll
+INC_DIRS := $(SRC_DIR) ../libsoftfloat/compiler-rt/builtins \
+  ../libc/avr-libc-1.8.1/include ../libc/avr-libc-1.8.1/common
+LIB_DIR := ../libsoftfloat/compiler-rt
+LIBS := $(LIB_DIR)/build/libFloat.a
+
+include Common.mk

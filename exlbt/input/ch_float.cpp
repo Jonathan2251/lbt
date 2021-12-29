@@ -2,7 +2,7 @@
 // ~/llvm/test/build/bin/llc -march=cpu0 -mcpu=cpu032II -relocation-model=static -filetype=asm ch_float.bc -o -
 // ~/llvm/test/build/bin/llc -march=cpu0 -mcpu=cpu032II -cpu0-s32-calls=true -relocation-model=static -filetype=asm ch_float.bc -o -
 
-// Refernce from absvsi2_test.c, absvdi2_test.cabsvti2_test.c in compiler-rt-3.5.0.src/test/builtins/Unit
+// Refernce from absvsi2_test.c, absvdi2_test.c absvti2_test.c in compiler-rt-3.5.0.src/test/builtins/Unit
 
 /// start
 //#include "debug.h"
