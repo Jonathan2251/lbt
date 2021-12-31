@@ -8,27 +8,12 @@
 
 // Precondition: a != 0
 
-//COMPILER_RT_ABI int __clzdi2(di_int a);
-
-COMPILER_RT_ABI int __clzdi2(di_int a) {
-  dwords x;
-  x.all = a;
-  const si_int f = -(x.s.high == 0);
-  printf("x.s.high = %d, x.s.low = %d, f = %d, ~f = %d\n", x.s.high, x.s.low, f, ~f);
-  printf("(x.s.high & ~f) = %d\n", (x.s.high & ~f));
-  printf("(x.s.low & f) = %d\n", (x.s.low & f));
-  printf("clzsi((x.s.high & ~f) | (x.s.low & f)) = %d\n", clzsi((x.s.high & ~f) | (x.s.low & f)));
-  return clzsi((x.s.high & ~f) | (x.s.low & f)) +      // = (1280|0)+0 = 1280
-         (f & ((si_int)(sizeof(si_int) * CHAR_BIT)));
-}
-
+COMPILER_RT_ABI int __clzdi2(di_int a);
 
 int test__clzdi2(di_int a, int expected)
 {
     int x = __clzdi2(a);
-    printf("__clzdi2(a) = %d, expected %d\n", x, expected);
     if (x != expected)
-        //printf("error in __clzdi2(0x%llX) = %d, expected %d\n", a, x, expected);
         printf("error in __clzdi2(%d - %d) = %d, expected %d\n", (int)(a>>32), (int)a, x, expected);
     return x != expected;
 }
