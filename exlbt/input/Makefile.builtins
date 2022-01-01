@@ -22,6 +22,14 @@ SRCS :=  start.cpp debug.cpp printf-stdarg-def.c printf-stdarg.c \
   compiler-rt-test/builtins/Unit/clzdi2_test.c \
   compiler-rt-test/builtins/Unit/clzsi2_test.c \
   compiler-rt-test/builtins/Unit/clzti2_test.c \
+  compiler-rt-test/builtins/Unit/cmpdi2_test.c \
+  compiler-rt-test/builtins/Unit/cmpti2_test.c \
+  compiler-rt-test/builtins/Unit/comparedf2_test.c \
+  compiler-rt-test/builtins/Unit/comparesf2_test.c \
+  compiler-rt-test/builtins/Unit/cpu_model_test.c \
+  compiler-rt-test/builtins/Unit/ctzdi2_test.c \
+  compiler-rt-test/builtins/Unit/ctzsi2_test.c \
+  compiler-rt-test/builtins/Unit/ctzti2_test.c \
   ch_builtins.cpp lib_cpu0.ll
 INC_DIRS := $(SRC_DIR) ../libsoftfloat/compiler-rt/builtins \
   ../libc/avr-libc-1.8.1/include ../libc/avr-libc-1.8.1/common

@@ -21,6 +21,20 @@ extern "C" int atomic_test();
 extern "C" int clzdi2_test();
 extern "C" int clzsi2_test();
 extern "C" int clzti2_test();
+extern "C" int cmpdi2_test();
+extern "C" int cmpti2_test();
+extern "C" int comparedf2_test();
+extern "C" int comparesf2_test();
+
+// Needless to compare compiler_rt_logb() with logb() of libm
+//extern "C" int compiler_rt_logb_test();
+//extern "C" int compiler_rt_logbf_test();
+//extern "C" int compiler_rt_logbl_test();
+
+extern "C" int cpu_model_test();
+extern "C" int ctzdi2_test();
+extern "C" int ctzsi2_test();
+extern "C" int ctzti2_test();
 
 void show_result(const char *fn, int res) {
   if (res == 1)
@@ -87,6 +101,39 @@ int main() {
 
   res = clzti2_test();
   show_result("clzti2_test()", res);
+
+  res = cmpdi2_test();
+  show_result("cmpdi2_test()", res);
+
+  res = cmpti2_test();
+  show_result("cmpti2_test()", res);
+
+  res = comparedf2_test();
+  show_result("comparedf2_test()", res);
+
+  res = comparesf2_test();
+  show_result("comparesf2_test()", res);
+
+//  res = compiler_rt_logb_test();
+//  show_result("compiler_rt_logb_test()", res);
+
+//  res = compiler_rt_logbf_test();
+//  show_result("compiler_rt_logbf_test()", res);
+
+//  res = compiler_rt_logbl_test();
+//  show_result("compiler_rt_logbl_test()", res);
+
+  res = cpu_model_test();
+  show_result("cpu_model_test()", res);
+
+  res = ctzdi2_test();
+  show_result("ctzdi2_test()", res);
+
+  res = ctzsi2_test();
+  show_result("ctzsi2_test()", res);
+
+  res = ctzti2_test();
+  show_result("ctzti2_test()", res);
 
   return 0;
 }
