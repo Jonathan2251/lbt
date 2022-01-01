@@ -31,6 +31,16 @@ The llvm-link which introduced at last chapter can be hired for optimization.
 Compiler-rt
 -------------
 
+For some brar-metal or embedded application, the C code doesn't need the
+file and high-level IO in libc.
+Libm provides a lots of functions to support software floating point beyond
+basic operations [#math]_ .
+Libc provides file, high-level IO functions and basic float functions [#clib]_ .
+
+Compiler-rt/lib/builtins provides basic operations such as +, -, \*, /, ... on 
+type of float or double.
+Cpu0 hires Compiler-rt/lib/builtins and the tiny single module printf-stdarg.c 
+[#printf-stdarg]_ at this point.
 Directory exlib/libsoftfloat/compiler-rt-12.x/builtins is a symbolic link to 
 llvm-project/compiler-rt/lib/builtins which is the floating point library from
 compiler-rt [#compiler-rt]_. The compiler-rt/lib/builtins is a 
@@ -43,28 +53,34 @@ The code modified as follows,
 .. rubric:: lbt/exlbt/libsoftfloat/compiler-rt-12.x/cpu0/fp_mode.c
 .. literalinclude:: ../exlbt/libsoftfloat/compiler-rt-12.x/cpu0/fp_mode.c
 
+.. rubric:: lbt/exlbt/libsoftfloat/compiler-rt-12.x/cpu0/abort.c
+.. literalinclude:: ../exlbt/libsoftfloat/compiler-rt-12.x/cpu0/abort.c
+
 .. rubric:: lbt/exlbt/libsoftfloat/compiler-rt-12.x/Makefile
 .. literalinclude:: ../exlbt/libsoftfloat/compiler-rt-12.x/Makefile
 
 
-Avr libc
----------
-
-Directory libex/libc/avr-libc-1.8.1 include the libc porting.
-
-AVR Libc is a Free Software project whose goal is to provide a high quality C 
-library for use with GCC on Atmel AVR microcontrollers. AVR Libc is licensed 
-under a single unified license. This so-called modified Berkeley license is 
-intented to be compatible with most Free Software licenses like the GPL, yet 
-impose as little restrictions for the use of the library in closed-source 
-commercial applications as possible [#avr-libc-license]_.
-
-The source code can be download from here [#avr-libc-download]_. 
-Document are here [#avr-libc-doc-web]_ [#avr-libc-doc-pdf]_.
-
 
 Software Float Point Support
 -----------------------------
+
+.. rubric:: exlbt/include/math.h
+.. literalinclude:: ../exlbt/include/math.h
+
+.. rubric:: exlbt/include/stdio.h
+.. literalinclude:: ../exlbt/include/stdio.h
+
+.. rubric:: exlbt/include/stdlib.h
+.. literalinclude:: ../exlbt/include/stdlib.h
+
+.. rubric:: exlbt/include/string.h
+.. literalinclude:: ../exlbt/include/string.h
+
+.. rubric:: exlbt/libsoftfloat/compiler-rt/cpu0/abort.c
+.. literalinclude:: ../exlbt/libsoftfloat/compiler-rt/cpu0/abort.c
+
+.. rubric:: exlbt/libsoftfloat/compiler-rt/cpu0/fp_mode.c
+.. literalinclude:: ../exlbt/libsoftfloat/compiler-rt/cpu0/fp_mode.c
 
 .. rubric:: exlbt/input/ch_float_necessary.cpp
 .. literalinclude:: ../exlbt/input/ch_float_necessary.cpp
@@ -101,15 +117,61 @@ Run as follows,
   RET to PC < 0, finished!
 
 
+.. rubric:: exlbt/input/ch_builtins.cpp
+.. literalinclude:: ../exlbt/input/ch_builtins.cpp
+
+.. rubric:: exlbt/input/Makefile.builtins
+.. literalinclude:: ../exlbt/input/Makefile.builtins
+
+Run as follows,
+
+.. code-block:: console
+
+  chungshu@ChungShudeMacBook-Air input % bash make.sh cpu032II be Makefile.builtins
+  ...
+  chungshu@ChungShudeMacBook-Air verilog % ./cpu0IIs
+  WARNING: cpu0.v:489: $readmemh(cpu0.hex): Not enough words in the file for the requested range [0:524287].
+  taskInterrupt(001)
+  absvdi2_test(): PASS!
+  absvsi2_test(): PASS!
+  absvti2_test(): SKIPPED!
+  adddf3vfp_test(): SKIPPED!
+  addsf3vfp_test(): SKIPPED!
+  addvdi3_test(): PASS!
+  addvsi3_test(): PASS!
+  addvti3_test(): SKIPPED!
+  ashldi3_test(): PASS!
+  ashlti3_test(): SKIPPED!
+  ashrdi3_test(): PASS!
+  ashrti3_test(): SKIPPED!
+  clzdi2_test(): PASS!
+  clzsi2_test(): PASS!
+  clzti2_test(): SKIPPED!
+  cmpdi2_test(): PASS!
+  cmpti2_test(): SKIPPED!
+  comparedf2_test(): PASS!
+  comparesf2_test(): PASS!
+  cpu_model_test(): SKIPPED!
+  ctzdi2_test(): PASS!
+  ctzsi2_test(): PASS!
+  ctzti2_test(): SKIPPED!
+  divdf3_test(): PASS!
+  divdf3vfp_test(): SKIPPED!
+  divdi3_test(): PASS!
+  divmodsi4_test(): PASS!
+  divmodti4_test(): SKIPPED!
+  divsf3_test(): PASS!
+  divsf3vfp_test(): SKIPPED!
+  divsi3_test(): PASS!
+  divtf3_test(): SKIPPED!
+  divti3_test(): SKIPPED!
+  total cpu cycles = 3412335             
+  RET to PC < 0, finished!
 
 .. [#compiler-rt] http://compiler-rt.llvm.org/
 
-.. [#avr-libc-license] http://www.nongnu.org/avr-libc/
+.. [#math] https://www.programiz.com/c-programming/library-function/math.h
 
-.. [#avr-libc-download] http://download.savannah.gnu.org/releases/avr-libc/
+.. [#clib] https://www.cplusplus.com/reference/clibrary
 
-.. [#avr-libc-doc-web] http://www.atmel.com/webdoc/AVRLibcReferenceManual/index.html
-
-.. [#avr-libc-doc-pdf] http://courses.cs.washington.edu/courses/csep567/04sp/pdfs/avr-libc-user-manual.pdf
-
-
+.. [#printf-stdarg] https://github.com/atgreen/FreeRTOS/blob/master/Demo/CORTEX_STM32F103_Primer_GCC/printf-stdarg.c

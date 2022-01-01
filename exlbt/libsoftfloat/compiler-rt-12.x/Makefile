@@ -38,7 +38,7 @@ SRCS := absvdi2.c absvsi2.c absvti2.c adddf3.c addsf3.c addtf3.c addvdi3.c \
 
 # String substitution for every C file.
 # As an example, absvdi2.c turns into ./builtins/absvdi2.c
-SRCS := $(SRCS:%=$(SRC_DIR)/%) cpu0/fp_mode.c ../../libc/avr-libc-1.8.1/libc/stdlib/abort.c
+SRCS := $(SRCS:%=$(SRC_DIR)/%) cpu0/fp_mode.c cpu0/abort.c
 
 # String substitution for every C/C++ file.
 # As an example, absvdi2.c turns into ./build/absvdi2.c.o
@@ -50,7 +50,7 @@ DEPS := $(OBJS:.o=.d)
 
 # Every folder in ./src will need to be passed to GCC so that it can find header files
 # stdlib.h, ..., etc existed in ../../libc/avr-libc-1.8.1/include
-INC_DIRS := $(shell find $(SRC_DIR) -type d)  ../../libc/avr-libc-1.8.1/include ../../libc/avr-libc-1.8.1/common
+INC_DIRS := $(shell find $(SRC_DIR) -type d)  ../../include
 # Add a prefix to INC_DIRS. So moduleA would become -ImoduleA. GCC understands this -I flag
 INC_FLAGS := $(addprefix -I,$(INC_DIRS))
 
