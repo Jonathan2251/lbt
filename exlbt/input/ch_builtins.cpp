@@ -15,9 +15,10 @@ extern "C" int ashldi3_test();
 extern "C" int ashlti3_test();
 extern "C" int ashrdi3_test();
 extern "C" int ashrti3_test();
-#if 0 // atomic.c need memcmp(...)
-extern "C" int atomic_test();
-#endif
+
+// atomic.c need memcmp(...)
+//extern "C" int atomic_test();
+
 extern "C" int clzdi2_test();
 extern "C" int clzsi2_test();
 extern "C" int clzti2_test();
@@ -35,6 +36,22 @@ extern "C" int cpu_model_test();
 extern "C" int ctzdi2_test();
 extern "C" int ctzsi2_test();
 extern "C" int ctzti2_test();
+
+// div for complex type need libm: cabs, isinf, ..., skip it at this point
+//extern "C" int divdc3_test();
+extern "C" int divdf3_test();
+extern "C" int divdf3vfp_test();
+extern "C" int divdi3_test();
+extern "C" int divmodsi4_test();
+extern "C" int divmodti4_test();
+//extern "C" int divsc3_test();
+extern "C" int divsf3_test();
+extern "C" int divsf3vfp_test();
+extern "C" int divsi3_test();
+//extern "C" int divtc3_test();
+extern "C" int divtf3_test();
+extern "C" int divti3_test();
+//extern "C" int divxc3_test();
 
 void show_result(const char *fn, int res) {
   if (res == 1)
@@ -134,6 +151,48 @@ int main() {
 
   res = ctzti2_test();
   show_result("ctzti2_test()", res);
+
+//  res = divdc3_test();
+//  show_result("divdc3_test()", res);
+
+  res = divdf3_test();
+  show_result("divdf3_test()", res);
+
+  res = divdf3vfp_test();
+  show_result("divdf3vfp_test()", res);
+
+  res = divdi3_test();
+  show_result("divdi3_test()", res);
+
+  res = divmodsi4_test();
+  show_result("divmodsi4_test()", res);
+
+  res = divmodti4_test();
+  show_result("divmodti4_test()", res);
+
+//  res = divsc3_test();
+//  show_result("divsc3_test()", res);
+
+  res = divsf3_test();
+  show_result("divsf3_test()", res);
+
+  res = divsf3vfp_test();
+  show_result("divsf3vfp_test()", res);
+
+  res = divsi3_test();
+  show_result("divsi3_test()", res);
+
+//  res = divtc3_test();
+//  show_result("divtc3_test()", res);
+
+  res = divtf3_test();
+  show_result("divtf3_test()", res);
+
+  res = divti3_test();
+  show_result("divti3_test()", res);
+
+//  res = divxc3_test();
+//  show_result("divxc3_test()", res);
 
   return 0;
 }

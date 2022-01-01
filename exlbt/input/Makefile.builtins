@@ -30,8 +30,18 @@ SRCS :=  start.cpp debug.cpp printf-stdarg-def.c printf-stdarg.c \
   compiler-rt-test/builtins/Unit/ctzdi2_test.c \
   compiler-rt-test/builtins/Unit/ctzsi2_test.c \
   compiler-rt-test/builtins/Unit/ctzti2_test.c \
+  compiler-rt-test/builtins/Unit/divdf3_test.c \
+  compiler-rt-test/builtins/Unit/divdf3vfp_test.c \
+  compiler-rt-test/builtins/Unit/divdi3_test.c \
+  compiler-rt-test/builtins/Unit/divmodsi4_test.c \
+  compiler-rt-test/builtins/Unit/divmodti4_test.c \
+  compiler-rt-test/builtins/Unit/divsf3_test.c \
+  compiler-rt-test/builtins/Unit/divsf3vfp_test.c \
+  compiler-rt-test/builtins/Unit/divsi3_test.c \
+  compiler-rt-test/builtins/Unit/divtf3_test.c \
+  compiler-rt-test/builtins/Unit/divti3_test.c \
   ch_builtins.cpp lib_cpu0.ll
-INC_DIRS := $(SRC_DIR) ../libsoftfloat/compiler-rt/builtins \
+INC_DIRS := ./ ../libsoftfloat/compiler-rt/builtins \
   ../libc/avr-libc-1.8.1/include ../libc/avr-libc-1.8.1/common
 LIB_DIR := ../libsoftfloat/compiler-rt
 LIBS := $(LIB_DIR)/build/libFloat.a
