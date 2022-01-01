@@ -101,8 +101,10 @@ Run as follows,
 
   chungshu@ChungShudeMacBook-Air verilog % iverilog -o cpu0IIs cpu0IIs.v 
   chungshu@ChungShudeMacBook-Air verilog % ./cpu0IIs
-  ARNING: cpu0.v:487: $readmemh(cpu0.hex): Not enough words in the file for the requested range [0:524287].
+  WARNING: cpu0.v:489: $readmemh(cpu0.hex): Not enough words in the file for the requested range [0:524287].
   taskInterrupt(001)
+  test_longlong_shift1() = 289
+  test_longlong_shift2() = 22
   (int)test_shift_left<long long>(0x12, 4) = 288
   (int)test_shift_right<long long>(0x001666660000000a, 48) = 22
   (int)test_shift_right<unsigned long long>(0x001666660000000a, 48) = 22
@@ -110,10 +112,12 @@ Run as follows,
   (int)test_mul<float, float, float>(-2.2, 3.3) = -7
   (int)test_div<float, float, float>(-1.8, 0.5) = -3
   (int)test_add<double, double, float>(-2.2, 3.3) = 1
+  (int)test_add<double, float, double>(-2.2, 3.3) = 1
+  (int)test_add<float, float, double>(-2.2, 3.3) = 1
+  (int)test_mul<double, float, double>(-2.2, 3.3) = -7
   (int)test_mul<float, float, double>(-2.2, 3.3) = -7
-  (int)test_mul<float, float, double>(-2.2, 3.3) = 0
   (int)test_div<double, double, double>(-1.8, 0.5) = -3
-  total cpu cycles = 184085
+  total cpu cycles = 240170              
   RET to PC < 0, finished!
 
 

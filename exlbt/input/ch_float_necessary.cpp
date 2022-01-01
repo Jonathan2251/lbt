@@ -41,7 +41,7 @@ T1 test_div(T2 a, T3 b) {
 
 template <class T>
 bool check_result(const char* fn, T res, T expected) {
-  printf("%s\n", fn);
+  printf("%s = %d\n", fn, (int)res);
   if (res != expected) {
     printf("\terror: result %d, expected %d\n", res, expected);
   }
