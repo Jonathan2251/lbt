@@ -48,6 +48,10 @@ prologue() {
   echo "ENDIAN =" "${ENDIAN}"
 
   bash clean.sh
+  builtins="../libsoftfloat/compiler-rt/builtins"
+  if [ ! -L $builtins ]; then
+    ln -s $HOME/llvm/llvm-project/compiler-rt/lib/builtins $builtins
+  fi
 }
 
 isLittleEndian() {
@@ -87,7 +91,6 @@ fi
 
 prologue;
 
-make -f $FILE clean
 make -f $FILE CPU=$1 ENDIAN=${ENDIAN}
 
 cp ./build/a.out .
