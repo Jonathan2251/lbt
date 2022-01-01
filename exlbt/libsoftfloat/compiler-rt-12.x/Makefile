@@ -17,7 +17,7 @@ SRCS := absvdi2.c absvsi2.c absvti2.c adddf3.c addsf3.c addtf3.c addvdi3.c \
   addvsi3.c addvti3.c ashldi3.c ashlti3.c ashrdi3.c \
   ashrti3.c clzdi2.c clzsi2.c clzti2.c cmpdi2.c cmpti2.c \
   comparedf2.c comparesf2.c ctzdi2.c ctzsi2.c ctzti2.c divdc3.c divdf3.c \
-  divdi3.c divmoddi4.c divmodsi4.c divsf3.c divsi3.c divti3.c divtf3.c \
+  divdi3.c divmoddi4.c divmodsi4.c divsc3.c divsf3.c divsi3.c divti3.c divtf3.c \
   extendsfdf2.c ffsdi2.c ffsti2.c \
   fixdfdi.c fixdfsi.c fixdfti.c fixsfdi.c fixsfsi.c fixsfti.c fixunsdfdi.c \
   fixunsdfsi.c fixunsdfti.c fixunssfdi.c fixunssfsi.c fixunssfti.c \

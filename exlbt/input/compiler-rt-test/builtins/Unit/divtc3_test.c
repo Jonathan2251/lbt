@@ -2,6 +2,8 @@
 // REQUIRES: librt_has_divtc3
 // REQUIRES: c99-complex
 
+#ifdef HAS_COMPLEX
+
 //
 // Bug 42493
 // XFAIL: sparc-target-arch
@@ -368,3 +370,4 @@ int divtc3_test()
 //	printf("No errors found.\n");
     return 0;
 }
+#endif

@@ -2,6 +2,8 @@
 // REQUIRES: librt_has_divdc3
 // REQUIRES: c99-complex
 
+#ifdef HAS_COMPLEX
+
 #include "int_lib.h"
 #include <math.h>
 #include <complex.h>
@@ -361,3 +363,4 @@ int divdc3_test()
 
     return 0;
 }
+#endif

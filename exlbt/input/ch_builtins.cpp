@@ -38,20 +38,28 @@ extern "C" int ctzsi2_test();
 extern "C" int ctzti2_test();
 
 // div for complex type need libm: cabs, isinf, ..., skip it at this point
-//extern "C" int divdc3_test();
+#ifdef HAS_COMPLEX
+extern "C" int divdc3_test();
+#endif
 extern "C" int divdf3_test();
 extern "C" int divdf3vfp_test();
 extern "C" int divdi3_test();
 extern "C" int divmodsi4_test();
 extern "C" int divmodti4_test();
-//extern "C" int divsc3_test();
+#ifdef HAS_COMPLEX
+extern "C" int divsc3_test();
+#endif
 extern "C" int divsf3_test();
 extern "C" int divsf3vfp_test();
 extern "C" int divsi3_test();
-//extern "C" int divtc3_test();
+#ifdef HAS_COMPLEX
+extern "C" int divtc3_test();
+#endif
 extern "C" int divtf3_test();
 extern "C" int divti3_test();
-//extern "C" int divxc3_test();
+#ifdef HAS_COMPLEX
+extern "C" int divxc3_test();
+#endif
 
 void show_result(const char *fn, int res) {
   if (res == 1)
@@ -152,8 +160,10 @@ int main() {
   res = ctzti2_test();
   show_result("ctzti2_test()", res);
 
-//  res = divdc3_test();
-//  show_result("divdc3_test()", res);
+#ifdef HAS_COMPLEX
+  res = divdc3_test();
+  show_result("divdc3_test()", res);
+#endif
 
   res = divdf3_test();
   show_result("divdf3_test()", res);
@@ -170,8 +180,10 @@ int main() {
   res = divmodti4_test();
   show_result("divmodti4_test()", res);
 
-//  res = divsc3_test();
-//  show_result("divsc3_test()", res);
+#ifdef HAS_COMPLEX
+  res = divsc3_test();
+  show_result("divsc3_test()", res);
+#endif
 
   res = divsf3_test();
   show_result("divsf3_test()", res);
@@ -182,8 +194,10 @@ int main() {
   res = divsi3_test();
   show_result("divsi3_test()", res);
 
-//  res = divtc3_test();
-//  show_result("divtc3_test()", res);
+#ifdef HAS_COMPLEX
+  res = divtc3_test();
+  show_result("divtc3_test()", res);
+#endif
 
   res = divtf3_test();
   show_result("divtf3_test()", res);
@@ -191,8 +205,10 @@ int main() {
   res = divti3_test();
   show_result("divti3_test()", res);
 
-//  res = divxc3_test();
-//  show_result("divxc3_test()", res);
+#ifdef HAS_COMPLEX
+  res = divxc3_test();
+  show_result("divxc3_test()", res);
+#endif
 
   return 0;
 }

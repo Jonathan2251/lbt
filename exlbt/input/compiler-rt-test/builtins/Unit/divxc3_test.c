@@ -5,6 +5,8 @@
 // UNSUPPORTED: mips
 // REQUIRES: c99-complex
 
+#ifdef HAS_COMPLEX
+
 #if !_ARCH_PPC
 
 #include "int_lib.h"
@@ -373,3 +375,5 @@ int divxc3_test()
 #endif
     return 0;
 }
+
+#endif
