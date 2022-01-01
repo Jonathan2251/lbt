@@ -60,6 +60,15 @@ extern "C" int divti3_test();
 #ifdef HAS_COMPLEX
 extern "C" int divxc3_test();
 #endif
+extern "C" int enable_execute_stack_test();
+extern "C" int eqdf2vfp_test();
+extern "C" int eqsf2vfp_test();
+extern "C" int eqtf2_test();
+extern "C" int extenddftf2_test();
+extern "C" int extendhfsf2_test();
+extern "C" int extendhftf2_test();
+extern "C" int extendsfdf2vfp_test();
+extern "C" int extendsftf2_test();
 
 void show_result(const char *fn, int res) {
   if (res == 1)
@@ -209,6 +218,35 @@ int main() {
   res = divxc3_test();
   show_result("divxc3_test()", res);
 #endif
+
+#if 0
+  res = enable_execute_stack_test();
+  show_result("enable_execute_stack_test()", res);
+#endif
+
+  res = eqdf2vfp_test();
+  show_result("eqdf2vfp_test()", res);
+
+  res = eqsf2vfp_test();
+  show_result("eqsf2vfp_test()", res);
+
+  res = eqtf2_test();
+  show_result("eqtf2_test()", res);
+
+  res = extenddftf2_test();
+  show_result("extenddftf2_test()", res);
+
+  res = extendhfsf2_test();
+  show_result("extendhfsf2_test()", res);
+
+  res = extendhftf2_test();
+  show_result("extendhftf2_test()", res);
+
+  res = extendsfdf2vfp_test();
+  show_result("extendsfdf2vfp_test()", res);
+
+  res = extendsftf2_test();
+  show_result("extendsftf2_test()", res);
 
   return 0;
 }

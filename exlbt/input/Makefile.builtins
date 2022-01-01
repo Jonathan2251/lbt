@@ -44,6 +44,15 @@ SRCS :=  start.cpp debug.cpp printf-stdarg-def.c printf-stdarg.c \
   compiler-rt-test/builtins/Unit/divtf3_test.c \
   compiler-rt-test/builtins/Unit/divti3_test.c \
   compiler-rt-test/builtins/Unit/divxc3_test.c \
+  compiler-rt-test/builtins/Unit/enable_execute_stack_test.c \
+  compiler-rt-test/builtins/Unit/eqdf2vfp_test.c \
+  compiler-rt-test/builtins/Unit/eqsf2vfp_test.c \
+  compiler-rt-test/builtins/Unit/eqtf2_test.c \
+  compiler-rt-test/builtins/Unit/extenddftf2_test.c \
+  compiler-rt-test/builtins/Unit/extendhfsf2_test.c \
+  compiler-rt-test/builtins/Unit/extendhftf2_test.c \
+  compiler-rt-test/builtins/Unit/extendsfdf2vfp_test.c \
+  compiler-rt-test/builtins/Unit/extendsftf2_test.c \
   ch_builtins.cpp lib_cpu0.ll
 INC_DIRS := ./ ../libsoftfloat/compiler-rt/builtins ../include
 LIB_DIR := ../libsoftfloat/compiler-rt
