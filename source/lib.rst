@@ -34,20 +34,19 @@ Compiler-rt
 .. table:: Toolchain components [#toolchain]_
 
   ==============  ==========================  =============
-  Component       LLVM                        GNU
+  Component       LLVM                        GNU [#gnu]_
   ==============  ==========================  =============
-  C/C++ Compiler  clang                       gcc
-  Assembler       clang integrated assembler  as
+  C/C++ Compiler  clang/llvm                  gcc
+  Assembler       llvm integrated assembler   as
   Linker          ld.lld                      ld.bfd ld.gold
-  Runtime         compiler-rt                 libgcc
+  Runtime         compiler-rt                 libgcc [#libgcc]_
   Unwinder        libunwind                   libgcc_s
   C++ library     libc++abi, libc++           libsupc++ libstdc++
   Utils           llvm-ar, llvm-objdump etc.  ar, objdump etc.
   C library                  -                libc
   ==============  ==========================  =============
 
-The libgcc document here [#libgcc]_ and libgcc's soft float library 
-here [#soft-float-lib]_ .
+The libgcc's soft float library is here [#soft-float-lib]_ .
 Compiler-rt is a project with runtime libraries implentation [#compiler-rt]_ .
 Compiler-rt/lib/builtins provides functions for basic operations such as +, -, 
 \*, /, ... on type of float or double and for conversion between float and 
@@ -194,6 +193,8 @@ Run as follows,
   divti3_test(): SKIPPED!
   total cpu cycles = 3412335             
   RET to PC < 0, finished!
+
+.. [#gnu] https://en.wikipedia.org/wiki/GNU_Compiler_Collection#cite_note-55
 
 .. [#toolchain] page 8 - 9 of  https://archive.fosdem.org/2018/schedule/event/crosscompile/attachments/slides/2107/export/events/attachments/crosscompile/slides/2107/How_to_cross_compile_with_LLVM_based_tools.pdf
 
