@@ -52,7 +52,28 @@ Compiler-rt/lib/builtins provides functions for basic operations such as +, -,
 \*, /, ... on type of float or double and for conversion between float and 
 integer. Though the 'rt' means RunTime libaraies, most of these functions 
 written in target-independent C form and can be compiled and static-linked
-into target. 
+into target. When you compile the following c code, llc generates 
+**jsub __addsf3** to call compiler-rt float function since Cpu0 hasn't hardware
+float-instructions so Cpu0 backend doesn't handle it, and llvm treats it
+as a function call for float-add instruction.
+
+.. rubric:: lbt/exlbt/input/ch_call_compilerrt_func.c
+.. literalinclude:: ../exlbt/input/ch_call_compilerrt_func.c
+
+.. code-block:: console
+
+  chungshu@ChungShudeMacBook-Air input % clang -target mips-unknown-linux-gnu -S ch_call_compilerrt_func.c -emit-llvm -o ch_call_compilerrt_func.ll
+  chungshu@ChungShudeMacBook-Air input % cat ch_call_compilerrt_func.ll
+    ...
+    %4 = load float, float* %1, align 4
+    %5 = load float, float* %2, align 4
+    %6 = fadd float %4, %5
+
+  chungshu@ChungShudeMacBook-Air input % ~/llvm/test/build/bin/llc -march=cpu0 -mcpu=cpu032II -relocation-model=static -filetype=asm ch_call_compilerrt_func.ll -o -
+	...
+	ld	$4, 20($fp)
+	ld	$5, 16($fp)
+	jsub	__addsf3
 
 
 For some brar-metal or embedded application, the C code doesn't need the
