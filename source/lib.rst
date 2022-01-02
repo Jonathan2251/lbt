@@ -31,14 +31,37 @@ The llvm-link which introduced at last chapter can be hired for optimization.
 Compiler-rt
 -------------
 
+.. table:: Toolchain components [#toolchain]_
+
+  ==============  ==========================  =============
+  Component       LLVM                        GNU
+  ==============  ==========================  =============
+  C/C++ Compiler  clang                       gcc
+  Assembler       clang integrated assembler  as
+  Linker          ld.lld                      ld.bfd ld.gold
+  Runtime         compiler-rt                 libgcc
+  Unwinder        libunwind                   libgcc_s
+  C++ library     libc++abi, libc++           libsupc++ libstdc++
+  Utils           llvm-ar, llvm-objdump etc.  ar, objdump etc.
+  C library                  -                libc
+  ==============  ==========================  =============
+
+The libgcc document here [#libgcc]_ and libgcc's soft float library 
+here [#soft-float-lib]_ .
+Compiler-rt is a project with runtime libraries implentation [#compiler-rt]_ .
+Compiler-rt/lib/builtins provides functions for basic operations such as +, -, 
+\*, /, ... on type of float or double and for conversion between float and 
+integer. Though the 'rt' means RunTime libaraies, most of these functions 
+written in target-independent C form and can be compiled and static-linked
+into target. 
+
+
 For some brar-metal or embedded application, the C code doesn't need the
 file and high-level IO in libc.
 Libm provides a lots of functions to support software floating point beyond
 basic operations [#math]_ .
 Libc provides file, high-level IO functions and basic float functions [#clib]_ .
 
-Compiler-rt/lib/builtins provides basic operations such as +, -, \*, /, ... on 
-type of float or double.
 Cpu0 hires Compiler-rt/lib/builtins and the tiny single module printf-stdarg.c 
 [#printf-stdarg]_ at this point.
 Directory exlib/libsoftfloat/compiler-rt-12.x/builtins is a symbolic link to 
@@ -171,6 +194,12 @@ Run as follows,
   divti3_test(): SKIPPED!
   total cpu cycles = 3412335             
   RET to PC < 0, finished!
+
+.. [#toolchain] page 8 - 9 of  https://archive.fosdem.org/2018/schedule/event/crosscompile/attachments/slides/2107/export/events/attachments/crosscompile/slides/2107/How_to_cross_compile_with_LLVM_based_tools.pdf
+
+.. [#libgcc] https://gcc.gnu.org/onlinedocs/gccint/Libgcc.html
+
+.. [#soft-float-lib] https://gcc.gnu.org/onlinedocs/gccint/Soft-float-library-routines.html#Soft-float-library-routines
 
 .. [#compiler-rt] http://compiler-rt.llvm.org/
 
