@@ -18,6 +18,8 @@ extern "C" int ashrti3_test();
 
 // atomic.c need memcmp(...)
 //extern "C" int atomic_test();
+extern "C" int bswapdi2_test();
+extern "C" int bswapsi2_test();
 
 extern "C" int clzdi2_test();
 extern "C" int clzsi2_test();
@@ -126,6 +128,12 @@ int main() {
   res = atomic_test();
   show_result("atomic_test()", res);
 #endif
+
+  res = bswapdi2_test();
+  show_result("bswapdi2_test()", res);
+
+  res = bswapsi2_test();
+  show_result("bswapsi2_test()", res);
 
   res = clzdi2_test();
   show_result("clzdi2_test()", res);
