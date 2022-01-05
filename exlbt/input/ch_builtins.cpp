@@ -80,6 +80,14 @@ extern "C" int getf2_test();
 extern "C" int gtdf2vfp_test();
 extern "C" int gtsf2vfp_test();
 extern "C" int gttf2_test();
+extern "C" int ledf2vfp_test();
+extern "C" int lesf2vfp_test();
+extern "C" int letf2_test();
+extern "C" int lshrdi3_test();
+extern "C" int lshrti3_test();
+extern "C" int ltdf2vfp_test();
+extern "C" int ltsf2vfp_test();
+extern "C" int lttf2_test();
 
 void show_result(const char *fn, int res) {
   if (res == 1)
@@ -287,6 +295,30 @@ int main() {
 
   res = gttf2_test();
   show_result("gttf2_test()", res);
+
+  res = ledf2vfp_test();
+  show_result("ledf2vfp_test()", res);
+
+  res = lesf2vfp_test();
+  show_result("lesf2vfp_test()", res);
+
+  res = letf2_test();
+  show_result("letf2_test()", res);
+
+  res = lshrdi3_test();
+  show_result("lshrdi3_test()", res);
+
+  res = lshrti3_test();
+  show_result("lshrti3_test()", res);
+
+  res = ltdf2vfp_test();
+  show_result("ltdf2vfp_test()", res);
+
+  res = ltsf2vfp_test();
+  show_result("ltsf2vfp_test()", res);
+
+  res = lttf2_test();
+  show_result("lttf2_test()", res);
 
   return 0;
 }
