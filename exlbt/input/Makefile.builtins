@@ -55,6 +55,12 @@ SRCS :=  start.cpp debug.cpp printf-stdarg-def.c printf-stdarg.c \
   compiler-rt-test/builtins/Unit/extendhftf2_test.c \
   compiler-rt-test/builtins/Unit/extendsfdf2vfp_test.c \
   compiler-rt-test/builtins/Unit/extendsftf2_test.c \
+  compiler-rt-test/builtins/Unit/gedf2vfp_test.c \
+  compiler-rt-test/builtins/Unit/gesf2vfp_test.c \
+  compiler-rt-test/builtins/Unit/getf2_test.c \
+  compiler-rt-test/builtins/Unit/gtdf2vfp_test.c \
+  compiler-rt-test/builtins/Unit/gtsf2vfp_test.c \
+  compiler-rt-test/builtins/Unit/gttf2_test.c \
   ch_builtins.cpp lib_cpu0.ll
 INC_DIRS := ./ ../libsoftfloat/compiler-rt/builtins ../include
 LIB_DIR := ../libsoftfloat/compiler-rt

@@ -71,6 +71,15 @@ extern "C" int extendhfsf2_test();
 extern "C" int extendhftf2_test();
 extern "C" int extendsfdf2vfp_test();
 extern "C" int extendsftf2_test();
+#if 0
+extern "C" int gcc_personality_test();
+#endif
+extern "C" int gedf2vfp_test();
+extern "C" int gesf2vfp_test();
+extern "C" int getf2_test();
+extern "C" int gtdf2vfp_test();
+extern "C" int gtsf2vfp_test();
+extern "C" int gttf2_test();
 
 void show_result(const char *fn, int res) {
   if (res == 1)
@@ -255,6 +264,29 @@ int main() {
 
   res = extendsftf2_test();
   show_result("extendsftf2_test()", res);
+
+#if 0
+  res = gcc_personality_test();
+  show_result("gcc_personality_test()", res);
+#endif
+
+  res = gedf2vfp_test();
+  show_result("gedf2vfp_test()", res);
+
+  res = gesf2vfp_test();
+  show_result("gesf2vfp_test()", res);
+
+  res = getf2_test();
+  show_result("getf2_test()", res);
+
+  res = gtdf2vfp_test();
+  show_result("gtdf2vfp_test()", res);
+
+  res = gtsf2vfp_test();
+  show_result("gtsf2vfp_test()", res);
+
+  res = gttf2_test();
+  show_result("gttf2_test()", res);
 
   return 0;
 }
