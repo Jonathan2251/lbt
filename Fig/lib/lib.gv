@@ -1,0 +1,10 @@
+// dot -Tpng lib.gv -o lib.png
+digraph G {
+  rankdir=LR;
+
+  node [shape="",style=filled,fillcolor=lightyellow]; "Soft floating lib";
+  node [shape="",style=solid,color=black];
+  "User program" -> "clang/llc" [ label = "c/c++" ];
+  "Soft floating lib" -> "clang/llc" [ label = "c" ];
+  "clang/llc" -> lld [ label = "obj" ];
+}
