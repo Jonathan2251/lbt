@@ -88,6 +88,31 @@ extern "C" int lshrti3_test();
 extern "C" int ltdf2vfp_test();
 extern "C" int ltsf2vfp_test();
 extern "C" int lttf2_test();
+extern "C" int moddi3_test();
+extern "C" int modsi3_test();
+extern "C" int modst3_test();
+extern "C" int modti3_test();
+#ifdef HAS_COMPLEX
+extern "C" int muldc3_test();
+#endif
+extern "C" int muldf3vfp_test();
+extern "C" int muldi3_test();
+extern "C" int mulodi4_test();
+extern "C" int mulosi4_test();
+extern "C" int muloti4_test();
+#ifdef HAS_COMPLEX
+extern "C" int mulsc3_test();
+#endif
+extern "C" int mulsf3vfp_test();
+//extern "C" int mulsi3_test(); no this mulsi3.c
+extern "C" int multf3_test();
+extern "C" int multi3_test();
+extern "C" int mulvdi3_test();
+extern "C" int mulvsi3_test();
+extern "C" int mulvti3_test();
+#ifdef HAS_COMPLEX
+extern "C" int mulxc3_test();
+#endif
 
 void show_result(const char *fn, int res) {
   if (res == 1)
@@ -319,6 +344,72 @@ int main() {
 
   res = lttf2_test();
   show_result("lttf2_test()", res);
+
+  res = moddi3_test();
+  show_result("moddi3_test()", res);
+
+  res = modsi3_test();
+  show_result("modsi3_test()", res);
+
+  res = modti3_test();
+  show_result("modti3_test()", res);
+
+#ifdef HAS_COMPLEX
+  res = muldc3_test();
+  show_result("muldc3_test()", res);
+#endif
+
+  res = muldf3vfp_test();
+  show_result("muldf3vfp_test()", res);
+
+  res = muldi3_test();
+  show_result("muldi3_test()", res);
+
+  res = mulodi4_test();
+  show_result("mulodi4_test()", res);
+
+  res = mulosi4_test();
+  show_result("mulosi4_test()", res);
+
+  res = muloti4_test();
+  show_result("muloti4_test()", res);
+
+#ifdef HAS_COMPLEX
+  res = mulsc3_test();
+  show_result("mulsc3_test()", res);
+#endif
+
+  res = mulsf3vfp_test();
+  show_result("mulsf3vfp_test()", res);
+
+// no mulsi3.c
+//  res = mulsi3_test();
+//  show_result("mulsi3_test()", res);
+
+#ifdef HAS_COMPLEX
+  res = multc3_test();
+  show_result("multc3_test()", res);
+#endif
+
+  res = multf3_test();
+  show_result("multf3_test()", res);
+
+  res = multi3_test();
+  show_result("multi3_test()", res);
+
+  res = mulvdi3_test();
+  show_result("mulvdi3_test()", res);
+
+  res = mulvsi3_test();
+  show_result("mulvsi3_test()", res);
+
+  res = mulvti3_test();
+  show_result("mulvti3_test()", res);
+
+#ifdef HAS_COMPLEX
+  res = mulxc3_test();
+  show_result("mulxc3_test()", res);
+#endif
 
   return 0;
 }

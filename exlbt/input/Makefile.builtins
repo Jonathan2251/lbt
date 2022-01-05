@@ -69,6 +69,25 @@ SRCS :=  start.cpp debug.cpp printf-stdarg-def.c printf-stdarg.c \
   compiler-rt-test/builtins/Unit/ltdf2vfp_test.c \
   compiler-rt-test/builtins/Unit/ltsf2vfp_test.c \
   compiler-rt-test/builtins/Unit/lttf2_test.c \
+  compiler-rt-test/builtins/Unit/moddi3_test.c \
+  compiler-rt-test/builtins/Unit/modsi3_test.c \
+  compiler-rt-test/builtins/Unit/modti3_test.c \
+  compiler-rt-test/builtins/Unit/muldc3_test.c \
+  compiler-rt-test/builtins/Unit/muldf3vfp_test.c \
+  compiler-rt-test/builtins/Unit/muldi3_test.c \
+  compiler-rt-test/builtins/Unit/mulodi4_test.c \
+  compiler-rt-test/builtins/Unit/mulosi4_test.c \
+  compiler-rt-test/builtins/Unit/muloti4_test.c \
+  compiler-rt-test/builtins/Unit/mulsc3_test.c \
+  compiler-rt-test/builtins/Unit/mulsf3vfp_test.c \
+  compiler-rt-test/builtins/Unit/mulsi3_test.c \
+  compiler-rt-test/builtins/Unit/multc3_test.c \
+  compiler-rt-test/builtins/Unit/multf3_test.c \
+  compiler-rt-test/builtins/Unit/multi3_test.c \
+  compiler-rt-test/builtins/Unit/mulvdi3_test.c \
+  compiler-rt-test/builtins/Unit/mulvsi3_test.c \
+  compiler-rt-test/builtins/Unit/mulvti3_test.c \
+  compiler-rt-test/builtins/Unit/mulxc3_test.c \
   ch_builtins.cpp lib_cpu0.ll
 INC_DIRS := ./ ../libsoftfloat/compiler-rt/builtins ../include
 LIB_DIR := ../libsoftfloat/compiler-rt
