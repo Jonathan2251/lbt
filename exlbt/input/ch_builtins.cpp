@@ -113,6 +113,16 @@ extern "C" int mulvti3_test();
 #ifdef HAS_COMPLEX
 extern "C" int mulxc3_test();
 #endif
+extern "C" int nedf2vfp_test();
+extern "C" int negdf2vfp_test();
+extern "C" int negdi2_test();
+extern "C" int negsf2vfp_test();
+extern "C" int negti2_test();
+extern "C" int negvdi2_test();
+extern "C" int negvsi2_test();
+extern "C" int negvti2_test();
+extern "C" int nesf2vfp_test();
+extern "C" int netf2_test();
 
 void show_result(const char *fn, int res) {
   if (res == 1)
@@ -410,6 +420,36 @@ int main() {
   res = mulxc3_test();
   show_result("mulxc3_test()", res);
 #endif
+
+  res = nedf2vfp_test();
+  show_result("nedf2vfp_test()", res);
+
+  res = negdf2vfp_test();
+  show_result("negdf2vfp_test()", res);
+
+  res = negdi2_test();
+  show_result("negdi2_test()", res);
+
+  res = negsf2vfp_test();
+  show_result("negsf2vfp_test()", res);
+
+  res = negti2_test();
+  show_result("negti2_test()", res);
+
+  res = negvdi2_test();
+  show_result("negvdi2_test()", res);
+
+  res = negvsi2_test();
+  show_result("negvsi2_test()", res);
+
+  res = negvti2_test();
+  show_result("negvti2_test()", res);
+
+  res = nesf2vfp_test();
+  show_result("nesf2vfp_test()", res);
+
+  res = netf2_test();
+  show_result("netf2_test()", res);
 
   return 0;
 }

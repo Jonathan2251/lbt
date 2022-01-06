@@ -88,6 +88,16 @@ SRCS :=  start.cpp debug.cpp printf-stdarg-def.c printf-stdarg.c \
   compiler-rt-test/builtins/Unit/mulvsi3_test.c \
   compiler-rt-test/builtins/Unit/mulvti3_test.c \
   compiler-rt-test/builtins/Unit/mulxc3_test.c \
+  compiler-rt-test/builtins/Unit/nedf2vfp_test.c \
+  compiler-rt-test/builtins/Unit/negdf2vfp_test.c \
+  compiler-rt-test/builtins/Unit/negdi2_test.c \
+  compiler-rt-test/builtins/Unit/negsf2vfp_test.c \
+  compiler-rt-test/builtins/Unit/negti2_test.c \
+  compiler-rt-test/builtins/Unit/negvdi2_test.c \
+  compiler-rt-test/builtins/Unit/negvsi2_test.c \
+  compiler-rt-test/builtins/Unit/negvti2_test.c \
+  compiler-rt-test/builtins/Unit/nesf2vfp_test.c \
+  compiler-rt-test/builtins/Unit/netf2_test.c \
   ch_builtins.cpp lib_cpu0.ll
 INC_DIRS := ./ ../libsoftfloat/compiler-rt/builtins ../include
 LIB_DIR := ../libsoftfloat/compiler-rt
