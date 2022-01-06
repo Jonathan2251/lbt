@@ -98,6 +98,16 @@ SRCS :=  start.cpp debug.cpp printf-stdarg-def.c printf-stdarg.c \
   compiler-rt-test/builtins/Unit/negvti2_test.c \
   compiler-rt-test/builtins/Unit/nesf2vfp_test.c \
   compiler-rt-test/builtins/Unit/netf2_test.c \
+  compiler-rt-test/builtins/Unit/paritydi2_test.c \
+  compiler-rt-test/builtins/Unit/paritysi2_test.c \
+  compiler-rt-test/builtins/Unit/parityti2_test.c \
+  compiler-rt-test/builtins/Unit/popcountdi2_test.c \
+  compiler-rt-test/builtins/Unit/popcountsi2_test.c \
+  compiler-rt-test/builtins/Unit/popcountti2_test.c \
+  compiler-rt-test/builtins/Unit/powidf2_test.c \
+  compiler-rt-test/builtins/Unit/powisf2_test.c \
+  compiler-rt-test/builtins/Unit/powitf2_test.c \
+  compiler-rt-test/builtins/Unit/powixf2_test.c \
   ch_builtins.cpp lib_cpu0.ll
 INC_DIRS := ./ ../libsoftfloat/compiler-rt/builtins ../include
 LIB_DIR := ../libsoftfloat/compiler-rt

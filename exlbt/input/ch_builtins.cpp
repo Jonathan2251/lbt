@@ -123,6 +123,18 @@ extern "C" int negvsi2_test();
 extern "C" int negvti2_test();
 extern "C" int nesf2vfp_test();
 extern "C" int netf2_test();
+/* need rand, signbit, ...
+extern "C" int paritydi2_test();
+extern "C" int paritysi2_test();
+extern "C" int parityti2_test();
+extern "C" int popcountdi2_test();
+extern "C" int popcountsi2_test();
+extern "C" int popcountti2_test();
+extern "C" int powidf2_test();
+extern "C" int powisf2_test();
+extern "C" int powitf2_test();
+extern "C" int powixf2_test();
+*/
 
 void show_result(const char *fn, int res) {
   if (res == 1)
@@ -450,6 +462,38 @@ int main() {
 
   res = netf2_test();
   show_result("netf2_test()", res);
+
+/* need rand, signbit, ...
+  res = paritydi2_test();
+  show_result("paritydi2_test()", res);
+
+  res = paritysi2_test();
+  show_result("paritysi2_test()", res);
+
+  res = parityti2_test();
+  show_result("parityti2_test()", res);
+
+  res = popcountdi2_test();
+  show_result("popcountdi2_test()", res);
+
+  res = popcountsi2_test();
+  show_result("popcountsi2_test()", res);
+
+  res = popcountti2_test();
+  show_result("popcountti2_test()", res);
+
+  res = powidf2_test();
+  show_result("powidf2_test()", res);
+
+  res = powisf2_test();
+  show_result("powisf2_test()", res);
+
+  res = powitf2_test();
+  show_result("powitf2_test()", res);
+
+  res = powixf2_test();
+  show_result("powixf2_test()", res);
+*/
 
   return 0;
 }
