@@ -108,6 +108,12 @@ SRCS :=  start.cpp debug.cpp printf-stdarg-def.c printf-stdarg.c \
   compiler-rt-test/builtins/Unit/powisf2_test.c \
   compiler-rt-test/builtins/Unit/powitf2_test.c \
   compiler-rt-test/builtins/Unit/powixf2_test.c \
+  compiler-rt-test/builtins/Unit/subdf3vfp_test.c \
+  compiler-rt-test/builtins/Unit/subsf3vfp_test.c \
+  compiler-rt-test/builtins/Unit/subtf3_test.c \
+  compiler-rt-test/builtins/Unit/subvdi3_test.c \
+  compiler-rt-test/builtins/Unit/subvsi3_test.c \
+  compiler-rt-test/builtins/Unit/subvti3_test.c \
   ch_builtins.cpp lib_cpu0.ll
 INC_DIRS := ./ ../libsoftfloat/compiler-rt/builtins ../include
 LIB_DIR := ../libsoftfloat/compiler-rt

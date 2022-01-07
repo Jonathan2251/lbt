@@ -135,6 +135,12 @@ extern "C" int powisf2_test();
 extern "C" int powitf2_test();
 extern "C" int powixf2_test();
 */
+extern "C" int subdf3vfp_test();
+extern "C" int subsf3vfp_test();
+extern "C" int subtf3_test();
+extern "C" int subvdi3_test();
+extern "C" int subvsi3_test();
+extern "C" int subvti3_test();
 
 void show_result(const char *fn, int res) {
   if (res == 1)
@@ -494,6 +500,24 @@ int main() {
   res = powixf2_test();
   show_result("powixf2_test()", res);
 */
+
+  res = subdf3vfp_test();
+  show_result("subdf3vfp_test()", res);
+
+  res = subsf3vfp_test();
+  show_result("subsf3vfp_test()", res);
+
+  res = subtf3_test();
+  show_result("subtf3_test()", res);
+
+  res = subvdi3_test();
+  show_result("subvdi3_test()", res);
+
+  res = subvsi3_test();
+  show_result("subvsi3_test()", res);
+
+  res = subvti3_test();
+  show_result("subvti3_test()", res);
 
   return 0;
 }
