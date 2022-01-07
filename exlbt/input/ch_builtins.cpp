@@ -149,6 +149,20 @@ extern "C" int truncsfhf2_test();
 extern "C" int trunctfdf2_test();
 extern "C" int trunctfhf2_test();
 extern "C" int trunctfsf2_test();
+extern "C" int ucmpdi2_test();
+extern "C" int ucmpti2_test();
+extern "C" int udivdi3_test();
+extern "C" int udivmoddi4_test();
+extern "C" int udivmodsi4_test();
+extern "C" int udivmodti4_test();
+extern "C" int udivsi3_test();
+extern "C" int udivti3_test();
+extern "C" int umoddi3_test();
+extern "C" int umodsi3_test();
+extern "C" int umodti3_test();
+extern "C" int unorddf2vfp_test();
+extern "C" int unordsf2vfp_test();
+extern "C" int unordtf2_test();
 
 void show_result(const char *fn, int res) {
   if (res == 1)
@@ -550,6 +564,48 @@ int main() {
 
   res = trunctfsf2_test();
   show_result("trunctfsf2_test()", res);
+
+  res = ucmpdi2_test();
+  show_result("ucmpdi2_test()", res);
+
+  res = ucmpti2_test();
+  show_result("ucmpti2_test()", res);
+
+  res = udivdi3_test();
+  show_result("udivdi3_test()", res);
+
+  res = udivmoddi4_test();
+  show_result("udivmoddi4_test()", res);
+
+  res = udivmodsi4_test();
+  show_result("udivmodsi4_test()", res);
+
+  res = udivmodti4_test();
+  show_result("udivmodti4_test()", res);
+
+  res = udivsi3_test();
+  show_result("udivsi3_test()", res);
+
+  res = udivti3_test();
+  show_result("udivti3_test()", res);
+
+  res = umoddi3_test();
+  show_result("umoddi3_test()", res);
+
+  res = umodsi3_test();
+  show_result("umodsi3_test()", res);
+
+  res = umodti3_test();
+  show_result("umodti3_test()", res);
+
+  res = unorddf2vfp_test();
+  show_result("unorddf2vfp_test()", res);
+
+  res = unordsf2vfp_test();
+  show_result("unordsf2vfp_test()", res);
+
+  res = unordtf2_test();
+  show_result("unordtf2_test()", res);
 
   return 0;
 }

@@ -122,6 +122,20 @@ SRCS :=  start.cpp debug.cpp printf-stdarg-def.c printf-stdarg.c \
   compiler-rt-test/builtins/Unit/trunctfdf2_test.c \
   compiler-rt-test/builtins/Unit/trunctfhf2_test.c \
   compiler-rt-test/builtins/Unit/trunctfsf2_test.c \
+  compiler-rt-test/builtins/Unit/ucmpdi2_test.c \
+  compiler-rt-test/builtins/Unit/ucmpti2_test.c \
+  compiler-rt-test/builtins/Unit/udivdi3_test.c \
+  compiler-rt-test/builtins/Unit/udivmoddi4_test.c \
+  compiler-rt-test/builtins/Unit/udivmodsi4_test.c \
+  compiler-rt-test/builtins/Unit/udivmodti4_test.c \
+  compiler-rt-test/builtins/Unit/udivsi3_test.c \
+  compiler-rt-test/builtins/Unit/udivti3_test.c \
+  compiler-rt-test/builtins/Unit/umoddi3_test.c \
+  compiler-rt-test/builtins/Unit/umodsi3_test.c \
+  compiler-rt-test/builtins/Unit/umodti3_test.c \
+  compiler-rt-test/builtins/Unit/unorddf2vfp_test.c \
+  compiler-rt-test/builtins/Unit/unordsf2vfp_test.c \
+  compiler-rt-test/builtins/Unit/unordtf2_test.c \
   ch_builtins.cpp lib_cpu0.ll
 INC_DIRS := ./ ../libsoftfloat/compiler-rt/builtins ../include
 LIB_DIR := ../libsoftfloat/compiler-rt
