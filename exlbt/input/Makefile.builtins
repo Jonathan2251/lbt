@@ -114,6 +114,14 @@ SRCS :=  start.cpp debug.cpp printf-stdarg-def.c printf-stdarg.c \
   compiler-rt-test/builtins/Unit/subvdi3_test.c \
   compiler-rt-test/builtins/Unit/subvsi3_test.c \
   compiler-rt-test/builtins/Unit/subvti3_test.c \
+  compiler-rt-test/builtins/Unit/trampoline_setup_test.c \
+  compiler-rt-test/builtins/Unit/truncdfhf2_test.c \
+  compiler-rt-test/builtins/Unit/truncdfsf2_test.c \
+  compiler-rt-test/builtins/Unit/truncdfsf2vfp_test.c \
+  compiler-rt-test/builtins/Unit/truncsfhf2_test.c \
+  compiler-rt-test/builtins/Unit/trunctfdf2_test.c \
+  compiler-rt-test/builtins/Unit/trunctfhf2_test.c \
+  compiler-rt-test/builtins/Unit/trunctfsf2_test.c \
   ch_builtins.cpp lib_cpu0.ll
 INC_DIRS := ./ ../libsoftfloat/compiler-rt/builtins ../include
 LIB_DIR := ../libsoftfloat/compiler-rt

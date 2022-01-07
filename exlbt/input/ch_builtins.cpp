@@ -141,6 +141,14 @@ extern "C" int subtf3_test();
 extern "C" int subvdi3_test();
 extern "C" int subvsi3_test();
 extern "C" int subvti3_test();
+extern "C" int trampoline_setup_test();
+extern "C" int truncdfhf2_test();
+extern "C" int truncdfsf2_test();
+extern "C" int truncdfsf2vfp_test();
+extern "C" int truncsfhf2_test();
+extern "C" int trunctfdf2_test();
+extern "C" int trunctfhf2_test();
+extern "C" int trunctfsf2_test();
 
 void show_result(const char *fn, int res) {
   if (res == 1)
@@ -518,6 +526,30 @@ int main() {
 
   res = subvti3_test();
   show_result("subvti3_test()", res);
+
+  res = trampoline_setup_test();
+  show_result("trampoline_setup_test()", res);
+
+  res = truncdfhf2_test();
+  show_result("truncdfhf2_test()", res);
+
+  res = truncdfsf2_test();
+  show_result("truncdfsf2_test()", res);
+
+  res = truncdfsf2vfp_test();
+  show_result("truncdfsf2vfp_test()", res);
+
+  res = truncsfhf2_test();
+  show_result("truncsfhf2_test()", res);
+
+  res = trunctfdf2_test();
+  show_result("trunctfdf2_test()", res);
+
+  res = trunctfhf2_test();
+  show_result("trunctfhf2_test()", res);
+
+  res = trunctfsf2_test();
+  show_result("trunctfsf2_test()", res);
 
   return 0;
 }
