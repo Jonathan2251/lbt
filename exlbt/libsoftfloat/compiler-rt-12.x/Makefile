@@ -139,7 +139,7 @@ SRCS := $(GENERIC_SOURCES)
 
 # String substitution for every C file.
 # As an example, absvdi2.c turns into ./builtins/absvdi2.c
-SRCS := $(SRCS:%=$(SRC_DIR)/%) cpu0/fp_mode.c cpu0/abort.c
+SRCS := $(SRCS:%=$(SRC_DIR)/%) cpu0/abort.c
 
 # String substitution for every C/C++ file.
 # As an example, absvdi2.c turns into ./build/absvdi2.c.o
