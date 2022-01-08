@@ -1,7 +1,3 @@
-// Need libc to do array init. ref. http://www.dbp-consulting.com/tutorials/debugging/linuxProgramStartup.html
-
-#ifdef HAS_LIBC
-
 // RUN: %clang_builtins %s %librt -o %t && %run %t
 // REQUIRES: librt_has_udivsi3
 
@@ -14,16 +10,17 @@ COMPILER_RT_ABI su_int __udivsi3(su_int a, su_int b);
 
 int test__udivsi3(su_int a, su_int b, su_int expected_q)
 {
-    printf("a:%d, b:%d, dexpected_q:%d\n", a, b, expected_q);
     su_int q = __udivsi3(a, b);
-    if (q != expected_q)
-        //printf("error in __udivsi3: %X / %X = %X, expected %X\n",
-        printf("error in __udivsi3: %d / %d = %d, expected %d\n",
+    bool res = (q != expected_q);
+    //if (q != expected_q) { // this has bug
+    if (res) {
+        printf("error in __udivsi3: %X / %X = %X, expected %X\n",
                a, b, q, expected_q);
+    }
     return q != expected_q;
 }
 
-static su_int tests[2][3] =
+static su_int tests[][3] =
 {
 {0x00000000, 0x00000002, 0x00000000},
 {0x00000000, 0x00000003, 0x00000000},
@@ -168,4 +165,3 @@ int udivsi3_test()
 
     return 0;
 }
-#endif

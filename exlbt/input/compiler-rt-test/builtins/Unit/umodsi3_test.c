@@ -1,7 +1,3 @@
-// Need libc to do array init. ref. http://www.dbp-consulting.com/tutorials/debugging/linuxProgramStartup.html
-
-#ifdef HAS_LIBC
-
 // RUN: %clang_builtins %s %librt -o %t && %run %t
 // REQUIRES: librt_has_umodsi3
 
@@ -15,7 +11,9 @@ COMPILER_RT_ABI su_int __umodsi3(su_int a, su_int b);
 int test__umodsi3(su_int a, su_int b, su_int expected_r)
 {
     su_int r = __umodsi3(a, b);
-    if (r != expected_r)
+    bool res = (r != expected_r);
+    //if (r != expected_r)
+    if (res)
         printf("error in __umodsi3: %X %% %X = %X, expected %X\n",
                a, b, r, expected_r);
     return r != expected_r;
@@ -167,4 +165,3 @@ int umodsi3_test()
 
     return 0;
 }
-#endif
