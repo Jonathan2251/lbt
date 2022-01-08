@@ -12,8 +12,8 @@ int test__umodsi3(su_int a, su_int b, su_int expected_r)
 {
     su_int r = __umodsi3(a, b);
     bool res = (r != expected_r);
-    //if (r != expected_r)
-    if (res)
+    if (r != expected_r)
+    //if (res)
         printf("error in __umodsi3: %X %% %X = %X, expected %X\n",
                a, b, r, expected_r);
     return r != expected_r;

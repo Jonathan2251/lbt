@@ -12,8 +12,8 @@ int test__udivsi3(su_int a, su_int b, su_int expected_q)
 {
     su_int q = __udivsi3(a, b);
     bool res = (q != expected_q);
-    //if (q != expected_q) { // this has bug
-    if (res) {
+    if (q != expected_q) { // this has bug, maybe BEQ of cpu0's verilog has bug
+    //if (res) {
         printf("error in __udivsi3: %X / %X = %X, expected %X\n",
                a, b, q, expected_q);
     }
