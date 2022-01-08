@@ -1,3 +1,7 @@
+// Need libc to do array init. ref. http://www.dbp-consulting.com/tutorials/debugging/linuxProgramStartup.html
+
+#ifdef HAS_LIBC
+
 // RUN: %clang_builtins %s %librt -o %t && %run %t
 // REQUIRES: librt_has_umodsi3
 
@@ -163,3 +167,4 @@ int umodsi3_test()
 
     return 0;
 }
+#endif

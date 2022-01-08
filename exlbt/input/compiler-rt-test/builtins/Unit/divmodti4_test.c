@@ -1,3 +1,7 @@
+// Need libc to do array init. ref. http://www.dbp-consulting.com/tutorials/debugging/linuxProgramStartup.html
+
+#ifdef HAS_LIBC
+
 // RUN: %clang_builtins %s %librt -o %t && %run %t
 // REQUIRES: librt_has_divmodti4
 // REQUIRES: int128
@@ -90,3 +94,4 @@ int divmodti4_test()
 #endif
     return 0;
 }
+#endif
