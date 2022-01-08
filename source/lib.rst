@@ -9,14 +9,11 @@ Library
 
 Since Cpu0 has not hardware float point instructions, it needs soft float point
 library to finish the floating point operation. LLVM compiler-rt project include
-the software floating point library implementation, so we choose it as the 
+software floating point library implementation, so we choose it as the 
 implementation. 
 
-Since compiler-rt uses unix/linux rootfs structure, we fill the gap by porting
-avr libc.
-
-The Soft Float Library, compiler-rt/lib/builtins, is under going, it's not finished.
-The flow as follows,
+Since compiler-rt uses unix/linux rootfs structure, we fill the gap by add few
+empty include-files in exlbt/include.
 
 .. graphviz:: ../Fig/lib/lib.gv
 
@@ -81,20 +78,8 @@ Directory exlib/libsoftfloat/compiler-rt-12.x/builtins is a symbolic link to
 llvm-project/compiler-rt/lib/builtins which is the floating point library from
 compiler-rt [#compiler-rt]_. The compiler-rt/lib/builtins is a 
 target-independent C form of software float library implementation. Cpu0 
-implements compiler-rt-12.x/cpu0/fp_mode.h only at this point for supporting 
+implements compiler-rt-12.x/cpu0/abort.c only at this point for supporting 
 this feature.
-
-The code modified as follows,
-
-.. rubric:: lbt/exlbt/libsoftfloat/compiler-rt-12.x/cpu0/fp_mode.c
-.. literalinclude:: ../exlbt/libsoftfloat/compiler-rt-12.x/cpu0/fp_mode.c
-
-.. rubric:: lbt/exlbt/libsoftfloat/compiler-rt-12.x/cpu0/abort.c
-.. literalinclude:: ../exlbt/libsoftfloat/compiler-rt-12.x/cpu0/abort.c
-
-.. rubric:: lbt/exlbt/libsoftfloat/compiler-rt-12.x/Makefile
-.. literalinclude:: ../exlbt/libsoftfloat/compiler-rt-12.x/Makefile
-
 
 
 Software Float Point Support
@@ -115,21 +100,21 @@ Software Float Point Support
 .. rubric:: exlbt/libsoftfloat/compiler-rt/cpu0/abort.c
 .. literalinclude:: ../exlbt/libsoftfloat/compiler-rt/cpu0/abort.c
 
-.. rubric:: exlbt/libsoftfloat/compiler-rt/cpu0/fp_mode.c
-.. literalinclude:: ../exlbt/libsoftfloat/compiler-rt/cpu0/fp_mode.c
+.. rubric:: lbt/exlbt/libsoftfloat/compiler-rt-12.x/Makefile
+.. literalinclude:: ../exlbt/libsoftfloat/compiler-rt-12.x/Makefile
 
-.. rubric:: exlbt/input/ch_float_necessary.cpp
-.. literalinclude:: ../exlbt/input/ch_float_necessary.cpp
+.. rubric:: exlbt/input/ch_float.cpp
+.. literalinclude:: ../exlbt/input/ch_float.cpp
     :start-after: /// start
 
-.. rubric:: exlbt/input/Makefile.float-necessary
-.. literalinclude:: ../exlbt/input/Makefile.float-necessary
+.. rubric:: exlbt/input/Makefile.float
+.. literalinclude:: ../exlbt/input/Makefile.float
 
 Run as follows,
 
 .. code-block:: console
 
-  chungshu@ChungShudeMacBook-Air input % bash make.sh cpu032II be Makefile.float-necessary
+  chungshu@ChungShudeMacBook-Air input % bash make.sh cpu032II be Makefile.float
   ...
   endian =  BigEndian
   ISR address:00020614
@@ -184,6 +169,8 @@ Run as follows,
   ashlti3_test(): SKIPPED!
   ashrdi3_test(): PASS!
   ashrti3_test(): SKIPPED!
+  bswapdi2_test(): PASS!
+  bswapsi2_test(): PASS!
   clzdi2_test(): PASS!
   clzsi2_test(): PASS!
   clzti2_test(): SKIPPED!
@@ -205,8 +192,79 @@ Run as follows,
   divsi3_test(): PASS!
   divtf3_test(): SKIPPED!
   divti3_test(): SKIPPED!
-  total cpu cycles = 3412335             
+  eqdf2vfp_test(): SKIPPED!
+  eqsf2vfp_test(): SKIPPED!
+  eqtf2_test(): SKIPPED!
+  extenddftf2_test(): SKIPPED!
+  extendhfsf2_test(): PASS!
+  extendhftf2_test(): SKIPPED!
+  extendsfdf2vfp_test(): SKIPPED!
+  extendsftf2_test(): SKIPPED!
+  gedf2vfp_test(): SKIPPED!
+  gesf2vfp_test(): SKIPPED!
+  getf2_test(): SKIPPED!
+  gtdf2vfp_test(): SKIPPED!
+  gtsf2vfp_test(): SKIPPED!
+  gttf2_test(): SKIPPED!
+  ledf2vfp_test(): SKIPPED!
+  lesf2vfp_test(): SKIPPED!
+  letf2_test(): SKIPPED!
+  lshrdi3_test(): PASS!
+  lshrti3_test(): SKIPPED!
+  ltdf2vfp_test(): SKIPPED!
+  ltsf2vfp_test(): SKIPPED!
+  lttf2_test(): SKIPPED!
+  moddi3_test(): PASS!
+  modsi3_test(): PASS!
+  modti3_test(): SKIPPED!
+  muldf3vfp_test(): SKIPPED!
+  muldi3_test(): PASS!
+  mulodi4_test(): PASS!
+  mulosi4_test(): PASS!
+  muloti4_test(): SKIPPED!
+  mulsf3vfp_test(): SKIPPED!
+  multf3_test(): SKIPPED!
+  multi3_test(): SKIPPED!
+  mulvdi3_test(): PASS!
+  mulvsi3_test(): PASS!
+  mulvti3_test(): SKIPPED!
+  nedf2vfp_test(): SKIPPED!
+  negdf2vfp_test(): SKIPPED!
+  negdi2_test(): PASS!
+  negsf2vfp_test(): SKIPPED!
+  negti2_test(): SKIPPED!
+  negvdi2_test(): PASS!
+  negvsi2_test(): PASS!
+  negvti2_test(): SKIPPED!
+  nesf2vfp_test(): SKIPPED!
+  netf2_test(): SKIPPED!
+  subdf3vfp_test(): SKIPPED!
+  subsf3vfp_test(): SKIPPED!
+  subtf3_test(): SKIPPED!
+  subvdi3_test(): PASS!
+  subvsi3_test(): PASS!
+  subvti3_test(): SKIPPED!
+  trampoline_setup_test(): SKIPPED!
+  truncdfhf2_test(): PASS!
+  truncdfsf2_test(): PASS!
+  truncdfsf2vfp_test(): SKIPPED!
+  truncsfhf2_test(): PASS!
+  trunctfdf2_test(): SKIPPED!
+  trunctfhf2_test(): SKIPPED!
+  trunctfsf2_test(): SKIPPED!
+  ucmpdi2_test(): PASS!
+  ucmpti2_test(): SKIPPED!
+  udivdi3_test(): PASS!
+  udivmodsi4_test(): PASS!
+  udivti3_test(): SKIPPED!
+  umoddi3_test(): PASS!
+  umodti3_test(): SKIPPED!
+  unorddf2vfp_test(): SKIPPED!
+  unordsf2vfp_test(): SKIPPED!
+  unordtf2_test(): SKIPPED!
+  total cpu cycles = 4602620             
   RET to PC < 0, finished!
+
 
 .. [#gnu] https://en.wikipedia.org/wiki/GNU_Compiler_Collection#cite_note-55
 

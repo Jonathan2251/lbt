@@ -1,233 +1,111 @@
-// clang -I../libsoftfloat/compiler-rt/builtins -c ch_float.cpp -emit-llvm -o ch_float.bc
-// ~/llvm/test/build/bin/llc -march=cpu0 -mcpu=cpu032II -relocation-model=static -filetype=asm ch_float.bc -o -
-// ~/llvm/test/build/bin/llc -march=cpu0 -mcpu=cpu032II -cpu0-s32-calls=true -relocation-model=static -filetype=asm ch_float.bc -o -
+// clang -I../libsoftfloat/compiler-rt/builtins -I../../lbdex/input -c ch_float_necessary.cpp -emit-llvm -o ch_float_necessary.bc
+// ~/llvm/test/build/bin/llc -march=cpu0 -mcpu=cpu032II -relocation-model=static -filetype=asm ch_float_necessary.bc -o -
+// ~/llvm/test/build/bin/llc -march=cpu0 -mcpu=cpu032II -cpu0-s32-calls=true -relocation-model=static -filetype=asm ch_float_necessary.bc -o -
 
-// Refernce from absvsi2_test.c, absvdi2_test.c absvti2_test.c in compiler-rt-3.5.0.src/test/builtins/Unit
 
 /// start
 //#include "debug.h"
 
-#define DOUBLE_PRECISION
-#include "fp_lib.h"
-#include "int_lib.h"
-
 extern "C" int printf(const char *format, ...);
 extern "C" int sprintf(char *out, const char *format, ...);
 
-extern "C" di_int __addvdi3(di_int a, di_int b);
+#include "../../lbdex/input/ch9_3_longlongshift.cpp"
 
-int test__addvdi3(di_int a, di_int b)
-{
-  di_int x = __addvdi3(a, b);
-  di_int expected = a + b;
-  if (x != expected)
-    printf("error in test__addvdi3(0x%llX, 0x%llX) = %lld, expected %lld\n",
-            a, b, x, expected);
-  return x != expected;
+template <class T>
+T test_shift_left(T a, T b) {
+  return (a << b);
 }
 
-int test_addvdi3()
-{
-/*
-  test__addvdi3(0x8000000000000000LL, -1);  // should abort
-  test__addvdi3(-1, 0x8000000000000000LL);  // should abort
-  test__addvdi3(1, 0x7FFFFFFFFFFFFFFFLL);  // should abort
-  test__addvdi3(0x7FFFFFFFFFFFFFFFLL, 1);  // should abort
-*/
-
-  if (test__addvdi3(0x8000000000000000LL, 1))
-    return 1;
-  if (test__addvdi3(1, 0x8000000000000000LL))
-    return 1;
-  if (test__addvdi3(0x8000000000000000LL, 0))
-    return 1;
-  if (test__addvdi3(0, 0x8000000000000000LL))
-    return 1;
-  if (test__addvdi3(0x7FFFFFFFFFFFFFFLL, -1))
-    return 1;
-  if (test__addvdi3(-1, 0x7FFFFFFFFFFFFFFLL))
-    return 1;
-  if (test__addvdi3(0x7FFFFFFFFFFFFFFFLL, 0))
-    return 1;
-  if (test__addvdi3(0, 0x7FFFFFFFFFFFFFFFLL))
-    return 1;
-
-  return 0;
+template <class T>
+T test_shift_right(T a, T b) {
+  return (a >> b);
 }
 
-extern "C" di_int __absvdi2(di_int a);
+template <class T1, class T2, class T3>
+T1 test_add(T2 a, T3 b) {
+  T1 c = a + b;
+  return c;
+}
 
-int test__absvdi2(di_int a)
-{
-  di_int x = __absvdi2(a);
-  di_int expected = a;
-  if (expected < 0)
-    expected = -expected;
-  if (x != expected || expected < 0) {
-    printf("error in __absvdi2(0x%08X%08X) = %08d%08d, expected positive %08d%08d\n",
-           (int)(a>>32), (int)a, (int)(x>>32), (int)x, int(expected>>32), (int)expected);
+template <class T1, class T2, class T3>
+T1 test_mul(T2 a, T3 b) {
+  T1 c = a * b;
+  return c;
+}
+
+template <class T1, class T2, class T3>
+T1 test_div(T2 a, T3 b) {
+  T1 c = a / b;
+  return c;
+}
+
+template <class T>
+bool check_result(const char* fn, T res, T expected) {
+  printf("%s = %d\n", fn, (int)res);
+  if (res != expected) {
+    printf("\terror: result %d, expected %d\n", res, expected);
   }
-  return x != expected;
-}
-
-int test_absvdi2()
-{
-  int res = 0;
-//     if (test__absvdi2(0x8000000000000000LL))  // should abort
-//         return 1;
-  res |= test__absvdi2(0x0000000000000000LL);
-  res |= test__absvdi2(0x0000000000000001LL);
-  res |= test__absvdi2(0x0000000000000002LL);
-  res |= test__absvdi2(0x7FFFFFFFFFFFFFFELL);
-  res |= test__absvdi2(0x7FFFFFFFFFFFFFFFLL); // di_int t = a >> (N - 1);  (a ^ t) - t; t=0,a=0x7ff...ff
-  res |= test__absvdi2(0x8000000000000001LL);
-  res |= test__absvdi2(0x8000000000000002LL);
-  res |= test__absvdi2(0xFFFFFFFFFFFFFFFELL);
-  res |= test__absvdi2(0xFFFFFFFFFFFFFFFFLL);
-
-  int i;
-  for (i = 0; i < 100; ++i)
-    if (test__absvdi2(((di_int)i << 32) | 1))
-      return 1;
-
-  return res;
-}
-
-#define SINGLE_PRECISION
-
-extern "C" si_int __absvsi2(si_int a);
-
-int test__absvsi2(si_int a)
-{
-  //printf("a = %d\n", a);
-  si_int x = __absvsi2(a);
-  //printf("x = %d\n\n", x);
-  si_int expected = a;
-  if (expected < 0)
-    expected = -expected;
-  if (x != expected || expected < 0)
-    printf("error in __absvsi2(0x%X) = %d, expected positive %d\n",
-           a, x, expected);
-  return x != expected;
-}
-
-int test_absvsi2()
-{
-  int res = 0;
-//  if (test__absvsi2(0x80000000))  // should abort
-//    return 1;
-  res |= test__absvsi2(0x00000000);
-  res |= test__absvsi2(0x00000001);
-  res |= test__absvsi2(0x00000002);
-  res |= test__absvsi2(0x7FFFFFFE);
-  res |= test__absvsi2(0x7FFFFFFF);
-  res |= test__absvsi2(0x80000001);
-  res |= test__absvsi2(0x80000002);
-  res |= test__absvsi2(0xFFFFFFFE); // a=0xFFFFFFFE, t=0xFFFFFFFE>>31=0xFFFFFFFF, (0xFFFFFFFE^0xFFFFFFFF)-(-1)=1-(-1)=2
-  res |= test__absvsi2(0xFFFFFFFF);
-
-  int i;
-  for (i = 0; i < 100; ++i)
-    if (test__absvsi2(i))
-      return 1;
-
-  return res;
-}
-
-#define QUAD_PRECISION
-
-//current status compiler error: undefined symbol: __absvti2
-
-//#define CRT_HAS_128BIT
-
-#ifdef CRT_HAS_128BIT
-
-// Returns: absolute value
-
-// Effects: aborts if abs(x) < 0
-
-extern "C" ti_int __absvti2(ti_int a);
-
-int test__absvti2(ti_int a)
-{
-  ti_int x = __absvti2(a);
-  ti_int expected = a;
-  if (expected < 0)
-    expected = -expected;
-  if (x != expected || expected < 0) {
-    twords at;
-    at.all = a;
-    twords xt;
-    xt.all = x;
-    twords expectedt;
-    expectedt.all = expected;
-    printf("error in __absvti2(0x%8X%8X.%8X%8X) = "
-           "0x%8X%8X%.8X%.8X, expected positive 0x%8X%8X%.8X%.8X\n",
-           (int)(at.s.high>>32), (int)(at.s.high), (int)(at.s.low>>32), 
-           (int)(at.s.low), (int)(xt.s.high>>32), (int)(xt.s.high), 
-           (int)(xt.s.low>>32), (int)(xt.s.low),
-           (int)(expectedt.s.high>>32), (int)(expectedt.s.high), 
-           (int)(expectedt.s.low>>32), (int)(expectedt.s.low));
-  }
-  return x != expected;
-}
-#endif
-
-int test_absvti2()
-{
-#ifdef CRT_HAS_128BIT
-
-//  if (test__absvti2(make_ti(0x8000000000000000LL, 0)))  // should abort
-//    return 1;
-  if (test__absvti2(0x0000000000000000LL))
-    return 1;
-  if (test__absvti2(0x0000000000000001LL))
-    return 1;
-  if (test__absvti2(0x0000000000000002LL))
-    return 1;
-  if (test__absvti2(make_ti(0x7FFFFFFFFFFFFFFFLL, 0xFFFFFFFFFFFFFFFELL)))
-    return 1;
-  if (test__absvti2(make_ti(0x7FFFFFFFFFFFFFFFLL, 0xFFFFFFFFFFFFFFFFLL)))
-    return 1;
-  if (test__absvti2(make_ti(0x8000000000000000LL, 0x0000000000000001LL)))
-    return 1;
-  if (test__absvti2(make_ti(0x8000000000000000LL, 0x0000000000000002LL)))
-    return 1;
-  if (test__absvti2(make_ti(0xFFFFFFFFFFFFFFFFLL, 0xFFFFFFFFFFFFFFFELL)))
-    return 1;
-  if (test__absvti2(make_ti(0xFFFFFFFFFFFFFFFFLL, 0xFFFFFFFFFFFFFFFFLL)))
-    return 1;
-
-  int i;
-  for (i = 0; i < 10000; ++i)
-    if (test__absvti2(make_ti(((ti_int)i << 32) | i,
-                     ((ti_int)i << 32) | i)))
-      return 1;
-#else
-  printf("test_absvti2(): skipped\n");
-#endif
-  return 0;
-}
-
-void show_result(const char *fn, int res) {
-  if (res)
-    printf("%s: FAIL!\n", fn);
-  else 
-    printf("%s: PASS!\n", fn);
+  return (res == expected);
 }
 
 int main() {
-  int res = 0;
+  int a;
 
-  res = test_addvdi3();
-  show_result("test_absvdi3()", res);
-  res = test_absvdi2();
-  show_result("test_absvdi2()", res);
-  res = test_absvsi2();
-  show_result("test_absvsi2()", res);
-  res = test_absvti2();
-  //show_result("test_absvti2()", res);
+  a = test_longlong_shift1();
+  check_result("test_longlong_shift1()", a, 289);
 
+  a = test_longlong_shift2();
+  check_result("test_longlong_shift2()", a, 22);
+
+// call __ashldi3
+  a = (int)test_shift_left<long long>(0x12, 4); // 0x120 = 288
+  check_result("(int)test_shift_left<long long>(0x12, 4)", a, 288);
+  
+// call __ashrdi3
+  a = (int)test_shift_right<long long>(0x001666660000000a, 48); // 0x16 = 22
+  check_result("(int)test_shift_right<long long>(0x001666660000000a, 48)", a, 22);
+  
+// call __lshrdi3
+  a = (int)test_shift_right<unsigned long long>(0x001666660000000a, 48); // 0x16 = 22
+  check_result("(int)test_shift_right<unsigned long long>(0x001666660000000a, 48)", a, 22);
+  
+// call __addsf3, __fixsfsi
+  a = (int)test_add<float, float, float>(-2.2, 3.3); // (int)1.1 = 1
+  check_result("(int)test_add<float, float, float>(-2.2, 3.3)", a, 1);
+  
+// call __mulsf3, __fixsfsi
+  a = (int)test_mul<float, float, float>(-2.2, 3.3); // (int)-7.26 = -7
+  check_result("(int)test_mul<float, float, float>(-2.2, 3.3)", a, -7);
+  
+// call __divsf3, __fixsfsi
+  a = (int)test_div<float, float, float>(-1.8, 0.5); // (int)-3.6 = -3
+  check_result("(int)test_div<float, float, float>(-1.8, 0.5)", a, -3);
+  
+// call __extendsfdf2, __adddf3, __fixdfsi
+  a = (int)test_add<double, double, float>(-2.2, 3.3); // (int)1.1 = 1
+  check_result("(int)test_add<double, double, float>(-2.2, 3.3)", a, 1);
+  
+// call __extendsfdf2, __adddf3, __fixdfsi
+  a = (int)test_add<double, float, double>(-2.2, 3.3); // (int)1.1 = 1
+  check_result("(int)test_add<double, float, double>(-2.2, 3.3)", a, 1);
+  
+// call __extendsfdf2, __adddf3, __fixdfsi
+  a = (int)test_add<float, float, double>(-2.2, 3.3); // (int)1.1 = 1
+  check_result("(int)test_add<float, float, double>(-2.2, 3.3)", a, 1);
+  
+// call __extendsfdf2, __muldf3, __fixdfsi
+  a = (int)test_mul<double, float, double>(-2.2, 3.3); // (int)-7.26 = -7
+  check_result("(int)test_mul<double, float, double>(-2.2, 3.3)", a, -7);
+  
+// call __extendsfdf2, __muldf3, __truncdfsf2, __fixdfsi
+// ! __truncdfsf2 in truncdfsf2.c is not work for Cpu0
+  a = (int)test_mul<float, float, double>(-2.2, 3.3); // (int)-7.26 = -7
+  check_result("(int)test_mul<float, float, double>(-2.2, 3.3)", a, -7);
+  
+// call __divdf3, __fixdfsi
+  a = (int)test_div<double, double, double>(-1.8, 0.5); // (int)-3.6 = -3
+  check_result("(int)test_div<double, double, double>(-1.8, 0.5)", a, -3);
+  
   return 0;
 }
 
