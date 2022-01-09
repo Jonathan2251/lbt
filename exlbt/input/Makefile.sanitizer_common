@@ -1,0 +1,13 @@
+# CPU and endian passed from command line, such as 
+#   "make -f Makefile.float-necessary CPU=cpu032II endian="
+#   Ignore argument and set CPU to cpu032II since software float point library, 
+#   libsoftfloat, only supports cpu032II at this point.
+CPU := cpu032II
+#endian :=
+
+SRCS := start.cpp debug.cpp ch_sanitizer_common.cpp ch_hello.cpp lib_cpu0.ll
+LIB_DIR := ../sanitizer_common
+INC_DIRS := $(SRC_DIR)
+LIBS := $(LIB_DIR)/build/libsanitizer_common.a
+
+include Common.mk
