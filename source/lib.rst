@@ -255,14 +255,21 @@ Run as follows,
   ucmpdi2_test(): PASS!
   ucmpti2_test(): SKIPPED!
   udivdi3_test(): PASS!
+  taskInterrupt(011)
+  Overflow exception
+  error in __udivmoddi4: 1-2 / FFFFFFFF-6FF64 = 1000000-29, R = 6FEFC-0, expected 1-29, 0-6FF14
+  udivmoddi4_test(): FAIL!
   udivmodsi4_test(): PASS!
+  udivmodti4_test(): SKIPPED!
+  udivsi3_test(): PASS!
   udivti3_test(): SKIPPED!
   umoddi3_test(): PASS!
+  umodsi3_test(): PASS!
   umodti3_test(): SKIPPED!
   unorddf2vfp_test(): SKIPPED!
   unordsf2vfp_test(): SKIPPED!
   unordtf2_test(): SKIPPED!
-  total cpu cycles = 4602620             
+  total cpu cycles = 8622184             
   RET to PC < 0, finished!
 
 
