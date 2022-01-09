@@ -39,574 +39,233 @@
 <span id="sec-lib"></span><h1>Library<a class="headerlink" href="#library" title="Permalink to this headline">¶</a></h1>
 <div class="contents local topic" id="contents">
 <ul class="simple">
-<li><p><a class="reference internal" href="#compiler-rt" id="id8">Compiler-rt</a></p></li>
-<li><p><a class="reference internal" href="#avr-libc" id="id9">Avr libc</a></p></li>
-<li><p><a class="reference internal" href="#software-float-point-support" id="id10">Software Float Point Support</a></p></li>
+<li><p><a class="reference internal" href="#compiler-rt" id="id12">Compiler-rt</a></p></li>
+<li><p><a class="reference internal" href="#software-float-point-support" id="id13">Software Float Point Support</a></p></li>
 </ul>
 </div>
 <p>Since Cpu0 has not hardware float point instructions, it needs soft float point
 library to finish the floating point operation. LLVM compiler-rt project include
-the software floating point library implementation, so we choose it as the
+software floating point library implementation, so we choose it as the
 implementation.</p>
-<p>Since compiler-rt uses unix/linux rootfs structure, we fill the gap by porting
-avr libc.</p>
-<p>Both the compiler-rt and avr libc porting is under going, it’s not finished.
-The flow as follows,</p>
-<figure class="align-center" id="id7">
-<span id="lib-f-flow"></span><a class="reference internal image-reference" href="_images/1.png"><img alt="_images/1.png" src="_images/1.png" style="width: 843.0px; height: 103.0px;" /></a>
-<figcaption>
-<p><span class="caption-number">Fig. 6 </span><span class="caption-text">libc/softfloat library flow</span><a class="headerlink" href="#id7" title="Permalink to this image">¶</a></p>
-</figcaption>
-</figure>
-<p>The llvm-link which introduced at last chapter can be hired for optimization.</p>
+<p>Since compiler-rt uses unix/linux rootfs structure, we fill the gap by add few
+empty include-files in exlbt/include.</p>
+<div class="graphviz"><img src="_images/graphviz-5e0d5ffa52ae40a97f50fdd549c241a3c4461a70.png" alt="// dot -Tpng lib.gv -o lib.png
+digraph G {
+  rankdir=LR;
+
+  node [shape=&quot;&quot;,style=filled,fillcolor=lightyellow]; &quot;Soft floating lib&quot;;
+  node [shape=&quot;&quot;,style=solid,color=black];
+  &quot;User program&quot; -&gt; &quot;clang/llc&quot; [ label = &quot;c/c++&quot; ];
+  &quot;Soft floating lib&quot; -&gt; &quot;clang/llc&quot; [ label = &quot;c&quot; ];
+  &quot;clang/llc&quot; -&gt; lld [ label = &quot;obj&quot; ];
+}" class="graphviz" /></div>
 <section id="compiler-rt">
-<h2><a class="toc-backref" href="#id8">Compiler-rt</a><a class="headerlink" href="#compiler-rt" title="Permalink to this headline">¶</a></h2>
-<p>Directory libex/libsoftfloat/compiler-rt include the floating point library
-support for Cpu0 backend. The compiler-rt <a class="footnote-reference brackets" href="#id6" id="id1">1</a> version we use is
-llvm 3.5 release.</p>
-<p>The code modified as follows,</p>
-<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">chungshu@ChungShudeMacBook-Air compiler-rt % </span>diff -u -r /Users/chungshu/Documents/compiler-rt-3.5.0.src/lib/builtins/ builtins/ <span class="p">&amp;</span>&gt; compiler-rt-diff.patch
-</pre></div>
-</div>
-<p class="rubric">lbt/Fig/compiler-rt-diff.patch</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>Only in builtins/: Makefile
-diff -u -r /Users/chungshu/Documents/compiler-rt-3.5.0.src/lib/builtins/absvdi2.c builtins/absvdi2.c
---- /Users/chungshu/Documents/compiler-rt-3.5.0.src/lib/builtins/absvdi2.c	2014-02-14 17:20:33.000000000 +0800
-+++ builtins/absvdi2.c	2021-12-11 22:37:27.000000000 +0800
-@@ -21,9 +21,26 @@
- COMPILER_RT_ABI di_int
- __absvdi2(di_int a)
- {
-+#if 1
-     const int N = (int)(sizeof(di_int) * CHAR_BIT);
-     if (a == ((di_int)1 &lt;&lt; (N-1)))
-         compilerrt_abort();
-     const di_int t = a &gt;&gt; (N - 1);
-     return (a ^ t) - t;
-+#else
-+  // Fix for Cpu0, Not OK!
-+    di_int result;
-+    const int N = (int)(sizeof(di_int) * CHAR_BIT);
-+    if (a == (1 &lt;&lt; (N-1))) {
-+    // In 2&#39;s compliment, positive only reach (power(2, N-1) - 1)
-+        compilerrt_abort();
-+    }
-+    const di_int t = (1 &lt;&lt; (N-1));
-+    if ((a &amp; t) == t)
-+      // negative, t = 0x8000...0
-+      result = 0 - a;
-+    else
-+      result = a;
-+    return result;
-+#endif
- }
-diff -u -r /Users/chungshu/Documents/compiler-rt-3.5.0.src/lib/builtins/absvsi2.c builtins/absvsi2.c
---- /Users/chungshu/Documents/compiler-rt-3.5.0.src/lib/builtins/absvsi2.c	2014-02-14 17:20:33.000000000 +0800
-+++ builtins/absvsi2.c	2021-12-11 22:37:27.000000000 +0800
-@@ -18,12 +18,31 @@
- 
- /* Effects: aborts if abs(x) &lt; 0 */
- 
-+extern int printf(const char *format, ...);
- COMPILER_RT_ABI si_int
- __absvsi2(si_int a)
- {
-+#if 0
-     const int N = (int)(sizeof(si_int) * CHAR_BIT);
--    if (a == (1 &lt;&lt; (N-1)))
-+    if (a == (1 &lt;&lt; (N-1))) {
-         compilerrt_abort();
-+    }
-     const si_int t = a &gt;&gt; (N - 1);
-     return (a ^ t) - t;
-+#else
-+  // Fix for Cpu0
-+    si_int result;
-+    const int N = (int)(sizeof(si_int) * CHAR_BIT);
-+    if (a == (1 &lt;&lt; (N-1))) {
-+    // In 2&#39;s compliment, positive only reach (power(2, N-1) - 1)
-+        compilerrt_abort();
-+    }
-+    const si_int t = (1 &lt;&lt; (N-1));
-+    if ((a &amp; t) == t)
-+      // negative, t = 0x8000...0
-+      result = 0 - a;
-+    else
-+      result = a;
-+    return result;
-+#endif
- }
-diff -u -r /Users/chungshu/Documents/compiler-rt-3.5.0.src/lib/builtins/adddf3.c builtins/adddf3.c
---- /Users/chungshu/Documents/compiler-rt-3.5.0.src/lib/builtins/adddf3.c	2014-05-28 23:06:25.000000000 +0800
-+++ builtins/adddf3.c	2021-12-11 22:37:27.000000000 +0800
-@@ -13,6 +13,7 @@
- //===----------------------------------------------------------------------===//
- 
- #define DOUBLE_PRECISION
-+#undef __LP64__
- #include &quot;fp_add_impl.inc&quot;
- 
- ARM_EABI_FNALIAS(dadd, adddf3)
-Only in /Users/chungshu/Documents/compiler-rt-3.5.0.src/lib/builtins/: arm
-Only in /Users/chungshu/Documents/compiler-rt-3.5.0.src/lib/builtins/: armv6m
-Only in builtins/: cpu0-porting.c
-diff -u -r /Users/chungshu/Documents/compiler-rt-3.5.0.src/lib/builtins/divdc3.c builtins/divdc3.c
---- /Users/chungshu/Documents/compiler-rt-3.5.0.src/lib/builtins/divdc3.c	2014-03-01 23:30:50.000000000 +0800
-+++ builtins/divdc3.c	2021-12-11 22:37:27.000000000 +0800
-@@ -21,7 +21,9 @@
- __divdc3(double __a, double __b, double __c, double __d)
- {
-     int __ilogbw = 0;
--    double __logbw = crt_logb(crt_fmax(crt_fabs(__c), crt_fabs(__d)));
-+// Cpu0 porting
-+//    double __logbw = crt_logb(crt_fmax(crt_fabs(__c), crt_fabs(__d)));
-+    double __logbw = crt_logb(fmax(crt_fabs(__c), crt_fabs(__d)));
-     if (crt_isfinite(__logbw))
-     {
-         __ilogbw = (int)__logbw;
-diff -u -r /Users/chungshu/Documents/compiler-rt-3.5.0.src/lib/builtins/fixdfsi.c builtins/fixdfsi.c
---- /Users/chungshu/Documents/compiler-rt-3.5.0.src/lib/builtins/fixdfsi.c	2014-03-01 23:30:50.000000000 +0800
-+++ builtins/fixdfsi.c	2021-12-11 22:37:27.000000000 +0800
-@@ -13,13 +13,18 @@
- //
- //===----------------------------------------------------------------------===//
- 
-+//#undef SINGLE_PRECISION
- #define DOUBLE_PRECISION
-+//#define SINGLE_PRECISION
- #include &quot;fp_lib.h&quot;
- 
- #include &quot;int_lib.h&quot;
- 
- ARM_EABI_FNALIAS(d2iz, fixdfsi)
- 
-+int printf(const char *format, ...);
-+int sprintf(char *out, const char *format, ...);
-+
- COMPILER_RT_ABI int
- __fixdfsi(fp_t a) {
-     
-@@ -29,14 +34,29 @@
-     const int sign = aRep &amp; signBit ? -1 : 1;
-     const int exponent = (aAbs &gt;&gt; significandBits) - exponentBias;
-     const rep_t significand = (aAbs &amp; significandMask) | implicitBit;
-+#if 0
-+    printf(&quot;__CONCAT(1, ULL)=%08x%08x, REP_C(1)=%08x%08x, implicitBit=%08x%08x\n&quot;, (int)(__CONCAT(1, ULL) &gt;&gt; 32), (int)(__CONCAT(1, ULL) &amp; 0xffffffff), (int)(REP_C(1) &gt;&gt; 32), (int)(REP_C(1) &amp; 0xffffffff), (int)(implicitBit &gt;&gt; 32), (int)(implicitBit &amp; 0xffffffff));
-+    printf(&quot;significandBits=%x, ttt=%x, exponentBias=%x, signBit=%08x%08x\n&quot;, significandBits, ttt, exponentBias, (int)(signBit &gt;&gt; 32), (int)(signBit &amp; 0xffffffff));
-+    printf(&quot;significandMask=%08x%08x\n&quot;, (int)(significandMask &gt;&gt; 32), (int)(significandMask &amp; 0xffffffff));
-+    printf(&quot;sign=%x, exponent=%x, significand=%08x%08x\n&quot;, sign, exponent, (int)(significand &gt;&gt; 32), (int)(significand &amp; 0xffffffff));
-+    printf(&quot;aAbs=%08x%08x, significandBits=%x\n&quot;, (int)(aAbs &gt;&gt; 32), (int)(aAbs &amp; 0xffffffff), significandBits);
-+#endif
-     
-     // If 0 &lt; exponent &lt; significandBits, right shift to get the result.
-     if ((unsigned int)exponent &lt; significandBits) {
-         return sign * (significand &gt;&gt; (significandBits - exponent));
-+#if 0
-+        int aa = (int)(significandBits - exponent);
-+        int bb = (int)(significand &gt;&gt; aa);
-+        int cc = (int)(sign * bb);
-+        printf(&quot;sign=%08x, significand=%08x%08x, aa=%08x, bb=%08x, cc=%08x\n&quot;, sign, (int)(significand &gt;&gt; 32), (int)(significand &amp; 0xffffffff), aa, bb, cc);
-+        return cc;
-+#endif
-     }
-     
-     // If exponent is negative, the result is zero.
-     else if (exponent &lt; 0) {
-+        printf(&quot;2\n&quot;);
-         return 0;
-     }
-     
-@@ -45,6 +65,7 @@
-     // behavior, but the conversion itself is undefined in that case, so
-     // whatever the compiler decides to do is fine.
-     else {
-+        printf(&quot;3\n&quot;);
-         return sign * (significand &lt;&lt; (exponent - significandBits));
-     }
- }
-diff -u -r /Users/chungshu/Documents/compiler-rt-3.5.0.src/lib/builtins/fixsfsi.c builtins/fixsfsi.c
---- /Users/chungshu/Documents/compiler-rt-3.5.0.src/lib/builtins/fixsfsi.c	2014-02-14 17:20:33.000000000 +0800
-+++ builtins/fixsfsi.c	2021-12-11 22:37:27.000000000 +0800
-@@ -18,6 +18,9 @@
- 
- ARM_EABI_FNALIAS(f2iz, fixsfsi)
- 
-+int printf(const char *format, ...);
-+int sprintf(char *out, const char *format, ...);
-+
- COMPILER_RT_ABI int
- __fixsfsi(fp_t a) {
-     // Break a into sign, exponent, significand
-@@ -26,14 +29,28 @@
-     const int sign = aRep &amp; signBit ? -1 : 1;
-     const int exponent = (aAbs &gt;&gt; significandBits) - exponentBias;
-     const rep_t significand = (aAbs &amp; significandMask) | implicitBit;
--    
-+#if 0
-+    printf(&quot;significandBits=%x, ttt=%x, exponentBias=%x, signBit=%x\n&quot;, significandBits, ttt, exponentBias, (int)signBit);
-+    printf(&quot;REP_C(1)=%x, implicitBit=%x\n&quot;, REP_C(1), implicitBit);
-+    printf(&quot;sign=%x, exponent=%x, significand=%x\n&quot;, sign, exponent, significand);
-+    printf(&quot;aAbs=%x, significandMask=%x, implicitBit=%x, significandBits=%x, ttt=%x\n&quot;, aAbs, significandMask, implicitBit, significandBits, ttt);
-+#endif
-+
-     // If 0 &lt; exponent &lt; significandBits, right shift to get the result.
-     if ((unsigned int)exponent &lt; significandBits) {
-         return sign * (significand &gt;&gt; (significandBits - exponent));
-+#if 0
-+        int aa = (int)(significandBits - exponent);
-+        int bb = (int)(significand &gt;&gt; aa);
-+        int cc = (int)(sign * bb);
-+        printf(&quot;sign=%08x, significand=%08x, aa=%08x, bb=%08x, cc=%08x\n&quot;, sign, (int)(significand &amp; 0xffffffff), aa, bb, cc);
-+        return cc;
-+#endif
-     }
-     
-     // If exponent is negative, the result is zero.
-     else if (exponent &lt; 0) {
-+        printf(&quot;2\n&quot;);
-         return 0;
-     }
-     
-@@ -42,6 +59,7 @@
-     // behavior, but the conversion itself is undefined in that case, so
-     // whatever the compiler decides to do is fine.
-     else {
-+        printf(&quot;3\n&quot;);
-         return sign * (significand &lt;&lt; (exponent - significandBits));
-     }
- }
-diff -u -r /Users/chungshu/Documents/compiler-rt-3.5.0.src/lib/builtins/floatundidf.c builtins/floatundidf.c
---- /Users/chungshu/Documents/compiler-rt-3.5.0.src/lib/builtins/floatundidf.c	2014-03-01 23:30:50.000000000 +0800
-+++ builtins/floatundidf.c	2021-12-11 22:37:27.000000000 +0800
-@@ -21,15 +21,15 @@
- /* seee eeee eeee mmmm mmmm mmmm mmmm mmmm | mmmm mmmm mmmm mmmm mmmm mmmm mmmm mmmm */
- 
- #include &quot;int_lib.h&quot;
--
--ARM_EABI_FNALIAS(ul2d, floatundidf)
-+#if 1
-+//ARM_EABI_FNALIAS(ul2d, floatundidf)
- 
- #ifndef __SOFT_FP__
- /* Support for systems that have hardware floating-point; we&#39;ll set the inexact flag
-  * as a side-effect of this computation.
-  */
- 
--COMPILER_RT_ABI double
-+/*COMPILER_RT_ABI */double
- __floatundidf(du_int a)
- {
- 	static const double twop52 = 0x1.0p52;
-@@ -51,7 +51,7 @@
-  * set, and we don&#39;t want to code-gen to an unknown soft-float implementation.
-  */ 
- 
--COMPILER_RT_ABI double
-+/*COMPILER_RT_ABI */double
- __floatundidf(du_int a)
- {
-     if (a == 0)
-@@ -98,9 +98,11 @@
-         /* a is now rounded to DBL_MANT_DIG bits */
-     }
-     double_bits fb;
--    fb.u.high = ((e + 1023) &lt;&lt; 20)      |        /* exponent */
-+    fb.u.s.high = ((e + 1023) &lt;&lt; 20)      |        /* exponent */
-                 ((su_int)(a &gt;&gt; 32) &amp; 0x000FFFFF); /* mantissa-high */
--    fb.u.low = (su_int)a;                         /* mantissa-low  */
-+    fb.u.s.low = (su_int)a;                         /* mantissa-low  */
-     return fb.f;
- }
- #endif
-+
-+#endif
-diff -u -r /Users/chungshu/Documents/compiler-rt-3.5.0.src/lib/builtins/fp_lib.h builtins/fp_lib.h
---- /Users/chungshu/Documents/compiler-rt-3.5.0.src/lib/builtins/fp_lib.h	2014-07-08 16:52:57.000000000 +0800
-+++ builtins/fp_lib.h	2021-12-11 22:37:27.000000000 +0800
-@@ -38,13 +38,15 @@
- # endif
- #endif
- 
--#if defined SINGLE_PRECISION
-+//#if defined SINGLE_PRECISION
-+#if defined(SINGLE_PRECISION)
- 
- typedef uint32_t rep_t;
- typedef int32_t srep_t;
- typedef float fp_t;
- #define REP_C UINT32_C
- #define significandBits 23
-+#define ttt 1
- 
- static inline int rep_clz(rep_t a) {
-     return __builtin_clz(a);
-@@ -58,13 +60,17 @@
- }
- COMPILER_RT_ABI fp_t __addsf3(fp_t a, fp_t b);
- 
--#elif defined DOUBLE_PRECISION
-+//#elif defined DOUBLE_PRECISION
-+#elif defined(DOUBLE_PRECISION)
- 
- typedef uint64_t rep_t;
- typedef int64_t srep_t;
- typedef double fp_t;
-+//#define REP_C UINT64_C
-+#undef REP_C
- #define REP_C UINT64_C
- #define significandBits 52
-+#define ttt 2
- 
- static inline int rep_clz(rep_t a) {
- #if defined __LP64__
-@@ -101,7 +107,8 @@
- 
- COMPILER_RT_ABI fp_t __adddf3(fp_t a, fp_t b);
- 
--#elif defined QUAD_PRECISION
-+//#elif defined QUAD_PRECISION
-+#elif defined(QUAD_PRECISION)
- #if __LDBL_MANT_DIG__ == 113
- #define CRT_LDBL_128BIT
- typedef __uint128_t rep_t;
-Only in /Users/chungshu/Documents/compiler-rt-3.5.0.src/lib/builtins/: i386
-diff -u -r /Users/chungshu/Documents/compiler-rt-3.5.0.src/lib/builtins/int_lib.h builtins/int_lib.h
---- /Users/chungshu/Documents/compiler-rt-3.5.0.src/lib/builtins/int_lib.h	2014-05-13 00:47:01.000000000 +0800
-+++ builtins/int_lib.h	2021-12-11 22:37:27.000000000 +0800
-@@ -37,28 +37,15 @@
- # define COMPILER_RT_ABI COMPILER_RT_EXPORT
- #endif
- 
--#if defined(__NetBSD__) &amp;&amp; (defined(_KERNEL) || defined(_STANDALONE))
--/*
-- * Kernel and boot environment can&#39;t use normal headers,
-- * so use the equivalent system headers.
-- */
--#  include &lt;machine/limits.h&gt;
--#  include &lt;sys/stdint.h&gt;
--#  include &lt;sys/types.h&gt;
--#else
--/* Include the standard compiler builtin headers we use functionality from. */
--#  include &lt;limits.h&gt;
--#  include &lt;stdint.h&gt;
--#  include &lt;stdbool.h&gt;
--#  include &lt;float.h&gt;
--#endif
--
- /* Include the commonly used internal type definitions. */
- #include &quot;int_types.h&quot;
- 
- /* Include internal utility function declarations. */
- #include &quot;int_util.h&quot;
- 
-+/* Include the standard compiler builtin headers we use functionality from. */
-+#  include &lt;limits.h&gt;
-+
- COMPILER_RT_ABI si_int __paritysi2(si_int a);
- COMPILER_RT_ABI si_int __paritydi2(di_int a);
- 
-@@ -73,4 +60,6 @@
- COMPILER_RT_ABI tu_int __udivmodti4(tu_int a, tu_int b, tu_int* rem);
- #endif
- 
-+#define __SOFT_FP__ 1
-+
- #endif /* INT_LIB_H */
-diff -u -r /Users/chungshu/Documents/compiler-rt-3.5.0.src/lib/builtins/int_math.h builtins/int_math.h
---- /Users/chungshu/Documents/compiler-rt-3.5.0.src/lib/builtins/int_math.h	2014-02-14 17:20:33.000000000 +0800
-+++ builtins/int_math.h	2021-12-11 22:37:27.000000000 +0800
-@@ -47,11 +47,11 @@
- #define crt_copysign(x, y) __builtin_copysign((x), (y))
- #define crt_copysignf(x, y) __builtin_copysignf((x), (y))
- #define crt_copysignl(x, y) __builtin_copysignl((x), (y))
--
-+/*
- #define crt_fabs(x) __builtin_fabs((x))
- #define crt_fabsf(x) __builtin_fabsf((x))
- #define crt_fabsl(x) __builtin_fabsl((x))
--
-+*/
- #define crt_fmax(x, y) __builtin_fmax((x), (y))
- #define crt_fmaxf(x, y) __builtin_fmaxf((x), (y))
- #define crt_fmaxl(x, y) __builtin_fmaxl((x), (y))
-diff -u -r /Users/chungshu/Documents/compiler-rt-3.5.0.src/lib/builtins/int_types.h builtins/int_types.h
---- /Users/chungshu/Documents/compiler-rt-3.5.0.src/lib/builtins/int_types.h	2014-05-19 23:48:46.000000000 +0800
-+++ builtins/int_types.h	2021-12-11 22:37:27.000000000 +0800
-@@ -18,7 +18,9 @@
- #ifndef INT_TYPES_H
- #define INT_TYPES_H
- 
--#include &quot;int_endianness.h&quot;
-+//#include &quot;int_endianness.h&quot;
-+#define _YUGA_LITTLE_ENDIAN 0
-+#define _YUGA_BIG_ENDIAN    1
- 
- typedef      int si_int;
- typedef unsigned su_int;
-@@ -139,5 +141,14 @@
-     long double f;
- } long_double_bits;
- 
-+#include &lt;stdbool.h&gt;
-+//#define bool int
-+//typedef unsigned char	uint8_t;
-+#define uint32_t unsigned int
-+#define uint64_t unsigned long long
-+//typedef unsigned int	uintptr_t;
-+#define FLT_MANT_DIG 24
-+#define DBL_MANT_DIG 53
-+
- #endif /* INT_TYPES_H */
- 
-diff -u -r /Users/chungshu/Documents/compiler-rt-3.5.0.src/lib/builtins/int_util.c builtins/int_util.c
---- /Users/chungshu/Documents/compiler-rt-3.5.0.src/lib/builtins/int_util.c	2014-02-14 17:20:33.000000000 +0800
-+++ builtins/int_util.c	2021-12-11 22:37:27.000000000 +0800
-@@ -58,4 +58,8 @@
-   abort();
- }
- 
-+void abort() {
-+  return;
-+}
-+
- #endif
-Only in builtins/: libFloat.o
-Only in /Users/chungshu/Documents/compiler-rt-3.5.0.src/lib/builtins/: ppc
-Only in /Users/chungshu/Documents/compiler-rt-3.5.0.src/lib/builtins/: x86_64
-</pre></div>
-</div>
-<p class="rubric">lbt/exlbt/libsoftfloat/compiler-rt/builtins/Makefile</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>CC=clang
-LLC=~/llvm/test/cmake_debug_build/bin/llc
-LINK=~/llvm/test/cmake_debug_build/bin/lld
-INCFLAG=-I/home/cschen/test/open-src-libc/avr-libc-1.8.1/include -I/home/cschen/test/open-src-libc/avr-libc-1.8.1/common
-CFLAGS=-target mips-unknown-linux-gnu -emit-llvm ${INCFLAG} -S
-LLCFLAGS=-march=cpu0 -relocation-model=static -filetype=obj
-LDFLAGS=-flavor gnu -target cpu0-unknown-linux-gnu 
-#SOURCES := absvdi2.c absvsi2.c absvti2.c adddf3.c addsf3.c addtf3.c addvdi3.c \
-#  addvsi3.c addvti3.c apple_versioning.c ashldi3.c ashlti3.c ashrdi3.c \
-#  ashrti3.c clear_cache.c clzdi2.c clzsi2.c clzti2.c cmpdi2.c cmpti2.c \
-#  comparedf2.c comparesf2.c ctzdi2.c ctzsi2.c ctzti2.c divdc3.c divdf3.c \
-#  divdi3.c divmoddi4.c divmodsi4.c divsc3.c divsf3.c divsi3.c divti3.c divtf3.c \
-#  divxc3.c
+<h2><a class="toc-backref" href="#id12">Compiler-rt</a><a class="headerlink" href="#compiler-rt" title="Permalink to this headline">¶</a></h2>
+<table class="docutils align-default" id="id11">
+<caption><span class="caption-number">Table 1 </span><span class="caption-text">Toolchain components <a class="footnote-reference brackets" href="#toolchain" id="id1">2</a></span><a class="headerlink" href="#id11" title="Permalink to this table">¶</a></caption>
+<colgroup>
+<col style="width: 24%" />
+<col style="width: 44%" />
+<col style="width: 32%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>Component</p></th>
+<th class="head"><p>LLVM</p></th>
+<th class="head"><p>GNU <a class="footnote-reference brackets" href="#gnu" id="id2">1</a></p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>C/C++ Compiler</p></td>
+<td><p>clang/llvm</p></td>
+<td><p>gcc</p></td>
+</tr>
+<tr class="row-odd"><td><p>Assembler</p></td>
+<td><p>llvm integrated assembler</p></td>
+<td><p>as</p></td>
+</tr>
+<tr class="row-even"><td><p>Linker</p></td>
+<td><p>ld.lld</p></td>
+<td><p>ld.bfd ld.gold</p></td>
+</tr>
+<tr class="row-odd"><td><p>Runtime</p></td>
+<td><p>compiler-rt</p></td>
+<td><p>libgcc <a class="footnote-reference brackets" href="#libgcc" id="id3">3</a></p></td>
+</tr>
+<tr class="row-even"><td><p>Unwinder</p></td>
+<td><p>libunwind</p></td>
+<td><p>libgcc_s</p></td>
+</tr>
+<tr class="row-odd"><td><p>C++ library</p></td>
+<td><p>libc++abi, libc++</p></td>
+<td><p>libsupc++ libstdc++</p></td>
+</tr>
+<tr class="row-even"><td><p>Utils</p></td>
+<td><p>llvm-ar, llvm-objdump etc.</p></td>
+<td><p>ar, objdump etc.</p></td>
+</tr>
+<tr class="row-odd"><td><p>C library</p></td>
+<td><ul class="simple">
+<li></li>
+</ul>
+</td>
+<td><p>libc</p></td>
+</tr>
+</tbody>
+</table>
+<p>The libgcc’s soft float library is here <a class="footnote-reference brackets" href="#soft-float-lib" id="id4">4</a> .
+Compiler-rt is a project with runtime libraries implentation <a class="footnote-reference brackets" href="#id10" id="id5">5</a> .
+Compiler-rt/lib/builtins provides functions for basic operations such as +, -,
+*, /, … on type of float or double and for conversion between float and
+integer. Though the ‘rt’ means RunTime libaraies, most of these functions
+written in target-independent C form and can be compiled and static-linked
+into target. When you compile the following c code, llc generates
+<strong>jsub __addsf3</strong> to call compiler-rt float function since Cpu0 hasn’t hardware
+float-instructions so Cpu0 backend doesn’t handle it, and llvm treats it
+as a function call for float-add instruction.</p>
+<p class="rubric">lbt/exlbt/input/ch_call_compilerrt_func.c</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="o">//</span> <span class="n">clang</span> <span class="o">-</span><span class="n">target</span> <span class="n">mips</span><span class="o">-</span><span class="n">unknown</span><span class="o">-</span><span class="n">linux</span><span class="o">-</span><span class="n">gnu</span> <span class="o">-</span><span class="n">S</span> <span class="n">ch_call_compilerrt_func</span><span class="o">.</span><span class="n">c</span> <span class="o">-</span><span class="n">emit</span><span class="o">-</span><span class="n">llvm</span> <span class="o">-</span><span class="n">o</span> <span class="n">ch_call_compilerrt_func</span><span class="o">.</span><span class="n">ll</span>
+<span class="o">//</span> <span class="o">~/</span><span class="n">llvm</span><span class="o">/</span><span class="n">test</span><span class="o">/</span><span class="n">build</span><span class="o">/</span><span class="nb">bin</span><span class="o">/</span><span class="n">llc</span> <span class="o">-</span><span class="n">march</span><span class="o">=</span><span class="n">cpu0</span> <span class="o">-</span><span class="n">mcpu</span><span class="o">=</span><span class="n">cpu032II</span> <span class="o">-</span><span class="n">relocation</span><span class="o">-</span><span class="n">model</span><span class="o">=</span><span class="n">static</span> <span class="o">-</span><span class="n">filetype</span><span class="o">=</span><span class="n">asm</span> <span class="n">ch_call_compilerrt_func</span><span class="o">.</span><span class="n">ll</span> <span class="o">-</span><span class="n">o</span> <span class="o">-</span>
 
-SOURCES := absvdi2.c absvsi2.c absvti2.c 
+<span class="o">///</span> <span class="n">start</span>
+<span class="nb">float</span> <span class="n">ch_call_compilerrt_func</span><span class="p">()</span>
+<span class="p">{</span>
+  <span class="nb">float</span> <span class="n">a</span> <span class="o">=</span> <span class="mf">3.1</span><span class="p">;</span>
+  <span class="nb">float</span> <span class="n">b</span> <span class="o">=</span> <span class="mf">2.2</span><span class="p">;</span>
+  <span class="nb">float</span> <span class="n">c</span> <span class="o">=</span> <span class="n">a</span> <span class="o">+</span> <span class="n">b</span><span class="p">;</span>
 
-OUTPUT_OBJ_DIR=obj
-#$(sources:.c=.d)
-#IRS := $(addprefix , $(addsuffix .o, ${SOURCES}))
-IRS := $(SOURCES:.c=.l)
-#IRS=$(SOURCES:.c=.ll)
-OBJECTS=$(IRS:.l=.o)
-EXECUTABLE=compiler-rt.bc
-
-all: $(SOURCES) $(EXECUTABLE)
-	
-$(EXECUTABLE): $(OBJECTS)
-	${LINK} ${LDFLAGS} ${OBJECTS} -o $@
-
-$(OBJECTS): %.o: %.ll
-	${LLC} ${LLCFLAGS} $&lt; -o $@
-
-$(IRS): $(SOURCES)
-	${CC} ${CFLAGS} $&lt; -o $@
-
-.PHONY: clean
-clean:
-	rm -rf ${OUTPUT_OBJ_DIR} *.bc *.ll *.o
+  <span class="k">return</span> <span class="n">c</span><span class="p">;</span>
+<span class="p">}</span>
 
 </pre></div>
 </div>
-<p class="rubric">lbt/exlbt/libsoftfloat/compiler-rt/builtins/cpu0-porting.c</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>/*
-float __TGMATH_BINARY_REAL_ONLY(Val1, Val2, Fct)
-{
-  return  (__extension__ (((sizeof (Val1) &gt; sizeof (double)
-		       || sizeof (Val2) &gt; sizeof (double))
-		      &amp;&amp; __builtin_classify_type ((Val1) + (Val2)) == 8)
-		     ? (__typeof ((__tgmath_real_type (Val1)) 0
-				   + (__tgmath_real_type (Val2)) 0))
-		       __tgml(Fct) (Val1, Val2)
-		     : (sizeof (Val1) == sizeof (double)
-			|| sizeof (Val2) == sizeof (double)
-			|| __builtin_classify_type (Val1) != 8
-			|| __builtin_classify_type (Val2) != 8)
-		     ? (__typeof ((__tgmath_real_type (Val1)) 0	
-				   + (__tgmath_real_type (Val2)) 0))
-		       Fct (Val1, Val2)
-		     : (__typeof ((__tgmath_real_type (Val1)) 0
-				   + (__tgmath_real_type (Val2)) 0))
-		       Fct##f (Val1, Val2)));
-}
-*/
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">chungshu@ChungShudeMacBook-Air input % </span>clang -target mips-unknown-linux-gnu -S ch_call_compilerrt_func.c -emit-llvm -o ch_call_compilerrt_func.ll
+<span class="gp">chungshu@ChungShudeMacBook-Air input % </span>cat ch_call_compilerrt_func.ll
+<span class="go">  ...</span>
+<span class="gp">  %</span><span class="nv">4</span> <span class="o">=</span> load float, float* %1, align <span class="m">4</span>
+<span class="gp">  %</span><span class="nv">5</span> <span class="o">=</span> load float, float* %2, align <span class="m">4</span>
+<span class="gp">  %</span><span class="nv">6</span> <span class="o">=</span> fadd float %4, %5
 
-#define FS_SIGNED_M       0x80000000
-#define FS_EXP_M          0x7f800000
-#define FS_SIGNIFICAND_M  0x007fffff
-
-float fmax(float x, float y)
-{
-  int x_b31 = ((unsigned int)x &amp; FS_SIGNED_M) &gt;&gt; 31;
-  int x_exp_signi = ((unsigned int)x &amp; (FS_EXP_M | FS_SIGNIFICAND_M));
-  int y_b31 = ((unsigned int)y &amp; FS_SIGNED_M) &gt;&gt; 31;
-  int y_exp_signi = ((unsigned int)y &amp; (FS_EXP_M | FS_SIGNIFICAND_M));
-  if (x_b31 == 1 &amp;&amp; y_b31 == 1) {
-    if (x_exp_signi &gt; y_exp_signi) {
-      return y;
-    }
-    else {
-      return x;
-    }
-  }
-  else if (x_b31 == 0 &amp;&amp; y_b31 == 1) {
-    return x;
-  }
-  else if (x_b31 == 1 &amp;&amp; y_b31 == 0) {
-    return y;
-  }
-  else if (x_b31 == 0 &amp;&amp; y_b31 == 0) {
-    if (x_exp_signi &gt;= y_exp_signi) {
-      return x;
-    }
-    else {
-      return y;
-    }
-  }
-}
-
-float fabsf(float x)
-{
-  float* p = &amp;x;
-  int x_b31 = ((unsigned int)(*p) &amp; FS_SIGNED_M) &gt;&gt; 31;
-  if (x_b31 == 1) {
-    x = (float)((unsigned int)(*p) | FS_SIGNED_M);
-    return (float)(*p);
-  }
-  else
-    return (float)(*p);
-}
-
-#define DS_SIGNED_M       0x8000000000000000
-
-double fabsl(double x)
-{
-  double* p = &amp;x;
-  int x_b31 = ((unsigned long long)(*p) &amp; DS_SIGNED_M) &gt;&gt; 63;
-  if (x_b31 == 1) {
-    x = (double)((unsigned long long)(*p) | FS_SIGNED_M);
-    return (double)(*p);
-  }
-  else
-    return (float)(*p);
-}
-
-float fabs(float x)
-{
-  return fabsf(x);
-}
+<span class="gp">chungshu@ChungShudeMacBook-Air input % </span>~/llvm/test/build/bin/llc -march<span class="o">=</span>cpu0 -mcpu<span class="o">=</span>cpu032II -relocation-model<span class="o">=</span>static -filetype<span class="o">=</span>asm ch_call_compilerrt_func.ll -o -
+<span class="go">      ...</span>
+<span class="go">      ld      $4, 20($fp)</span>
+<span class="go">      ld      $5, 16($fp)</span>
+<span class="go">      jsub    __addsf3</span>
 </pre></div>
 </div>
-<p class="rubric">lbt/exlbt/libsoftfloat/compiler-rt/Makefile</p>
+<p>For some brar-metal or embedded application, the C code doesn’t need the
+file and high-level IO in libc.
+Libm provides a lots of functions to support software floating point beyond
+basic operations <a class="footnote-reference brackets" href="#math" id="id6">6</a> .
+Libc provides file, high-level IO functions and basic float functions <a class="footnote-reference brackets" href="#clib" id="id7">7</a> .</p>
+<p>Cpu0 hires Compiler-rt/lib/builtins and the tiny single module printf-stdarg.c
+<a class="footnote-reference brackets" href="#printf-stdarg" id="id8">8</a> at this point.
+Directory exlib/libsoftfloat/compiler-rt-12.x/builtins is a symbolic link to
+llvm-project/compiler-rt/lib/builtins which is the floating point library from
+compiler-rt <a class="footnote-reference brackets" href="#id10" id="id9">5</a>. The compiler-rt/lib/builtins is a
+target-independent C form of software float library implementation. Cpu0
+implements compiler-rt-12.x/cpu0/abort.c only at this point for supporting
+this feature.</p>
+</section>
+<section id="software-float-point-support">
+<h2><a class="toc-backref" href="#id13">Software Float Point Support</a><a class="headerlink" href="#software-float-point-support" title="Permalink to this headline">¶</a></h2>
+<p class="rubric">exlbt/include/math.h</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="c1">#ifndef _MATH_H_</span>
+<span class="c1">#define	_MATH_H_</span>
+
+<span class="o">//</span><span class="c1">#ifdef HAS_COMPLEX</span>
+ <span class="c1">#ifndef HUGE_VALF</span>
+  <span class="c1">#define HUGE_VALF (1.0e999999999F)</span>
+ <span class="c1">#endif</span>
+
+ <span class="c1">#if !defined(INFINITY)</span>
+  <span class="c1">#define INFINITY (HUGE_VALF)</span>
+ <span class="c1">#endif</span>
+
+ <span class="c1">#if !defined(NAN)</span>
+  <span class="c1">#define NAN (0.0F/0.0F)</span>
+ <span class="c1">#endif</span>
+
+ <span class="nb">float</span> <span class="n">cabsf</span><span class="p">(</span><span class="nb">float</span> <span class="nb">complex</span><span class="p">)</span> <span class="p">;</span>
+<span class="o">//</span><span class="c1">#endif</span>
+<span class="c1">#endif</span>
+</pre></div>
+</div>
+<p class="rubric">exlbt/include/stdio.h</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="c1">#ifndef _STDIO_H_</span>
+<span class="c1">#define	_STDIO_H_</span>
+
+<span class="c1">#define stdin   0</span>
+<span class="c1">#define stdout  1</span>
+<span class="c1">#define stderr  2</span>
+
+<span class="c1">#define size_t unsigned int</span>
+
+<span class="c1">#endif</span>
+</pre></div>
+</div>
+<p class="rubric">exlbt/include/stdlib.h</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="c1">#ifndef _STDLIB_H_</span>
+<span class="c1">#define	_STDLIB_H_</span>
+
+<span class="c1">#ifdef __cplusplus</span>
+<span class="n">extern</span> <span class="s2">&quot;C&quot;</span> <span class="p">{</span>
+<span class="c1">#endif</span>
+
+<span class="n">void</span> <span class="n">abort</span><span class="p">();</span>
+
+<span class="c1">#ifdef __cplusplus</span>
+<span class="p">}</span>
+<span class="c1">#endif</span>
+
+<span class="c1">#endif</span>
+</pre></div>
+</div>
+<p class="rubric">exlbt/include/string.h</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="c1">#ifndef _STRING_H_</span>
+<span class="c1">#define	_STRING_H_</span>
+
+
+<span class="c1">#endif</span>
+</pre></div>
+</div>
+<p class="rubric">exlbt/libsoftfloat/compiler-rt/cpu0/abort.c</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="o">/*</span> <span class="n">Copyright</span> <span class="p">(</span><span class="n">c</span><span class="p">)</span> <span class="mi">2002</span><span class="p">,</span> <span class="n">Marek</span> <span class="n">Michalkiewicz</span>
+   <span class="n">All</span> <span class="n">rights</span> <span class="n">reserved</span><span class="o">.</span>
+
+   <span class="n">Redistribution</span> <span class="ow">and</span> <span class="n">use</span> <span class="ow">in</span> <span class="n">source</span> <span class="ow">and</span> <span class="n">binary</span> <span class="n">forms</span><span class="p">,</span> <span class="k">with</span> <span class="ow">or</span> <span class="n">without</span>
+   <span class="n">modification</span><span class="p">,</span> <span class="n">are</span> <span class="n">permitted</span> <span class="n">provided</span> <span class="n">that</span> <span class="n">the</span> <span class="n">following</span> <span class="n">conditions</span> <span class="n">are</span> <span class="n">met</span><span class="p">:</span>
+
+   <span class="o">*</span> <span class="n">Redistributions</span> <span class="n">of</span> <span class="n">source</span> <span class="n">code</span> <span class="n">must</span> <span class="n">retain</span> <span class="n">the</span> <span class="n">above</span> <span class="n">copyright</span>
+     <span class="n">notice</span><span class="p">,</span> <span class="n">this</span> <span class="nb">list</span> <span class="n">of</span> <span class="n">conditions</span> <span class="ow">and</span> <span class="n">the</span> <span class="n">following</span> <span class="n">disclaimer</span><span class="o">.</span>
+   <span class="o">*</span> <span class="n">Redistributions</span> <span class="ow">in</span> <span class="n">binary</span> <span class="n">form</span> <span class="n">must</span> <span class="n">reproduce</span> <span class="n">the</span> <span class="n">above</span> <span class="n">copyright</span>
+     <span class="n">notice</span><span class="p">,</span> <span class="n">this</span> <span class="nb">list</span> <span class="n">of</span> <span class="n">conditions</span> <span class="ow">and</span> <span class="n">the</span> <span class="n">following</span> <span class="n">disclaimer</span> <span class="ow">in</span>
+     <span class="n">the</span> <span class="n">documentation</span> <span class="ow">and</span><span class="o">/</span><span class="ow">or</span> <span class="n">other</span> <span class="n">materials</span> <span class="n">provided</span> <span class="k">with</span> <span class="n">the</span>
+     <span class="n">distribution</span><span class="o">.</span>
+   <span class="o">*</span> <span class="n">Neither</span> <span class="n">the</span> <span class="n">name</span> <span class="n">of</span> <span class="n">the</span> <span class="n">copyright</span> <span class="n">holders</span> <span class="n">nor</span> <span class="n">the</span> <span class="n">names</span> <span class="n">of</span>
+     <span class="n">contributors</span> <span class="n">may</span> <span class="n">be</span> <span class="n">used</span> <span class="n">to</span> <span class="n">endorse</span> <span class="ow">or</span> <span class="n">promote</span> <span class="n">products</span> <span class="n">derived</span>
+     <span class="kn">from</span> <span class="nn">this</span> <span class="n">software</span> <span class="n">without</span> <span class="n">specific</span> <span class="n">prior</span> <span class="n">written</span> <span class="n">permission</span><span class="o">.</span>
+
+  <span class="n">THIS</span> <span class="n">SOFTWARE</span> <span class="n">IS</span> <span class="n">PROVIDED</span> <span class="n">BY</span> <span class="n">THE</span> <span class="n">COPYRIGHT</span> <span class="n">HOLDERS</span> <span class="n">AND</span> <span class="n">CONTRIBUTORS</span> <span class="s2">&quot;AS IS&quot;</span>
+  <span class="n">AND</span> <span class="n">ANY</span> <span class="n">EXPRESS</span> <span class="n">OR</span> <span class="n">IMPLIED</span> <span class="n">WARRANTIES</span><span class="p">,</span> <span class="n">INCLUDING</span><span class="p">,</span> <span class="n">BUT</span> <span class="n">NOT</span> <span class="n">LIMITED</span> <span class="n">TO</span><span class="p">,</span> <span class="n">THE</span>
+  <span class="n">IMPLIED</span> <span class="n">WARRANTIES</span> <span class="n">OF</span> <span class="n">MERCHANTABILITY</span> <span class="n">AND</span> <span class="n">FITNESS</span> <span class="n">FOR</span> <span class="n">A</span> <span class="n">PARTICULAR</span> <span class="n">PURPOSE</span>
+  <span class="n">ARE</span> <span class="n">DISCLAIMED</span><span class="o">.</span> <span class="n">IN</span> <span class="n">NO</span> <span class="n">EVENT</span> <span class="n">SHALL</span> <span class="n">THE</span> <span class="n">COPYRIGHT</span> <span class="n">OWNER</span> <span class="n">OR</span> <span class="n">CONTRIBUTORS</span> <span class="n">BE</span>
+  <span class="n">LIABLE</span> <span class="n">FOR</span> <span class="n">ANY</span> <span class="n">DIRECT</span><span class="p">,</span> <span class="n">INDIRECT</span><span class="p">,</span> <span class="n">INCIDENTAL</span><span class="p">,</span> <span class="n">SPECIAL</span><span class="p">,</span> <span class="n">EXEMPLARY</span><span class="p">,</span> <span class="n">OR</span>
+  <span class="n">CONSEQUENTIAL</span> <span class="n">DAMAGES</span> <span class="p">(</span><span class="n">INCLUDING</span><span class="p">,</span> <span class="n">BUT</span> <span class="n">NOT</span> <span class="n">LIMITED</span> <span class="n">TO</span><span class="p">,</span> <span class="n">PROCUREMENT</span> <span class="n">OF</span>
+  <span class="n">SUBSTITUTE</span> <span class="n">GOODS</span> <span class="n">OR</span> <span class="n">SERVICES</span><span class="p">;</span> <span class="n">LOSS</span> <span class="n">OF</span> <span class="n">USE</span><span class="p">,</span> <span class="n">DATA</span><span class="p">,</span> <span class="n">OR</span> <span class="n">PROFITS</span><span class="p">;</span> <span class="n">OR</span> <span class="n">BUSINESS</span>
+  <span class="n">INTERRUPTION</span><span class="p">)</span> <span class="n">HOWEVER</span> <span class="n">CAUSED</span> <span class="n">AND</span> <span class="n">ON</span> <span class="n">ANY</span> <span class="n">THEORY</span> <span class="n">OF</span> <span class="n">LIABILITY</span><span class="p">,</span> <span class="n">WHETHER</span> <span class="n">IN</span>
+  <span class="n">CONTRACT</span><span class="p">,</span> <span class="n">STRICT</span> <span class="n">LIABILITY</span><span class="p">,</span> <span class="n">OR</span> <span class="n">TORT</span> <span class="p">(</span><span class="n">INCLUDING</span> <span class="n">NEGLIGENCE</span> <span class="n">OR</span> <span class="n">OTHERWISE</span><span class="p">)</span>
+  <span class="n">ARISING</span> <span class="n">IN</span> <span class="n">ANY</span> <span class="n">WAY</span> <span class="n">OUT</span> <span class="n">OF</span> <span class="n">THE</span> <span class="n">USE</span> <span class="n">OF</span> <span class="n">THIS</span> <span class="n">SOFTWARE</span><span class="p">,</span> <span class="n">EVEN</span> <span class="n">IF</span> <span class="n">ADVISED</span> <span class="n">OF</span> <span class="n">THE</span>
+  <span class="n">POSSIBILITY</span> <span class="n">OF</span> <span class="n">SUCH</span> <span class="n">DAMAGE</span><span class="o">.</span> <span class="o">*/</span>
+
+
+<span class="n">void</span>
+<span class="n">abort</span><span class="p">(</span><span class="n">void</span><span class="p">)</span>
+<span class="p">{</span>
+	<span class="k">for</span> <span class="p">(;;);</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p class="rubric">lbt/exlbt/libsoftfloat/compiler-rt-12.x/Makefile</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span># Thanks .c .cb Vranish (https://spin.a.cmi.cbject..cm/2016/08/26/makefile-c-p.cjects/)
 
 # CPU and endian passed from command line, such as &quot;make CPU=cpu032II endian=&quot;
@@ -622,43 +281,145 @@ TOOLDIR := ~/llvm/test/build/bin
 CC := $(TOOLDIR)/clang
 AR := $(TOOLDIR)/llvm-ar
 
-SRCS := absvdi2.c absvsi2.c absvti2.c adddf3.c addsf3.c addtf3.c addvdi3.c \
-  addvsi3.c addvti3.c ashldi3.c ashlti3.c ashrdi3.c \
-  ashrti3.c clear_cache.c clzdi2.c clzsi2.c clzti2.c cmpdi2.c cmpti2.c \
-  comparedf2.c comparesf2.c ctzdi2.c ctzsi2.c ctzti2.c divdf3.c \
-  divdi3.c divmoddi4.c divmodsi4.c divsf3.c divsi3.c divti3.c divtf3.c \
-  extendsfdf2.c ffsdi2.c ffsti2.c \
-  fixdfdi.c fixdfsi.c fixdfti.c fixsfdi.c fixsfsi.c fixsfti.c fixunsdfdi.c \
-  fixunsdfsi.c fixunsdfti.c fixunssfdi.c fixunssfsi.c fixunssfti.c \
-  fixunsxfdi.c fixunsxfsi.c fixunsxfti.c fixxfdi.c fixxfti.c floatundidf.c \
-  floatdisf.c floatdixf.c floatsidf.c floatsisf.c floattidf.c floattisf.c \
-  floattixf.c floatundisf.c floatundixf.c floatunsidf.c \
-  floatunsisf.c floatuntidf.c floatuntisf.c floatuntixf.c \
-  int_util.c lshrdi3.c lshrti3.c moddi3.c \
-  modsi3.c modti3.c muldc3.c muldf3.c muldi3.c mulodi4.c mulosi4.c \
-  muloti4.c mulsc3.c mulsf3.c multi3.c multf3.c mulvdi3.c mulvsi3.c \
-  mulvti3.c mulxc3.c negdf2.c negdi2.c negsf2.c negti2.c negvdi2.c \
-  negvsi2.c negvti2.c paritydi2.c paritysi2.c parityti2.c \
-  popcountdi2.c popcountsi2.c popcountti2.c powidf2.c \
-  powisf2.c powitf2.c powixf2.c subdf3.c subsf3.c subvdi3.c \
-  subvsi3.c subvti3.c subtf3.c trampoline_setup.c truncdfsf2.c \
-  ucmpdi2.c ucmpti2.c udivdi3.c udivmoddi4.c udivmodsi4.c udivmodti4.c \
-  udivsi3.c udivti3.c umoddi3.c umodsi3.c umodti3.c cpu0-porting.c
+# copy GENERIC_SOURCES from compiler-rt/lib/builtin/CMakeLists.txt
+GENERIC_SOURCES := \
+  absvdi2.c \
+  absvsi2.c \
+  absvti2.c \
+  adddf3.c \
+  addsf3.c \
+  addvdi3.c \
+  addvsi3.c \
+  addvti3.c \
+  apple_versioning.c \
+  ashldi3.c \
+  ashlti3.c \
+  ashrdi3.c \
+  ashrti3.c \
+  bswapdi2.c \
+  bswapsi2.c \
+  clzdi2.c \
+  clzsi2.c \
+  clzti2.c \
+  cmpdi2.c \
+  cmpti2.c \
+  comparedf2.c \
+  comparesf2.c \
+  ctzdi2.c \
+  ctzsi2.c \
+  ctzti2.c \
+  divdc3.c \
+  divdf3.c \
+  divdi3.c \
+  divmoddi4.c \
+  divmodsi4.c \
+  divmodti4.c \
+  divsc3.c \
+  divsf3.c \
+  divsi3.c \
+  divti3.c \
+  extendsfdf2.c \
+  extendhfsf2.c \
+  ffsdi2.c \
+  ffssi2.c \
+  ffsti2.c \
+  fixdfdi.c \
+  fixdfsi.c \
+  fixdfti.c \
+  fixsfdi.c \
+  fixsfsi.c \
+  fixsfti.c \
+  fixunsdfdi.c \
+  fixunsdfsi.c \
+  fixunsdfti.c \
+  fixunssfdi.c \
+  fixunssfsi.c \
+  fixunssfti.c \
+  floatdidf.c \
+  floatdisf.c \
+  floatsidf.c \
+  floatsisf.c \
+  floattidf.c \
+  floattisf.c \
+  floatundidf.c \
+  floatundisf.c \
+  floatunsidf.c \
+  floatunsisf.c \
+  floatuntidf.c \
+  floatuntisf.c \
+  fp_mode.c \
+  int_util.c \
+  lshrdi3.c \
+  lshrti3.c \
+  moddi3.c \
+  modsi3.c \
+  modti3.c \
+  muldc3.c \
+  muldf3.c \
+  muldi3.c \
+  mulodi4.c \
+  mulosi4.c \
+  muloti4.c \
+  mulsc3.c \
+  mulsf3.c \
+  multi3.c \
+  mulvdi3.c \
+  mulvsi3.c \
+  mulvti3.c \
+  negdf2.c \
+  negdi2.c \
+  negsf2.c \
+  negti2.c \
+  negvdi2.c \
+  negvsi2.c \
+  negvti2.c \
+  os_version_check.c \
+  paritydi2.c \
+  paritysi2.c \
+  parityti2.c \
+  popcountdi2.c \
+  popcountsi2.c \
+  popcountti2.c \
+  powidf2.c \
+  powisf2.c \
+  subdf3.c \
+  subsf3.c \
+  subvdi3.c \
+  subvsi3.c \
+  subvti3.c \
+  trampoline_setup.c \
+  truncdfhf2.c \
+  truncdfsf2.c \
+  truncsfhf2.c \
+  ucmpdi2.c \
+  ucmpti2.c \
+  udivdi3.c \
+  udivmoddi4.c \
+  udivmodsi4.c \
+  udivmodti4.c \
+  udivsi3.c \
+  udivti3.c \
+  umoddi3.c \
+  umodsi3.c \
+  umodti3.c
+
+SRCS := $(GENERIC_SOURCES)
 
 # String substitution for every C file.
-# As an example, absvdi2.c turns into ./builtins/hello.c
-SRCS := $(SRCS:%=$(SRC_DIR)/%)
+# As an example, absvdi2.c turns into ./builtins/absvdi2.c
+SRCS := $(SRCS:%=$(SRC_DIR)/%) cpu0/abort.c
 
 # String substitution for every C/C++ file.
-# As an example, hello.cpp turns into ./build/hello.cpp.o
+# As an example, absvdi2.c turns into ./build/absvdi2.c.o
 OBJS := $(SRCS:%=$(BUILD_DIR)/%.o)
 
-# String substitut.cn (suffix version without %).
-# As an example, ./build/helloc.cpp.c turns in.c ./build/helloc.cpp.d
+# String substitution (suffix version without %).
+# As an example, ./build/absvdi2.c.o turns into ./build/absvdi2.c.d
 DEPS := $(OBJS:.o=.d)
 
 # Every folder in ./src will need to be passed to GCC so that it can find header files
-INC_DIRS := $(shell find $(SRC_DIR) -type d) ../../libc/avr-libc-1.8.1/include
+# stdlib.h, ..., etc existed in ../../libc/avr-libc-1.8.1/include
+INC_DIRS := $(shell find $(SRC_DIR) -type d)  ../../include
 # Add a prefix to INC_DIRS. So moduleA would become -ImoduleA. GCC understands this -I flag
 INC_FLAGS := $(addprefix -I,$(INC_DIRS))
 
@@ -687,26 +448,13 @@ clean:
 -include $(DEPS)
 </pre></div>
 </div>
-</section>
-<section id="avr-libc">
-<h2><a class="toc-backref" href="#id9">Avr libc</a><a class="headerlink" href="#avr-libc" title="Permalink to this headline">¶</a></h2>
-<p>Directory libex/libc/avr-libc-1.8.1 include the libc porting.</p>
-<p>AVR Libc is a Free Software project whose goal is to provide a high quality C
-library for use with GCC on Atmel AVR microcontrollers. AVR Libc is licensed
-under a single unified license. This so-called modified Berkeley license is
-intented to be compatible with most Free Software licenses like the GPL, yet
-impose as little restrictions for the use of the library in closed-source
-commercial applications as possible <a class="footnote-reference brackets" href="#avr-libc-license" id="id2">2</a>.</p>
-<p>The source code can be download from here <a class="footnote-reference brackets" href="#avr-libc-download" id="id3">3</a>.
-Document are here <a class="footnote-reference brackets" href="#avr-libc-doc-web" id="id4">4</a> <a class="footnote-reference brackets" href="#avr-libc-doc-pdf" id="id5">5</a>.</p>
-</section>
-<section id="software-float-point-support">
-<h2><a class="toc-backref" href="#id10">Software Float Point Support</a><a class="headerlink" href="#software-float-point-support" title="Permalink to this headline">¶</a></h2>
-<p class="rubric">exlbt/input/ch_float_necessary.cpp</p>
+<p class="rubric">exlbt/input/ch_float.cpp</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span>//#include &quot;debug.h&quot;
 
 extern &quot;C&quot; int printf(const char *format, ...);
 extern &quot;C&quot; int sprintf(char *out, const char *format, ...);
+
+#include &quot;../../lbdex/input/ch9_3_longlongshift.cpp&quot;
 
 template &lt;class T&gt;
 T test_shift_left(T a, T b) {
@@ -736,56 +484,79 @@ T1 test_div(T2 a, T3 b) {
   return c;
 }
 
+template &lt;class T&gt;
+bool check_result(const char* fn, T res, T expected) {
+  printf(&quot;%s = %d\n&quot;, fn, (int)res);
+  if (res != expected) {
+    printf(&quot;\terror: result %d, expected %d\n&quot;, res, expected);
+  }
+  return (res == expected);
+}
+
 int main() {
   int a;
 
+  a = test_longlong_shift1();
+  check_result(&quot;test_longlong_shift1()&quot;, a, 289);
+
+  a = test_longlong_shift2();
+  check_result(&quot;test_longlong_shift2()&quot;, a, 22);
+
 // call __ashldi3
   a = (int)test_shift_left&lt;long long&gt;(0x12, 4); // 0x120 = 288
-  printf(&quot;(int)test_shift_left&lt;long long&gt;(0x12, 4) = %d\n&quot;, a);
+  check_result(&quot;(int)test_shift_left&lt;long long&gt;(0x12, 4)&quot;, a, 288);
   
 // call __ashrdi3
   a = (int)test_shift_right&lt;long long&gt;(0x001666660000000a, 48); // 0x16 = 22
-  printf(&quot;(int)test_shift_right&lt;long long&gt;(0x001666660000000a, 48) = %d\n&quot;, a);
+  check_result(&quot;(int)test_shift_right&lt;long long&gt;(0x001666660000000a, 48)&quot;, a, 22);
   
 // call __lshrdi3
   a = (int)test_shift_right&lt;unsigned long long&gt;(0x001666660000000a, 48); // 0x16 = 22
-  printf(&quot;(int)test_shift_right&lt;unsigned long long&gt;(0x001666660000000a, 48) = %d\n&quot;, a);
+  check_result(&quot;(int)test_shift_right&lt;unsigned long long&gt;(0x001666660000000a, 48)&quot;, a, 22);
   
 // call __addsf3, __fixsfsi
   a = (int)test_add&lt;float, float, float&gt;(-2.2, 3.3); // (int)1.1 = 1
-  printf(&quot;(int)test_add&lt;float, float, float&gt;(-2.2, 3.3) = %d\n&quot;, a);
+  check_result(&quot;(int)test_add&lt;float, float, float&gt;(-2.2, 3.3)&quot;, a, 1);
   
 // call __mulsf3, __fixsfsi
   a = (int)test_mul&lt;float, float, float&gt;(-2.2, 3.3); // (int)-7.26 = -7
-  printf(&quot;(int)test_mul&lt;float, float, float&gt;(-2.2, 3.3) = %d\n&quot;, a);
+  check_result(&quot;(int)test_mul&lt;float, float, float&gt;(-2.2, 3.3)&quot;, a, -7);
   
 // call __divsf3, __fixsfsi
   a = (int)test_div&lt;float, float, float&gt;(-1.8, 0.5); // (int)-3.6 = -3
-  printf(&quot;(int)test_div&lt;float, float, float&gt;(-1.8, 0.5) = %d\n&quot;, a);
+  check_result(&quot;(int)test_div&lt;float, float, float&gt;(-1.8, 0.5)&quot;, a, -3);
   
 // call __extendsfdf2, __adddf3, __fixdfsi
   a = (int)test_add&lt;double, double, float&gt;(-2.2, 3.3); // (int)1.1 = 1
-  printf(&quot;(int)test_add&lt;double, double, float&gt;(-2.2, 3.3) = %d\n&quot;, a);
+  check_result(&quot;(int)test_add&lt;double, double, float&gt;(-2.2, 3.3)&quot;, a, 1);
+  
+// call __extendsfdf2, __adddf3, __fixdfsi
+  a = (int)test_add&lt;double, float, double&gt;(-2.2, 3.3); // (int)1.1 = 1
+  check_result(&quot;(int)test_add&lt;double, float, double&gt;(-2.2, 3.3)&quot;, a, 1);
+  
+// call __extendsfdf2, __adddf3, __fixdfsi
+  a = (int)test_add&lt;float, float, double&gt;(-2.2, 3.3); // (int)1.1 = 1
+  check_result(&quot;(int)test_add&lt;float, float, double&gt;(-2.2, 3.3)&quot;, a, 1);
   
 // call __extendsfdf2, __muldf3, __fixdfsi
   a = (int)test_mul&lt;double, float, double&gt;(-2.2, 3.3); // (int)-7.26 = -7
-  printf(&quot;(int)test_mul&lt;double, float, double&gt;(-2.2, 3.3) = %d\n&quot;, a);
+  check_result(&quot;(int)test_mul&lt;double, float, double&gt;(-2.2, 3.3)&quot;, a, -7);
   
 // call __extendsfdf2, __muldf3, __truncdfsf2, __fixdfsi
 // ! __truncdfsf2 in truncdfsf2.c is not work for Cpu0
   a = (int)test_mul&lt;float, float, double&gt;(-2.2, 3.3); // (int)-7.26 = -7
-  printf(&quot;(int)test_mul&lt;float, float, double&gt;(-2.2, 3.3) = %d\n&quot;, a);
+  check_result(&quot;(int)test_mul&lt;float, float, double&gt;(-2.2, 3.3)&quot;, a, -7);
   
 // call __divdf3, __fixdfsi
   a = (int)test_div&lt;double, double, double&gt;(-1.8, 0.5); // (int)-3.6 = -3
-  printf(&quot;(int)test_div&lt;double, double, double&gt;(-1.8, 0.5) = %d\n&quot;, a);
+  check_result(&quot;(int)test_div&lt;double, double, double&gt;(-1.8, 0.5)&quot;, a, -3);
   
   return 0;
 }
 
 </pre></div>
 </div>
-<p class="rubric">exlbt/input/Makefile.float-necessary</p>
+<p class="rubric">exlbt/input/Makefile.float</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span># CPU and endian passed from command line, such as 
 #   &quot;make -f Makefile.float-necessary CPU=cpu032II endian=&quot;
 #   Ignore argument and set CPU to cpu032II since software float point library, 
@@ -802,7 +573,7 @@ include Common.mk
 </pre></div>
 </div>
 <p>Run as follows,</p>
-<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">chungshu@ChungShudeMacBook-Air input % </span>bash make.sh cpu032II be Makefile.float-necessary
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">chungshu@ChungShudeMacBook-Air input % </span>bash make.sh cpu032II be Makefile.float
 <span class="go">...</span>
 <span class="go">endian =  BigEndian</span>
 <span class="go">ISR address:00020614</span>
@@ -810,8 +581,10 @@ include Common.mk
 
 <span class="gp">chungshu@ChungShudeMacBook-Air verilog % </span>iverilog -o cpu0IIs cpu0IIs.v
 <span class="gp">chungshu@ChungShudeMacBook-Air verilog % </span>./cpu0IIs
-<span class="go">ARNING: cpu0.v:487: $readmemh(cpu0.hex): Not enough words in the file for the requested range [0:524287].</span>
+<span class="go">WARNING: cpu0.v:489: $readmemh(cpu0.hex): Not enough words in the file for the requested range [0:524287].</span>
 <span class="go">taskInterrupt(001)</span>
+<span class="go">test_longlong_shift1() = 289</span>
+<span class="go">test_longlong_shift2() = 22</span>
 <span class="gp gp-VirtualEnv">(int)</span><span class="go">test_shift_left&lt;long long&gt;(0x12, 4) = 288</span>
 <span class="gp gp-VirtualEnv">(int)</span><span class="go">test_shift_right&lt;long long&gt;(0x001666660000000a, 48) = 22</span>
 <span class="gp gp-VirtualEnv">(int)</span><span class="go">test_shift_right&lt;unsigned long long&gt;(0x001666660000000a, 48) = 22</span>
@@ -819,28 +592,923 @@ include Common.mk
 <span class="gp gp-VirtualEnv">(int)</span><span class="go">test_mul&lt;float, float, float&gt;(-2.2, 3.3) = -7</span>
 <span class="gp gp-VirtualEnv">(int)</span><span class="go">test_div&lt;float, float, float&gt;(-1.8, 0.5) = -3</span>
 <span class="gp gp-VirtualEnv">(int)</span><span class="go">test_add&lt;double, double, float&gt;(-2.2, 3.3) = 1</span>
+<span class="gp gp-VirtualEnv">(int)</span><span class="go">test_add&lt;double, float, double&gt;(-2.2, 3.3) = 1</span>
+<span class="gp gp-VirtualEnv">(int)</span><span class="go">test_add&lt;float, float, double&gt;(-2.2, 3.3) = 1</span>
+<span class="gp gp-VirtualEnv">(int)</span><span class="go">test_mul&lt;double, float, double&gt;(-2.2, 3.3) = -7</span>
 <span class="gp gp-VirtualEnv">(int)</span><span class="go">test_mul&lt;float, float, double&gt;(-2.2, 3.3) = -7</span>
-<span class="gp gp-VirtualEnv">(int)</span><span class="go">test_mul&lt;float, float, double&gt;(-2.2, 3.3) = 0</span>
 <span class="gp gp-VirtualEnv">(int)</span><span class="go">test_div&lt;double, double, double&gt;(-1.8, 0.5) = -3</span>
-<span class="go">total cpu cycles = 184085</span>
+<span class="go">total cpu cycles = 240170</span>
+<span class="go">RET to PC &lt; 0, finished!</span>
+</pre></div>
+</div>
+<p class="rubric">exlbt/input/ch_builtins.cpp</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="c1">#include &lt;stdlib.h&gt;</span>
+
+<span class="n">extern</span> <span class="s2">&quot;C&quot;</span> <span class="nb">int</span> <span class="n">printf</span><span class="p">(</span><span class="n">const</span> <span class="n">char</span> <span class="o">*</span><span class="nb">format</span><span class="p">,</span> <span class="o">...</span><span class="p">);</span>
+<span class="n">extern</span> <span class="s2">&quot;C&quot;</span> <span class="nb">int</span> <span class="n">sprintf</span><span class="p">(</span><span class="n">char</span> <span class="o">*</span><span class="n">out</span><span class="p">,</span> <span class="n">const</span> <span class="n">char</span> <span class="o">*</span><span class="nb">format</span><span class="p">,</span> <span class="o">...</span><span class="p">);</span>
+
+<span class="n">extern</span> <span class="s2">&quot;C&quot;</span> <span class="nb">int</span> <span class="n">absvdi2_test</span><span class="p">();</span>
+<span class="n">extern</span> <span class="s2">&quot;C&quot;</span> <span class="nb">int</span> <span class="n">absvsi2_test</span><span class="p">();</span>
+<span class="n">extern</span> <span class="s2">&quot;C&quot;</span> <span class="nb">int</span> <span class="n">absvti2_test</span><span class="p">();</span>
+<span class="n">extern</span> <span class="s2">&quot;C&quot;</span> <span class="nb">int</span> <span class="n">adddf3vfp_test</span><span class="p">();</span>
+<span class="n">extern</span> <span class="s2">&quot;C&quot;</span> <span class="nb">int</span> <span class="n">addsf3vfp_test</span><span class="p">();</span>
+<span class="n">extern</span> <span class="s2">&quot;C&quot;</span> <span class="nb">int</span> <span class="n">addvdi3_test</span><span class="p">();</span>
+<span class="n">extern</span> <span class="s2">&quot;C&quot;</span> <span class="nb">int</span> <span class="n">addvsi3_test</span><span class="p">();</span>
+<span class="n">extern</span> <span class="s2">&quot;C&quot;</span> <span class="nb">int</span> <span class="n">addvti3_test</span><span class="p">();</span>
+<span class="n">extern</span> <span class="s2">&quot;C&quot;</span> <span class="nb">int</span> <span class="n">ashldi3_test</span><span class="p">();</span>
+<span class="n">extern</span> <span class="s2">&quot;C&quot;</span> <span class="nb">int</span> <span class="n">ashlti3_test</span><span class="p">();</span>
+<span class="n">extern</span> <span class="s2">&quot;C&quot;</span> <span class="nb">int</span> <span class="n">ashrdi3_test</span><span class="p">();</span>
+<span class="n">extern</span> <span class="s2">&quot;C&quot;</span> <span class="nb">int</span> <span class="n">ashrti3_test</span><span class="p">();</span>
+
+<span class="o">//</span> <span class="n">atomic</span><span class="o">.</span><span class="n">c</span> <span class="n">need</span> <span class="n">memcmp</span><span class="p">(</span><span class="o">...</span><span class="p">)</span>
+<span class="o">//</span><span class="n">extern</span> <span class="s2">&quot;C&quot;</span> <span class="nb">int</span> <span class="n">atomic_test</span><span class="p">();</span>
+<span class="n">extern</span> <span class="s2">&quot;C&quot;</span> <span class="nb">int</span> <span class="n">bswapdi2_test</span><span class="p">();</span>
+<span class="n">extern</span> <span class="s2">&quot;C&quot;</span> <span class="nb">int</span> <span class="n">bswapsi2_test</span><span class="p">();</span>
+
+<span class="n">extern</span> <span class="s2">&quot;C&quot;</span> <span class="nb">int</span> <span class="n">clzdi2_test</span><span class="p">();</span>
+<span class="n">extern</span> <span class="s2">&quot;C&quot;</span> <span class="nb">int</span> <span class="n">clzsi2_test</span><span class="p">();</span>
+<span class="n">extern</span> <span class="s2">&quot;C&quot;</span> <span class="nb">int</span> <span class="n">clzti2_test</span><span class="p">();</span>
+<span class="n">extern</span> <span class="s2">&quot;C&quot;</span> <span class="nb">int</span> <span class="n">cmpdi2_test</span><span class="p">();</span>
+<span class="n">extern</span> <span class="s2">&quot;C&quot;</span> <span class="nb">int</span> <span class="n">cmpti2_test</span><span class="p">();</span>
+<span class="n">extern</span> <span class="s2">&quot;C&quot;</span> <span class="nb">int</span> <span class="n">comparedf2_test</span><span class="p">();</span>
+<span class="n">extern</span> <span class="s2">&quot;C&quot;</span> <span class="nb">int</span> <span class="n">comparesf2_test</span><span class="p">();</span>
+
+<span class="o">//</span> <span class="n">Needless</span> <span class="n">to</span> <span class="n">compare</span> <span class="n">compiler_rt_logb</span><span class="p">()</span> <span class="k">with</span> <span class="n">logb</span><span class="p">()</span> <span class="n">of</span> <span class="n">libm</span>
+<span class="o">//</span><span class="n">extern</span> <span class="s2">&quot;C&quot;</span> <span class="nb">int</span> <span class="n">compiler_rt_logb_test</span><span class="p">();</span>
+<span class="o">//</span><span class="n">extern</span> <span class="s2">&quot;C&quot;</span> <span class="nb">int</span> <span class="n">compiler_rt_logbf_test</span><span class="p">();</span>
+<span class="o">//</span><span class="n">extern</span> <span class="s2">&quot;C&quot;</span> <span class="nb">int</span> <span class="n">compiler_rt_logbl_test</span><span class="p">();</span>
+
+<span class="n">extern</span> <span class="s2">&quot;C&quot;</span> <span class="nb">int</span> <span class="n">cpu_model_test</span><span class="p">();</span>
+<span class="n">extern</span> <span class="s2">&quot;C&quot;</span> <span class="nb">int</span> <span class="n">ctzdi2_test</span><span class="p">();</span>
+<span class="n">extern</span> <span class="s2">&quot;C&quot;</span> <span class="nb">int</span> <span class="n">ctzsi2_test</span><span class="p">();</span>
+<span class="n">extern</span> <span class="s2">&quot;C&quot;</span> <span class="nb">int</span> <span class="n">ctzti2_test</span><span class="p">();</span>
+
+<span class="o">//</span> <span class="n">div</span> <span class="k">for</span> <span class="nb">complex</span> <span class="nb">type</span> <span class="n">need</span> <span class="n">libm</span><span class="p">:</span> <span class="n">cabs</span><span class="p">,</span> <span class="n">isinf</span><span class="p">,</span> <span class="o">...</span><span class="p">,</span> <span class="n">skip</span> <span class="n">it</span> <span class="n">at</span> <span class="n">this</span> <span class="n">point</span>
+<span class="c1">#ifdef HAS_COMPLEX</span>
+<span class="n">extern</span> <span class="s2">&quot;C&quot;</span> <span class="nb">int</span> <span class="n">divdc3_test</span><span class="p">();</span>
+<span class="c1">#endif</span>
+<span class="n">extern</span> <span class="s2">&quot;C&quot;</span> <span class="nb">int</span> <span class="n">divdf3_test</span><span class="p">();</span>
+<span class="n">extern</span> <span class="s2">&quot;C&quot;</span> <span class="nb">int</span> <span class="n">divdf3vfp_test</span><span class="p">();</span>
+<span class="n">extern</span> <span class="s2">&quot;C&quot;</span> <span class="nb">int</span> <span class="n">divdi3_test</span><span class="p">();</span>
+<span class="n">extern</span> <span class="s2">&quot;C&quot;</span> <span class="nb">int</span> <span class="n">divmodsi4_test</span><span class="p">();</span>
+<span class="n">extern</span> <span class="s2">&quot;C&quot;</span> <span class="nb">int</span> <span class="n">divmodti4_test</span><span class="p">();</span>
+<span class="c1">#ifdef HAS_COMPLEX</span>
+<span class="n">extern</span> <span class="s2">&quot;C&quot;</span> <span class="nb">int</span> <span class="n">divsc3_test</span><span class="p">();</span>
+<span class="c1">#endif</span>
+<span class="n">extern</span> <span class="s2">&quot;C&quot;</span> <span class="nb">int</span> <span class="n">divsf3_test</span><span class="p">();</span>
+<span class="n">extern</span> <span class="s2">&quot;C&quot;</span> <span class="nb">int</span> <span class="n">divsf3vfp_test</span><span class="p">();</span>
+<span class="n">extern</span> <span class="s2">&quot;C&quot;</span> <span class="nb">int</span> <span class="n">divsi3_test</span><span class="p">();</span>
+<span class="c1">#ifdef HAS_COMPLEX</span>
+<span class="n">extern</span> <span class="s2">&quot;C&quot;</span> <span class="nb">int</span> <span class="n">divtc3_test</span><span class="p">();</span>
+<span class="c1">#endif</span>
+<span class="n">extern</span> <span class="s2">&quot;C&quot;</span> <span class="nb">int</span> <span class="n">divtf3_test</span><span class="p">();</span>
+<span class="n">extern</span> <span class="s2">&quot;C&quot;</span> <span class="nb">int</span> <span class="n">divti3_test</span><span class="p">();</span>
+<span class="c1">#ifdef HAS_COMPLEX</span>
+<span class="n">extern</span> <span class="s2">&quot;C&quot;</span> <span class="nb">int</span> <span class="n">divxc3_test</span><span class="p">();</span>
+<span class="c1">#endif</span>
+<span class="n">extern</span> <span class="s2">&quot;C&quot;</span> <span class="nb">int</span> <span class="n">enable_execute_stack_test</span><span class="p">();</span>
+<span class="n">extern</span> <span class="s2">&quot;C&quot;</span> <span class="nb">int</span> <span class="n">eqdf2vfp_test</span><span class="p">();</span>
+<span class="n">extern</span> <span class="s2">&quot;C&quot;</span> <span class="nb">int</span> <span class="n">eqsf2vfp_test</span><span class="p">();</span>
+<span class="n">extern</span> <span class="s2">&quot;C&quot;</span> <span class="nb">int</span> <span class="n">eqtf2_test</span><span class="p">();</span>
+<span class="n">extern</span> <span class="s2">&quot;C&quot;</span> <span class="nb">int</span> <span class="n">extenddftf2_test</span><span class="p">();</span>
+<span class="n">extern</span> <span class="s2">&quot;C&quot;</span> <span class="nb">int</span> <span class="n">extendhfsf2_test</span><span class="p">();</span>
+<span class="n">extern</span> <span class="s2">&quot;C&quot;</span> <span class="nb">int</span> <span class="n">extendhftf2_test</span><span class="p">();</span>
+<span class="n">extern</span> <span class="s2">&quot;C&quot;</span> <span class="nb">int</span> <span class="n">extendsfdf2vfp_test</span><span class="p">();</span>
+<span class="n">extern</span> <span class="s2">&quot;C&quot;</span> <span class="nb">int</span> <span class="n">extendsftf2_test</span><span class="p">();</span>
+<span class="c1">#if 0</span>
+<span class="n">extern</span> <span class="s2">&quot;C&quot;</span> <span class="nb">int</span> <span class="n">gcc_personality_test</span><span class="p">();</span>
+<span class="c1">#endif</span>
+<span class="n">extern</span> <span class="s2">&quot;C&quot;</span> <span class="nb">int</span> <span class="n">gedf2vfp_test</span><span class="p">();</span>
+<span class="n">extern</span> <span class="s2">&quot;C&quot;</span> <span class="nb">int</span> <span class="n">gesf2vfp_test</span><span class="p">();</span>
+<span class="n">extern</span> <span class="s2">&quot;C&quot;</span> <span class="nb">int</span> <span class="n">getf2_test</span><span class="p">();</span>
+<span class="n">extern</span> <span class="s2">&quot;C&quot;</span> <span class="nb">int</span> <span class="n">gtdf2vfp_test</span><span class="p">();</span>
+<span class="n">extern</span> <span class="s2">&quot;C&quot;</span> <span class="nb">int</span> <span class="n">gtsf2vfp_test</span><span class="p">();</span>
+<span class="n">extern</span> <span class="s2">&quot;C&quot;</span> <span class="nb">int</span> <span class="n">gttf2_test</span><span class="p">();</span>
+<span class="n">extern</span> <span class="s2">&quot;C&quot;</span> <span class="nb">int</span> <span class="n">ledf2vfp_test</span><span class="p">();</span>
+<span class="n">extern</span> <span class="s2">&quot;C&quot;</span> <span class="nb">int</span> <span class="n">lesf2vfp_test</span><span class="p">();</span>
+<span class="n">extern</span> <span class="s2">&quot;C&quot;</span> <span class="nb">int</span> <span class="n">letf2_test</span><span class="p">();</span>
+<span class="n">extern</span> <span class="s2">&quot;C&quot;</span> <span class="nb">int</span> <span class="n">lshrdi3_test</span><span class="p">();</span>
+<span class="n">extern</span> <span class="s2">&quot;C&quot;</span> <span class="nb">int</span> <span class="n">lshrti3_test</span><span class="p">();</span>
+<span class="n">extern</span> <span class="s2">&quot;C&quot;</span> <span class="nb">int</span> <span class="n">ltdf2vfp_test</span><span class="p">();</span>
+<span class="n">extern</span> <span class="s2">&quot;C&quot;</span> <span class="nb">int</span> <span class="n">ltsf2vfp_test</span><span class="p">();</span>
+<span class="n">extern</span> <span class="s2">&quot;C&quot;</span> <span class="nb">int</span> <span class="n">lttf2_test</span><span class="p">();</span>
+<span class="n">extern</span> <span class="s2">&quot;C&quot;</span> <span class="nb">int</span> <span class="n">moddi3_test</span><span class="p">();</span>
+<span class="n">extern</span> <span class="s2">&quot;C&quot;</span> <span class="nb">int</span> <span class="n">modsi3_test</span><span class="p">();</span>
+<span class="n">extern</span> <span class="s2">&quot;C&quot;</span> <span class="nb">int</span> <span class="n">modst3_test</span><span class="p">();</span>
+<span class="n">extern</span> <span class="s2">&quot;C&quot;</span> <span class="nb">int</span> <span class="n">modti3_test</span><span class="p">();</span>
+<span class="c1">#ifdef HAS_COMPLEX</span>
+<span class="n">extern</span> <span class="s2">&quot;C&quot;</span> <span class="nb">int</span> <span class="n">muldc3_test</span><span class="p">();</span>
+<span class="c1">#endif</span>
+<span class="n">extern</span> <span class="s2">&quot;C&quot;</span> <span class="nb">int</span> <span class="n">muldf3vfp_test</span><span class="p">();</span>
+<span class="n">extern</span> <span class="s2">&quot;C&quot;</span> <span class="nb">int</span> <span class="n">muldi3_test</span><span class="p">();</span>
+<span class="n">extern</span> <span class="s2">&quot;C&quot;</span> <span class="nb">int</span> <span class="n">mulodi4_test</span><span class="p">();</span>
+<span class="n">extern</span> <span class="s2">&quot;C&quot;</span> <span class="nb">int</span> <span class="n">mulosi4_test</span><span class="p">();</span>
+<span class="n">extern</span> <span class="s2">&quot;C&quot;</span> <span class="nb">int</span> <span class="n">muloti4_test</span><span class="p">();</span>
+<span class="c1">#ifdef HAS_COMPLEX</span>
+<span class="n">extern</span> <span class="s2">&quot;C&quot;</span> <span class="nb">int</span> <span class="n">mulsc3_test</span><span class="p">();</span>
+<span class="c1">#endif</span>
+<span class="n">extern</span> <span class="s2">&quot;C&quot;</span> <span class="nb">int</span> <span class="n">mulsf3vfp_test</span><span class="p">();</span>
+<span class="o">//</span><span class="n">extern</span> <span class="s2">&quot;C&quot;</span> <span class="nb">int</span> <span class="n">mulsi3_test</span><span class="p">();</span> <span class="n">no</span> <span class="n">this</span> <span class="n">mulsi3</span><span class="o">.</span><span class="n">c</span>
+<span class="n">extern</span> <span class="s2">&quot;C&quot;</span> <span class="nb">int</span> <span class="n">multf3_test</span><span class="p">();</span>
+<span class="n">extern</span> <span class="s2">&quot;C&quot;</span> <span class="nb">int</span> <span class="n">multi3_test</span><span class="p">();</span>
+<span class="n">extern</span> <span class="s2">&quot;C&quot;</span> <span class="nb">int</span> <span class="n">mulvdi3_test</span><span class="p">();</span>
+<span class="n">extern</span> <span class="s2">&quot;C&quot;</span> <span class="nb">int</span> <span class="n">mulvsi3_test</span><span class="p">();</span>
+<span class="n">extern</span> <span class="s2">&quot;C&quot;</span> <span class="nb">int</span> <span class="n">mulvti3_test</span><span class="p">();</span>
+<span class="c1">#ifdef HAS_COMPLEX</span>
+<span class="n">extern</span> <span class="s2">&quot;C&quot;</span> <span class="nb">int</span> <span class="n">mulxc3_test</span><span class="p">();</span>
+<span class="c1">#endif</span>
+<span class="n">extern</span> <span class="s2">&quot;C&quot;</span> <span class="nb">int</span> <span class="n">nedf2vfp_test</span><span class="p">();</span>
+<span class="n">extern</span> <span class="s2">&quot;C&quot;</span> <span class="nb">int</span> <span class="n">negdf2vfp_test</span><span class="p">();</span>
+<span class="n">extern</span> <span class="s2">&quot;C&quot;</span> <span class="nb">int</span> <span class="n">negdi2_test</span><span class="p">();</span>
+<span class="n">extern</span> <span class="s2">&quot;C&quot;</span> <span class="nb">int</span> <span class="n">negsf2vfp_test</span><span class="p">();</span>
+<span class="n">extern</span> <span class="s2">&quot;C&quot;</span> <span class="nb">int</span> <span class="n">negti2_test</span><span class="p">();</span>
+<span class="n">extern</span> <span class="s2">&quot;C&quot;</span> <span class="nb">int</span> <span class="n">negvdi2_test</span><span class="p">();</span>
+<span class="n">extern</span> <span class="s2">&quot;C&quot;</span> <span class="nb">int</span> <span class="n">negvsi2_test</span><span class="p">();</span>
+<span class="n">extern</span> <span class="s2">&quot;C&quot;</span> <span class="nb">int</span> <span class="n">negvti2_test</span><span class="p">();</span>
+<span class="n">extern</span> <span class="s2">&quot;C&quot;</span> <span class="nb">int</span> <span class="n">nesf2vfp_test</span><span class="p">();</span>
+<span class="n">extern</span> <span class="s2">&quot;C&quot;</span> <span class="nb">int</span> <span class="n">netf2_test</span><span class="p">();</span>
+<span class="o">/*</span> <span class="n">need</span> <span class="n">rand</span><span class="p">,</span> <span class="n">signbit</span><span class="p">,</span> <span class="o">...</span>
+<span class="n">extern</span> <span class="s2">&quot;C&quot;</span> <span class="nb">int</span> <span class="n">paritydi2_test</span><span class="p">();</span>
+<span class="n">extern</span> <span class="s2">&quot;C&quot;</span> <span class="nb">int</span> <span class="n">paritysi2_test</span><span class="p">();</span>
+<span class="n">extern</span> <span class="s2">&quot;C&quot;</span> <span class="nb">int</span> <span class="n">parityti2_test</span><span class="p">();</span>
+<span class="n">extern</span> <span class="s2">&quot;C&quot;</span> <span class="nb">int</span> <span class="n">popcountdi2_test</span><span class="p">();</span>
+<span class="n">extern</span> <span class="s2">&quot;C&quot;</span> <span class="nb">int</span> <span class="n">popcountsi2_test</span><span class="p">();</span>
+<span class="n">extern</span> <span class="s2">&quot;C&quot;</span> <span class="nb">int</span> <span class="n">popcountti2_test</span><span class="p">();</span>
+<span class="n">extern</span> <span class="s2">&quot;C&quot;</span> <span class="nb">int</span> <span class="n">powidf2_test</span><span class="p">();</span>
+<span class="n">extern</span> <span class="s2">&quot;C&quot;</span> <span class="nb">int</span> <span class="n">powisf2_test</span><span class="p">();</span>
+<span class="n">extern</span> <span class="s2">&quot;C&quot;</span> <span class="nb">int</span> <span class="n">powitf2_test</span><span class="p">();</span>
+<span class="n">extern</span> <span class="s2">&quot;C&quot;</span> <span class="nb">int</span> <span class="n">powixf2_test</span><span class="p">();</span>
+<span class="o">*/</span>
+<span class="n">extern</span> <span class="s2">&quot;C&quot;</span> <span class="nb">int</span> <span class="n">subdf3vfp_test</span><span class="p">();</span>
+<span class="n">extern</span> <span class="s2">&quot;C&quot;</span> <span class="nb">int</span> <span class="n">subsf3vfp_test</span><span class="p">();</span>
+<span class="n">extern</span> <span class="s2">&quot;C&quot;</span> <span class="nb">int</span> <span class="n">subtf3_test</span><span class="p">();</span>
+<span class="n">extern</span> <span class="s2">&quot;C&quot;</span> <span class="nb">int</span> <span class="n">subvdi3_test</span><span class="p">();</span>
+<span class="n">extern</span> <span class="s2">&quot;C&quot;</span> <span class="nb">int</span> <span class="n">subvsi3_test</span><span class="p">();</span>
+<span class="n">extern</span> <span class="s2">&quot;C&quot;</span> <span class="nb">int</span> <span class="n">subvti3_test</span><span class="p">();</span>
+<span class="n">extern</span> <span class="s2">&quot;C&quot;</span> <span class="nb">int</span> <span class="n">trampoline_setup_test</span><span class="p">();</span>
+<span class="n">extern</span> <span class="s2">&quot;C&quot;</span> <span class="nb">int</span> <span class="n">truncdfhf2_test</span><span class="p">();</span>
+<span class="n">extern</span> <span class="s2">&quot;C&quot;</span> <span class="nb">int</span> <span class="n">truncdfsf2_test</span><span class="p">();</span>
+<span class="n">extern</span> <span class="s2">&quot;C&quot;</span> <span class="nb">int</span> <span class="n">truncdfsf2vfp_test</span><span class="p">();</span>
+<span class="n">extern</span> <span class="s2">&quot;C&quot;</span> <span class="nb">int</span> <span class="n">truncsfhf2_test</span><span class="p">();</span>
+<span class="n">extern</span> <span class="s2">&quot;C&quot;</span> <span class="nb">int</span> <span class="n">trunctfdf2_test</span><span class="p">();</span>
+<span class="n">extern</span> <span class="s2">&quot;C&quot;</span> <span class="nb">int</span> <span class="n">trunctfhf2_test</span><span class="p">();</span>
+<span class="n">extern</span> <span class="s2">&quot;C&quot;</span> <span class="nb">int</span> <span class="n">trunctfsf2_test</span><span class="p">();</span>
+<span class="n">extern</span> <span class="s2">&quot;C&quot;</span> <span class="nb">int</span> <span class="n">ucmpdi2_test</span><span class="p">();</span>
+<span class="n">extern</span> <span class="s2">&quot;C&quot;</span> <span class="nb">int</span> <span class="n">ucmpti2_test</span><span class="p">();</span>
+<span class="n">extern</span> <span class="s2">&quot;C&quot;</span> <span class="nb">int</span> <span class="n">udivdi3_test</span><span class="p">();</span>
+<span class="n">extern</span> <span class="s2">&quot;C&quot;</span> <span class="nb">int</span> <span class="n">udivmoddi4_test</span><span class="p">();</span>
+<span class="n">extern</span> <span class="s2">&quot;C&quot;</span> <span class="nb">int</span> <span class="n">udivmodsi4_test</span><span class="p">();</span>
+<span class="n">extern</span> <span class="s2">&quot;C&quot;</span> <span class="nb">int</span> <span class="n">udivmodti4_test</span><span class="p">();</span>
+<span class="n">extern</span> <span class="s2">&quot;C&quot;</span> <span class="nb">int</span> <span class="n">udivsi3_test</span><span class="p">();</span>
+<span class="n">extern</span> <span class="s2">&quot;C&quot;</span> <span class="nb">int</span> <span class="n">udivti3_test</span><span class="p">();</span>
+<span class="n">extern</span> <span class="s2">&quot;C&quot;</span> <span class="nb">int</span> <span class="n">umoddi3_test</span><span class="p">();</span>
+<span class="n">extern</span> <span class="s2">&quot;C&quot;</span> <span class="nb">int</span> <span class="n">umodsi3_test</span><span class="p">();</span>
+<span class="n">extern</span> <span class="s2">&quot;C&quot;</span> <span class="nb">int</span> <span class="n">umodti3_test</span><span class="p">();</span>
+<span class="n">extern</span> <span class="s2">&quot;C&quot;</span> <span class="nb">int</span> <span class="n">unorddf2vfp_test</span><span class="p">();</span>
+<span class="n">extern</span> <span class="s2">&quot;C&quot;</span> <span class="nb">int</span> <span class="n">unordsf2vfp_test</span><span class="p">();</span>
+<span class="n">extern</span> <span class="s2">&quot;C&quot;</span> <span class="nb">int</span> <span class="n">unordtf2_test</span><span class="p">();</span>
+
+<span class="n">void</span> <span class="n">show_result</span><span class="p">(</span><span class="n">const</span> <span class="n">char</span> <span class="o">*</span><span class="n">fn</span><span class="p">,</span> <span class="nb">int</span> <span class="n">res</span><span class="p">)</span> <span class="p">{</span>
+  <span class="k">if</span> <span class="p">(</span><span class="n">res</span> <span class="o">==</span> <span class="mi">1</span><span class="p">)</span>
+    <span class="n">printf</span><span class="p">(</span><span class="s2">&quot;</span><span class="si">%s</span><span class="s2">: FAIL!</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">fn</span><span class="p">);</span>
+  <span class="k">else</span> <span class="k">if</span> <span class="p">(</span><span class="n">res</span> <span class="o">==</span> <span class="mi">0</span><span class="p">)</span>
+    <span class="n">printf</span><span class="p">(</span><span class="s2">&quot;</span><span class="si">%s</span><span class="s2">: PASS!</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">fn</span><span class="p">);</span>
+  <span class="k">else</span> <span class="k">if</span> <span class="p">(</span><span class="n">res</span> <span class="o">==</span> <span class="o">-</span><span class="mi">1</span><span class="p">)</span>
+    <span class="n">printf</span><span class="p">(</span><span class="s2">&quot;</span><span class="si">%s</span><span class="s2">: SKIPPED!</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">fn</span><span class="p">);</span>
+  <span class="k">else</span> <span class="p">{</span>
+    <span class="n">printf</span><span class="p">(</span><span class="s2">&quot;FIXME!&quot;</span><span class="p">);</span>
+    <span class="n">abort</span><span class="p">();</span>
+  <span class="p">}</span>
+<span class="p">}</span>
+
+<span class="nb">int</span> <span class="n">main</span><span class="p">()</span> <span class="p">{</span>
+  <span class="nb">int</span> <span class="n">res</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+
+  <span class="n">res</span> <span class="o">=</span> <span class="n">absvdi2_test</span><span class="p">();</span>
+  <span class="n">show_result</span><span class="p">(</span><span class="s2">&quot;absvdi2_test()&quot;</span><span class="p">,</span> <span class="n">res</span><span class="p">);</span>
+
+  <span class="n">res</span> <span class="o">=</span> <span class="n">absvsi2_test</span><span class="p">();</span>
+  <span class="n">show_result</span><span class="p">(</span><span class="s2">&quot;absvsi2_test()&quot;</span><span class="p">,</span> <span class="n">res</span><span class="p">);</span>
+
+  <span class="n">res</span> <span class="o">=</span> <span class="n">absvti2_test</span><span class="p">();</span>
+  <span class="n">show_result</span><span class="p">(</span><span class="s2">&quot;absvti2_test()&quot;</span><span class="p">,</span> <span class="n">res</span><span class="p">);</span>
+
+  <span class="n">res</span> <span class="o">=</span> <span class="n">adddf3vfp_test</span><span class="p">();</span>
+  <span class="n">show_result</span><span class="p">(</span><span class="s2">&quot;adddf3vfp_test()&quot;</span><span class="p">,</span> <span class="n">res</span><span class="p">);</span>
+
+  <span class="n">res</span> <span class="o">=</span> <span class="n">addsf3vfp_test</span><span class="p">();</span>
+  <span class="n">show_result</span><span class="p">(</span><span class="s2">&quot;addsf3vfp_test()&quot;</span><span class="p">,</span> <span class="n">res</span><span class="p">);</span>
+
+  <span class="n">res</span> <span class="o">=</span> <span class="n">addvdi3_test</span><span class="p">();</span>
+  <span class="n">show_result</span><span class="p">(</span><span class="s2">&quot;addvdi3_test()&quot;</span><span class="p">,</span> <span class="n">res</span><span class="p">);</span>
+
+  <span class="n">res</span> <span class="o">=</span> <span class="n">addvsi3_test</span><span class="p">();</span>
+  <span class="n">show_result</span><span class="p">(</span><span class="s2">&quot;addvsi3_test()&quot;</span><span class="p">,</span> <span class="n">res</span><span class="p">);</span>
+
+  <span class="n">res</span> <span class="o">=</span> <span class="n">addvti3_test</span><span class="p">();</span>
+  <span class="n">show_result</span><span class="p">(</span><span class="s2">&quot;addvti3_test()&quot;</span><span class="p">,</span> <span class="n">res</span><span class="p">);</span>
+
+  <span class="n">res</span> <span class="o">=</span> <span class="n">ashldi3_test</span><span class="p">();</span>
+  <span class="n">show_result</span><span class="p">(</span><span class="s2">&quot;ashldi3_test()&quot;</span><span class="p">,</span> <span class="n">res</span><span class="p">);</span>
+
+  <span class="n">res</span> <span class="o">=</span> <span class="n">ashlti3_test</span><span class="p">();</span>
+  <span class="n">show_result</span><span class="p">(</span><span class="s2">&quot;ashlti3_test()&quot;</span><span class="p">,</span> <span class="n">res</span><span class="p">);</span>
+
+  <span class="n">res</span> <span class="o">=</span> <span class="n">ashrdi3_test</span><span class="p">();</span>
+  <span class="n">show_result</span><span class="p">(</span><span class="s2">&quot;ashrdi3_test()&quot;</span><span class="p">,</span> <span class="n">res</span><span class="p">);</span>
+
+  <span class="n">res</span> <span class="o">=</span> <span class="n">ashrti3_test</span><span class="p">();</span>
+  <span class="n">show_result</span><span class="p">(</span><span class="s2">&quot;ashrti3_test()&quot;</span><span class="p">,</span> <span class="n">res</span><span class="p">);</span>
+
+<span class="c1">#if 0 // atomic.c need memcmp(...)</span>
+  <span class="n">res</span> <span class="o">=</span> <span class="n">atomic_test</span><span class="p">();</span>
+  <span class="n">show_result</span><span class="p">(</span><span class="s2">&quot;atomic_test()&quot;</span><span class="p">,</span> <span class="n">res</span><span class="p">);</span>
+<span class="c1">#endif</span>
+
+  <span class="n">res</span> <span class="o">=</span> <span class="n">bswapdi2_test</span><span class="p">();</span>
+  <span class="n">show_result</span><span class="p">(</span><span class="s2">&quot;bswapdi2_test()&quot;</span><span class="p">,</span> <span class="n">res</span><span class="p">);</span>
+
+  <span class="n">res</span> <span class="o">=</span> <span class="n">bswapsi2_test</span><span class="p">();</span>
+  <span class="n">show_result</span><span class="p">(</span><span class="s2">&quot;bswapsi2_test()&quot;</span><span class="p">,</span> <span class="n">res</span><span class="p">);</span>
+
+  <span class="n">res</span> <span class="o">=</span> <span class="n">clzdi2_test</span><span class="p">();</span>
+  <span class="n">show_result</span><span class="p">(</span><span class="s2">&quot;clzdi2_test()&quot;</span><span class="p">,</span> <span class="n">res</span><span class="p">);</span>
+
+  <span class="n">res</span> <span class="o">=</span> <span class="n">clzsi2_test</span><span class="p">();</span>
+  <span class="n">show_result</span><span class="p">(</span><span class="s2">&quot;clzsi2_test()&quot;</span><span class="p">,</span> <span class="n">res</span><span class="p">);</span>
+
+  <span class="n">res</span> <span class="o">=</span> <span class="n">clzti2_test</span><span class="p">();</span>
+  <span class="n">show_result</span><span class="p">(</span><span class="s2">&quot;clzti2_test()&quot;</span><span class="p">,</span> <span class="n">res</span><span class="p">);</span>
+
+  <span class="n">res</span> <span class="o">=</span> <span class="n">cmpdi2_test</span><span class="p">();</span>
+  <span class="n">show_result</span><span class="p">(</span><span class="s2">&quot;cmpdi2_test()&quot;</span><span class="p">,</span> <span class="n">res</span><span class="p">);</span>
+
+  <span class="n">res</span> <span class="o">=</span> <span class="n">cmpti2_test</span><span class="p">();</span>
+  <span class="n">show_result</span><span class="p">(</span><span class="s2">&quot;cmpti2_test()&quot;</span><span class="p">,</span> <span class="n">res</span><span class="p">);</span>
+
+  <span class="n">res</span> <span class="o">=</span> <span class="n">comparedf2_test</span><span class="p">();</span>
+  <span class="n">show_result</span><span class="p">(</span><span class="s2">&quot;comparedf2_test()&quot;</span><span class="p">,</span> <span class="n">res</span><span class="p">);</span>
+
+  <span class="n">res</span> <span class="o">=</span> <span class="n">comparesf2_test</span><span class="p">();</span>
+  <span class="n">show_result</span><span class="p">(</span><span class="s2">&quot;comparesf2_test()&quot;</span><span class="p">,</span> <span class="n">res</span><span class="p">);</span>
+
+<span class="o">//</span>  <span class="n">res</span> <span class="o">=</span> <span class="n">compiler_rt_logb_test</span><span class="p">();</span>
+<span class="o">//</span>  <span class="n">show_result</span><span class="p">(</span><span class="s2">&quot;compiler_rt_logb_test()&quot;</span><span class="p">,</span> <span class="n">res</span><span class="p">);</span>
+
+<span class="o">//</span>  <span class="n">res</span> <span class="o">=</span> <span class="n">compiler_rt_logbf_test</span><span class="p">();</span>
+<span class="o">//</span>  <span class="n">show_result</span><span class="p">(</span><span class="s2">&quot;compiler_rt_logbf_test()&quot;</span><span class="p">,</span> <span class="n">res</span><span class="p">);</span>
+
+<span class="o">//</span>  <span class="n">res</span> <span class="o">=</span> <span class="n">compiler_rt_logbl_test</span><span class="p">();</span>
+<span class="o">//</span>  <span class="n">show_result</span><span class="p">(</span><span class="s2">&quot;compiler_rt_logbl_test()&quot;</span><span class="p">,</span> <span class="n">res</span><span class="p">);</span>
+
+  <span class="n">res</span> <span class="o">=</span> <span class="n">cpu_model_test</span><span class="p">();</span>
+  <span class="n">show_result</span><span class="p">(</span><span class="s2">&quot;cpu_model_test()&quot;</span><span class="p">,</span> <span class="n">res</span><span class="p">);</span>
+
+  <span class="n">res</span> <span class="o">=</span> <span class="n">ctzdi2_test</span><span class="p">();</span>
+  <span class="n">show_result</span><span class="p">(</span><span class="s2">&quot;ctzdi2_test()&quot;</span><span class="p">,</span> <span class="n">res</span><span class="p">);</span>
+
+  <span class="n">res</span> <span class="o">=</span> <span class="n">ctzsi2_test</span><span class="p">();</span>
+  <span class="n">show_result</span><span class="p">(</span><span class="s2">&quot;ctzsi2_test()&quot;</span><span class="p">,</span> <span class="n">res</span><span class="p">);</span>
+
+  <span class="n">res</span> <span class="o">=</span> <span class="n">ctzti2_test</span><span class="p">();</span>
+  <span class="n">show_result</span><span class="p">(</span><span class="s2">&quot;ctzti2_test()&quot;</span><span class="p">,</span> <span class="n">res</span><span class="p">);</span>
+
+<span class="c1">#ifdef HAS_COMPLEX</span>
+  <span class="n">res</span> <span class="o">=</span> <span class="n">divdc3_test</span><span class="p">();</span>
+  <span class="n">show_result</span><span class="p">(</span><span class="s2">&quot;divdc3_test()&quot;</span><span class="p">,</span> <span class="n">res</span><span class="p">);</span>
+<span class="c1">#endif</span>
+
+  <span class="n">res</span> <span class="o">=</span> <span class="n">divdf3_test</span><span class="p">();</span>
+  <span class="n">show_result</span><span class="p">(</span><span class="s2">&quot;divdf3_test()&quot;</span><span class="p">,</span> <span class="n">res</span><span class="p">);</span>
+
+  <span class="n">res</span> <span class="o">=</span> <span class="n">divdf3vfp_test</span><span class="p">();</span>
+  <span class="n">show_result</span><span class="p">(</span><span class="s2">&quot;divdf3vfp_test()&quot;</span><span class="p">,</span> <span class="n">res</span><span class="p">);</span>
+
+  <span class="n">res</span> <span class="o">=</span> <span class="n">divdi3_test</span><span class="p">();</span>
+  <span class="n">show_result</span><span class="p">(</span><span class="s2">&quot;divdi3_test()&quot;</span><span class="p">,</span> <span class="n">res</span><span class="p">);</span>
+
+  <span class="n">res</span> <span class="o">=</span> <span class="n">divmodsi4_test</span><span class="p">();</span>
+  <span class="n">show_result</span><span class="p">(</span><span class="s2">&quot;divmodsi4_test()&quot;</span><span class="p">,</span> <span class="n">res</span><span class="p">);</span>
+
+  <span class="n">res</span> <span class="o">=</span> <span class="n">divmodti4_test</span><span class="p">();</span>
+  <span class="n">show_result</span><span class="p">(</span><span class="s2">&quot;divmodti4_test()&quot;</span><span class="p">,</span> <span class="n">res</span><span class="p">);</span>
+
+<span class="c1">#ifdef HAS_COMPLEX</span>
+  <span class="n">res</span> <span class="o">=</span> <span class="n">divsc3_test</span><span class="p">();</span>
+  <span class="n">show_result</span><span class="p">(</span><span class="s2">&quot;divsc3_test()&quot;</span><span class="p">,</span> <span class="n">res</span><span class="p">);</span>
+<span class="c1">#endif</span>
+
+  <span class="n">res</span> <span class="o">=</span> <span class="n">divsf3_test</span><span class="p">();</span>
+  <span class="n">show_result</span><span class="p">(</span><span class="s2">&quot;divsf3_test()&quot;</span><span class="p">,</span> <span class="n">res</span><span class="p">);</span>
+
+  <span class="n">res</span> <span class="o">=</span> <span class="n">divsf3vfp_test</span><span class="p">();</span>
+  <span class="n">show_result</span><span class="p">(</span><span class="s2">&quot;divsf3vfp_test()&quot;</span><span class="p">,</span> <span class="n">res</span><span class="p">);</span>
+
+  <span class="n">res</span> <span class="o">=</span> <span class="n">divsi3_test</span><span class="p">();</span>
+  <span class="n">show_result</span><span class="p">(</span><span class="s2">&quot;divsi3_test()&quot;</span><span class="p">,</span> <span class="n">res</span><span class="p">);</span>
+
+<span class="c1">#ifdef HAS_COMPLEX</span>
+  <span class="n">res</span> <span class="o">=</span> <span class="n">divtc3_test</span><span class="p">();</span>
+  <span class="n">show_result</span><span class="p">(</span><span class="s2">&quot;divtc3_test()&quot;</span><span class="p">,</span> <span class="n">res</span><span class="p">);</span>
+<span class="c1">#endif</span>
+
+  <span class="n">res</span> <span class="o">=</span> <span class="n">divtf3_test</span><span class="p">();</span>
+  <span class="n">show_result</span><span class="p">(</span><span class="s2">&quot;divtf3_test()&quot;</span><span class="p">,</span> <span class="n">res</span><span class="p">);</span>
+
+  <span class="n">res</span> <span class="o">=</span> <span class="n">divti3_test</span><span class="p">();</span>
+  <span class="n">show_result</span><span class="p">(</span><span class="s2">&quot;divti3_test()&quot;</span><span class="p">,</span> <span class="n">res</span><span class="p">);</span>
+
+<span class="c1">#ifdef HAS_COMPLEX</span>
+  <span class="n">res</span> <span class="o">=</span> <span class="n">divxc3_test</span><span class="p">();</span>
+  <span class="n">show_result</span><span class="p">(</span><span class="s2">&quot;divxc3_test()&quot;</span><span class="p">,</span> <span class="n">res</span><span class="p">);</span>
+<span class="c1">#endif</span>
+
+<span class="c1">#if 0</span>
+  <span class="n">res</span> <span class="o">=</span> <span class="n">enable_execute_stack_test</span><span class="p">();</span>
+  <span class="n">show_result</span><span class="p">(</span><span class="s2">&quot;enable_execute_stack_test()&quot;</span><span class="p">,</span> <span class="n">res</span><span class="p">);</span>
+<span class="c1">#endif</span>
+
+  <span class="n">res</span> <span class="o">=</span> <span class="n">eqdf2vfp_test</span><span class="p">();</span>
+  <span class="n">show_result</span><span class="p">(</span><span class="s2">&quot;eqdf2vfp_test()&quot;</span><span class="p">,</span> <span class="n">res</span><span class="p">);</span>
+
+  <span class="n">res</span> <span class="o">=</span> <span class="n">eqsf2vfp_test</span><span class="p">();</span>
+  <span class="n">show_result</span><span class="p">(</span><span class="s2">&quot;eqsf2vfp_test()&quot;</span><span class="p">,</span> <span class="n">res</span><span class="p">);</span>
+
+  <span class="n">res</span> <span class="o">=</span> <span class="n">eqtf2_test</span><span class="p">();</span>
+  <span class="n">show_result</span><span class="p">(</span><span class="s2">&quot;eqtf2_test()&quot;</span><span class="p">,</span> <span class="n">res</span><span class="p">);</span>
+
+  <span class="n">res</span> <span class="o">=</span> <span class="n">extenddftf2_test</span><span class="p">();</span>
+  <span class="n">show_result</span><span class="p">(</span><span class="s2">&quot;extenddftf2_test()&quot;</span><span class="p">,</span> <span class="n">res</span><span class="p">);</span>
+
+  <span class="n">res</span> <span class="o">=</span> <span class="n">extendhfsf2_test</span><span class="p">();</span>
+  <span class="n">show_result</span><span class="p">(</span><span class="s2">&quot;extendhfsf2_test()&quot;</span><span class="p">,</span> <span class="n">res</span><span class="p">);</span>
+
+  <span class="n">res</span> <span class="o">=</span> <span class="n">extendhftf2_test</span><span class="p">();</span>
+  <span class="n">show_result</span><span class="p">(</span><span class="s2">&quot;extendhftf2_test()&quot;</span><span class="p">,</span> <span class="n">res</span><span class="p">);</span>
+
+  <span class="n">res</span> <span class="o">=</span> <span class="n">extendsfdf2vfp_test</span><span class="p">();</span>
+  <span class="n">show_result</span><span class="p">(</span><span class="s2">&quot;extendsfdf2vfp_test()&quot;</span><span class="p">,</span> <span class="n">res</span><span class="p">);</span>
+
+  <span class="n">res</span> <span class="o">=</span> <span class="n">extendsftf2_test</span><span class="p">();</span>
+  <span class="n">show_result</span><span class="p">(</span><span class="s2">&quot;extendsftf2_test()&quot;</span><span class="p">,</span> <span class="n">res</span><span class="p">);</span>
+
+<span class="c1">#if 0</span>
+  <span class="n">res</span> <span class="o">=</span> <span class="n">gcc_personality_test</span><span class="p">();</span>
+  <span class="n">show_result</span><span class="p">(</span><span class="s2">&quot;gcc_personality_test()&quot;</span><span class="p">,</span> <span class="n">res</span><span class="p">);</span>
+<span class="c1">#endif</span>
+
+  <span class="n">res</span> <span class="o">=</span> <span class="n">gedf2vfp_test</span><span class="p">();</span>
+  <span class="n">show_result</span><span class="p">(</span><span class="s2">&quot;gedf2vfp_test()&quot;</span><span class="p">,</span> <span class="n">res</span><span class="p">);</span>
+
+  <span class="n">res</span> <span class="o">=</span> <span class="n">gesf2vfp_test</span><span class="p">();</span>
+  <span class="n">show_result</span><span class="p">(</span><span class="s2">&quot;gesf2vfp_test()&quot;</span><span class="p">,</span> <span class="n">res</span><span class="p">);</span>
+
+  <span class="n">res</span> <span class="o">=</span> <span class="n">getf2_test</span><span class="p">();</span>
+  <span class="n">show_result</span><span class="p">(</span><span class="s2">&quot;getf2_test()&quot;</span><span class="p">,</span> <span class="n">res</span><span class="p">);</span>
+
+  <span class="n">res</span> <span class="o">=</span> <span class="n">gtdf2vfp_test</span><span class="p">();</span>
+  <span class="n">show_result</span><span class="p">(</span><span class="s2">&quot;gtdf2vfp_test()&quot;</span><span class="p">,</span> <span class="n">res</span><span class="p">);</span>
+
+  <span class="n">res</span> <span class="o">=</span> <span class="n">gtsf2vfp_test</span><span class="p">();</span>
+  <span class="n">show_result</span><span class="p">(</span><span class="s2">&quot;gtsf2vfp_test()&quot;</span><span class="p">,</span> <span class="n">res</span><span class="p">);</span>
+
+  <span class="n">res</span> <span class="o">=</span> <span class="n">gttf2_test</span><span class="p">();</span>
+  <span class="n">show_result</span><span class="p">(</span><span class="s2">&quot;gttf2_test()&quot;</span><span class="p">,</span> <span class="n">res</span><span class="p">);</span>
+
+  <span class="n">res</span> <span class="o">=</span> <span class="n">ledf2vfp_test</span><span class="p">();</span>
+  <span class="n">show_result</span><span class="p">(</span><span class="s2">&quot;ledf2vfp_test()&quot;</span><span class="p">,</span> <span class="n">res</span><span class="p">);</span>
+
+  <span class="n">res</span> <span class="o">=</span> <span class="n">lesf2vfp_test</span><span class="p">();</span>
+  <span class="n">show_result</span><span class="p">(</span><span class="s2">&quot;lesf2vfp_test()&quot;</span><span class="p">,</span> <span class="n">res</span><span class="p">);</span>
+
+  <span class="n">res</span> <span class="o">=</span> <span class="n">letf2_test</span><span class="p">();</span>
+  <span class="n">show_result</span><span class="p">(</span><span class="s2">&quot;letf2_test()&quot;</span><span class="p">,</span> <span class="n">res</span><span class="p">);</span>
+
+  <span class="n">res</span> <span class="o">=</span> <span class="n">lshrdi3_test</span><span class="p">();</span>
+  <span class="n">show_result</span><span class="p">(</span><span class="s2">&quot;lshrdi3_test()&quot;</span><span class="p">,</span> <span class="n">res</span><span class="p">);</span>
+
+  <span class="n">res</span> <span class="o">=</span> <span class="n">lshrti3_test</span><span class="p">();</span>
+  <span class="n">show_result</span><span class="p">(</span><span class="s2">&quot;lshrti3_test()&quot;</span><span class="p">,</span> <span class="n">res</span><span class="p">);</span>
+
+  <span class="n">res</span> <span class="o">=</span> <span class="n">ltdf2vfp_test</span><span class="p">();</span>
+  <span class="n">show_result</span><span class="p">(</span><span class="s2">&quot;ltdf2vfp_test()&quot;</span><span class="p">,</span> <span class="n">res</span><span class="p">);</span>
+
+  <span class="n">res</span> <span class="o">=</span> <span class="n">ltsf2vfp_test</span><span class="p">();</span>
+  <span class="n">show_result</span><span class="p">(</span><span class="s2">&quot;ltsf2vfp_test()&quot;</span><span class="p">,</span> <span class="n">res</span><span class="p">);</span>
+
+  <span class="n">res</span> <span class="o">=</span> <span class="n">lttf2_test</span><span class="p">();</span>
+  <span class="n">show_result</span><span class="p">(</span><span class="s2">&quot;lttf2_test()&quot;</span><span class="p">,</span> <span class="n">res</span><span class="p">);</span>
+
+  <span class="n">res</span> <span class="o">=</span> <span class="n">moddi3_test</span><span class="p">();</span>
+  <span class="n">show_result</span><span class="p">(</span><span class="s2">&quot;moddi3_test()&quot;</span><span class="p">,</span> <span class="n">res</span><span class="p">);</span>
+
+  <span class="n">res</span> <span class="o">=</span> <span class="n">modsi3_test</span><span class="p">();</span>
+  <span class="n">show_result</span><span class="p">(</span><span class="s2">&quot;modsi3_test()&quot;</span><span class="p">,</span> <span class="n">res</span><span class="p">);</span>
+
+  <span class="n">res</span> <span class="o">=</span> <span class="n">modti3_test</span><span class="p">();</span>
+  <span class="n">show_result</span><span class="p">(</span><span class="s2">&quot;modti3_test()&quot;</span><span class="p">,</span> <span class="n">res</span><span class="p">);</span>
+
+<span class="c1">#ifdef HAS_COMPLEX</span>
+  <span class="n">res</span> <span class="o">=</span> <span class="n">muldc3_test</span><span class="p">();</span>
+  <span class="n">show_result</span><span class="p">(</span><span class="s2">&quot;muldc3_test()&quot;</span><span class="p">,</span> <span class="n">res</span><span class="p">);</span>
+<span class="c1">#endif</span>
+
+  <span class="n">res</span> <span class="o">=</span> <span class="n">muldf3vfp_test</span><span class="p">();</span>
+  <span class="n">show_result</span><span class="p">(</span><span class="s2">&quot;muldf3vfp_test()&quot;</span><span class="p">,</span> <span class="n">res</span><span class="p">);</span>
+
+  <span class="n">res</span> <span class="o">=</span> <span class="n">muldi3_test</span><span class="p">();</span>
+  <span class="n">show_result</span><span class="p">(</span><span class="s2">&quot;muldi3_test()&quot;</span><span class="p">,</span> <span class="n">res</span><span class="p">);</span>
+
+  <span class="n">res</span> <span class="o">=</span> <span class="n">mulodi4_test</span><span class="p">();</span>
+  <span class="n">show_result</span><span class="p">(</span><span class="s2">&quot;mulodi4_test()&quot;</span><span class="p">,</span> <span class="n">res</span><span class="p">);</span>
+
+  <span class="n">res</span> <span class="o">=</span> <span class="n">mulosi4_test</span><span class="p">();</span>
+  <span class="n">show_result</span><span class="p">(</span><span class="s2">&quot;mulosi4_test()&quot;</span><span class="p">,</span> <span class="n">res</span><span class="p">);</span>
+
+  <span class="n">res</span> <span class="o">=</span> <span class="n">muloti4_test</span><span class="p">();</span>
+  <span class="n">show_result</span><span class="p">(</span><span class="s2">&quot;muloti4_test()&quot;</span><span class="p">,</span> <span class="n">res</span><span class="p">);</span>
+
+<span class="c1">#ifdef HAS_COMPLEX</span>
+  <span class="n">res</span> <span class="o">=</span> <span class="n">mulsc3_test</span><span class="p">();</span>
+  <span class="n">show_result</span><span class="p">(</span><span class="s2">&quot;mulsc3_test()&quot;</span><span class="p">,</span> <span class="n">res</span><span class="p">);</span>
+<span class="c1">#endif</span>
+
+  <span class="n">res</span> <span class="o">=</span> <span class="n">mulsf3vfp_test</span><span class="p">();</span>
+  <span class="n">show_result</span><span class="p">(</span><span class="s2">&quot;mulsf3vfp_test()&quot;</span><span class="p">,</span> <span class="n">res</span><span class="p">);</span>
+
+<span class="o">//</span> <span class="n">no</span> <span class="n">mulsi3</span><span class="o">.</span><span class="n">c</span>
+<span class="o">//</span>  <span class="n">res</span> <span class="o">=</span> <span class="n">mulsi3_test</span><span class="p">();</span>
+<span class="o">//</span>  <span class="n">show_result</span><span class="p">(</span><span class="s2">&quot;mulsi3_test()&quot;</span><span class="p">,</span> <span class="n">res</span><span class="p">);</span>
+
+<span class="c1">#ifdef HAS_COMPLEX</span>
+  <span class="n">res</span> <span class="o">=</span> <span class="n">multc3_test</span><span class="p">();</span>
+  <span class="n">show_result</span><span class="p">(</span><span class="s2">&quot;multc3_test()&quot;</span><span class="p">,</span> <span class="n">res</span><span class="p">);</span>
+<span class="c1">#endif</span>
+
+  <span class="n">res</span> <span class="o">=</span> <span class="n">multf3_test</span><span class="p">();</span>
+  <span class="n">show_result</span><span class="p">(</span><span class="s2">&quot;multf3_test()&quot;</span><span class="p">,</span> <span class="n">res</span><span class="p">);</span>
+
+  <span class="n">res</span> <span class="o">=</span> <span class="n">multi3_test</span><span class="p">();</span>
+  <span class="n">show_result</span><span class="p">(</span><span class="s2">&quot;multi3_test()&quot;</span><span class="p">,</span> <span class="n">res</span><span class="p">);</span>
+
+  <span class="n">res</span> <span class="o">=</span> <span class="n">mulvdi3_test</span><span class="p">();</span>
+  <span class="n">show_result</span><span class="p">(</span><span class="s2">&quot;mulvdi3_test()&quot;</span><span class="p">,</span> <span class="n">res</span><span class="p">);</span>
+
+  <span class="n">res</span> <span class="o">=</span> <span class="n">mulvsi3_test</span><span class="p">();</span>
+  <span class="n">show_result</span><span class="p">(</span><span class="s2">&quot;mulvsi3_test()&quot;</span><span class="p">,</span> <span class="n">res</span><span class="p">);</span>
+
+  <span class="n">res</span> <span class="o">=</span> <span class="n">mulvti3_test</span><span class="p">();</span>
+  <span class="n">show_result</span><span class="p">(</span><span class="s2">&quot;mulvti3_test()&quot;</span><span class="p">,</span> <span class="n">res</span><span class="p">);</span>
+
+<span class="c1">#ifdef HAS_COMPLEX</span>
+  <span class="n">res</span> <span class="o">=</span> <span class="n">mulxc3_test</span><span class="p">();</span>
+  <span class="n">show_result</span><span class="p">(</span><span class="s2">&quot;mulxc3_test()&quot;</span><span class="p">,</span> <span class="n">res</span><span class="p">);</span>
+<span class="c1">#endif</span>
+
+  <span class="n">res</span> <span class="o">=</span> <span class="n">nedf2vfp_test</span><span class="p">();</span>
+  <span class="n">show_result</span><span class="p">(</span><span class="s2">&quot;nedf2vfp_test()&quot;</span><span class="p">,</span> <span class="n">res</span><span class="p">);</span>
+
+  <span class="n">res</span> <span class="o">=</span> <span class="n">negdf2vfp_test</span><span class="p">();</span>
+  <span class="n">show_result</span><span class="p">(</span><span class="s2">&quot;negdf2vfp_test()&quot;</span><span class="p">,</span> <span class="n">res</span><span class="p">);</span>
+
+  <span class="n">res</span> <span class="o">=</span> <span class="n">negdi2_test</span><span class="p">();</span>
+  <span class="n">show_result</span><span class="p">(</span><span class="s2">&quot;negdi2_test()&quot;</span><span class="p">,</span> <span class="n">res</span><span class="p">);</span>
+
+  <span class="n">res</span> <span class="o">=</span> <span class="n">negsf2vfp_test</span><span class="p">();</span>
+  <span class="n">show_result</span><span class="p">(</span><span class="s2">&quot;negsf2vfp_test()&quot;</span><span class="p">,</span> <span class="n">res</span><span class="p">);</span>
+
+  <span class="n">res</span> <span class="o">=</span> <span class="n">negti2_test</span><span class="p">();</span>
+  <span class="n">show_result</span><span class="p">(</span><span class="s2">&quot;negti2_test()&quot;</span><span class="p">,</span> <span class="n">res</span><span class="p">);</span>
+
+  <span class="n">res</span> <span class="o">=</span> <span class="n">negvdi2_test</span><span class="p">();</span>
+  <span class="n">show_result</span><span class="p">(</span><span class="s2">&quot;negvdi2_test()&quot;</span><span class="p">,</span> <span class="n">res</span><span class="p">);</span>
+
+  <span class="n">res</span> <span class="o">=</span> <span class="n">negvsi2_test</span><span class="p">();</span>
+  <span class="n">show_result</span><span class="p">(</span><span class="s2">&quot;negvsi2_test()&quot;</span><span class="p">,</span> <span class="n">res</span><span class="p">);</span>
+
+  <span class="n">res</span> <span class="o">=</span> <span class="n">negvti2_test</span><span class="p">();</span>
+  <span class="n">show_result</span><span class="p">(</span><span class="s2">&quot;negvti2_test()&quot;</span><span class="p">,</span> <span class="n">res</span><span class="p">);</span>
+
+  <span class="n">res</span> <span class="o">=</span> <span class="n">nesf2vfp_test</span><span class="p">();</span>
+  <span class="n">show_result</span><span class="p">(</span><span class="s2">&quot;nesf2vfp_test()&quot;</span><span class="p">,</span> <span class="n">res</span><span class="p">);</span>
+
+  <span class="n">res</span> <span class="o">=</span> <span class="n">netf2_test</span><span class="p">();</span>
+  <span class="n">show_result</span><span class="p">(</span><span class="s2">&quot;netf2_test()&quot;</span><span class="p">,</span> <span class="n">res</span><span class="p">);</span>
+
+<span class="o">/*</span> <span class="n">need</span> <span class="n">rand</span><span class="p">,</span> <span class="n">signbit</span><span class="p">,</span> <span class="o">...</span>
+  <span class="n">res</span> <span class="o">=</span> <span class="n">paritydi2_test</span><span class="p">();</span>
+  <span class="n">show_result</span><span class="p">(</span><span class="s2">&quot;paritydi2_test()&quot;</span><span class="p">,</span> <span class="n">res</span><span class="p">);</span>
+
+  <span class="n">res</span> <span class="o">=</span> <span class="n">paritysi2_test</span><span class="p">();</span>
+  <span class="n">show_result</span><span class="p">(</span><span class="s2">&quot;paritysi2_test()&quot;</span><span class="p">,</span> <span class="n">res</span><span class="p">);</span>
+
+  <span class="n">res</span> <span class="o">=</span> <span class="n">parityti2_test</span><span class="p">();</span>
+  <span class="n">show_result</span><span class="p">(</span><span class="s2">&quot;parityti2_test()&quot;</span><span class="p">,</span> <span class="n">res</span><span class="p">);</span>
+
+  <span class="n">res</span> <span class="o">=</span> <span class="n">popcountdi2_test</span><span class="p">();</span>
+  <span class="n">show_result</span><span class="p">(</span><span class="s2">&quot;popcountdi2_test()&quot;</span><span class="p">,</span> <span class="n">res</span><span class="p">);</span>
+
+  <span class="n">res</span> <span class="o">=</span> <span class="n">popcountsi2_test</span><span class="p">();</span>
+  <span class="n">show_result</span><span class="p">(</span><span class="s2">&quot;popcountsi2_test()&quot;</span><span class="p">,</span> <span class="n">res</span><span class="p">);</span>
+
+  <span class="n">res</span> <span class="o">=</span> <span class="n">popcountti2_test</span><span class="p">();</span>
+  <span class="n">show_result</span><span class="p">(</span><span class="s2">&quot;popcountti2_test()&quot;</span><span class="p">,</span> <span class="n">res</span><span class="p">);</span>
+
+  <span class="n">res</span> <span class="o">=</span> <span class="n">powidf2_test</span><span class="p">();</span>
+  <span class="n">show_result</span><span class="p">(</span><span class="s2">&quot;powidf2_test()&quot;</span><span class="p">,</span> <span class="n">res</span><span class="p">);</span>
+
+  <span class="n">res</span> <span class="o">=</span> <span class="n">powisf2_test</span><span class="p">();</span>
+  <span class="n">show_result</span><span class="p">(</span><span class="s2">&quot;powisf2_test()&quot;</span><span class="p">,</span> <span class="n">res</span><span class="p">);</span>
+
+  <span class="n">res</span> <span class="o">=</span> <span class="n">powitf2_test</span><span class="p">();</span>
+  <span class="n">show_result</span><span class="p">(</span><span class="s2">&quot;powitf2_test()&quot;</span><span class="p">,</span> <span class="n">res</span><span class="p">);</span>
+
+  <span class="n">res</span> <span class="o">=</span> <span class="n">powixf2_test</span><span class="p">();</span>
+  <span class="n">show_result</span><span class="p">(</span><span class="s2">&quot;powixf2_test()&quot;</span><span class="p">,</span> <span class="n">res</span><span class="p">);</span>
+<span class="o">*/</span>
+
+  <span class="n">res</span> <span class="o">=</span> <span class="n">subdf3vfp_test</span><span class="p">();</span>
+  <span class="n">show_result</span><span class="p">(</span><span class="s2">&quot;subdf3vfp_test()&quot;</span><span class="p">,</span> <span class="n">res</span><span class="p">);</span>
+
+  <span class="n">res</span> <span class="o">=</span> <span class="n">subsf3vfp_test</span><span class="p">();</span>
+  <span class="n">show_result</span><span class="p">(</span><span class="s2">&quot;subsf3vfp_test()&quot;</span><span class="p">,</span> <span class="n">res</span><span class="p">);</span>
+
+  <span class="n">res</span> <span class="o">=</span> <span class="n">subtf3_test</span><span class="p">();</span>
+  <span class="n">show_result</span><span class="p">(</span><span class="s2">&quot;subtf3_test()&quot;</span><span class="p">,</span> <span class="n">res</span><span class="p">);</span>
+
+  <span class="n">res</span> <span class="o">=</span> <span class="n">subvdi3_test</span><span class="p">();</span>
+  <span class="n">show_result</span><span class="p">(</span><span class="s2">&quot;subvdi3_test()&quot;</span><span class="p">,</span> <span class="n">res</span><span class="p">);</span>
+
+  <span class="n">res</span> <span class="o">=</span> <span class="n">subvsi3_test</span><span class="p">();</span>
+  <span class="n">show_result</span><span class="p">(</span><span class="s2">&quot;subvsi3_test()&quot;</span><span class="p">,</span> <span class="n">res</span><span class="p">);</span>
+
+  <span class="n">res</span> <span class="o">=</span> <span class="n">subvti3_test</span><span class="p">();</span>
+  <span class="n">show_result</span><span class="p">(</span><span class="s2">&quot;subvti3_test()&quot;</span><span class="p">,</span> <span class="n">res</span><span class="p">);</span>
+
+  <span class="n">res</span> <span class="o">=</span> <span class="n">trampoline_setup_test</span><span class="p">();</span>
+  <span class="n">show_result</span><span class="p">(</span><span class="s2">&quot;trampoline_setup_test()&quot;</span><span class="p">,</span> <span class="n">res</span><span class="p">);</span>
+
+  <span class="n">res</span> <span class="o">=</span> <span class="n">truncdfhf2_test</span><span class="p">();</span>
+  <span class="n">show_result</span><span class="p">(</span><span class="s2">&quot;truncdfhf2_test()&quot;</span><span class="p">,</span> <span class="n">res</span><span class="p">);</span>
+
+  <span class="n">res</span> <span class="o">=</span> <span class="n">truncdfsf2_test</span><span class="p">();</span>
+  <span class="n">show_result</span><span class="p">(</span><span class="s2">&quot;truncdfsf2_test()&quot;</span><span class="p">,</span> <span class="n">res</span><span class="p">);</span>
+
+  <span class="n">res</span> <span class="o">=</span> <span class="n">truncdfsf2vfp_test</span><span class="p">();</span>
+  <span class="n">show_result</span><span class="p">(</span><span class="s2">&quot;truncdfsf2vfp_test()&quot;</span><span class="p">,</span> <span class="n">res</span><span class="p">);</span>
+
+  <span class="n">res</span> <span class="o">=</span> <span class="n">truncsfhf2_test</span><span class="p">();</span>
+  <span class="n">show_result</span><span class="p">(</span><span class="s2">&quot;truncsfhf2_test()&quot;</span><span class="p">,</span> <span class="n">res</span><span class="p">);</span>
+
+  <span class="n">res</span> <span class="o">=</span> <span class="n">trunctfdf2_test</span><span class="p">();</span>
+  <span class="n">show_result</span><span class="p">(</span><span class="s2">&quot;trunctfdf2_test()&quot;</span><span class="p">,</span> <span class="n">res</span><span class="p">);</span>
+
+  <span class="n">res</span> <span class="o">=</span> <span class="n">trunctfhf2_test</span><span class="p">();</span>
+  <span class="n">show_result</span><span class="p">(</span><span class="s2">&quot;trunctfhf2_test()&quot;</span><span class="p">,</span> <span class="n">res</span><span class="p">);</span>
+
+  <span class="n">res</span> <span class="o">=</span> <span class="n">trunctfsf2_test</span><span class="p">();</span>
+  <span class="n">show_result</span><span class="p">(</span><span class="s2">&quot;trunctfsf2_test()&quot;</span><span class="p">,</span> <span class="n">res</span><span class="p">);</span>
+
+  <span class="n">res</span> <span class="o">=</span> <span class="n">ucmpdi2_test</span><span class="p">();</span>
+  <span class="n">show_result</span><span class="p">(</span><span class="s2">&quot;ucmpdi2_test()&quot;</span><span class="p">,</span> <span class="n">res</span><span class="p">);</span>
+
+  <span class="n">res</span> <span class="o">=</span> <span class="n">ucmpti2_test</span><span class="p">();</span>
+  <span class="n">show_result</span><span class="p">(</span><span class="s2">&quot;ucmpti2_test()&quot;</span><span class="p">,</span> <span class="n">res</span><span class="p">);</span>
+
+  <span class="n">res</span> <span class="o">=</span> <span class="n">udivdi3_test</span><span class="p">();</span>
+  <span class="n">show_result</span><span class="p">(</span><span class="s2">&quot;udivdi3_test()&quot;</span><span class="p">,</span> <span class="n">res</span><span class="p">);</span>
+
+  <span class="n">res</span> <span class="o">=</span> <span class="n">udivmoddi4_test</span><span class="p">();</span>
+  <span class="n">show_result</span><span class="p">(</span><span class="s2">&quot;udivmoddi4_test()&quot;</span><span class="p">,</span> <span class="n">res</span><span class="p">);</span>
+
+  <span class="n">res</span> <span class="o">=</span> <span class="n">udivmodsi4_test</span><span class="p">();</span>
+  <span class="n">show_result</span><span class="p">(</span><span class="s2">&quot;udivmodsi4_test()&quot;</span><span class="p">,</span> <span class="n">res</span><span class="p">);</span>
+
+  <span class="n">res</span> <span class="o">=</span> <span class="n">udivmodti4_test</span><span class="p">();</span>
+  <span class="n">show_result</span><span class="p">(</span><span class="s2">&quot;udivmodti4_test()&quot;</span><span class="p">,</span> <span class="n">res</span><span class="p">);</span>
+
+  <span class="n">res</span> <span class="o">=</span> <span class="n">udivsi3_test</span><span class="p">();</span>
+  <span class="n">show_result</span><span class="p">(</span><span class="s2">&quot;udivsi3_test()&quot;</span><span class="p">,</span> <span class="n">res</span><span class="p">);</span>
+
+  <span class="n">res</span> <span class="o">=</span> <span class="n">udivti3_test</span><span class="p">();</span>
+  <span class="n">show_result</span><span class="p">(</span><span class="s2">&quot;udivti3_test()&quot;</span><span class="p">,</span> <span class="n">res</span><span class="p">);</span>
+
+  <span class="n">res</span> <span class="o">=</span> <span class="n">umoddi3_test</span><span class="p">();</span>
+  <span class="n">show_result</span><span class="p">(</span><span class="s2">&quot;umoddi3_test()&quot;</span><span class="p">,</span> <span class="n">res</span><span class="p">);</span>
+
+  <span class="n">res</span> <span class="o">=</span> <span class="n">umodsi3_test</span><span class="p">();</span>
+  <span class="n">show_result</span><span class="p">(</span><span class="s2">&quot;umodsi3_test()&quot;</span><span class="p">,</span> <span class="n">res</span><span class="p">);</span>
+
+  <span class="n">res</span> <span class="o">=</span> <span class="n">umodti3_test</span><span class="p">();</span>
+  <span class="n">show_result</span><span class="p">(</span><span class="s2">&quot;umodti3_test()&quot;</span><span class="p">,</span> <span class="n">res</span><span class="p">);</span>
+
+  <span class="n">res</span> <span class="o">=</span> <span class="n">unorddf2vfp_test</span><span class="p">();</span>
+  <span class="n">show_result</span><span class="p">(</span><span class="s2">&quot;unorddf2vfp_test()&quot;</span><span class="p">,</span> <span class="n">res</span><span class="p">);</span>
+
+  <span class="n">res</span> <span class="o">=</span> <span class="n">unordsf2vfp_test</span><span class="p">();</span>
+  <span class="n">show_result</span><span class="p">(</span><span class="s2">&quot;unordsf2vfp_test()&quot;</span><span class="p">,</span> <span class="n">res</span><span class="p">);</span>
+
+  <span class="n">res</span> <span class="o">=</span> <span class="n">unordtf2_test</span><span class="p">();</span>
+  <span class="n">show_result</span><span class="p">(</span><span class="s2">&quot;unordtf2_test()&quot;</span><span class="p">,</span> <span class="n">res</span><span class="p">);</span>
+
+  <span class="k">return</span> <span class="mi">0</span><span class="p">;</span>
+<span class="p">}</span>
+
+</pre></div>
+</div>
+<p class="rubric">exlbt/input/Makefile.builtins</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span># CPU and endian passed from command line, such as 
+#   &quot;make -f Makefile.float-necessary CPU=cpu032II endian=&quot;
+#   Ignore argument and set CPU to cpu032II since software float point library, 
+#   libsoftfloat, only supports cpu032II at this point.
+CPU := cpu032II
+#endian :=
+
+# start.cpp must be put at beginning
+SRCS :=  start.cpp debug.cpp printf-stdarg-def.c printf-stdarg.c \
+  compiler-rt-test/builtins/Unit/absvdi2_test.c \
+  compiler-rt-test/builtins/Unit/absvsi2_test.c \
+  compiler-rt-test/builtins/Unit/absvti2_test.c \
+  compiler-rt-test/builtins/Unit/adddf3vfp_test.c \
+  compiler-rt-test/builtins/Unit/addsf3vfp_test.c \
+  compiler-rt-test/builtins/Unit/addvdi3_test.c \
+  compiler-rt-test/builtins/Unit/addvsi3_test.c \
+  compiler-rt-test/builtins/Unit/addvti3_test.c \
+  compiler-rt-test/builtins/Unit/ashldi3_test.c \
+  compiler-rt-test/builtins/Unit/ashlti3_test.c \
+  compiler-rt-test/builtins/Unit/ashrdi3_test.c \
+  compiler-rt-test/builtins/Unit/ashrti3_test.c \
+  compiler-rt-test/builtins/Unit/bswapdi2_test.c \
+  compiler-rt-test/builtins/Unit/bswapsi2_test.c \
+  compiler-rt-test/builtins/Unit/clzdi2_test.c \
+  compiler-rt-test/builtins/Unit/clzsi2_test.c \
+  compiler-rt-test/builtins/Unit/clzti2_test.c \
+  compiler-rt-test/builtins/Unit/cmpdi2_test.c \
+  compiler-rt-test/builtins/Unit/cmpti2_test.c \
+  compiler-rt-test/builtins/Unit/comparedf2_test.c \
+  compiler-rt-test/builtins/Unit/comparesf2_test.c \
+  compiler-rt-test/builtins/Unit/cpu_model_test.c \
+  compiler-rt-test/builtins/Unit/ctzdi2_test.c \
+  compiler-rt-test/builtins/Unit/ctzsi2_test.c \
+  compiler-rt-test/builtins/Unit/ctzti2_test.c \
+  compiler-rt-test/builtins/Unit/divdc3_test.c \
+  compiler-rt-test/builtins/Unit/divdf3_test.c \
+  compiler-rt-test/builtins/Unit/divdf3vfp_test.c \
+  compiler-rt-test/builtins/Unit/divdi3_test.c \
+  compiler-rt-test/builtins/Unit/divmodsi4_test.c \
+  compiler-rt-test/builtins/Unit/divmodti4_test.c \
+  compiler-rt-test/builtins/Unit/divsc3_test.c \
+  compiler-rt-test/builtins/Unit/divsf3_test.c \
+  compiler-rt-test/builtins/Unit/divsf3vfp_test.c \
+  compiler-rt-test/builtins/Unit/divsi3_test.c \
+  compiler-rt-test/builtins/Unit/divtc3_test.c \
+  compiler-rt-test/builtins/Unit/divtf3_test.c \
+  compiler-rt-test/builtins/Unit/divti3_test.c \
+  compiler-rt-test/builtins/Unit/divxc3_test.c \
+  compiler-rt-test/builtins/Unit/enable_execute_stack_test.c \
+  compiler-rt-test/builtins/Unit/eqdf2vfp_test.c \
+  compiler-rt-test/builtins/Unit/eqsf2vfp_test.c \
+  compiler-rt-test/builtins/Unit/eqtf2_test.c \
+  compiler-rt-test/builtins/Unit/extenddftf2_test.c \
+  compiler-rt-test/builtins/Unit/extendhfsf2_test.c \
+  compiler-rt-test/builtins/Unit/extendhftf2_test.c \
+  compiler-rt-test/builtins/Unit/extendsfdf2vfp_test.c \
+  compiler-rt-test/builtins/Unit/extendsftf2_test.c \
+  compiler-rt-test/builtins/Unit/gedf2vfp_test.c \
+  compiler-rt-test/builtins/Unit/gesf2vfp_test.c \
+  compiler-rt-test/builtins/Unit/getf2_test.c \
+  compiler-rt-test/builtins/Unit/gtdf2vfp_test.c \
+  compiler-rt-test/builtins/Unit/gtsf2vfp_test.c \
+  compiler-rt-test/builtins/Unit/gttf2_test.c \
+  compiler-rt-test/builtins/Unit/ledf2vfp_test.c \
+  compiler-rt-test/builtins/Unit/lesf2vfp_test.c \
+  compiler-rt-test/builtins/Unit/letf2_test.c \
+  compiler-rt-test/builtins/Unit/lshrdi3_test.c \
+  compiler-rt-test/builtins/Unit/lshrti3_test.c \
+  compiler-rt-test/builtins/Unit/ltdf2vfp_test.c \
+  compiler-rt-test/builtins/Unit/ltsf2vfp_test.c \
+  compiler-rt-test/builtins/Unit/lttf2_test.c \
+  compiler-rt-test/builtins/Unit/moddi3_test.c \
+  compiler-rt-test/builtins/Unit/modsi3_test.c \
+  compiler-rt-test/builtins/Unit/modti3_test.c \
+  compiler-rt-test/builtins/Unit/muldc3_test.c \
+  compiler-rt-test/builtins/Unit/muldf3vfp_test.c \
+  compiler-rt-test/builtins/Unit/muldi3_test.c \
+  compiler-rt-test/builtins/Unit/mulodi4_test.c \
+  compiler-rt-test/builtins/Unit/mulosi4_test.c \
+  compiler-rt-test/builtins/Unit/muloti4_test.c \
+  compiler-rt-test/builtins/Unit/mulsc3_test.c \
+  compiler-rt-test/builtins/Unit/mulsf3vfp_test.c \
+  compiler-rt-test/builtins/Unit/mulsi3_test.c \
+  compiler-rt-test/builtins/Unit/multc3_test.c \
+  compiler-rt-test/builtins/Unit/multf3_test.c \
+  compiler-rt-test/builtins/Unit/multi3_test.c \
+  compiler-rt-test/builtins/Unit/mulvdi3_test.c \
+  compiler-rt-test/builtins/Unit/mulvsi3_test.c \
+  compiler-rt-test/builtins/Unit/mulvti3_test.c \
+  compiler-rt-test/builtins/Unit/mulxc3_test.c \
+  compiler-rt-test/builtins/Unit/nedf2vfp_test.c \
+  compiler-rt-test/builtins/Unit/negdf2vfp_test.c \
+  compiler-rt-test/builtins/Unit/negdi2_test.c \
+  compiler-rt-test/builtins/Unit/negsf2vfp_test.c \
+  compiler-rt-test/builtins/Unit/negti2_test.c \
+  compiler-rt-test/builtins/Unit/negvdi2_test.c \
+  compiler-rt-test/builtins/Unit/negvsi2_test.c \
+  compiler-rt-test/builtins/Unit/negvti2_test.c \
+  compiler-rt-test/builtins/Unit/nesf2vfp_test.c \
+  compiler-rt-test/builtins/Unit/netf2_test.c \
+  compiler-rt-test/builtins/Unit/paritydi2_test.c \
+  compiler-rt-test/builtins/Unit/paritysi2_test.c \
+  compiler-rt-test/builtins/Unit/parityti2_test.c \
+  compiler-rt-test/builtins/Unit/popcountdi2_test.c \
+  compiler-rt-test/builtins/Unit/popcountsi2_test.c \
+  compiler-rt-test/builtins/Unit/popcountti2_test.c \
+  compiler-rt-test/builtins/Unit/powidf2_test.c \
+  compiler-rt-test/builtins/Unit/powisf2_test.c \
+  compiler-rt-test/builtins/Unit/powitf2_test.c \
+  compiler-rt-test/builtins/Unit/powixf2_test.c \
+  compiler-rt-test/builtins/Unit/subdf3vfp_test.c \
+  compiler-rt-test/builtins/Unit/subsf3vfp_test.c \
+  compiler-rt-test/builtins/Unit/subtf3_test.c \
+  compiler-rt-test/builtins/Unit/subvdi3_test.c \
+  compiler-rt-test/builtins/Unit/subvsi3_test.c \
+  compiler-rt-test/builtins/Unit/subvti3_test.c \
+  compiler-rt-test/builtins/Unit/trampoline_setup_test.c \
+  compiler-rt-test/builtins/Unit/truncdfhf2_test.c \
+  compiler-rt-test/builtins/Unit/truncdfsf2_test.c \
+  compiler-rt-test/builtins/Unit/truncdfsf2vfp_test.c \
+  compiler-rt-test/builtins/Unit/truncsfhf2_test.c \
+  compiler-rt-test/builtins/Unit/trunctfdf2_test.c \
+  compiler-rt-test/builtins/Unit/trunctfhf2_test.c \
+  compiler-rt-test/builtins/Unit/trunctfsf2_test.c \
+  compiler-rt-test/builtins/Unit/ucmpdi2_test.c \
+  compiler-rt-test/builtins/Unit/ucmpti2_test.c \
+  compiler-rt-test/builtins/Unit/udivdi3_test.c \
+  compiler-rt-test/builtins/Unit/udivmoddi4_test.c \
+  compiler-rt-test/builtins/Unit/udivmodsi4_test.c \
+  compiler-rt-test/builtins/Unit/udivmodti4_test.c \
+  compiler-rt-test/builtins/Unit/udivsi3_test.c \
+  compiler-rt-test/builtins/Unit/udivti3_test.c \
+  compiler-rt-test/builtins/Unit/umoddi3_test.c \
+  compiler-rt-test/builtins/Unit/umodsi3_test.c \
+  compiler-rt-test/builtins/Unit/umodti3_test.c \
+  compiler-rt-test/builtins/Unit/unorddf2vfp_test.c \
+  compiler-rt-test/builtins/Unit/unordsf2vfp_test.c \
+  compiler-rt-test/builtins/Unit/unordtf2_test.c \
+  ch_builtins.cpp lib_cpu0.ll
+INC_DIRS := ./ ../libsoftfloat/compiler-rt/builtins ../include
+LIB_DIR := ../libsoftfloat/compiler-rt
+LIBS := $(LIB_DIR)/build/libFloat.a
+
+include Common.mk
+</pre></div>
+</div>
+<p>Run as follows,</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">chungshu@ChungShudeMacBook-Air input % </span>bash make.sh cpu032II be Makefile.builtins
+<span class="go">...</span>
+<span class="gp">chungshu@ChungShudeMacBook-Air verilog % </span>./cpu0IIs
+<span class="go">WARNING: cpu0.v:489: $readmemh(cpu0.hex): Not enough words in the file for the requested range [0:524287].</span>
+<span class="go">taskInterrupt(001)</span>
+<span class="go">absvdi2_test(): PASS!</span>
+<span class="go">absvsi2_test(): PASS!</span>
+<span class="go">absvti2_test(): SKIPPED!</span>
+<span class="go">adddf3vfp_test(): SKIPPED!</span>
+<span class="go">addsf3vfp_test(): SKIPPED!</span>
+<span class="go">addvdi3_test(): PASS!</span>
+<span class="go">addvsi3_test(): PASS!</span>
+<span class="go">addvti3_test(): SKIPPED!</span>
+<span class="go">ashldi3_test(): PASS!</span>
+<span class="go">ashlti3_test(): SKIPPED!</span>
+<span class="go">ashrdi3_test(): PASS!</span>
+<span class="go">ashrti3_test(): SKIPPED!</span>
+<span class="go">bswapdi2_test(): PASS!</span>
+<span class="go">bswapsi2_test(): PASS!</span>
+<span class="go">clzdi2_test(): PASS!</span>
+<span class="go">clzsi2_test(): PASS!</span>
+<span class="go">clzti2_test(): SKIPPED!</span>
+<span class="go">cmpdi2_test(): PASS!</span>
+<span class="go">cmpti2_test(): SKIPPED!</span>
+<span class="go">comparedf2_test(): PASS!</span>
+<span class="go">comparesf2_test(): PASS!</span>
+<span class="go">cpu_model_test(): SKIPPED!</span>
+<span class="go">ctzdi2_test(): PASS!</span>
+<span class="go">ctzsi2_test(): PASS!</span>
+<span class="go">ctzti2_test(): SKIPPED!</span>
+<span class="go">divdf3_test(): PASS!</span>
+<span class="go">divdf3vfp_test(): SKIPPED!</span>
+<span class="go">divdi3_test(): PASS!</span>
+<span class="go">divmodsi4_test(): PASS!</span>
+<span class="go">divmodti4_test(): SKIPPED!</span>
+<span class="go">divsf3_test(): PASS!</span>
+<span class="go">divsf3vfp_test(): SKIPPED!</span>
+<span class="go">divsi3_test(): PASS!</span>
+<span class="go">divtf3_test(): SKIPPED!</span>
+<span class="go">divti3_test(): SKIPPED!</span>
+<span class="go">eqdf2vfp_test(): SKIPPED!</span>
+<span class="go">eqsf2vfp_test(): SKIPPED!</span>
+<span class="go">eqtf2_test(): SKIPPED!</span>
+<span class="go">extenddftf2_test(): SKIPPED!</span>
+<span class="go">extendhfsf2_test(): PASS!</span>
+<span class="go">extendhftf2_test(): SKIPPED!</span>
+<span class="go">extendsfdf2vfp_test(): SKIPPED!</span>
+<span class="go">extendsftf2_test(): SKIPPED!</span>
+<span class="go">gedf2vfp_test(): SKIPPED!</span>
+<span class="go">gesf2vfp_test(): SKIPPED!</span>
+<span class="go">getf2_test(): SKIPPED!</span>
+<span class="go">gtdf2vfp_test(): SKIPPED!</span>
+<span class="go">gtsf2vfp_test(): SKIPPED!</span>
+<span class="go">gttf2_test(): SKIPPED!</span>
+<span class="go">ledf2vfp_test(): SKIPPED!</span>
+<span class="go">lesf2vfp_test(): SKIPPED!</span>
+<span class="go">letf2_test(): SKIPPED!</span>
+<span class="go">lshrdi3_test(): PASS!</span>
+<span class="go">lshrti3_test(): SKIPPED!</span>
+<span class="go">ltdf2vfp_test(): SKIPPED!</span>
+<span class="go">ltsf2vfp_test(): SKIPPED!</span>
+<span class="go">lttf2_test(): SKIPPED!</span>
+<span class="go">moddi3_test(): PASS!</span>
+<span class="go">modsi3_test(): PASS!</span>
+<span class="go">modti3_test(): SKIPPED!</span>
+<span class="go">muldf3vfp_test(): SKIPPED!</span>
+<span class="go">muldi3_test(): PASS!</span>
+<span class="go">mulodi4_test(): PASS!</span>
+<span class="go">mulosi4_test(): PASS!</span>
+<span class="go">muloti4_test(): SKIPPED!</span>
+<span class="go">mulsf3vfp_test(): SKIPPED!</span>
+<span class="go">multf3_test(): SKIPPED!</span>
+<span class="go">multi3_test(): SKIPPED!</span>
+<span class="go">mulvdi3_test(): PASS!</span>
+<span class="go">mulvsi3_test(): PASS!</span>
+<span class="go">mulvti3_test(): SKIPPED!</span>
+<span class="go">nedf2vfp_test(): SKIPPED!</span>
+<span class="go">negdf2vfp_test(): SKIPPED!</span>
+<span class="go">negdi2_test(): PASS!</span>
+<span class="go">negsf2vfp_test(): SKIPPED!</span>
+<span class="go">negti2_test(): SKIPPED!</span>
+<span class="go">negvdi2_test(): PASS!</span>
+<span class="go">negvsi2_test(): PASS!</span>
+<span class="go">negvti2_test(): SKIPPED!</span>
+<span class="go">nesf2vfp_test(): SKIPPED!</span>
+<span class="go">netf2_test(): SKIPPED!</span>
+<span class="go">subdf3vfp_test(): SKIPPED!</span>
+<span class="go">subsf3vfp_test(): SKIPPED!</span>
+<span class="go">subtf3_test(): SKIPPED!</span>
+<span class="go">subvdi3_test(): PASS!</span>
+<span class="go">subvsi3_test(): PASS!</span>
+<span class="go">subvti3_test(): SKIPPED!</span>
+<span class="go">trampoline_setup_test(): SKIPPED!</span>
+<span class="go">truncdfhf2_test(): PASS!</span>
+<span class="go">truncdfsf2_test(): PASS!</span>
+<span class="go">truncdfsf2vfp_test(): SKIPPED!</span>
+<span class="go">truncsfhf2_test(): PASS!</span>
+<span class="go">trunctfdf2_test(): SKIPPED!</span>
+<span class="go">trunctfhf2_test(): SKIPPED!</span>
+<span class="go">trunctfsf2_test(): SKIPPED!</span>
+<span class="go">ucmpdi2_test(): PASS!</span>
+<span class="go">ucmpti2_test(): SKIPPED!</span>
+<span class="go">udivdi3_test(): PASS!</span>
+<span class="go">taskInterrupt(011)</span>
+<span class="go">Overflow exception</span>
+<span class="go">error in __udivmoddi4: 1-2 / FFFFFFFF-6FF64 = 1000000-29, R = 6FEFC-0, expected 1-29, 0-6FF14</span>
+<span class="go">udivmoddi4_test(): FAIL!</span>
+<span class="go">udivmodsi4_test(): PASS!</span>
+<span class="go">udivmodti4_test(): SKIPPED!</span>
+<span class="go">udivsi3_test(): PASS!</span>
+<span class="go">udivti3_test(): SKIPPED!</span>
+<span class="go">umoddi3_test(): PASS!</span>
+<span class="go">umodsi3_test(): PASS!</span>
+<span class="go">umodti3_test(): SKIPPED!</span>
+<span class="go">unorddf2vfp_test(): SKIPPED!</span>
+<span class="go">unordsf2vfp_test(): SKIPPED!</span>
+<span class="go">unordtf2_test(): SKIPPED!</span>
+<span class="go">total cpu cycles = 8622184</span>
 <span class="go">RET to PC &lt; 0, finished!</span>
 </pre></div>
 </div>
 <dl class="footnote brackets">
-<dt class="label" id="id6"><span class="brackets"><a class="fn-backref" href="#id1">1</a></span></dt>
+<dt class="label" id="gnu"><span class="brackets"><a class="fn-backref" href="#id2">1</a></span></dt>
+<dd><p><a class="reference external" href="https://en.wikipedia.org/wiki/GNU_Compiler_Collection#cite_note-55">https://en.wikipedia.org/wiki/GNU_Compiler_Collection#cite_note-55</a></p>
+</dd>
+<dt class="label" id="toolchain"><span class="brackets"><a class="fn-backref" href="#id1">2</a></span></dt>
+<dd><p>page 8 - 9 of  <a class="reference external" href="https://archive.fosdem.org/2018/schedule/event/crosscompile/attachments/slides/2107/export/events/attachments/crosscompile/slides/2107/How_to_cross_compile_with_LLVM_based_tools.pdf">https://archive.fosdem.org/2018/schedule/event/crosscompile/attachments/slides/2107/export/events/attachments/crosscompile/slides/2107/How_to_cross_compile_with_LLVM_based_tools.pdf</a></p>
+</dd>
+<dt class="label" id="libgcc"><span class="brackets"><a class="fn-backref" href="#id3">3</a></span></dt>
+<dd><p><a class="reference external" href="https://gcc.gnu.org/onlinedocs/gccint/Libgcc.html">https://gcc.gnu.org/onlinedocs/gccint/Libgcc.html</a></p>
+</dd>
+<dt class="label" id="soft-float-lib"><span class="brackets"><a class="fn-backref" href="#id4">4</a></span></dt>
+<dd><p><a class="reference external" href="https://gcc.gnu.org/onlinedocs/gccint/Soft-float-library-routines.html#Soft-float-library-routines">https://gcc.gnu.org/onlinedocs/gccint/Soft-float-library-routines.html#Soft-float-library-routines</a></p>
+</dd>
+<dt class="label" id="id10"><span class="brackets">5</span><span class="fn-backref">(<a href="#id5">1</a>,<a href="#id9">2</a>)</span></dt>
 <dd><p><a class="reference external" href="http://compiler-rt.llvm.org/">http://compiler-rt.llvm.org/</a></p>
 </dd>
-<dt class="label" id="avr-libc-license"><span class="brackets"><a class="fn-backref" href="#id2">2</a></span></dt>
-<dd><p><a class="reference external" href="http://www.nongnu.org/avr-libc/">http://www.nongnu.org/avr-libc/</a></p>
+<dt class="label" id="math"><span class="brackets"><a class="fn-backref" href="#id6">6</a></span></dt>
+<dd><p><a class="reference external" href="https://www.programiz.com/c-programming/library-function/math.h">https://www.programiz.com/c-programming/library-function/math.h</a></p>
 </dd>
-<dt class="label" id="avr-libc-download"><span class="brackets"><a class="fn-backref" href="#id3">3</a></span></dt>
-<dd><p><a class="reference external" href="http://download.savannah.gnu.org/releases/avr-libc/">http://download.savannah.gnu.org/releases/avr-libc/</a></p>
+<dt class="label" id="clib"><span class="brackets"><a class="fn-backref" href="#id7">7</a></span></dt>
+<dd><p><a class="reference external" href="https://www.cplusplus.com/reference/clibrary">https://www.cplusplus.com/reference/clibrary</a></p>
 </dd>
-<dt class="label" id="avr-libc-doc-web"><span class="brackets"><a class="fn-backref" href="#id4">4</a></span></dt>
-<dd><p><a class="reference external" href="http://www.atmel.com/webdoc/AVRLibcReferenceManual/index.html">http://www.atmel.com/webdoc/AVRLibcReferenceManual/index.html</a></p>
-</dd>
-<dt class="label" id="avr-libc-doc-pdf"><span class="brackets"><a class="fn-backref" href="#id5">5</a></span></dt>
-<dd><p><a class="reference external" href="http://courses.cs.washington.edu/courses/csep567/04sp/pdfs/avr-libc-user-manual.pdf">http://courses.cs.washington.edu/courses/csep567/04sp/pdfs/avr-libc-user-manual.pdf</a></p>
+<dt class="label" id="printf-stdarg"><span class="brackets"><a class="fn-backref" href="#id8">8</a></span></dt>
+<dd><p><a class="reference external" href="https://github.com/atgreen/FreeRTOS/blob/master/Demo/CORTEX_STM32F103_Primer_GCC/printf-stdarg.c">https://github.com/atgreen/FreeRTOS/blob/master/Demo/CORTEX_STM32F103_Primer_GCC/printf-stdarg.c</a></p>
 </dd>
 </dl>
 </section>
