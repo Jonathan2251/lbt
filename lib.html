@@ -39,16 +39,22 @@
 <span id="sec-lib"></span><h1>Library<a class="headerlink" href="#library" title="Permalink to this headline">¶</a></h1>
 <div class="contents local topic" id="contents">
 <ul class="simple">
-<li><p><a class="reference internal" href="#compiler-rt" id="id12">Compiler-rt</a></p></li>
-<li><p><a class="reference internal" href="#software-float-point-support" id="id13">Software Float Point Support</a></p></li>
+<li><p><a class="reference internal" href="#compiler-rt" id="id13">Compiler-rt</a></p></li>
+<li><p><a class="reference internal" href="#software-float-point-support" id="id14">Software Float Point Support</a></p></li>
 </ul>
 </div>
 <p>Since Cpu0 has not hardware float point instructions, it needs soft float point
 library to finish the floating point operation. LLVM compiler-rt project include
-software floating point library implementation, so we choose it as the
+software floating point library implementation <a class="reference internal" href="#lib-empty"><span class="std std-numref">Fig. 6</span></a> , so we choose it as the
 implementation.</p>
 <p>Since compiler-rt uses unix/linux rootfs structure, we fill the gap by add few
 empty include-files in exlbt/include.</p>
+<figure class="align-default" id="id11">
+<span id="lib-empty"></span><img alt="_images/empty.png" src="_images/empty.png" />
+<figcaption>
+<p><span class="caption-number">Fig. 6 </span><span class="caption-text">compiler-rt/lib/builtins’ software float library</span><a class="headerlink" href="#id11" title="Permalink to this image">¶</a></p>
+</figcaption>
+</figure>
 <div class="graphviz"><img src="_images/graphviz-5e0d5ffa52ae40a97f50fdd549c241a3c4461a70.png" alt="// dot -Tpng lib.gv -o lib.png
 digraph G {
   rankdir=LR;
@@ -60,9 +66,9 @@ digraph G {
   &quot;clang/llc&quot; -&gt; lld [ label = &quot;obj&quot; ];
 }" class="graphviz" /></div>
 <section id="compiler-rt">
-<h2><a class="toc-backref" href="#id12">Compiler-rt</a><a class="headerlink" href="#compiler-rt" title="Permalink to this headline">¶</a></h2>
-<table class="docutils align-default" id="id11">
-<caption><span class="caption-number">Table 1 </span><span class="caption-text">Toolchain components <a class="footnote-reference brackets" href="#toolchain" id="id1">2</a></span><a class="headerlink" href="#id11" title="Permalink to this table">¶</a></caption>
+<h2><a class="toc-backref" href="#id13">Compiler-rt</a><a class="headerlink" href="#compiler-rt" title="Permalink to this headline">¶</a></h2>
+<table class="docutils align-default" id="id12">
+<caption><span class="caption-number">Table 1 </span><span class="caption-text">Toolchain components <a class="footnote-reference brackets" href="#toolchain" id="id1">2</a></span><a class="headerlink" href="#id12" title="Permalink to this table">¶</a></caption>
 <colgroup>
 <col style="width: 24%" />
 <col style="width: 44%" />
@@ -167,7 +173,7 @@ implements compiler-rt-12.x/cpu0/abort.c only at this point for supporting
 this feature.</p>
 </section>
 <section id="software-float-point-support">
-<h2><a class="toc-backref" href="#id13">Software Float Point Support</a><a class="headerlink" href="#software-float-point-support" title="Permalink to this headline">¶</a></h2>
+<h2><a class="toc-backref" href="#id14">Software Float Point Support</a><a class="headerlink" href="#software-float-point-support" title="Permalink to this headline">¶</a></h2>
 <p class="rubric">exlbt/include/math.h</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="c1">#ifndef _MATH_H_</span>
 <span class="c1">#define	_MATH_H_</span>
@@ -418,7 +424,7 @@ OBJS := $(SRCS:%=$(BUILD_DIR)/%.o)
 DEPS := $(OBJS:.o=.d)
 
 # Every folder in ./src will need to be passed to GCC so that it can find header files
-# stdlib.h, ..., etc existed in ../../libc/avr-libc-1.8.1/include
+# stdlib.h, ..., etc existed in ../../include
 INC_DIRS := $(shell find $(SRC_DIR) -type d)  ../../include
 # Add a prefix to INC_DIRS. So moduleA would become -ImoduleA. GCC understands this -I flag
 INC_FLAGS := $(addprefix -I,$(INC_DIRS))
@@ -564,7 +570,7 @@ int main() {
 CPU := cpu032II
 #endian :=
 
-SRCS := start.cpp debug.cpp printf-stdarg-def.c printf-stdarg.c ch_float_necessary.cpp lib_cpu0.ll
+SRCS := start.cpp debug.cpp printf-stdarg-def.c printf-stdarg.c ch_float.cpp lib_cpu0.ll
 INC_DIRS := $(SRC_DIR)
 LIB_DIR := ../libsoftfloat/compiler-rt
 LIBS := $(LIB_DIR)/build/libFloat.a

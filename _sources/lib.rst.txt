@@ -9,12 +9,17 @@ Library
 
 Since Cpu0 has not hardware float point instructions, it needs soft float point
 library to finish the floating point operation. LLVM compiler-rt project include
-software floating point library implementation, so we choose it as the 
+software floating point library implementation :numref:`lib-empty` , so we choose it as the 
 implementation. 
 
 Since compiler-rt uses unix/linux rootfs structure, we fill the gap by add few
 empty include-files in exlbt/include.
 
+.. _lib-empty:
+.. figure:: ../Fig/empty.png
+
+  compiler-rt\/lib\/builtins' software float library
+  
 .. graphviz:: ../Fig/lib/lib.gv
 
 
