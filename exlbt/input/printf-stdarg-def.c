@@ -7,7 +7,7 @@
 // For memory IO
 int putchar(int c)
 {
-  char *p = (char*)OUT_MEM;
+  char *p = (char*)IOADDR;
   *p = c;
 
   return 0;
