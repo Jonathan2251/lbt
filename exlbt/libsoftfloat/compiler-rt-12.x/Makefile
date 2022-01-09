@@ -150,7 +150,7 @@ OBJS := $(SRCS:%=$(BUILD_DIR)/%.o)
 DEPS := $(OBJS:.o=.d)
 
 # Every folder in ./src will need to be passed to GCC so that it can find header files
-# stdlib.h, ..., etc existed in ../../libc/avr-libc-1.8.1/include
+# stdlib.h, ..., etc existed in ../../include
 INC_DIRS := $(shell find $(SRC_DIR) -type d)  ../../include
 # Add a prefix to INC_DIRS. So moduleA would become -ImoduleA. GCC understands this -I flag
 INC_FLAGS := $(addprefix -I,$(INC_DIRS))
