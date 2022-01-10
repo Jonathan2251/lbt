@@ -136,6 +136,8 @@ static int print(char **out, const char *format, va_list args )
         ++format;
         pad = PAD_RIGHT;
       }
+      //bool have_ll = (format[0] == 'l' && format[1] == 'l');
+      //pc += have_ll * 2;
       while (*format == '0') {
         ++format;
         pad |= PAD_ZERO;
