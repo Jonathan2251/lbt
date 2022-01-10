@@ -7,7 +7,8 @@
 TARGET_LIB := libFloat.a
 BUILD_DIR := ./build
 TARGET := $(BUILD_DIR)/$(TARGET_LIB)
-SRC_DIR := ./builtins
+
+SRC_DIR := $(HOME)/llvm/llvm-project/compiler-rt/lib/builtins
 
 TOOLDIR := ~/llvm/test/build/bin
 CC := $(TOOLDIR)/clang
