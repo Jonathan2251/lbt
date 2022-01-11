@@ -5,9 +5,9 @@
 CPU := cpu032II
 #endian :=
 
-SRCS := start.cpp debug.cpp ch_sanitizer_common.cpp ch_hello.cpp lib_cpu0.ll
+SRCS := start.cpp debug.cpp ch_sanitizer_common.cpp printf-stdarg-def.c ch_hello.c ../libsoftfloat/compiler-rt/cpu0/abort.c lib_cpu0.ll
 LIB_DIR := ../sanitizer_common
 INC_DIRS := $(SRC_DIR)
-LIBS := $(LIB_DIR)/build/libsanitizer_common.a
+LIBS := $(LIB_DIR)/build/libsanitizer.a
 
 include Common.mk

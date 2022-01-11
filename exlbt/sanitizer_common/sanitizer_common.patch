@@ -1,0 +1,15 @@
+diff --git a/compiler-rt/lib/sanitizer_common/sanitizer_internal_defs.h b/compiler-rt/lib/sanitizer_common/sanitizer_internal_defs.h
+index d8f0540037d2..96efeaf24b24 100644
+--- a/compiler-rt/lib/sanitizer_common/sanitizer_internal_defs.h
++++ b/compiler-rt/lib/sanitizer_common/sanitizer_internal_defs.h
+@@ -185,7 +185,9 @@ typedef uptr operator_new_size_type;
+ // Special case: 31-bit s390 has unsigned long as size_t.
+ typedef unsigned long operator_new_size_type;
+ # else
+-typedef u32 operator_new_size_type;
++//typedef u32 operator_new_size_type;
++typedef unsigned long size_t;
++typedef size_t operator_new_size_type;
+ # endif
+ #endif
+ 
