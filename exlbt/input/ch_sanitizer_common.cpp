@@ -1,16 +1,17 @@
 #include <stdarg.h>
-#include "sanitizer_file.h"
+//#include "sanitizer_file.h"
 
 extern "C" int putchar(int c);
 
 namespace __sanitizer {
   extern int VSNPrintf(char *buff, int buff_length,
                 const char *format, va_list args);
-
+#if 0
   bool WriteToFile(fd_t fd, const void *buff, uptr buff_size, uptr *bytes_written,
                    error_t *error_p) {
     return true;
   }
+#endif
 }
 
 int prints(const char *string)

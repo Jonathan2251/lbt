@@ -1,5 +1,5 @@
 diff --git a/compiler-rt/lib/sanitizer_common/sanitizer_internal_defs.h b/compiler-rt/lib/sanitizer_common/sanitizer_internal_defs.h
-index d8f0540037d2..96efeaf24b24 100644
+index d8f0540037d2..b57083d6b152 100644
 --- a/compiler-rt/lib/sanitizer_common/sanitizer_internal_defs.h
 +++ b/compiler-rt/lib/sanitizer_common/sanitizer_internal_defs.h
 @@ -185,7 +185,9 @@ typedef uptr operator_new_size_type;
@@ -13,3 +13,34 @@ index d8f0540037d2..96efeaf24b24 100644
  # endif
  #endif
  
+@@ -277,15 +279,22 @@ void NORETURN CheckFailed(const char *file, int line, const char *cond,
+                           u64 v1, u64 v2);
+ 
+ // Check macro
++#if 1
++#define RAW_CHECK_MSG(expr, msg) 
++#else
+ #define RAW_CHECK_MSG(expr, msg) do { \
+   if (UNLIKELY(!(expr))) { \
+     RawWrite(msg); \
+     Die(); \
+   } \
+ } while (0)
++#endif
+ 
+ #define RAW_CHECK(expr) RAW_CHECK_MSG(expr, #expr)
+ 
++#if 1
++#define CHECK_IMPL(c1, op, c2)
++#else
+ #define CHECK_IMPL(c1, op, c2) \
+   do { \
+     __sanitizer::u64 v1 = (__sanitizer::u64)(c1); \
+@@ -295,6 +304,7 @@ void NORETURN CheckFailed(const char *file, int line, const char *cond,
+         "(" #c1 ") " #op " (" #c2 ")", v1, v2); \
+   } while (false) \
+ /**/
++#endif
+ 
+ #define CHECK(a)       CHECK_IMPL((a), !=, 0)
+ #define CHECK_EQ(a, b) CHECK_IMPL((a), ==, (b))
