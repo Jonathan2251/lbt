@@ -1,13 +1,19 @@
 #include <stdarg.h>
+#include "sanitizer_file.h"
 
 extern "C" int putchar(int c);
 
 namespace __sanitizer {
   extern int VSNPrintf(char *buff, int buff_length,
                 const char *format, va_list args);
+
+  bool WriteToFile(fd_t fd, const void *buff, uptr buff_size, uptr *bytes_written,
+                   error_t *error_p) {
+    return true;
+  }
 }
 
-static int prints(const char *string)
+int prints(const char *string)
 {
   register int pc = 0, padchar = ' ';
 
@@ -27,4 +33,5 @@ extern "C" int printf(const char *format, ...) {
   int needed_length = __sanitizer::VSNPrintf(buffer, length, format, args);
   va_end(args);
   prints(buffer);
+  return 0;
 }

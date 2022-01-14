@@ -33,10 +33,12 @@ LLFLAGS := -march=cpu0${ENDIAN} -mcpu=${CPU} -relocation-model=static \
 #FIND_LIB_DIR := $(shell find . -iname $(LIB_DIR))
 
 $(TARGET): $(OBJS) $(LIBS)
+	echo "LIB_DIR: $(LIB_DIR), LIBS: $(LIBS)"
 	$(LD) -o $@ $(OBJS) $(LIBS)
 
 $(LIBS):
-	cd $(LIB_DIR) && $(MAKE) -f ./Makefile CPU=$(CPU)
+	$(MAKE) -C $(LIBFLOAT_DIR) CPU=$(CPU)
+	$(MAKE) -C $(LIBSANITIZE_DIR) CPU=$(CPU)
 
 # Build step for C source
 $(BUILD_DIR)/%.c.o: %.c
@@ -54,8 +56,11 @@ $(BUILD_DIR)/lib_cpu0.ll.o: lib_cpu0.ll
 .PHONY: clean
 clean: 
 	rm -rf $(BUILD_DIR)
-ifdef LIB_DIR
-	cd $(LIB_DIR) && $(MAKE) -f Makefile clean
+ifdef LIBFLOAT_DIR
+	cd $(LIBFLOAT_DIR) && $(MAKE) -f Makefile clean
+endif
+ifdef LIBSANITIZE_DIR
+	cd $(LIBSANITIZE_DIR) && $(MAKE) -f Makefile clean
 endif
 
 # Include the .d makefiles. The - at the f.cnt suppresses the er.crs.cf missing

@@ -9,5 +9,6 @@ int main(void)
   char *ptr = "Hello world!";
 
   printf("%s\n", ptr);
+  return 0;
 }
 
