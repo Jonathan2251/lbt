@@ -30,15 +30,17 @@ CPPFLAGS := -MMD -MP -target cpu0${ENDIAN}-unknown-linux-gnu -static \
 LLFLAGS := -march=cpu0${ENDIAN} -mcpu=${CPU} -relocation-model=static \
   -filetype=obj -has-lld=true
 
-#FIND_LIB_DIR := $(shell find . -iname $(LIB_DIR))
+#FIND_LIBFLOAT_DIR := $(shell find . -iname $(LIBFLOAT_DIR))
 
 $(TARGET): $(OBJS) $(LIBS)
-	echo "LIB_DIR: $(LIB_DIR), LIBS: $(LIBS)"
+	echo "LIBFLOAT_DIR: $(LIBFLOAT_DIR), LIBS: $(LIBS)"
 	$(LD) -o $@ $(OBJS) $(LIBS)
 
 $(LIBS):
 	$(MAKE) -C $(LIBFLOAT_DIR) CPU=$(CPU)
+ifdef LIBSANITIZE_DIR
 	$(MAKE) -C $(LIBSANITIZE_DIR) CPU=$(CPU)
+endif
 
 # Build step for C source
 $(BUILD_DIR)/%.c.o: %.c

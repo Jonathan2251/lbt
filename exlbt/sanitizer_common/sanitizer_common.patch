@@ -44,3 +44,63 @@ index d8f0540037d2..b57083d6b152 100644
  
  #define CHECK(a)       CHECK_IMPL((a), !=, 0)
  #define CHECK_EQ(a, b) CHECK_IMPL((a), ==, (b))
+diff --git a/compiler-rt/lib/sanitizer_common/sanitizer_printf.cpp b/compiler-rt/lib/sanitizer_common/sanitizer_printf.cpp
+index a032787114bb..7f77ab220776 100644
+--- a/compiler-rt/lib/sanitizer_common/sanitizer_printf.cpp
++++ b/compiler-rt/lib/sanitizer_common/sanitizer_printf.cpp
+@@ -14,17 +14,25 @@
+ //===----------------------------------------------------------------------===//
+ 
+ #include "sanitizer_common.h"
++#if 0
+ #include "sanitizer_flags.h"
+ #include "sanitizer_libc.h"
++#endif
+ 
+ #include <stdio.h>
+ #include <stdarg.h>
+ 
++#include "debug.h"
++
++extern int prints(const char *string);
++
+ #if SANITIZER_WINDOWS && defined(_MSC_VER) && _MSC_VER < 1800 &&               \
+       !defined(va_copy)
+ # define va_copy(dst, src) ((dst) = (src))
+ #endif
+ 
++extern "C" void abort();
++
+ namespace __sanitizer {
+ 
+ static int AppendChar(char **buff, const char *buff_end, char c) {
+@@ -59,10 +67,14 @@ static int AppendNumber(char **buff, const char *buff_end, u64 absolute_value,
+     absolute_value /= base;
+   } while (absolute_value > 0);
+   if (pos < minimal_num_length) {
++#if 1
++    abort();
++#else
+     // Make sure compiler doesn't insert call to memset here.
+     internal_memset(&num_buffer[pos], 0,
+                     sizeof(num_buffer[0]) * (minimal_num_length - pos));
+     pos = minimal_num_length;
++#endif
+   }
+   RAW_CHECK(pos > 0);
+   pos--;
+@@ -221,6 +233,7 @@ int VSNPrintf(char *buff, int buff_length,
+   return result;
+ }
+ 
++#if 0
+ static void (*PrintfAndReportCallback)(const char *);
+ void SetPrintfAndReportCallback(void (*callback)(const char *)) {
+   PrintfAndReportCallback = callback;
+@@ -354,5 +367,6 @@ void InternalScopedString::append(const char *format, ...) {
+   length_ += internal_strlen(data() + length_);
+   CHECK_LT(length_, size());
+ }
++#endif
+ 
+ } // namespace __sanitizer

@@ -8,7 +8,6 @@ if test -d ${LLVM_TEST_DIR}; then
   pushd ${LLVM_TEST_DIR}
   ln -s ../llvm-project/clang clang
   ln -s ../llvm-project/lld lld
-  ln -s ../llvm-project/compiler-rt compiler-rt
   popd
   cp -rf clang/* ${LLVM_TEST_DIR}/clang/.
   cp -rf lld/* ${LLVM_TEST_DIR}/lld/.
@@ -21,7 +20,7 @@ if test -d ${LLVM_TEST_DIR}; then
   cd build
 # clang has better diagnosis in report error message
   cmake -DCMAKE_BUILD_TYPE=Debug -DCMAKE_CXX_COMPILER=clang++ -DCMAKE_C_COMPILER=clang \
-  -DLLVM_TARGETS_TO_BUILD=Cpu0 -DLLVM_ENABLE_PROJECTS="clang;lld;compiler-rt" \
+  -DLLVM_TARGETS_TO_BUILD=Cpu0 -DLLVM_ENABLE_PROJECTS="clang;lld" \
   -DLLVM_PARALLEL_COMPILE_JOBS=4 -DLLVM_PARALLEL_LINK_JOBS=1 -G "Ninja" ../llvm
   ninja
   popd

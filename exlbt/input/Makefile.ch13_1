@@ -4,7 +4,7 @@
 
 SRCS := start.cpp ch13_1.cpp a.cpp lib_cpu0.ll
 INC_DIRS := $(SRC_DIR) ../../lbdex/input
-LIB_DIR :=
+LIBFLOAT_DIR :=
 LIBS :=
 
 include Common.mk
