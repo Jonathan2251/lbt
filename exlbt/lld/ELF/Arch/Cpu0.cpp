@@ -80,7 +80,7 @@ static void applyCpu0PcReloc(uint8_t *Loc, uint64_t V) {
 
 static void writeCpu0Hi16(uint8_t *Loc, uint64_t V) {
   uint32_t Instr = read32(Loc);
-  write32(Loc, (Instr & 0xffff0000) | ((V + 0x8000) >> 16));
+  write32(Loc, (Instr & 0xffff0000) | (V >> 16));
 }
 
 static void writeCpu0Lo16(uint8_t *Loc, uint64_t V) {
