@@ -11,8 +11,7 @@ extern int main();
 void start() {
   asm("start:");
   
-  asm("lui $sp, 0x7");
-  asm("addiu $sp, $sp, 0xfffc");
+  INIT_SP
   int *gpaddr;
   gpaddr = (int*)GPADDR;
   __asm__ __volatile__("ld  $gp, %0"

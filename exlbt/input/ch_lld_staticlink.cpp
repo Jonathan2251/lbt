@@ -91,6 +91,12 @@ int test_staticlink()
     printf(", PASS\n");
   else
     printf(", FAIL\n");
+  long long res = test_template_ll();
+  printf("test_template_ll() = 0x%X-%X", (int)(res>>32), (int)res); // res = -1
+  if (res == -1)
+    printf(", PASS\n");
+  else
+    printf(", FAIL\n");
   a = test_tailcall(5);
   printf("test_tailcall(5) = %d", a); // a = 15
   if (a == 120)

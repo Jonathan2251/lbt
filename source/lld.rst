@@ -330,6 +330,7 @@ is for this purpose.
   test_func_arg_struct() = 0, PASS
   test_constructor() = 0, PASS
   test_template() = 15, PASS
+  test_template_ll() = 0xFFFFFFFF-FFFFFFFF, PASS
   test_tailcall(5) = 120, PASS
   exceptionOccur= 1, PASS
   exceptionOccur= 0, PASS
@@ -344,7 +345,7 @@ is for this purpose.
   Harware interrupt 0
   taskInterrupt(011)
   Harware interrupt 1
-  total cpu cycles = 248282              
+  ...             
   RET to PC < 0, finished!
 
 As above, by taking the open source code advantage, Cpu0 got the more stable 
