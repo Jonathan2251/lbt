@@ -8,8 +8,9 @@
 // cpu032I memory limit, jsub:24-bit
 #define IOADDR 0x1000000
 
+// $sp begin at mem less than IOADDR
 #define INIT_SP \
-  asm("lui $sp, 0xff"); // $sp begin at mem less than IOADDR
+  asm("lui $sp, 0xff"); \
   asm("addiu $sp, $sp, 0xfffc");
 
 #define SET_SW \
