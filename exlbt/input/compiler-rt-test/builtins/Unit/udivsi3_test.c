@@ -1,7 +1,8 @@
 // RUN: %clang_builtins %s %librt -o %t && %run %t
 // REQUIRES: librt_has_udivsi3
 
-#ifdef SP_MORE_16BIT
+//#ifdef SP_MORE_16BIT
+#if 1
 
 #include "int_lib.h"
 #include <stdio.h>
@@ -21,7 +22,7 @@ int test__udivsi3(su_int a, su_int b, su_int expected_q)
     return q != expected_q;
 }
 
-static su_int tests[][3] =
+su_int testsudivsi3[][3] =
 {
 {0x00000000, 0x00000002, 0x00000000},
 {0x00000000, 0x00000003, 0x00000000},
@@ -158,10 +159,10 @@ static su_int tests[][3] =
 
 int udivsi3_test()
 {
-    const unsigned N = sizeof(tests) / sizeof(tests[0]);
+    const unsigned N = sizeof(testsudivsi3) / sizeof(testsudivsi3[0]);
     unsigned i;
     for (i = 0; i < N; ++i)
-        if (test__udivsi3(tests[i][0], tests[i][1], tests[i][2]))
+        if (test__udivsi3(testsudivsi3[i][0], testsudivsi3[i][1], testsudivsi3[i][2]))
             return 1;
 
     return 0;
