@@ -137,7 +137,7 @@ SRCS :=  start.cpp debug.cpp printf-stdarg-def.c printf-stdarg.c \
   compiler-rt-test/builtins/Unit/unordsf2vfp_test.c \
   compiler-rt-test/builtins/Unit/unordtf2_test.c \
   ch_builtins.cpp lib_cpu0.ll
-INC_DIRS := ./ ../libsoftfloat/compiler-rt/builtins ../include
+INC_DIRS := ./ ../../lbdex/input ../libsoftfloat/compiler-rt/builtins ../include
 LIBFLOAT_DIR := ../libsoftfloat/compiler-rt
 LIBS := $(LIBFLOAT_DIR)/build/libFloat.a
 

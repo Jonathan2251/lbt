@@ -152,13 +152,19 @@ extern "C" int trunctfsf2_test();
 extern "C" int ucmpdi2_test();
 extern "C" int ucmpti2_test();
 extern "C" int udivdi3_test();
+#ifdef SP_MORE_16BIT
 extern "C" int udivmoddi4_test();
+#endif
 extern "C" int udivmodsi4_test();
 extern "C" int udivmodti4_test();
+#ifdef SP_MORE_16BIT
 extern "C" int udivsi3_test();
+#endif
 extern "C" int udivti3_test();
 extern "C" int umoddi3_test();
+#ifdef SP_MORE_16BIT
 extern "C" int umodsi3_test();
+#endif
 extern "C" int umodti3_test();
 extern "C" int unorddf2vfp_test();
 extern "C" int unordsf2vfp_test();
@@ -574,8 +580,10 @@ int main() {
   res = udivdi3_test();
   show_result("udivdi3_test()", res);
 
+#ifdef SP_MORE_16BIT
   res = udivmoddi4_test();
   show_result("udivmoddi4_test()", res);
+#endif
 
   res = udivmodsi4_test();
   show_result("udivmodsi4_test()", res);
@@ -583,8 +591,10 @@ int main() {
   res = udivmodti4_test();
   show_result("udivmodti4_test()", res);
 
+#ifdef SP_MORE_16BIT
   res = udivsi3_test();
   show_result("udivsi3_test()", res);
+#endif
 
   res = udivti3_test();
   show_result("udivti3_test()", res);
@@ -592,8 +602,10 @@ int main() {
   res = umoddi3_test();
   show_result("umoddi3_test()", res);
 
+#ifdef SP_MORE_16BIT
   res = umodsi3_test();
   show_result("umodsi3_test()", res);
+#endif
 
   res = umodti3_test();
   show_result("umodti3_test()", res);

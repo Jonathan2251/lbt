@@ -6,7 +6,7 @@ CPU := cpu032II
 #endian :=
 
 SRCS := start.cpp debug.cpp printf-stdarg-def.c printf-stdarg.c ch_float.cpp lib_cpu0.ll
-INC_DIRS := $(SRC_DIR)
+INC_DIRS := ../../lbdex/input 
 LIBFLOAT_DIR := ../libsoftfloat/compiler-rt
 LIBS := $(LIBFLOAT_DIR)/build/libFloat.a
 

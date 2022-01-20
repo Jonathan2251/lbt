@@ -1,6 +1,8 @@
 // RUN: %clang_builtins %s %librt -o %t && %run %t
 // REQUIRES: librt_has_udivmoddi4
 
+#ifdef SP_MORE_16BIT
+
 #include "int_lib.h"
 #include <stdio.h>
 
@@ -20629,3 +20631,4 @@ int udivmoddi4_test()
 
     return 0;
 }
+#endif
