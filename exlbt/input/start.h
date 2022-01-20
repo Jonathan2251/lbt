@@ -10,8 +10,8 @@
 
 // $sp begin at mem less than IOADDR
 #define INIT_SP \
-  asm("lui $sp, 0xff"); \
-  asm("addiu $sp, $sp, 0xfffc");
+  asm("addiu $sp, $zero, 0x0000"); \
+  asm("lui $sp, 0xff");
 
 #define SET_SW \
 asm("andi $sw, $zero, 0"); \
