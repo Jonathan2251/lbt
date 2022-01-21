@@ -10,7 +10,7 @@ int main(void)
 
   long long a = 0x100000007fffffff;
   printf("%s\n", ptr, a);
-  printf("a: %llx, %lld\n", a, a);
+  printf("a: %llX, %llx, %lld\n", a, a, a);
   int b = 0x10000000;
   printf("b: %x, %d\n", b, b);
 

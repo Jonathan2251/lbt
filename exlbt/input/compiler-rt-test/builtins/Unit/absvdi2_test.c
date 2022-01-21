@@ -18,10 +18,8 @@ int test__absvdi2(di_int a)
     if (expected < 0)
         expected = -expected;
     if (x != expected || expected < 0)
-        //printf("error in __absvdi2(0x%llX) = %lld, expected positive %lld\n",
-        //       a, x, expected);
-        printf("error in __absvdi2(0x%X-%X) = %d-%d, expected positive %d-%d\n",
-               (int)(a>>32),(int)a, (int)(x>>32),(int)x, (int)(expected>>32),(int)expected);
+        printf("error in __absvdi2(0x%llX) = %lld, expected positive %lld\n",
+               a, x, expected);
     return x != expected;
 }
 

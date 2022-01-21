@@ -15,10 +15,8 @@ int test__udivmoddi4(du_int a, du_int b, du_int expected_q, du_int expected_r)
     du_int r;
     du_int q = __udivmoddi4(a, b, &r);
     if (q != expected_q || r != expected_r)
-        //printf("error in __udivmoddi4: %llX / %llX = %llX, R = %llX, expected %llX, %llX\n",
-        //       a, b, q, r, expected_q, expected_r);
-        printf("error in __udivmoddi4: %X-%X / %X-%X = %X-%X, R = %X-%X, expected %X-%X, %X-%X\n",
-               a>>32, a, b>>32, b, q>>32, q, r>>32, r, expected_q>>32, expected_q, expected_r>>32, expected_r);
+        printf("error in __udivmoddi4: %llX / %llX = %llX, R = %llX, expected %llX, %llX\n",
+               a, b, q, r, expected_q, expected_r);
     return !(q == expected_q && r == expected_r);
 }
 
