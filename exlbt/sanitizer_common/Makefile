@@ -8,16 +8,12 @@ TARGET_LIB := libsanitizer.a
 BUILD_DIR := ./build
 TARGET := $(BUILD_DIR)/$(TARGET_LIB)
 
-SRC_DIR := $(HOME)/llvm/llvm-project/compiler-rt/lib/sanitizer_common
+SRC_DIR := ./
 TOOLDIR := ~/llvm/test/build/bin
 CC := $(TOOLDIR)/clang
 AR := $(TOOLDIR)/llvm-ar
 
 SRCS := sanitizer_printf.cpp 
-#        sanitizer_file.cpp \
-#        sanitizer_termination.cpp \
-#        sanitizer_libc.cpp \
-#        sanitizer_fuchsia.cpp
 
 # String substitution for every C/C++ file.
 # As an example, sanitizer_printf.cpp turns into ./build/sanitizer_printf.cpp.o
