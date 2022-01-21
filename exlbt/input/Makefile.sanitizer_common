@@ -5,10 +5,11 @@
 CPU := cpu032II
 #endian :=
 
-SRCS := start.cpp debug.cpp ch_sanitizer_common.cpp printf-stdarg-def.c ch_hello.c ../libsoftfloat/compiler-rt/cpu0/abort.c lib_cpu0.ll
+SRCS := start.cpp debug.cpp ch_sanitizer_common.cpp printf-stdarg-def.c ch_hello.c \
+  ../../lbdex/input/print.cpp ../libsoftfloat/compiler-rt/cpu0/abort.c lib_cpu0.ll
 LIBFLOAT_DIR := ../libsoftfloat/compiler-rt/
 LIBSANITIZE_DIR := ../sanitizer_common
-INC_DIRS := $(SRC_DIR) $(HOME)/llvm/test/compiler-rt/lib/sanitizer_common
+INC_DIRS := $(SRC_DIR) ../../lbdex/input $(HOME)/llvm/test/compiler-rt/lib/sanitizer_common
 LIBS := $(LIBFLOAT_DIR)/build/libFloat.a $(LIBSANITIZE_DIR)/build/libsanitizer.a
 
 include Common.mk

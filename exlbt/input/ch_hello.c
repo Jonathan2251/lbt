@@ -8,14 +8,12 @@ int main(void)
 {
   char *ptr = "Hello world!";
 
-#if 1
   long long a = 0x100000007fffffff;
-  printf("%s:%lld\n", ptr, a);
-#else
-  //int a = 0x10000000;
-  int a = 0x10;
-  printf("%s:%d\n", ptr, a);
-#endif
+  printf("%s\n", ptr, a);
+  printf("a: %llx, %lld\n", a, a);
+  int b = 0x10000000;
+  printf("b: %x, %d\n", b, b);
+
   return 0;
 }
 
