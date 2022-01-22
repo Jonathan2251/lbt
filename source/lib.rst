@@ -90,6 +90,10 @@ this feature.
 Software Float Point Support
 -----------------------------
 
+The following sanitizer_printf.cpp extended from compiler-rt can support 
+printf("%lld"). It's implementation calling some floating lib functions
+in compiler-rt/lib/builtins.
+
 .. rubric:: exlbt/include/math.h
 .. literalinclude:: ../exlbt/include/math.h
 
@@ -104,52 +108,6 @@ Software Float Point Support
 
 .. rubric:: exlbt/libsoftfloat/compiler-rt/cpu0/abort.c
 .. literalinclude:: ../exlbt/libsoftfloat/compiler-rt/cpu0/abort.c
-
-.. rubric:: lbt/exlbt/libsoftfloat/compiler-rt-12.x/Makefile
-.. literalinclude:: ../exlbt/libsoftfloat/compiler-rt-12.x/Makefile
-
-.. rubric:: exlbt/input/ch_float.cpp
-.. literalinclude:: ../exlbt/input/ch_float.cpp
-    :start-after: /// start
-
-.. rubric:: exlbt/input/Makefile.float
-.. literalinclude:: ../exlbt/input/Makefile.float
-
-Run as follows,
-
-.. code-block:: console
-
-  chungshu@ChungShudeMacBook-Air input % bash make.sh cpu032II be Makefile.float
-  ...
-  endian =  BigEndian
-  ISR address:00020614
-  0   /* 0: big endian, 1: little endian */
-
-  chungshu@ChungShudeMacBook-Air verilog % iverilog -o cpu0IIs cpu0IIs.v 
-  chungshu@ChungShudeMacBook-Air verilog % ./cpu0IIs
-  WARNING: cpu0.v:489: $readmemh(cpu0.hex): Not enough words in the file for the requested range [0:524287].
-  taskInterrupt(001)
-  test_longlong_shift1() = 289
-  test_longlong_shift2() = 22
-  (int)test_shift_left<long long>(0x12, 4) = 288
-  (int)test_shift_right<long long>(0x001666660000000a, 48) = 22
-  (int)test_shift_right<unsigned long long>(0x001666660000000a, 48) = 22
-  (int)test_add<float, float, float>(-2.2, 3.3) = 1
-  (int)test_mul<float, float, float>(-2.2, 3.3) = -7
-  (int)test_div<float, float, float>(-1.8, 0.5) = -3
-  (int)test_add<double, double, float>(-2.2, 3.3) = 1
-  (int)test_add<double, float, double>(-2.2, 3.3) = 1
-  (int)test_add<float, float, double>(-2.2, 3.3) = 1
-  (int)test_mul<double, float, double>(-2.2, 3.3) = -7
-  (int)test_mul<float, float, double>(-2.2, 3.3) = -7
-  (int)test_div<double, double, double>(-1.8, 0.5) = -3
-  total cpu cycles = 240170              
-  RET to PC < 0, finished!
-
-
-The following sanitizer_printf.cpp extended from compiler-rt can support 
-printf("%lld"). It's implementation calling some floating lib functions
-in compiler-rt/lib/builtins.
 
 .. rubric:: exlbt/input/sanitizer_internal_defs.h
 .. literalinclude:: ../exlbt/input/sanitizer_internal_defs.h
@@ -166,7 +124,7 @@ in compiler-rt/lib/builtins.
 
 .. code-block:: console
 
-  cschen@cschendeiMac input %  bash make.sh cpu032I le Makefile.slinker
+  cschen@cschendeiMac input %  bash make.sh cpu032I le Makefile.sanitizer-printf
 
   cschen@cschendeiMac verilog % ./cpu0Is
   ...
@@ -175,6 +133,50 @@ in compiler-rt/lib/builtins.
   b: 10000000, 268435456
   total cpu cycles = 1266990             
   RET to PC < 0, finished!
+
+
+The following ch_float.cpp test the float lib.
+
+.. rubric:: lbt/exlbt/libsoftfloat/compiler-rt-12.x/Makefile
+.. literalinclude:: ../exlbt/libsoftfloat/compiler-rt-12.x/Makefile
+
+.. rubric:: exlbt/input/ch_float.cpp
+.. literalinclude:: ../exlbt/input/ch_float.cpp
+    :start-after: /// start
+
+.. rubric:: exlbt/input/Makefile.float
+.. literalinclude:: ../exlbt/input/Makefile.float
+
+
+.. code-block:: console
+
+  chungshu@ChungShudeMacBook-Air input % bash make.sh cpu032II be Makefile.float
+  ...
+  endian =  BigEndian
+  ISR address:00020614
+  0   /* 0: big endian, 1: little endian */
+
+  chungshu@ChungShudeMacBook-Air verilog % iverilog -o cpu0IIs cpu0IIs.v 
+  chungshu@ChungShudeMacBook-Air verilog % ./cpu0IIs
+  WARNING: cpu0.v:489: $readmemh(cpu0.hex): Not enough words in the file for the requested range [0:524287].
+  taskInterrupt(001)
+  test_longlong_shift1() = 289
+  test_longlong_shift2() = 22
+  test_shift_left<long long>(0x12, 4LL) = 288
+  test_shift_right<long long>(0x001666660000000a, 48LL) = 22
+  test_shift_right<unsigned long long>(0x001666660000000a, 48LLu) = 22
+  (int)test_add<float, float, float>(-2.2, 3.3) = 1
+  (int)test_mul<float, float, float>(-2.2, 3.3) = -7
+  (int)test_div<float, float, float>(-1.8, 0.5) = -3
+  (int)test_add<double, double, float>(-2.2, 3.3) = 1
+  (int)test_add<double, float, double>(-2.2, 3.3) = 1
+  (int)test_add<float, float, double>(-2.2, 3.3) = 1
+  (int)test_mul<double, float, double>(-2.2, 3.3) = -7
+  (int)test_mul<float, float, double>(-2.2, 3.3) = -7
+  (int)test_div<double, double, double>(-1.8, 0.5) = -3
+  total cpu cycles = 240170              
+  RET to PC < 0, finished!
+
 
 The exlbt/input/compiler-rt-test/builtins/Unit copied from 
 compiler-rt/test/builtins/Unit as follows,

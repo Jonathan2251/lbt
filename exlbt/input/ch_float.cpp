@@ -39,9 +39,24 @@ T1 test_div(T2 a, T3 b) {
   return c;
 }
 
-template <class T>
-bool check_result(const char* fn, T res, T expected) {
-  printf("%s = %d\n", fn, (int)res);
+bool check_result(const char* fn, long long res, long long expected) {
+  printf("%s = %lld\n", fn, res);
+  if (res != expected) {
+    printf("\terror: result %lld, expected %lld\n", res, expected);
+  }
+  return (res == expected);
+}
+
+bool check_result(const char* fn, unsigned long long res, unsigned long long expected) {
+  printf("%s = %llu\n", fn, res);
+  if (res != expected) {
+    printf("\terror: result %llu, expected %llu\n", res, expected);
+  }
+  return (res == expected);
+}
+
+bool check_result(const char* fn, int res, int expected) {
+  printf("%s = %d\n", fn, res);
   if (res != expected) {
     printf("\terror: result %d, expected %d\n", res, expected);
   }
@@ -49,62 +64,64 @@ bool check_result(const char* fn, T res, T expected) {
 }
 
 int main() {
-  int a;
+  long long a;
+  unsigned long long b;
+  int c;
 
   a = test_longlong_shift1();
-  check_result("test_longlong_shift1()", a, 289);
+  check_result("test_longlong_shift1()", a, 289LL);
 
   a = test_longlong_shift2();
-  check_result("test_longlong_shift2()", a, 22);
+  check_result("test_longlong_shift2()", a, 22LL);
 
 // call __ashldi3
-  a = (int)test_shift_left<long long>(0x12, 4); // 0x120 = 288
-  check_result("(int)test_shift_left<long long>(0x12, 4)", a, 288);
+  a = test_shift_left<long long>(0x12LL, 4LL); // 0x120 = 288
+  check_result("test_shift_left<long long>(0x12LL, 4LL)", a, 288LL);
   
 // call __ashrdi3
-  a = (int)test_shift_right<long long>(0x001666660000000a, 48); // 0x16 = 22
-  check_result("(int)test_shift_right<long long>(0x001666660000000a, 48)", a, 22);
+  a = test_shift_right<long long>(0x001666660000000a, 48LL); // 0x16 = 22
+  check_result("test_shift_right<long long>(0x001666660000000a, 48LL)", a, 22LL);
   
 // call __lshrdi3
-  a = (int)test_shift_right<unsigned long long>(0x001666660000000a, 48); // 0x16 = 22
-  check_result("(int)test_shift_right<unsigned long long>(0x001666660000000a, 48)", a, 22);
+  b = test_shift_right<unsigned long long>(0x001666660000000a, 48LLu); // 0x16 = 22
+  check_result("test_shift_right<unsigned long long>(0x001666660000000a, 48LLu)", b, 22LLu);
   
 // call __addsf3, __fixsfsi
-  a = (int)test_add<float, float, float>(-2.2, 3.3); // (int)1.1 = 1
-  check_result("(int)test_add<float, float, float>(-2.2, 3.3)", a, 1);
+  c = (int)test_add<float, float, float>(-2.2, 3.3); // (int)1.1 = 1
+  check_result("(int)test_add<float, float, float>(-2.2, 3.3)", c, 1);
   
 // call __mulsf3, __fixsfsi
-  a = (int)test_mul<float, float, float>(-2.2, 3.3); // (int)-7.26 = -7
-  check_result("(int)test_mul<float, float, float>(-2.2, 3.3)", a, -7);
+  c = (int)test_mul<float, float, float>(-2.2, 3.3); // (int)-7.26 = -7
+  check_result("(int)test_mul<float, float, float>(-2.2, 3.3)", c, -7);
   
 // call __divsf3, __fixsfsi
-  a = (int)test_div<float, float, float>(-1.8, 0.5); // (int)-3.6 = -3
-  check_result("(int)test_div<float, float, float>(-1.8, 0.5)", a, -3);
+  c = (int)test_div<float, float, float>(-1.8, 0.5); // (int)-3.6 = -3
+  check_result("(int)test_div<float, float, float>(-1.8, 0.5)", c, -3);
   
 // call __extendsfdf2, __adddf3, __fixdfsi
-  a = (int)test_add<double, double, float>(-2.2, 3.3); // (int)1.1 = 1
-  check_result("(int)test_add<double, double, float>(-2.2, 3.3)", a, 1);
+  c = (int)test_add<double, double, float>(-2.2, 3.3); // (int)1.1 = 1
+  check_result("(int)test_add<double, double, float>(-2.2, 3.3)", c, 1);
   
 // call __extendsfdf2, __adddf3, __fixdfsi
-  a = (int)test_add<double, float, double>(-2.2, 3.3); // (int)1.1 = 1
-  check_result("(int)test_add<double, float, double>(-2.2, 3.3)", a, 1);
+  c = (int)test_add<double, float, double>(-2.2, 3.3); // (int)1.1 = 1
+  check_result("(int)test_add<double, float, double>(-2.2, 3.3)", c, 1);
   
 // call __extendsfdf2, __adddf3, __fixdfsi
-  a = (int)test_add<float, float, double>(-2.2, 3.3); // (int)1.1 = 1
-  check_result("(int)test_add<float, float, double>(-2.2, 3.3)", a, 1);
+  c = (int)test_add<float, float, double>(-2.2, 3.3); // (int)1.1 = 1
+  check_result("(int)test_add<float, float, double>(-2.2, 3.3)", c, 1);
   
 // call __extendsfdf2, __muldf3, __fixdfsi
-  a = (int)test_mul<double, float, double>(-2.2, 3.3); // (int)-7.26 = -7
-  check_result("(int)test_mul<double, float, double>(-2.2, 3.3)", a, -7);
+  c = (int)test_mul<double, float, double>(-2.2, 3.3); // (int)-7.26 = -7
+  check_result("(int)test_mul<double, float, double>(-2.2, 3.3)", c, -7);
   
 // call __extendsfdf2, __muldf3, __truncdfsf2, __fixdfsi
 // ! __truncdfsf2 in truncdfsf2.c is not work for Cpu0
-  a = (int)test_mul<float, float, double>(-2.2, 3.3); // (int)-7.26 = -7
-  check_result("(int)test_mul<float, float, double>(-2.2, 3.3)", a, -7);
+  c = (int)test_mul<float, float, double>(-2.2, 3.3); // (int)-7.26 = -7
+  check_result("(int)test_mul<float, float, double>(-2.2, 3.3)", c, -7);
   
 // call __divdf3, __fixdfsi
-  a = (int)test_div<double, double, double>(-1.8, 0.5); // (int)-3.6 = -3
-  check_result("(int)test_div<double, double, double>(-1.8, 0.5)", a, -3);
+  c = (int)test_div<double, double, double>(-1.8, 0.5); // (int)-3.6 = -3
+  check_result("(int)test_div<double, double, double>(-1.8, 0.5)", c, -3);
   
   return 0;
 }
