@@ -147,6 +147,38 @@ Run as follows,
   RET to PC < 0, finished!
 
 
+The following sanitizer_printf.cpp extended from compiler-rt can support 
+printf("%lld"). It's implementation calling some floating lib functions
+in compiler-rt/lib/builtins.
+
+.. rubric:: exlbt/input/sanitizer_internal_defs.h
+.. literalinclude:: ../exlbt/input/sanitizer_internal_defs.h
+
+.. rubric:: exlbt/input/sanitizer_printf.cpp
+.. literalinclude:: ../exlbt/input/sanitizer_printf.cpp
+
+.. rubric:: exlbt/input/ch_hello.c
+.. literalinclude:: ../exlbt/input/ch_hello.c
+
+.. rubric:: exlbt/input/Makefile.sanitizer-printf
+.. literalinclude:: ../exlbt/input/Makefile.sanitizer-printf
+
+
+.. code-block:: console
+
+  cschen@cschendeiMac input %  bash make.sh cpu032I le Makefile.slinker
+
+  cschen@cschendeiMac verilog % ./cpu0Is
+  ...
+  Hello world!
+  a: 100000007FFFFFFF, 100000007fffffff, 1152921506754330623
+  b: 10000000, 268435456
+  total cpu cycles = 1266990             
+  RET to PC < 0, finished!
+
+The exlbt/input/compiler-rt-test/builtins/Unit copied from 
+compiler-rt/test/builtins/Unit as follows,
+
 .. rubric:: exlbt/input/ch_builtins.cpp
 .. literalinclude:: ../exlbt/input/ch_builtins.cpp
 
@@ -160,8 +192,7 @@ Run as follows,
   chungshu@ChungShudeMacBook-Air input % bash make.sh cpu032II be Makefile.builtins
   ...
   chungshu@ChungShudeMacBook-Air verilog % ./cpu0IIs
-  WARNING: cpu0.v:489: $readmemh(cpu0.hex): Not enough words in the file for the requested range [0:524287].
-  taskInterrupt(001)
+  ...
   absvdi2_test(): PASS!
   absvsi2_test(): PASS!
   absvti2_test(): SKIPPED!

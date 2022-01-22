@@ -38,7 +38,13 @@ https://github.com/Jonathan2251/lbt/blob/master/README.md
 Revision history
 ----------------
 
-Version 12.0.4, not released yet.
+Version 12.0.5, not released yet.
+
+Version 12.0.4, Released January 22, 2022.
+
+  sanitizer-printf for supporting printf("%lld") or "%llX", ..., etc.
+  Pass test cases in compiler-rt-test/builtins/Unit include type float and double
+  exclude complex.
 
 Version 12.0.3, Released January 9, 2022.
 
