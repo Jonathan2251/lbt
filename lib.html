@@ -281,7 +281,8 @@ this feature.</p>
 TARGET_LIB := libFloat.a
 BUILD_DIR := ./build
 TARGET := $(BUILD_DIR)/$(TARGET_LIB)
-SRC_DIR := ./builtins
+
+SRC_DIR := $(HOME)/llvm/llvm-project/compiler-rt/lib/builtins
 
 TOOLDIR := ~/llvm/test/build/bin
 CC := $(TOOLDIR)/clang
@@ -431,7 +432,7 @@ INC_FLAGS := $(addprefix -I,$(INC_DIRS))
 
 # The -MMD and -MP flags together generate Makefiles for us!
 # These files will have .d instead of .o as the output.
-CPPFLAGS := -MMD -MP -target cpu0${endian}-unknown-linux-gnu -static \
+CPPFLAGS := -MMD -MP -target cpu0${ENDIAN}-unknown-linux-gnu -static \
   -fintegrated-as ${INC_FLAGS} -mcpu=${CPU} -mllvm -has-lld=true
 
 # The final build step.
@@ -571,9 +572,9 @@ CPU := cpu032II
 #endian :=
 
 SRCS := start.cpp debug.cpp printf-stdarg-def.c printf-stdarg.c ch_float.cpp lib_cpu0.ll
-INC_DIRS := $(SRC_DIR)
-LIB_DIR := ../libsoftfloat/compiler-rt
-LIBS := $(LIB_DIR)/build/libFloat.a
+INC_DIRS := ../../lbdex/input 
+LIBFLOAT_DIR := ../libsoftfloat/compiler-rt
+LIBS := $(LIBFLOAT_DIR)/build/libFloat.a
 
 include Common.mk
 </pre></div>
@@ -607,6 +608,388 @@ include Common.mk
 <span class="go">RET to PC &lt; 0, finished!</span>
 </pre></div>
 </div>
+<p>The following sanitizer_printf.cpp extended from compiler-rt can support
+printf(“%lld”). It’s implementation calling some floating lib functions
+in compiler-rt/lib/builtins.</p>
+<p class="rubric">exlbt/input/sanitizer_internal_defs.h</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="o">//===--</span> <span class="n">sanitizer_internal_defs</span><span class="o">.</span><span class="n">h</span> <span class="o">-------------------------------*-</span> <span class="n">C</span><span class="o">++</span> <span class="o">-*-===//</span>
+<span class="o">//</span>
+<span class="o">//</span> <span class="n">Part</span> <span class="n">of</span> <span class="n">the</span> <span class="n">LLVM</span> <span class="n">Project</span><span class="p">,</span> <span class="n">under</span> <span class="n">the</span> <span class="n">Apache</span> <span class="n">License</span> <span class="n">v2</span><span class="mf">.0</span> <span class="k">with</span> <span class="n">LLVM</span> <span class="n">Exceptions</span><span class="o">.</span>
+<span class="o">//</span> <span class="n">See</span> <span class="n">https</span><span class="p">:</span><span class="o">//</span><span class="n">llvm</span><span class="o">.</span><span class="n">org</span><span class="o">/</span><span class="n">LICENSE</span><span class="o">.</span><span class="n">txt</span> <span class="k">for</span> <span class="n">license</span> <span class="n">information</span><span class="o">.</span>
+<span class="o">//</span> <span class="n">SPDX</span><span class="o">-</span><span class="n">License</span><span class="o">-</span><span class="n">Identifier</span><span class="p">:</span> <span class="n">Apache</span><span class="o">-</span><span class="mf">2.0</span> <span class="n">WITH</span> <span class="n">LLVM</span><span class="o">-</span><span class="n">exception</span>
+<span class="o">//</span>
+<span class="o">//===----------------------------------------------------------------------===//</span>
+<span class="o">//</span>
+<span class="o">//</span> <span class="n">This</span> <span class="n">file</span> <span class="ow">is</span> <span class="n">shared</span> <span class="n">between</span> <span class="n">AddressSanitizer</span> <span class="ow">and</span> <span class="n">ThreadSanitizer</span><span class="o">.</span>
+<span class="o">//</span> <span class="n">It</span> <span class="n">contains</span> <span class="n">macro</span> <span class="n">used</span> <span class="ow">in</span> <span class="n">run</span><span class="o">-</span><span class="n">time</span> <span class="n">libraries</span> <span class="n">code</span><span class="o">.</span>
+<span class="o">//===----------------------------------------------------------------------===//</span>
+<span class="c1">#ifndef SANITIZER_DEFS_H</span>
+<span class="c1">#define SANITIZER_DEFS_H</span>
+
+<span class="o">//</span> <span class="n">For</span> <span class="n">portability</span> <span class="n">reasons</span> <span class="n">we</span> <span class="n">do</span> <span class="ow">not</span> <span class="n">include</span> <span class="n">stddef</span><span class="o">.</span><span class="n">h</span><span class="p">,</span> <span class="n">stdint</span><span class="o">.</span><span class="n">h</span> <span class="ow">or</span> <span class="nb">any</span> <span class="n">other</span>
+<span class="o">//</span> <span class="n">system</span> <span class="n">header</span><span class="p">,</span> <span class="n">but</span> <span class="n">we</span> <span class="n">do</span> <span class="n">need</span> <span class="n">some</span> <span class="n">basic</span> <span class="n">types</span> <span class="n">that</span> <span class="n">are</span> <span class="ow">not</span> <span class="n">defined</span>
+<span class="o">//</span> <span class="ow">in</span> <span class="n">a</span> <span class="n">portable</span> <span class="n">way</span> <span class="n">by</span> <span class="n">the</span> <span class="n">language</span> <span class="n">itself</span><span class="o">.</span>
+<span class="n">namespace</span> <span class="n">__sanitizer</span> <span class="p">{</span>
+
+<span class="c1">#if defined(_WIN64)</span>
+<span class="o">//</span> <span class="mi">64</span><span class="o">-</span><span class="n">bit</span> <span class="n">Windows</span> <span class="n">uses</span> <span class="n">LLP64</span> <span class="n">data</span> <span class="n">model</span><span class="o">.</span>
+<span class="n">typedef</span> <span class="n">unsigned</span> <span class="n">long</span> <span class="n">long</span> <span class="n">uptr</span><span class="p">;</span>
+<span class="n">typedef</span> <span class="n">signed</span> <span class="n">long</span> <span class="n">long</span> <span class="n">sptr</span><span class="p">;</span>
+<span class="c1">#else</span>
+<span class="n">typedef</span> <span class="n">unsigned</span> <span class="n">long</span> <span class="n">uptr</span><span class="p">;</span>
+<span class="n">typedef</span> <span class="n">signed</span> <span class="n">long</span> <span class="n">sptr</span><span class="p">;</span>
+<span class="c1">#endif  // defined(_WIN64)</span>
+<span class="c1">#if defined(__x86_64__)</span>
+<span class="o">//</span> <span class="n">Since</span> <span class="n">x32</span> <span class="n">uses</span> <span class="n">ILP32</span> <span class="n">data</span> <span class="n">model</span> <span class="ow">in</span> <span class="mi">64</span><span class="o">-</span><span class="n">bit</span> <span class="n">hardware</span> <span class="n">mode</span><span class="p">,</span> <span class="n">we</span> <span class="n">must</span> <span class="n">use</span>
+<span class="o">//</span> <span class="mi">64</span><span class="o">-</span><span class="n">bit</span> <span class="n">pointer</span> <span class="n">to</span> <span class="n">unwind</span> <span class="n">stack</span> <span class="n">frame</span><span class="o">.</span>
+<span class="n">typedef</span> <span class="n">unsigned</span> <span class="n">long</span> <span class="n">long</span> <span class="n">uhwptr</span><span class="p">;</span>
+<span class="c1">#else</span>
+<span class="n">typedef</span> <span class="n">uptr</span> <span class="n">uhwptr</span><span class="p">;</span>
+<span class="c1">#endif</span>
+
+<span class="n">typedef</span> <span class="n">unsigned</span> <span class="n">char</span> <span class="n">u8</span><span class="p">;</span>
+<span class="n">typedef</span> <span class="n">unsigned</span> <span class="n">short</span> <span class="n">u16</span><span class="p">;</span>
+<span class="n">typedef</span> <span class="n">unsigned</span> <span class="nb">int</span> <span class="n">u32</span><span class="p">;</span>
+<span class="n">typedef</span> <span class="n">unsigned</span> <span class="n">long</span> <span class="n">long</span> <span class="n">u64</span><span class="p">;</span>
+<span class="n">typedef</span> <span class="n">signed</span> <span class="n">char</span> <span class="n">s8</span><span class="p">;</span>
+<span class="n">typedef</span> <span class="n">signed</span> <span class="n">short</span> <span class="n">s16</span><span class="p">;</span>
+<span class="n">typedef</span> <span class="n">signed</span> <span class="nb">int</span> <span class="n">s32</span><span class="p">;</span>
+<span class="n">typedef</span> <span class="n">signed</span> <span class="n">long</span> <span class="n">long</span> <span class="n">s64</span><span class="p">;</span>
+
+<span class="o">//</span> <span class="n">Check</span> <span class="n">macro</span>
+<span class="c1">#define RAW_CHECK_MSG(expr, msg) </span>
+
+<span class="c1">#define RAW_CHECK(expr) RAW_CHECK_MSG(expr, #expr)</span>
+
+<span class="c1">#define CHECK_IMPL(c1, op, c2)</span>
+
+<span class="c1">#define CHECK(a)       CHECK_IMPL((a), !=, 0)</span>
+<span class="c1">#define CHECK_EQ(a, b) CHECK_IMPL((a), ==, (b))</span>
+<span class="c1">#define CHECK_NE(a, b) CHECK_IMPL((a), !=, (b))</span>
+<span class="c1">#define CHECK_LT(a, b) CHECK_IMPL((a), &lt;,  (b))</span>
+<span class="c1">#define CHECK_LE(a, b) CHECK_IMPL((a), &lt;=, (b))</span>
+<span class="c1">#define CHECK_GT(a, b) CHECK_IMPL((a), &gt;,  (b))</span>
+<span class="c1">#define CHECK_GE(a, b) CHECK_IMPL((a), &gt;=, (b))</span>
+
+<span class="p">}</span>  <span class="o">//</span> <span class="n">namespace</span> <span class="n">__sanitizer</span>
+
+<span class="c1">#endif</span>
+</pre></div>
+</div>
+<p class="rubric">exlbt/input/sanitizer_printf.cpp</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>//===-- sanitizer_printf.cpp ----------------------------------------------===//
+//
+// Part of the LLVM Project, under the Apache License v2.0 with LLVM Exceptions.
+// See https://llvm.org/LICENSE.txt for license information.
+// SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
+//
+//===----------------------------------------------------------------------===//
+//
+// This file is shared between AddressSanitizer and ThreadSanitizer.
+//
+// Internal printf function, used inside run-time libraries.
+// We can&#39;t use libc printf because we intercept some of the functions used
+// inside it.
+//===----------------------------------------------------------------------===//
+
+#include &quot;sanitizer_internal_defs.h&quot;
+
+#include &lt;stdio.h&gt;
+#include &lt;stdarg.h&gt;
+
+#include &quot;debug.h&quot;
+
+extern &quot;C&quot; int putchar(int c);
+
+static void abort() {
+  for (;;);
+}
+
+#if SANITIZER_WINDOWS &amp;&amp; defined(_MSC_VER) &amp;&amp; _MSC_VER &lt; 1800 &amp;&amp;               \
+      !defined(va_copy)
+# define va_copy(dst, src) ((dst) = (src))
+#endif
+
+namespace __sanitizer {
+
+static int AppendChar(char **buff, const char *buff_end, char c) {
+  if (*buff &lt; buff_end) {
+    **buff = c;
+    (*buff)++;
+  }
+  return 1;
+}
+
+// Appends number in a given base to buffer. If its length is less than
+// |minimal_num_length|, it is padded with leading zeroes or spaces, depending
+// on the value of |pad_with_zero|.
+static int AppendNumber(char **buff, const char *buff_end, u64 absolute_value,
+                        u8 base, u8 minimal_num_length, bool pad_with_zero,
+                        bool negative, bool uppercase) {
+  uptr const kMaxLen = 30;
+  RAW_CHECK(base == 10 || base == 16);
+  RAW_CHECK(base == 10 || !negative);
+  RAW_CHECK(absolute_value || !negative);
+  RAW_CHECK(minimal_num_length &lt; kMaxLen);
+  int result = 0;
+  if (negative &amp;&amp; minimal_num_length)
+    --minimal_num_length;
+  if (negative &amp;&amp; pad_with_zero)
+    result += AppendChar(buff, buff_end, &#39;-&#39;);
+  uptr num_buffer[kMaxLen];
+  int pos = 0;
+  do {
+    RAW_CHECK_MSG((uptr)pos &lt; kMaxLen, &quot;AppendNumber buffer overflow&quot;);
+    num_buffer[pos++] = absolute_value % base;
+    absolute_value /= base;
+  } while (absolute_value &gt; 0);
+  if (pos &lt; minimal_num_length) {
+#if 1
+    abort();
+#else
+    // Make sure compiler doesn&#39;t insert call to memset here.
+    internal_memset(&amp;num_buffer[pos], 0,
+                    sizeof(num_buffer[0]) * (minimal_num_length - pos));
+    pos = minimal_num_length;
+#endif
+  }
+  RAW_CHECK(pos &gt; 0);
+  pos--;
+  for (; pos &gt;= 0 &amp;&amp; num_buffer[pos] == 0; pos--) {
+    char c = (pad_with_zero || pos == 0) ? &#39;0&#39; : &#39; &#39;;
+    result += AppendChar(buff, buff_end, c);
+  }
+  if (negative &amp;&amp; !pad_with_zero) result += AppendChar(buff, buff_end, &#39;-&#39;);
+  for (; pos &gt;= 0; pos--) {
+    char digit = static_cast&lt;char&gt;(num_buffer[pos]);
+    digit = (digit &lt; 10) ? &#39;0&#39; + digit : (uppercase ? &#39;A&#39; : &#39;a&#39;) + digit - 10;
+    result += AppendChar(buff, buff_end, digit);
+  }
+  return result;
+}
+
+static int AppendUnsigned(char **buff, const char *buff_end, u64 num, u8 base,
+                          u8 minimal_num_length, bool pad_with_zero,
+                          bool uppercase) {
+  return AppendNumber(buff, buff_end, num, base, minimal_num_length,
+                      pad_with_zero, false /* negative */, uppercase);
+}
+
+static int AppendSignedDecimal(char **buff, const char *buff_end, s64 num,
+                               u8 minimal_num_length, bool pad_with_zero) {
+  bool negative = (num &lt; 0);
+  return AppendNumber(buff, buff_end, (u64)(negative ? -num : num), 10,
+                      minimal_num_length, pad_with_zero, negative,
+                      false /* uppercase */);
+}
+
+
+// Use the fact that explicitly requesting 0 width (%0s) results in UB and
+// interpret width == 0 as &quot;no width requested&quot;:
+// width == 0 - no width requested
+// width  &lt; 0 - left-justify s within and pad it to -width chars, if necessary
+// width  &gt; 0 - right-justify s, not implemented yet
+static int AppendString(char **buff, const char *buff_end, int width,
+                        int max_chars, const char *s) {
+  if (!s)
+    s = &quot;&lt;null&gt;&quot;;
+  int result = 0;
+  for (; *s; s++) {
+    if (max_chars &gt;= 0 &amp;&amp; result &gt;= max_chars)
+      break;
+    result += AppendChar(buff, buff_end, *s);
+  }
+  // Only the left justified strings are supported.
+  while (width &lt; -result)
+    result += AppendChar(buff, buff_end, &#39; &#39;);
+  return result;
+}
+
+static int AppendPointer(char **buff, const char *buff_end, u64 ptr_value) {
+  int result = 0;
+  result += AppendString(buff, buff_end, 0, -1, &quot;0x&quot;);
+  result += AppendUnsigned(buff, buff_end, ptr_value, 16,
+// By running clang -E, can get the macro value for SANITIZER_POINTER_FORMAT_LENGTH is (12)
+//                           SANITIZER_POINTER_FORMAT_LENGTH,
+                           (12),
+                           true /* pad_with_zero */, false /* uppercase */);
+  return result;
+}
+
+int VSNPrintf(char *buff, int buff_length,
+              const char *format, va_list args) {
+  static const char *kPrintfFormatsHelp =
+      &quot;Supported Printf formats: %([0-9]*)?(z|ll)?{d,u,x,X}; %p; &quot;
+      &quot;%[-]([0-9]*)?(\\.\\*)?s; %c\n&quot;;
+  RAW_CHECK(format);
+  RAW_CHECK(buff_length &gt; 0);
+  const char *buff_end = &amp;buff[buff_length - 1];
+  const char *cur = format;
+  int result = 0;
+  for (; *cur; cur++) {
+    if (*cur != &#39;%&#39;) {
+      result += AppendChar(&amp;buff, buff_end, *cur);
+      continue;
+    }
+    cur++;
+    bool left_justified = *cur == &#39;-&#39;;
+    if (left_justified)
+      cur++;
+    bool have_width = (*cur &gt;= &#39;0&#39; &amp;&amp; *cur &lt;= &#39;9&#39;);
+    bool pad_with_zero = (*cur == &#39;0&#39;);
+    int width = 0;
+    if (have_width) {
+      while (*cur &gt;= &#39;0&#39; &amp;&amp; *cur &lt;= &#39;9&#39;) {
+        width = width * 10 + *cur++ - &#39;0&#39;;
+      }
+    }
+    bool have_precision = (cur[0] == &#39;.&#39; &amp;&amp; cur[1] == &#39;*&#39;);
+    int precision = -1;
+    if (have_precision) {
+      cur += 2;
+      precision = va_arg(args, int);
+    }
+    bool have_z = (*cur == &#39;z&#39;);
+    cur += have_z;
+    bool have_ll = !have_z &amp;&amp; (cur[0] == &#39;l&#39; &amp;&amp; cur[1] == &#39;l&#39;);
+    cur += have_ll * 2;
+    s64 dval;
+    u64 uval;
+    const bool have_length = have_z || have_ll;
+    const bool have_flags = have_width || have_length;
+    // At the moment only %s supports precision and left-justification.
+    CHECK(!((precision &gt;= 0 || left_justified) &amp;&amp; *cur != &#39;s&#39;));
+    switch (*cur) {
+      case &#39;d&#39;: {
+        dval = have_ll ? va_arg(args, s64)
+             : have_z ? va_arg(args, sptr)
+             : va_arg(args, int);
+        result += AppendSignedDecimal(&amp;buff, buff_end, dval, width,
+                                      pad_with_zero);
+        break;
+      }
+      case &#39;u&#39;:
+      case &#39;x&#39;:
+      case &#39;X&#39;: {
+        uval = have_ll ? va_arg(args, u64)
+             : have_z ? va_arg(args, uptr)
+             : va_arg(args, unsigned);
+        bool uppercase = (*cur == &#39;X&#39;);
+        result += AppendUnsigned(&amp;buff, buff_end, uval, (*cur == &#39;u&#39;) ? 10 : 16,
+                                 width, pad_with_zero, uppercase);
+        break;
+      }
+      case &#39;p&#39;: {
+        RAW_CHECK_MSG(!have_flags, kPrintfFormatsHelp);
+        result += AppendPointer(&amp;buff, buff_end, va_arg(args, uptr));
+        break;
+      }
+      case &#39;s&#39;: {
+        RAW_CHECK_MSG(!have_length, kPrintfFormatsHelp);
+        // Only left-justified width is supported.
+        CHECK(!have_width || left_justified);
+        result += AppendString(&amp;buff, buff_end, left_justified ? -width : width,
+                               precision, va_arg(args, char*));
+        break;
+      }
+      case &#39;c&#39;: {
+        RAW_CHECK_MSG(!have_flags, kPrintfFormatsHelp);
+        result += AppendChar(&amp;buff, buff_end, va_arg(args, int));
+        break;
+      }
+      case &#39;%&#39; : {
+        RAW_CHECK_MSG(!have_flags, kPrintfFormatsHelp);
+        result += AppendChar(&amp;buff, buff_end, &#39;%&#39;);
+        break;
+      }
+      default: {
+        RAW_CHECK_MSG(false, kPrintfFormatsHelp);
+      }
+    }
+  }
+  RAW_CHECK(buff &lt;= buff_end);
+  AppendChar(&amp;buff, buff_end + 1, &#39;\0&#39;);
+  return result;
+}
+
+} // namespace __sanitizer
+
+int prints(const char *string)
+{
+  int pc = 0, padchar = &#39; &#39;;
+
+  for ( ; *string ; ++string) {
+    putchar (*string);
+    ++pc;
+  }
+
+  return pc;
+}
+
+extern &quot;C&quot; int printf(const char *format, ...) {
+  int length = 1000;
+  char buffer[1000];
+  va_list args;
+  va_start(args, format);
+  int needed_length = __sanitizer::VSNPrintf(buffer, length, format, args);
+  va_end(args);
+  prints(buffer);
+  return 0;
+}
+</pre></div>
+</div>
+<p class="rubric">exlbt/input/ch_hello.c</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="o">//</span> <span class="o">~/</span><span class="n">llvm</span><span class="o">/</span><span class="n">release</span><span class="o">/</span><span class="n">build</span><span class="o">/</span><span class="nb">bin</span><span class="o">/</span><span class="n">clang</span> <span class="o">-</span><span class="n">target</span> <span class="n">mips</span><span class="o">-</span><span class="n">unknown</span><span class="o">-</span><span class="n">linux</span><span class="o">-</span><span class="n">gnu</span> <span class="o">-</span><span class="n">c</span> <span class="n">hello</span><span class="o">.</span><span class="n">cpp</span> <span class="o">-</span><span class="n">emit</span><span class="o">-</span><span class="n">llvm</span> <span class="o">-</span><span class="n">o</span> <span class="n">hello</span><span class="o">.</span><span class="n">bc</span>
+<span class="o">//</span> <span class="o">~/</span><span class="n">llvm</span><span class="o">/</span><span class="n">test</span><span class="o">/</span><span class="n">build</span><span class="o">/</span><span class="nb">bin</span><span class="o">/</span><span class="n">llc</span> <span class="o">-</span><span class="n">march</span><span class="o">=</span><span class="n">cpu0</span> <span class="o">-</span><span class="n">mcpu</span><span class="o">=</span><span class="n">cpu032I</span> <span class="o">-</span><span class="n">relocation</span><span class="o">-</span><span class="n">model</span><span class="o">=</span><span class="n">static</span> <span class="o">-</span><span class="n">filetype</span><span class="o">=</span><span class="n">obj</span> <span class="n">ch_hello</span><span class="o">.</span><span class="n">bc</span> <span class="o">-</span><span class="n">o</span> <span class="n">ch_hello</span><span class="o">.</span><span class="n">cpu0</span><span class="o">.</span><span class="n">o</span>
+
+<span class="o">//</span> <span class="n">start</span>
+<span class="n">extern</span> <span class="nb">int</span> <span class="n">printf</span><span class="p">(</span><span class="n">const</span> <span class="n">char</span> <span class="o">*</span><span class="nb">format</span><span class="p">,</span> <span class="o">...</span><span class="p">);</span>
+
+<span class="nb">int</span> <span class="n">main</span><span class="p">(</span><span class="n">void</span><span class="p">)</span>
+<span class="p">{</span>
+  <span class="n">char</span> <span class="n">ptr</span><span class="p">[]</span> <span class="o">=</span> <span class="s2">&quot;Hello world!&quot;</span><span class="p">;</span>
+
+  <span class="n">long</span> <span class="n">long</span> <span class="n">a</span> <span class="o">=</span> <span class="mh">0x100000007fffffff</span><span class="p">;</span>
+  <span class="n">printf</span><span class="p">(</span><span class="s2">&quot;</span><span class="si">%s</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">ptr</span><span class="p">);</span>
+  <span class="n">printf</span><span class="p">(</span><span class="s2">&quot;a: %llX, %llx, %lld</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">a</span><span class="p">,</span> <span class="n">a</span><span class="p">,</span> <span class="n">a</span><span class="p">);</span>
+  <span class="nb">int</span> <span class="n">b</span> <span class="o">=</span> <span class="mh">0x10000000</span><span class="p">;</span>
+  <span class="n">printf</span><span class="p">(</span><span class="s2">&quot;b: </span><span class="si">%x</span><span class="s2">, </span><span class="si">%d</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">b</span><span class="p">,</span> <span class="n">b</span><span class="p">);</span>
+
+  <span class="k">return</span> <span class="mi">0</span><span class="p">;</span>
+<span class="p">}</span>
+
+</pre></div>
+</div>
+<p class="rubric">exlbt/input/Makefile.sanitizer-printf</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span># CPU and endian passed from command line, such as 
+#   &quot;make -f Makefile.sanitizer_printf CPU=cpu032II endian=&quot;
+#   Ignore argument and set CPU to cpu032II since software float point library, 
+#   libsoftfloat, only supports cpu032II at this point.
+CPU := cpu032II
+#endian :=
+
+SRCS := start.cpp debug.cpp sanitizer_printf.cpp printf-stdarg-def.c ch_hello.c \
+        lib_cpu0.ll
+LIBFLOAT_DIR := ../libsoftfloat/compiler-rt/
+INC_DIRS := ./ ../include ../../lbdex/input $(HOME)/llvm/test/compiler-rt/lib/sanitizer_common
+LIBS := $(LIBFLOAT_DIR)/build/libFloat.a
+
+include Common.mk
+</pre></div>
+</div>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">cschen@cschendeiMac input %  </span>bash make.sh cpu032I le Makefile.slinker
+
+<span class="gp">cschen@cschendeiMac verilog % </span>./cpu0Is
+<span class="go">...</span>
+<span class="go">Hello world!</span>
+<span class="go">a: 100000007FFFFFFF, 100000007fffffff, 1152921506754330623</span>
+<span class="go">b: 10000000, 268435456</span>
+<span class="go">total cpu cycles = 1266990</span>
+<span class="go">RET to PC &lt; 0, finished!</span>
+</pre></div>
+</div>
+<p>The exlbt/input/compiler-rt-test/builtins/Unit copied from
+compiler-rt/test/builtins/Unit as follows,</p>
 <p class="rubric">exlbt/input/ch_builtins.cpp</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="c1">#include &lt;stdlib.h&gt;</span>
 
@@ -1231,7 +1614,7 @@ CPU := cpu032II
 #endian :=
 
 # start.cpp must be put at beginning
-SRCS :=  start.cpp debug.cpp printf-stdarg-def.c printf-stdarg.c \
+SRCS :=  start.cpp debug.cpp sanitizer_printf.cpp printf-stdarg-def.c \
   compiler-rt-test/builtins/Unit/absvdi2_test.c \
   compiler-rt-test/builtins/Unit/absvsi2_test.c \
   compiler-rt-test/builtins/Unit/absvti2_test.c \
@@ -1362,9 +1745,9 @@ SRCS :=  start.cpp debug.cpp printf-stdarg-def.c printf-stdarg.c \
   compiler-rt-test/builtins/Unit/unordsf2vfp_test.c \
   compiler-rt-test/builtins/Unit/unordtf2_test.c \
   ch_builtins.cpp lib_cpu0.ll
-INC_DIRS := ./ ../libsoftfloat/compiler-rt/builtins ../include
-LIB_DIR := ../libsoftfloat/compiler-rt
-LIBS := $(LIB_DIR)/build/libFloat.a
+INC_DIRS := ./ ../../lbdex/input ../libsoftfloat/compiler-rt/builtins ../include
+LIBFLOAT_DIR := ../libsoftfloat/compiler-rt
+LIBS := $(LIBFLOAT_DIR)/build/libFloat.a 
 
 include Common.mk
 </pre></div>
@@ -1373,8 +1756,7 @@ include Common.mk
 <div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">chungshu@ChungShudeMacBook-Air input % </span>bash make.sh cpu032II be Makefile.builtins
 <span class="go">...</span>
 <span class="gp">chungshu@ChungShudeMacBook-Air verilog % </span>./cpu0IIs
-<span class="go">WARNING: cpu0.v:489: $readmemh(cpu0.hex): Not enough words in the file for the requested range [0:524287].</span>
-<span class="go">taskInterrupt(001)</span>
+<span class="go">...</span>
 <span class="go">absvdi2_test(): PASS!</span>
 <span class="go">absvsi2_test(): PASS!</span>
 <span class="go">absvti2_test(): SKIPPED!</span>
@@ -1473,10 +1855,6 @@ include Common.mk
 <span class="go">ucmpdi2_test(): PASS!</span>
 <span class="go">ucmpti2_test(): SKIPPED!</span>
 <span class="go">udivdi3_test(): PASS!</span>
-<span class="go">taskInterrupt(011)</span>
-<span class="go">Overflow exception</span>
-<span class="go">error in __udivmoddi4: 1-2 / FFFFFFFF-6FF64 = 1000000-29, R = 6FEFC-0, expected 1-29, 0-6FF14</span>
-<span class="go">udivmoddi4_test(): FAIL!</span>
 <span class="go">udivmodsi4_test(): PASS!</span>
 <span class="go">udivmodti4_test(): SKIPPED!</span>
 <span class="go">udivsi3_test(): PASS!</span>
@@ -1487,7 +1865,7 @@ include Common.mk
 <span class="go">unorddf2vfp_test(): SKIPPED!</span>
 <span class="go">unordsf2vfp_test(): SKIPPED!</span>
 <span class="go">unordtf2_test(): SKIPPED!</span>
-<span class="go">total cpu cycles = 8622184</span>
+<span class="go">...</span>
 <span class="go">RET to PC &lt; 0, finished!</span>
 </pre></div>
 </div>
@@ -1534,7 +1912,7 @@ include Common.mk
 
     <div class="footer" role="contentinfo">
         &#169; Copyright 2016, Chen Chung-Shu.
-      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 4.3.1.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 4.4.0.
     </div>
   </body>
 </html>

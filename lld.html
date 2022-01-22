@@ -871,7 +871,7 @@ int main(int argc, char **argv) {
 <p>In order to support command, <strong>llvm-objdump -d</strong> and <strong>llvm-objdump -t</strong>, for
 Cpu0, the code add to llvm-objdump.cpp as follows,</p>
 <p class="rubric">exlbt/llvm-objdump/llvm-objdump.cpp</p>
-<div class="highlight-c++ notranslate"><div class="highlight"><pre><span></span><span class="k">case</span><span class="w"> </span><span class="n">ELF</span><span class="o">::</span><span class="nl">EM_CPU0</span><span class="p">:</span><span class="w"> </span><span class="c1">//Cpu0</span>
+<div class="highlight-c++ notranslate"><div class="highlight"><pre><span></span><span class="k">case</span><span class="w"> </span><span class="n">ELF</span><span class="o">::</span><span class="n">EM_CPU0</span><span class="o">:</span><span class="w"> </span><span class="c1">//Cpu0</span>
 </pre></div>
 </div>
 </section>
@@ -1235,6 +1235,8 @@ static int print(char **out, const char *format, va_list args )
         ++format;
         pad = PAD_RIGHT;
       }
+      //bool have_ll = (format[0] == &#39;l&#39; &amp;&amp; format[1] == &#39;l&#39;);
+      //pc += have_ll * 2;
       while (*format == &#39;0&#39;) {
         ++format;
         pad |= PAD_ZERO;
@@ -1379,8 +1381,7 @@ extern int main();
 void start() {
   asm(&quot;start:&quot;);
   
-  asm(&quot;lui $sp, 0x7&quot;);
-  asm(&quot;addiu $sp, $sp, 0xfffc&quot;);
+  INIT_SP
   int *gpaddr;
   gpaddr = (int*)GPADDR;
   __asm__ __volatile__(&quot;ld  $gp, %0&quot;
@@ -1499,13 +1500,14 @@ CPPFLAGS := -MMD -MP -target cpu0${ENDIAN}-unknown-linux-gnu -static \
 LLFLAGS := -march=cpu0${ENDIAN} -mcpu=${CPU} -relocation-model=static \
   -filetype=obj -has-lld=true
 
-#FIND_LIB_DIR := $(shell find . -iname $(LIB_DIR))
+#FIND_LIBFLOAT_DIR := $(shell find . -iname $(LIBFLOAT_DIR))
 
 $(TARGET): $(OBJS) $(LIBS)
+	echo &quot;LIBFLOAT_DIR: $(LIBFLOAT_DIR), LIBS: $(LIBS)&quot;
 	$(LD) -o $@ $(OBJS) $(LIBS)
 
 $(LIBS):
-	cd $(LIB_DIR) &amp;&amp; $(MAKE) -f ./Makefile CPU=$(CPU)
+	$(MAKE) -C $(LIBFLOAT_DIR) CPU=$(CPU)
 
 # Build step for C source
 $(BUILD_DIR)/%.c.o: %.c
@@ -1523,8 +1525,8 @@ $(BUILD_DIR)/lib_cpu0.ll.o: lib_cpu0.ll
 .PHONY: clean
 clean: 
 	rm -rf $(BUILD_DIR)
-ifdef LIB_DIR
-	cd $(LIB_DIR) &amp;&amp; $(MAKE) -f Makefile clean
+ifdef LIBFLOAT_DIR
+	cd $(LIBFLOAT_DIR) &amp;&amp; $(MAKE) -f Makefile clean
 endif
 
 # Include the .d makefiles. The - at the f.cnt suppresses the er.crs.cf missing
@@ -1540,7 +1542,7 @@ endif
 
 SRCS := start.cpp debug.cpp printf-stdarg-def.c printf-stdarg-2.cpp lib_cpu0.ll
 INC_DIRS := $(SRC_DIR) ../../lbdex/input
-LIB_DIR :=
+LIBFLOAT_DIR :=
 LIBS :=
 
 include Common.mk
@@ -1841,6 +1843,12 @@ int test_staticlink()
     printf(&quot;, PASS\n&quot;);
   else
     printf(&quot;, FAIL\n&quot;);
+  long long res = test_template_ll();
+  printf(&quot;test_template_ll() = 0x%X-%X&quot;, (int)(res&gt;&gt;32), (int)res); // res = -1
+  if (res == -1)
+    printf(&quot;, PASS\n&quot;);
+  else
+    printf(&quot;, FAIL\n&quot;);
   a = test_tailcall(5);
   printf(&quot;test_tailcall(5) = %d&quot;, a); // a = 15
   if (a == 120)
@@ -1912,7 +1920,7 @@ int test_staticlink()
 SRCS := start.cpp debug.cpp printf-stdarg-def.c printf-stdarg.c ch_slinker.cpp \
 	lib_cpu0.ll
 INC_DIRS := $(SRC_DIR) ../../lbdex/input
-LIB_DIR :=
+LIBFLOAT_DIR :=
 LIBS :=
 
 include Common.mk
@@ -1927,9 +1935,11 @@ include Common.mk
 # bash make.sh cpu032II be Makefile.float
 # bash make.sh cpu032II be Makefile.printf-stdarg-2
 # bash make.sh cpu032II be Makefile.ch13_1
+# bash make.sh cpu032I le Makefile.sanitizer-printf
 
 ARG_NUM=$#
-ENDIAN=
+CPU=$1
+ENDIAN=$2
 
 prologue() {
   LBDEXDIR=../../lbdex
@@ -1942,7 +1952,7 @@ prologue() {
     echo &quot;  bash build-slinker.sh cpu032I be&quot;
     exit 1;
   fi
-  if [ $1 != cpu032I ] &amp;&amp; [ $1 != cpu032II ]; then
+  if [ $CPU != cpu032I ] &amp;&amp; [ $CPU != cpu032II ]; then
     echo &quot;1st argument is cpu032I or cpu032II&quot;
     exit 1
   fi
@@ -1954,14 +1964,13 @@ prologue() {
   TOOLDIR=~/llvm/test/build/bin
   CLANG=~/llvm/test/build/bin/clang
 
-  CPU=$1
   echo &quot;CPU =&quot; &quot;${CPU}&quot;
 
-  if [ &quot;$2&quot; != &quot;&quot; ] &amp;&amp; [ $2 != le ] &amp;&amp; [ $2 != be ]; then
+  if [ &quot;$ENDIAN&quot; != &quot;&quot; ] &amp;&amp; [ $ENDIAN != le ] &amp;&amp; [ $ENDIAN != be ]; then
     echo &quot;2nd argument is be (big ENDIAN, default) or le (little ENDIAN)&quot;
     exit 1
   fi
-  if [ &quot;$2&quot; == &quot;&quot; ] || [ $2 == be ]; then
+  if [ &quot;$ENDIAN&quot; == &quot;&quot; ] || [ $ENDIAN == be ]; then
     ENDIAN=
   else
     ENDIAN=el
@@ -2053,7 +2062,8 @@ epilogue;
 <span class="go">1</span>
 <span class="go">2147483647</span>
 <span class="go">-2147483648</span>
-<span class="go">15</span>
+<span class="go">9</span>
+<span class="go">12</span>
 <span class="go">5</span>
 <span class="go">0</span>
 <span class="go">31</span>
@@ -2068,6 +2078,7 @@ epilogue;
 <span class="go">test_func_arg_struct() = 0, PASS</span>
 <span class="go">test_constructor() = 0, PASS</span>
 <span class="go">test_template() = 15, PASS</span>
+<span class="go">test_template_ll() = 0xFFFFFFFF-FFFFFFFF, PASS</span>
 <span class="go">test_tailcall(5) = 120, PASS</span>
 <span class="go">exceptionOccur= 1, PASS</span>
 <span class="go">exceptionOccur= 0, PASS</span>
@@ -2082,7 +2093,7 @@ epilogue;
 <span class="go">Harware interrupt 0</span>
 <span class="go">taskInterrupt(011)</span>
 <span class="go">Harware interrupt 1</span>
-<span class="go">total cpu cycles = 248282</span>
+<span class="go">...</span>
 <span class="go">RET to PC &lt; 0, finished!</span>
 </pre></div>
 </div>
@@ -2264,7 +2275,7 @@ to somewhere you didn’t expect”.</p>
 
     <div class="footer" role="contentinfo">
         &#169; Copyright 2016, Chen Chung-Shu.
-      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 4.3.1.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 4.4.0.
     </div>
   </body>
 </html>
