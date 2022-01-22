@@ -20,15 +20,16 @@
 
 #include "debug.h"
 
-extern int prints(const char *string);
-extern void print_integer(int x);
+extern "C" int putchar(int c);
+
+static void abort() {
+  for (;;);
+}
 
 #if SANITIZER_WINDOWS && defined(_MSC_VER) && _MSC_VER < 1800 &&               \
       !defined(va_copy)
 # define va_copy(dst, src) ((dst) = (src))
 #endif
-
-extern "C" void abort();
 
 namespace __sanitizer {
 
@@ -98,12 +99,6 @@ static int AppendUnsigned(char **buff, const char *buff_end, u64 num, u8 base,
 static int AppendSignedDecimal(char **buff, const char *buff_end, s64 num,
                                u8 minimal_num_length, bool pad_with_zero) {
   bool negative = (num < 0);
-#if 0
-  prints("AppendSignedDecimal:\n");
-  print_integer((int)negative);
-  print_integer((int)(num >> 32));
-  print_integer((int)(num));
-#endif
   return AppendNumber(buff, buff_end, (u64)(negative ? -num : num), 10,
                       minimal_num_length, pad_with_zero, negative,
                       false /* uppercase */);
@@ -239,3 +234,26 @@ int VSNPrintf(char *buff, int buff_length,
 }
 
 } // namespace __sanitizer
+
+int prints(const char *string)
+{
+  int pc = 0, padchar = ' ';
+
+  for ( ; *string ; ++string) {
+    putchar (*string);
+    ++pc;
+  }
+
+  return pc;
+}
+
+extern "C" int printf(const char *format, ...) {
+  int length = 1000;
+  char buffer[1000];
+  va_list args;
+  va_start(args, format);
+  int needed_length = __sanitizer::VSNPrintf(buffer, length, format, args);
+  va_end(args);
+  prints(buffer);
+  return 0;
+}

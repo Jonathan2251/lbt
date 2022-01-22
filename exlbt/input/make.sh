@@ -6,9 +6,11 @@
 # bash make.sh cpu032II be Makefile.float
 # bash make.sh cpu032II be Makefile.printf-stdarg-2
 # bash make.sh cpu032II be Makefile.ch13_1
+# bash make.sh cpu032I le Makefile.sanitizer-printf
 
 ARG_NUM=$#
-ENDIAN=
+CPU=$1
+ENDIAN=$2
 
 prologue() {
   LBDEXDIR=../../lbdex
@@ -21,7 +23,7 @@ prologue() {
     echo "  bash build-slinker.sh cpu032I be"
     exit 1;
   fi
-  if [ $1 != cpu032I ] && [ $1 != cpu032II ]; then
+  if [ $CPU != cpu032I ] && [ $CPU != cpu032II ]; then
     echo "1st argument is cpu032I or cpu032II"
     exit 1
   fi
@@ -33,14 +35,13 @@ prologue() {
   TOOLDIR=~/llvm/test/build/bin
   CLANG=~/llvm/test/build/bin/clang
 
-  CPU=$1
   echo "CPU =" "${CPU}"
 
-  if [ "$2" != "" ] && [ $2 != le ] && [ $2 != be ]; then
+  if [ "$ENDIAN" != "" ] && [ $ENDIAN != le ] && [ $ENDIAN != be ]; then
     echo "2nd argument is be (big ENDIAN, default) or le (little ENDIAN)"
     exit 1
   fi
-  if [ "$2" == "" ] || [ $2 == be ]; then
+  if [ "$ENDIAN" == "" ] || [ $ENDIAN == be ]; then
     ENDIAN=
   else
     ENDIAN=el

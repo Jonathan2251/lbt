@@ -38,9 +38,6 @@ $(TARGET): $(OBJS) $(LIBS)
 
 $(LIBS):
 	$(MAKE) -C $(LIBFLOAT_DIR) CPU=$(CPU)
-ifdef LIBSANITIZE_DIR
-	$(MAKE) -C $(LIBSANITIZE_DIR) CPU=$(CPU)
-endif
 
 # Build step for C source
 $(BUILD_DIR)/%.c.o: %.c
@@ -60,9 +57,6 @@ clean:
 	rm -rf $(BUILD_DIR)
 ifdef LIBFLOAT_DIR
 	cd $(LIBFLOAT_DIR) && $(MAKE) -f Makefile clean
-endif
-ifdef LIBSANITIZE_DIR
-	cd $(LIBSANITIZE_DIR) && $(MAKE) -f Makefile clean
 endif
 
 # Include the .d makefiles. The - at the f.cnt suppresses the er.crs.cf missing

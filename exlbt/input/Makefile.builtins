@@ -6,7 +6,7 @@ CPU := cpu032II
 #endian :=
 
 # start.cpp must be put at beginning
-SRCS :=  start.cpp debug.cpp printf-stdarg-def.c ch_sanitizer_common.cpp \
+SRCS :=  start.cpp debug.cpp sanitizer_printf.cpp printf-stdarg-def.c \
   compiler-rt-test/builtins/Unit/absvdi2_test.c \
   compiler-rt-test/builtins/Unit/absvsi2_test.c \
   compiler-rt-test/builtins/Unit/absvti2_test.c \
@@ -139,7 +139,6 @@ SRCS :=  start.cpp debug.cpp printf-stdarg-def.c ch_sanitizer_common.cpp \
   ch_builtins.cpp lib_cpu0.ll
 INC_DIRS := ./ ../../lbdex/input ../libsoftfloat/compiler-rt/builtins ../include
 LIBFLOAT_DIR := ../libsoftfloat/compiler-rt
-LIBSANITIZE_DIR := ../sanitizer_common
-LIBS := $(LIBFLOAT_DIR)/build/libFloat.a $(LIBSANITIZE_DIR)/build/libsanitizer.a
+LIBS := $(LIBFLOAT_DIR)/build/libFloat.a 
 
 include Common.mk
