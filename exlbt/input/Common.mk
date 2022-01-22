@@ -37,7 +37,7 @@ $(TARGET): $(OBJS) $(LIBS)
 	$(LD) -o $@ $(OBJS) $(LIBS)
 
 $(LIBS):
-	$(MAKE) -C $(LIBFLOAT_DIR) CPU=$(CPU)
+	$(MAKE) -C $(LIBFLOAT_DIR) 
 
 # Build step for C source
 $(BUILD_DIR)/%.c.o: %.c

@@ -2,8 +2,6 @@
 #   "make -f Makefile.float-necessary CPU=cpu032II endian="
 #   Ignore argument and set CPU to cpu032II since software float point library, 
 #   libsoftfloat, only supports cpu032II at this point.
-CPU := cpu032II
-#endian :=
 
 # start.cpp must be put at beginning
 SRCS :=  start.cpp debug.cpp sanitizer_printf.cpp printf-stdarg-def.c \

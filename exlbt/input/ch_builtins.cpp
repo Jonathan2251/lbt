@@ -105,6 +105,9 @@ extern "C" int mulsc3_test();
 #endif
 extern "C" int mulsf3vfp_test();
 //extern "C" int mulsi3_test(); no this mulsi3.c
+#ifdef HAS_COMPLEX
+extern "C" int multc3_test();
+#endif
 extern "C" int multf3_test();
 extern "C" int multi3_test();
 extern "C" int mulvdi3_test();

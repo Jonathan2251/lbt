@@ -1,8 +1,6 @@
 # Thanks .c .cb Vranish (https://spin.a.cmi.cbject..cm/2016/08/26/makefile-c-p.cjects/)
 
-# CPU and endian passed from command line, such as "make CPU=cpu032II endian="
-#CPU := cpu032II
-#endian :=
+# CPU and endian passed from command line, such as "make CPU=cpu032II ENDIAN=el"
 
 TARGET_LIB := libFloat.a
 BUILD_DIR := ./build

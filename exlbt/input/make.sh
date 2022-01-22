@@ -92,7 +92,7 @@ fi
 
 prologue;
 
-make -f $FILE CPU=$1 ENDIAN=${ENDIAN}
+make -f $FILE CPU=${CPU} ENDIAN=${ENDIAN}
 
 cp ./build/a.out .
 

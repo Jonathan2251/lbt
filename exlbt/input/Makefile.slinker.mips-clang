@@ -1,8 +1,6 @@
 # Thanks https://makefiletutorial.com
 
-# CPU and endian passed from command line, such as "make -f Makefile.slink.mips-clang CPU=cpu032II endian="
-#CPU := cpu032II
-#endian :=
+# CPU and ENDIAN passed from command line, such as "make -f Makefile.slink.mips-clang CPU=cpu032II ENDIAN="
 
 TARGET_EXEC := a.out
 BUILD_DIR := ./build
@@ -34,7 +32,7 @@ INC_FLAGS := $(addprefix -I,$(INC_DIRS))
 # These files will have .d instead of .o as the output.
 CPPFLAGS := $(INC_FLAGS) -MMD -MP -target mips-unknown-linux-gnu -emit-llvm  
 
-LLFLAGS := -march=cpu0${endian} -mcpu=${CPU} -relocation-model=static \
+LLFLAGS := -march=cpu0${ENDIAN} -mcpu=${CPU} -relocation-model=static \
   -filetype=obj -has-lld=true
 
 $(TARGET): $(OBJS)
