@@ -1507,7 +1507,7 @@ $(TARGET): $(OBJS) $(LIBS)
 	$(LD) -o $@ $(OBJS) $(LIBS)
 
 $(LIBS):
-	$(MAKE) -C $(LIBFLOAT_DIR) CPU=$(CPU)
+	$(MAKE) -C $(LIBFLOAT_DIR) 
 
 # Build step for C source
 $(BUILD_DIR)/%.c.o: %.c
@@ -1537,8 +1537,7 @@ endif
 </div>
 <p class="rubric">exlbt/input/Makefile.printf-stdarg-2</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span># CPU and endian passed from command line, such as 
-#   &quot;make -f Makefile.printf-stdarg-2 CPU=cpu032I endian=el&quot;
-#endian :=
+#   &quot;make -f Makefile.printf-stdarg-2 CPU=cpu032I ENDIAN=el&quot;
 
 SRCS := start.cpp debug.cpp printf-stdarg-def.c printf-stdarg-2.cpp lib_cpu0.ll
 INC_DIRS := $(SRC_DIR) ../../lbdex/input
@@ -1915,7 +1914,6 @@ int test_staticlink()
 <p class="rubric">exlbt/input/Makefile.slinker</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span># CPU and endian passed from command line, such as 
 #   &quot;make -f Makefile.slinker CPU=cpu032I endian=le&quot;
-#endian :=
 
 SRCS := start.cpp debug.cpp printf-stdarg-def.c printf-stdarg.c ch_slinker.cpp \
 	lib_cpu0.ll
@@ -2021,7 +2019,7 @@ fi
 
 prologue;
 
-make -f $FILE CPU=$1 ENDIAN=${ENDIAN}
+make -f $FILE CPU=${CPU} ENDIAN=${ENDIAN}
 
 cp ./build/a.out .
 

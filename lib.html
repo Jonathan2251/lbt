@@ -274,9 +274,7 @@ this feature.</p>
 <p class="rubric">lbt/exlbt/libsoftfloat/compiler-rt-12.x/Makefile</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span># Thanks .c .cb Vranish (https://spin.a.cmi.cbject..cm/2016/08/26/makefile-c-p.cjects/)
 
-# CPU and endian passed from command line, such as &quot;make CPU=cpu032II endian=&quot;
-#CPU := cpu032II
-#endian :=
+# CPU and endian passed from command line, such as &quot;make CPU=cpu032II ENDIAN=el&quot;
 
 TARGET_LIB := libFloat.a
 BUILD_DIR := ./build
@@ -565,11 +563,9 @@ int main() {
 </div>
 <p class="rubric">exlbt/input/Makefile.float</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span># CPU and endian passed from command line, such as 
-#   &quot;make -f Makefile.float-necessary CPU=cpu032II endian=&quot;
+#   &quot;make -f Makefile.float CPU=cpu032II ENDIAN=el&quot;
 #   Ignore argument and set CPU to cpu032II since software float point library, 
 #   libsoftfloat, only supports cpu032II at this point.
-CPU := cpu032II
-#endian :=
 
 SRCS := start.cpp debug.cpp printf-stdarg-def.c printf-stdarg.c ch_float.cpp lib_cpu0.ll
 INC_DIRS := ../../lbdex/input 
@@ -965,8 +961,6 @@ extern &quot;C&quot; int printf(const char *format, ...) {
 #   &quot;make -f Makefile.sanitizer_printf CPU=cpu032II endian=&quot;
 #   Ignore argument and set CPU to cpu032II since software float point library, 
 #   libsoftfloat, only supports cpu032II at this point.
-CPU := cpu032II
-#endian :=
 
 SRCS := start.cpp debug.cpp sanitizer_printf.cpp printf-stdarg-def.c ch_hello.c \
         lib_cpu0.ll
@@ -1098,6 +1092,9 @@ compiler-rt/test/builtins/Unit as follows,</p>
 <span class="c1">#endif</span>
 <span class="n">extern</span> <span class="s2">&quot;C&quot;</span> <span class="nb">int</span> <span class="n">mulsf3vfp_test</span><span class="p">();</span>
 <span class="o">//</span><span class="n">extern</span> <span class="s2">&quot;C&quot;</span> <span class="nb">int</span> <span class="n">mulsi3_test</span><span class="p">();</span> <span class="n">no</span> <span class="n">this</span> <span class="n">mulsi3</span><span class="o">.</span><span class="n">c</span>
+<span class="c1">#ifdef HAS_COMPLEX</span>
+<span class="n">extern</span> <span class="s2">&quot;C&quot;</span> <span class="nb">int</span> <span class="n">multc3_test</span><span class="p">();</span>
+<span class="c1">#endif</span>
 <span class="n">extern</span> <span class="s2">&quot;C&quot;</span> <span class="nb">int</span> <span class="n">multf3_test</span><span class="p">();</span>
 <span class="n">extern</span> <span class="s2">&quot;C&quot;</span> <span class="nb">int</span> <span class="n">multi3_test</span><span class="p">();</span>
 <span class="n">extern</span> <span class="s2">&quot;C&quot;</span> <span class="nb">int</span> <span class="n">mulvdi3_test</span><span class="p">();</span>
@@ -1610,8 +1607,6 @@ compiler-rt/test/builtins/Unit as follows,</p>
 #   &quot;make -f Makefile.float-necessary CPU=cpu032II endian=&quot;
 #   Ignore argument and set CPU to cpu032II since software float point library, 
 #   libsoftfloat, only supports cpu032II at this point.
-CPU := cpu032II
-#endian :=
 
 # start.cpp must be put at beginning
 SRCS :=  start.cpp debug.cpp sanitizer_printf.cpp printf-stdarg-def.c \
