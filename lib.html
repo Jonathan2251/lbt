@@ -39,8 +39,8 @@
 <span id="sec-lib"></span><h1>Library<a class="headerlink" href="#library" title="Permalink to this headline">¶</a></h1>
 <div class="contents local topic" id="contents">
 <ul class="simple">
-<li><p><a class="reference internal" href="#compiler-rt" id="id13">Compiler-rt</a></p></li>
-<li><p><a class="reference internal" href="#software-float-point-support" id="id14">Software Float Point Support</a></p></li>
+<li><p><a class="reference internal" href="#compiler-rt" id="id16">Compiler-rt</a></p></li>
+<li><p><a class="reference internal" href="#software-float-point-support" id="id17">Software Float Point Support</a></p></li>
 </ul>
 </div>
 <p>Since Cpu0 has not hardware float point instructions, it needs soft float point
@@ -49,10 +49,10 @@ software floating point library implementation <a class="reference internal" hre
 implementation.</p>
 <p>Since compiler-rt uses unix/linux rootfs structure, we fill the gap by add few
 empty include-files in exlbt/include.</p>
-<figure class="align-default" id="id11">
+<figure class="align-default" id="id14">
 <span id="lib-empty"></span><img alt="_images/empty.png" src="_images/empty.png" />
 <figcaption>
-<p><span class="caption-number">Fig. 6 </span><span class="caption-text">compiler-rt/lib/builtins’ software float library</span><a class="headerlink" href="#id11" title="Permalink to this image">¶</a></p>
+<p><span class="caption-number">Fig. 6 </span><span class="caption-text">compiler-rt/lib/builtins’ software float library</span><a class="headerlink" href="#id14" title="Permalink to this image">¶</a></p>
 </figcaption>
 </figure>
 <div class="graphviz"><img src="_images/graphviz-5e0d5ffa52ae40a97f50fdd549c241a3c4461a70.png" alt="// dot -Tpng lib.gv -o lib.png
@@ -66,63 +66,51 @@ digraph G {
   &quot;clang/llc&quot; -&gt; lld [ label = &quot;obj&quot; ];
 }" class="graphviz" /></div>
 <section id="compiler-rt">
-<h2><a class="toc-backref" href="#id13">Compiler-rt</a><a class="headerlink" href="#compiler-rt" title="Permalink to this headline">¶</a></h2>
-<table class="docutils align-default" id="id12">
-<caption><span class="caption-number">Table 1 </span><span class="caption-text">Toolchain components <a class="footnote-reference brackets" href="#toolchain" id="id1">2</a></span><a class="headerlink" href="#id12" title="Permalink to this table">¶</a></caption>
+<h2><a class="toc-backref" href="#id16">Compiler-rt</a><a class="headerlink" href="#compiler-rt" title="Permalink to this headline">¶</a></h2>
+<p>Compiler-rt is a project with runtime libraries implentation <a class="footnote-reference brackets" href="#id13" id="id1">2</a> .
+Compiler-rt/lib/builtins provides functions for basic operations such as +, -,
+*, /, … on type of float or double and for conversion between float and
+integer, or on type of over 32-bit. The compier-rt/lib/builtins/README.txt
+<a class="footnote-reference brackets" href="#builtins-readme" id="id2">3</a> includes the dependent functions the whole builtins called.
+The dependent functions is a small part of libm listed in
+compier-rt/lib/builtins/int_math.h <a class="footnote-reference brackets" href="#builtins-int-math" id="id3">4</a> .</p>
+<table class="docutils align-default" id="id15">
+<caption><span class="caption-number">Table 2 </span><span class="caption-text">compiler-rt builtins dependences on newlib/libm (open source libc for bare metal)</span><a class="headerlink" href="#id15" title="Permalink to this table">¶</a></caption>
 <colgroup>
-<col style="width: 24%" />
-<col style="width: 44%" />
-<col style="width: 32%" />
+<col style="width: 30%" />
+<col style="width: 70%" />
 </colgroup>
 <thead>
-<tr class="row-odd"><th class="head"><p>Component</p></th>
-<th class="head"><p>LLVM</p></th>
-<th class="head"><p>GNU <a class="footnote-reference brackets" href="#gnu" id="id2">1</a></p></th>
+<tr class="row-odd"><th class="head"><p>library</p></th>
+<th class="head"><p>functions</p></th>
 </tr>
 </thead>
 <tbody>
-<tr class="row-even"><td><p>C/C++ Compiler</p></td>
-<td><p>clang/llvm</p></td>
-<td><p>gcc</p></td>
+<tr class="row-even"><td><p>ported already</p></td>
+<td><p>abort</p></td>
 </tr>
-<tr class="row-odd"><td><p>Assembler</p></td>
-<td><p>llvm integrated assembler</p></td>
-<td><p>as</p></td>
+<tr class="row-odd"><td><p>libm/common</p></td>
+<td><p>finite, isinf</p></td>
 </tr>
-<tr class="row-even"><td><p>Linker</p></td>
-<td><p>ld.lld</p></td>
-<td><p>ld.bfd ld.gold</p></td>
-</tr>
-<tr class="row-odd"><td><p>Runtime</p></td>
-<td><p>compiler-rt</p></td>
-<td><p>libgcc <a class="footnote-reference brackets" href="#libgcc" id="id3">3</a></p></td>
-</tr>
-<tr class="row-even"><td><p>Unwinder</p></td>
-<td><p>libunwind</p></td>
-<td><p>libgcc_s</p></td>
-</tr>
-<tr class="row-odd"><td><p>C++ library</p></td>
-<td><p>libc++abi, libc++</p></td>
-<td><p>libsupc++ libstdc++</p></td>
-</tr>
-<tr class="row-even"><td><p>Utils</p></td>
-<td><p>llvm-ar, llvm-objdump etc.</p></td>
-<td><p>ar, objdump etc.</p></td>
-</tr>
-<tr class="row-odd"><td><p>C library</p></td>
-<td><ul class="simple">
-<li></li>
-</ul>
-</td>
-<td><p>libc</p></td>
+<tr class="row-even"><td><p>libm/math</p></td>
+<td><p>copysign, fabs, fmax, log, scalbn</p></td>
 </tr>
 </tbody>
 </table>
-<p>The libgcc’s soft float library is here <a class="footnote-reference brackets" href="#soft-float-lib" id="id4">4</a> .
-Compiler-rt is a project with runtime libraries implentation <a class="footnote-reference brackets" href="#id10" id="id5">5</a> .
-Compiler-rt/lib/builtins provides functions for basic operations such as +, -,
-*, /, … on type of float or double and for conversion between float and
-integer. Though the ‘rt’ means RunTime libaraies, most of these functions
+<ul class="simple">
+<li><p>fabs (may includes fabsf, fabsl).</p></li>
+<li><p>Only type of complex need above, others (float and double) depend on abort()
+only which I ported in lbt/exlbt/libsoftfloat/compiler-rt/cpu0/abort.c.</p></li>
+<li><p>All test cases in compiler-rt/test/builtins/Unit depend on
+printf(%lld or %llX, …), I ported from
+compiler-rt/lib/sanitizer_common/sanitizer_printf.cpp to
+lbt/exlbt/input/sanitizer_printf.cpp.</p></li>
+<li><p>Next step is to porting these dependent functions from newlib/libm.</p></li>
+</ul>
+<p>Web of newlib is here <a class="footnote-reference brackets" href="#newlib" id="id4">5</a> and newlib/libm here <a class="footnote-reference brackets" href="#newlib-libm" id="id5">6</a> .</p>
+<p>The libgcc’s Integer plus Soft float library  <a class="footnote-reference brackets" href="#lib-gcc" id="id6">7</a> <a class="footnote-reference brackets" href="#int-lib" id="id7">8</a>
+<a class="footnote-reference brackets" href="#sw-float-lib" id="id8">9</a> are equal to functions of compiler-rt’s builtins.</p>
+<p>Though the ‘rt’ means RunTime libaraies, most of these functions
 written in target-independent C form and can be compiled and static-linked
 into target. When you compile the following c code, llc generates
 <strong>jsub __addsf3</strong> to call compiler-rt float function since Cpu0 hasn’t hardware
@@ -144,14 +132,16 @@ as a function call for float-add instruction.</p>
 
 </pre></div>
 </div>
-<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">chungshu@ChungShudeMacBook-Air input % </span>clang -target mips-unknown-linux-gnu -S ch_call_compilerrt_func.c -emit-llvm -o ch_call_compilerrt_func.ll
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">chungshu@ChungShudeMacBook-Air input % </span>clang -target mips-unknown-linux-gnu -S
+<span class="go">ch_call_compilerrt_func.c -emit-llvm</span>
 <span class="gp">chungshu@ChungShudeMacBook-Air input % </span>cat ch_call_compilerrt_func.ll
 <span class="go">  ...</span>
 <span class="gp">  %</span><span class="nv">4</span> <span class="o">=</span> load float, float* %1, align <span class="m">4</span>
 <span class="gp">  %</span><span class="nv">5</span> <span class="o">=</span> load float, float* %2, align <span class="m">4</span>
 <span class="gp">  %</span><span class="nv">6</span> <span class="o">=</span> fadd float %4, %5
 
-<span class="gp">chungshu@ChungShudeMacBook-Air input % </span>~/llvm/test/build/bin/llc -march<span class="o">=</span>cpu0 -mcpu<span class="o">=</span>cpu032II -relocation-model<span class="o">=</span>static -filetype<span class="o">=</span>asm ch_call_compilerrt_func.ll -o -
+<span class="gp">chungshu@ChungShudeMacBook-Air input % </span>~/llvm/test/build/bin/llc -march<span class="o">=</span>cpu0
+<span class="go">-mcpu=cpu032II -relocation-model=static -filetype=asm ch_call_compilerrt_func.ll -o -</span>
 <span class="go">      ...</span>
 <span class="go">      ld      $4, 20($fp)</span>
 <span class="go">      ld      $5, 16($fp)</span>
@@ -161,19 +151,19 @@ as a function call for float-add instruction.</p>
 <p>For some brar-metal or embedded application, the C code doesn’t need the
 file and high-level IO in libc.
 Libm provides a lots of functions to support software floating point beyond
-basic operations <a class="footnote-reference brackets" href="#math" id="id6">6</a> .
-Libc provides file, high-level IO functions and basic float functions <a class="footnote-reference brackets" href="#clib" id="id7">7</a> .</p>
+basic operations <a class="footnote-reference brackets" href="#math" id="id9">10</a> .
+Libc provides file, high-level IO functions and basic float functions <a class="footnote-reference brackets" href="#clib" id="id10">11</a> .</p>
 <p>Cpu0 hires Compiler-rt/lib/builtins and the tiny single module printf-stdarg.c
-<a class="footnote-reference brackets" href="#printf-stdarg" id="id8">8</a> at this point.
+<a class="footnote-reference brackets" href="#printf-stdarg" id="id11">12</a> at this point.
 Directory exlib/libsoftfloat/compiler-rt-12.x/builtins is a symbolic link to
 llvm-project/compiler-rt/lib/builtins which is the floating point library from
-compiler-rt <a class="footnote-reference brackets" href="#id10" id="id9">5</a>. The compiler-rt/lib/builtins is a
+compiler-rt <a class="footnote-reference brackets" href="#id13" id="id12">2</a>. The compiler-rt/lib/builtins is a
 target-independent C form of software float library implementation. Cpu0
 implements compiler-rt-12.x/cpu0/abort.c only at this point for supporting
 this feature.</p>
 </section>
 <section id="software-float-point-support">
-<h2><a class="toc-backref" href="#id14">Software Float Point Support</a><a class="headerlink" href="#software-float-point-support" title="Permalink to this headline">¶</a></h2>
+<h2><a class="toc-backref" href="#id17">Software Float Point Support</a><a class="headerlink" href="#software-float-point-support" title="Permalink to this headline">¶</a></h2>
 <p>The following sanitizer_printf.cpp extended from compiler-rt can support
 printf(“%lld”). It’s implementation calling some floating lib functions
 in compiler-rt/lib/builtins.</p>
@@ -951,6 +941,21 @@ int main() {
 // call __divdf3, __fixdfsi
   c = (int)test_div&lt;double, double, double&gt;(-1.8, 0.5); // (int)-3.6 = -3
   check_result(&quot;(int)test_div&lt;double, double, double&gt;(-1.8, 0.5)&quot;, c, -3);
+
+#if 0 // these three do call builtins  
+  c = (int)test_mul&lt;int, int, int&gt;(-2, 3); // -6
+  check_result(&quot;(int)test_mul&lt;int, int, int&gt;(-2, 3)&quot;, c, -6);
+  
+  c = (int)test_div&lt;int, int, int&gt;(-10, 4); // -2 &lt;- -2*4+2, quotient:-2, remainder:2 (remainder &lt; 4:divident)
+  check_result(&quot;(int)test_div&lt;int, int, int&gt;(-10, 4)&quot;, c, -3);
+  
+  a = test_mul&lt;long long, long long, long long&gt;(-2LL, 3LL); // -6LL
+  check_result(&quot;test_mul&lt;long long, long long, long long&gt;(-2LL, 3LL)&quot;, a, -6LL);
+#endif
+
+// call __divdi3,
+  a = test_div&lt;long long, long long, long long&gt;(-10LL, 4LL); // -3
+  check_result(&quot;test_div&lt;long long, long long, long long&gt;(-10LL, 4LL)&quot;, a, -2LL);
   
   return 0;
 }
@@ -979,8 +984,7 @@ include Common.mk
 
 <span class="gp">chungshu@ChungShudeMacBook-Air verilog % </span>iverilog -o cpu0IIs cpu0IIs.v
 <span class="gp">chungshu@ChungShudeMacBook-Air verilog % </span>./cpu0IIs
-<span class="go">WARNING: cpu0.v:489: $readmemh(cpu0.hex): Not enough words in the file for the requested range [0:524287].</span>
-<span class="go">taskInterrupt(001)</span>
+<span class="go">...</span>
 <span class="go">test_longlong_shift1() = 289</span>
 <span class="go">test_longlong_shift2() = 22</span>
 <span class="go">test_shift_left&lt;long long&gt;(0x12, 4LL) = 288</span>
@@ -995,7 +999,8 @@ include Common.mk
 <span class="gp gp-VirtualEnv">(int)</span><span class="go">test_mul&lt;double, float, double&gt;(-2.2, 3.3) = -7</span>
 <span class="gp gp-VirtualEnv">(int)</span><span class="go">test_mul&lt;float, float, double&gt;(-2.2, 3.3) = -7</span>
 <span class="gp gp-VirtualEnv">(int)</span><span class="go">test_div&lt;double, double, double&gt;(-1.8, 0.5) = -3</span>
-<span class="go">total cpu cycles = 240170</span>
+<span class="go">test_div&lt;long long, long long, long long&gt;(-10LL, 4LL) = -2</span>
+<span class="go">...</span>
 <span class="go">RET to PC &lt; 0, finished!</span>
 </pre></div>
 </div>
@@ -1043,7 +1048,7 @@ compiler-rt/test/builtins/Unit as follows,</p>
 <span class="n">extern</span> <span class="s2">&quot;C&quot;</span> <span class="nb">int</span> <span class="n">ctzsi2_test</span><span class="p">();</span>
 <span class="n">extern</span> <span class="s2">&quot;C&quot;</span> <span class="nb">int</span> <span class="n">ctzti2_test</span><span class="p">();</span>
 
-<span class="o">//</span> <span class="n">div</span> <span class="k">for</span> <span class="nb">complex</span> <span class="nb">type</span> <span class="n">need</span> <span class="n">libm</span><span class="p">:</span> <span class="n">cabs</span><span class="p">,</span> <span class="n">isinf</span><span class="p">,</span> <span class="o">...</span><span class="p">,</span> <span class="n">skip</span> <span class="n">it</span> <span class="n">at</span> <span class="n">this</span> <span class="n">point</span>
+<span class="o">//</span> <span class="n">div</span> <span class="k">for</span> <span class="nb">complex</span> <span class="nb">type</span> <span class="n">need</span> <span class="n">libm</span><span class="p">:</span> <span class="n">fabs</span><span class="p">,</span> <span class="n">isinf</span><span class="p">,</span> <span class="o">...</span><span class="p">,</span> <span class="n">skip</span> <span class="n">it</span> <span class="n">at</span> <span class="n">this</span> <span class="n">point</span>
 <span class="c1">#ifdef HAS_COMPLEX</span>
 <span class="n">extern</span> <span class="s2">&quot;C&quot;</span> <span class="nb">int</span> <span class="n">divdc3_test</span><span class="p">();</span>
 <span class="c1">#endif</span>
@@ -1882,28 +1887,40 @@ include Common.mk
 </pre></div>
 </div>
 <dl class="footnote brackets">
-<dt class="label" id="gnu"><span class="brackets"><a class="fn-backref" href="#id2">1</a></span></dt>
-<dd><p><a class="reference external" href="https://en.wikipedia.org/wiki/GNU_Compiler_Collection#cite_note-55">https://en.wikipedia.org/wiki/GNU_Compiler_Collection#cite_note-55</a></p>
-</dd>
-<dt class="label" id="toolchain"><span class="brackets"><a class="fn-backref" href="#id1">2</a></span></dt>
-<dd><p>page 8 - 9 of  <a class="reference external" href="https://archive.fosdem.org/2018/schedule/event/crosscompile/attachments/slides/2107/export/events/attachments/crosscompile/slides/2107/How_to_cross_compile_with_LLVM_based_tools.pdf">https://archive.fosdem.org/2018/schedule/event/crosscompile/attachments/slides/2107/export/events/attachments/crosscompile/slides/2107/How_to_cross_compile_with_LLVM_based_tools.pdf</a></p>
-</dd>
-<dt class="label" id="libgcc"><span class="brackets"><a class="fn-backref" href="#id3">3</a></span></dt>
-<dd><p><a class="reference external" href="https://gcc.gnu.org/onlinedocs/gccint/Libgcc.html">https://gcc.gnu.org/onlinedocs/gccint/Libgcc.html</a></p>
-</dd>
-<dt class="label" id="soft-float-lib"><span class="brackets"><a class="fn-backref" href="#id4">4</a></span></dt>
+<dt class="label" id="soft-float-lib"><span class="brackets">1</span></dt>
 <dd><p><a class="reference external" href="https://gcc.gnu.org/onlinedocs/gccint/Soft-float-library-routines.html#Soft-float-library-routines">https://gcc.gnu.org/onlinedocs/gccint/Soft-float-library-routines.html#Soft-float-library-routines</a></p>
 </dd>
-<dt class="label" id="id10"><span class="brackets">5</span><span class="fn-backref">(<a href="#id5">1</a>,<a href="#id9">2</a>)</span></dt>
+<dt class="label" id="id13"><span class="brackets">2</span><span class="fn-backref">(<a href="#id1">1</a>,<a href="#id12">2</a>)</span></dt>
 <dd><p><a class="reference external" href="http://compiler-rt.llvm.org/">http://compiler-rt.llvm.org/</a></p>
 </dd>
-<dt class="label" id="math"><span class="brackets"><a class="fn-backref" href="#id6">6</a></span></dt>
+<dt class="label" id="builtins-readme"><span class="brackets"><a class="fn-backref" href="#id2">3</a></span></dt>
+<dd><p><a class="reference external" href="https://github.com/llvm-mirror/compiler-rt/blob/master/lib/builtins/README.txt">https://github.com/llvm-mirror/compiler-rt/blob/master/lib/builtins/README.txt</a></p>
+</dd>
+<dt class="label" id="builtins-int-math"><span class="brackets"><a class="fn-backref" href="#id3">4</a></span></dt>
+<dd><p><a class="reference external" href="https://github.com/microsoft/compiler-rt/blob/master/lib/builtins/int_math.h">https://github.com/microsoft/compiler-rt/blob/master/lib/builtins/int_math.h</a></p>
+</dd>
+<dt class="label" id="newlib"><span class="brackets"><a class="fn-backref" href="#id4">5</a></span></dt>
+<dd><p><a class="reference external" href="https://sourceware.org/newlib/">https://sourceware.org/newlib/</a></p>
+</dd>
+<dt class="label" id="newlib-libm"><span class="brackets"><a class="fn-backref" href="#id5">6</a></span></dt>
+<dd><p><a class="reference external" href="https://sourceware.org/newlib/libm.html">https://sourceware.org/newlib/libm.html</a></p>
+</dd>
+<dt class="label" id="lib-gcc"><span class="brackets"><a class="fn-backref" href="#id6">7</a></span></dt>
+<dd><p><a class="reference external" href="https://gcc.gnu.org/onlinedocs/gccint/Libgcc.html">https://gcc.gnu.org/onlinedocs/gccint/Libgcc.html</a></p>
+</dd>
+<dt class="label" id="int-lib"><span class="brackets"><a class="fn-backref" href="#id7">8</a></span></dt>
+<dd><p><a class="reference external" href="https://gcc.gnu.org/onlinedocs/gccint/Integer-library-routines.html#Integer-library-routines">https://gcc.gnu.org/onlinedocs/gccint/Integer-library-routines.html#Integer-library-routines</a></p>
+</dd>
+<dt class="label" id="sw-float-lib"><span class="brackets"><a class="fn-backref" href="#id8">9</a></span></dt>
+<dd><p><a class="reference external" href="https://gcc.gnu.org/onlinedocs/gccint/Soft-float-library-routines.html#Soft-float-library-routines">https://gcc.gnu.org/onlinedocs/gccint/Soft-float-library-routines.html#Soft-float-library-routines</a></p>
+</dd>
+<dt class="label" id="math"><span class="brackets"><a class="fn-backref" href="#id9">10</a></span></dt>
 <dd><p><a class="reference external" href="https://www.programiz.com/c-programming/library-function/math.h">https://www.programiz.com/c-programming/library-function/math.h</a></p>
 </dd>
-<dt class="label" id="clib"><span class="brackets"><a class="fn-backref" href="#id7">7</a></span></dt>
+<dt class="label" id="clib"><span class="brackets"><a class="fn-backref" href="#id10">11</a></span></dt>
 <dd><p><a class="reference external" href="https://www.cplusplus.com/reference/clibrary">https://www.cplusplus.com/reference/clibrary</a></p>
 </dd>
-<dt class="label" id="printf-stdarg"><span class="brackets"><a class="fn-backref" href="#id8">8</a></span></dt>
+<dt class="label" id="printf-stdarg"><span class="brackets"><a class="fn-backref" href="#id11">12</a></span></dt>
 <dd><p><a class="reference external" href="https://github.com/atgreen/FreeRTOS/blob/master/Demo/CORTEX_STM32F103_Primer_GCC/printf-stdarg.c">https://github.com/atgreen/FreeRTOS/blob/master/Demo/CORTEX_STM32F103_Primer_GCC/printf-stdarg.c</a></p>
 </dd>
 </dl>
