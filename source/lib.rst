@@ -26,26 +26,42 @@ empty include-files in exlbt/include.
 Compiler-rt
 -------------
 
-.. table:: Toolchain components [#toolchain]_
-
-  ==============  ==========================  =============
-  Component       LLVM                        GNU [#gnu]_
-  ==============  ==========================  =============
-  C/C++ Compiler  clang/llvm                  gcc
-  Assembler       llvm integrated assembler   as
-  Linker          ld.lld                      ld.bfd ld.gold
-  Runtime         compiler-rt                 libgcc [#libgcc]_
-  Unwinder        libunwind                   libgcc_s
-  C++ library     libc++abi, libc++           libsupc++ libstdc++
-  Utils           llvm-ar, llvm-objdump etc.  ar, objdump etc.
-  C library                  -                libc
-  ==============  ==========================  =============
-
-The libgcc's soft float library is here [#soft-float-lib]_ .
 Compiler-rt is a project with runtime libraries implentation [#compiler-rt]_ .
 Compiler-rt/lib/builtins provides functions for basic operations such as +, -, 
 \*, /, ... on type of float or double and for conversion between float and 
-integer. Though the 'rt' means RunTime libaraies, most of these functions 
+integer, or on type of over 32-bit. The compier-rt/lib/builtins/README.txt 
+[#builtins-README]_ includes the dependent functions the whole builtins called.
+The dependent functions is a small part of libm listed in 
+compier-rt/lib/builtins/int_math.h [#builtins-int_math]_ .
+
+.. table:: compiler-rt builtins dependences on newlib/libm (open source libc for bare metal) 
+
+  ==============  ========================== 
+  library         functions
+  ==============  ==========================
+  ported already  abort
+  libm/common     finite, isinf
+  libm/math       copysign, fabs, fmax, log, scalbn
+  ==============  ==========================
+
+- fabs (may includes fabsf, fabsl).
+
+- Only type of complex need above, others (float and double) depend on abort() 
+  only which I ported in lbt/exlbt/libsoftfloat/compiler-rt/cpu0/abort.c.
+
+- All test cases in compiler-rt/test/builtins/Unit depend on 
+  printf(%lld or %llX, ...), I ported from 
+  compiler-rt/lib/sanitizer_common/sanitizer_printf.cpp to 
+  lbt/exlbt/input/sanitizer_printf.cpp.
+
+- Next step is to porting these dependent functions from newlib/libm.
+
+Web of newlib is here [#newlib]_ and newlib/libm here [#newlib-libm]_ .
+
+The libgcc's Integer plus Soft float library  [#lib-gcc]_ [#int-lib]_ 
+[#sw-float-lib]_ are equal to functions of compiler-rt's builtins.
+
+Though the 'rt' means RunTime libaraies, most of these functions 
 written in target-independent C form and can be compiled and static-linked
 into target. When you compile the following c code, llc generates 
 **jsub __addsf3** to call compiler-rt float function since Cpu0 hasn't hardware
@@ -57,14 +73,16 @@ as a function call for float-add instruction.
 
 .. code-block:: console
 
-  chungshu@ChungShudeMacBook-Air input % clang -target mips-unknown-linux-gnu -S ch_call_compilerrt_func.c -emit-llvm -o ch_call_compilerrt_func.ll
+  chungshu@ChungShudeMacBook-Air input % clang -target mips-unknown-linux-gnu -S 
+  ch_call_compilerrt_func.c -emit-llvm
   chungshu@ChungShudeMacBook-Air input % cat ch_call_compilerrt_func.ll
     ...
     %4 = load float, float* %1, align 4
     %5 = load float, float* %2, align 4
     %6 = fadd float %4, %5
 
-  chungshu@ChungShudeMacBook-Air input % ~/llvm/test/build/bin/llc -march=cpu0 -mcpu=cpu032II -relocation-model=static -filetype=asm ch_call_compilerrt_func.ll -o -
+  chungshu@ChungShudeMacBook-Air input % ~/llvm/test/build/bin/llc -march=cpu0 
+  -mcpu=cpu032II -relocation-model=static -filetype=asm ch_call_compilerrt_func.ll -o -
 	...
 	ld	$4, 20($fp)
 	ld	$5, 16($fp)
@@ -158,8 +176,7 @@ The following ch_float.cpp test the float lib.
 
   chungshu@ChungShudeMacBook-Air verilog % iverilog -o cpu0IIs cpu0IIs.v 
   chungshu@ChungShudeMacBook-Air verilog % ./cpu0IIs
-  WARNING: cpu0.v:489: $readmemh(cpu0.hex): Not enough words in the file for the requested range [0:524287].
-  taskInterrupt(001)
+  ...
   test_longlong_shift1() = 289
   test_longlong_shift2() = 22
   test_shift_left<long long>(0x12, 4LL) = 288
@@ -174,7 +191,8 @@ The following ch_float.cpp test the float lib.
   (int)test_mul<double, float, double>(-2.2, 3.3) = -7
   (int)test_mul<float, float, double>(-2.2, 3.3) = -7
   (int)test_div<double, double, double>(-1.8, 0.5) = -3
-  total cpu cycles = 240170              
+  test_div<long long, long long, long long>(-10LL, 4LL) = -2
+  ...             
   RET to PC < 0, finished!
 
 
@@ -307,15 +325,23 @@ Run as follows,
   RET to PC < 0, finished!
 
 
-.. [#gnu] https://en.wikipedia.org/wiki/GNU_Compiler_Collection#cite_note-55
-
-.. [#toolchain] page 8 - 9 of  https://archive.fosdem.org/2018/schedule/event/crosscompile/attachments/slides/2107/export/events/attachments/crosscompile/slides/2107/How_to_cross_compile_with_LLVM_based_tools.pdf
-
-.. [#libgcc] https://gcc.gnu.org/onlinedocs/gccint/Libgcc.html
-
 .. [#soft-float-lib] https://gcc.gnu.org/onlinedocs/gccint/Soft-float-library-routines.html#Soft-float-library-routines
 
 .. [#compiler-rt] http://compiler-rt.llvm.org/
+
+.. [#builtins-README] https://github.com/llvm-mirror/compiler-rt/blob/master/lib/builtins/README.txt
+
+.. [#builtins-int_math] https://github.com/microsoft/compiler-rt/blob/master/lib/builtins/int_math.h
+
+.. [#newlib] https://sourceware.org/newlib/
+
+.. [#newlib-libm] https://sourceware.org/newlib/libm.html
+
+.. [#lib-gcc] https://gcc.gnu.org/onlinedocs/gccint/Libgcc.html
+
+.. [#int-lib] https://gcc.gnu.org/onlinedocs/gccint/Integer-library-routines.html#Integer-library-routines
+
+.. [#sw-float-lib] https://gcc.gnu.org/onlinedocs/gccint/Soft-float-library-routines.html#Soft-float-library-routines
 
 .. [#math] https://www.programiz.com/c-programming/library-function/math.h
 

@@ -39,7 +39,7 @@ extern "C" int ctzdi2_test();
 extern "C" int ctzsi2_test();
 extern "C" int ctzti2_test();
 
-// div for complex type need libm: cabs, isinf, ..., skip it at this point
+// div for complex type need libm: fabs, isinf, ..., skip it at this point
 #ifdef HAS_COMPLEX
 extern "C" int divdc3_test();
 #endif

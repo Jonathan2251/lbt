@@ -134,17 +134,39 @@ part.
 The Cpu0 llvm backend can be find on 
 http://jonathan2251.github.io/lbd/index.html.
 
+.. table:: Toolchain components [#toolchain]_
+
+  ==============  ==========================  =============
+  Component       LLVM                        GNU [#gnu]_
+  ==============  ==========================  =============
+  C/C++ Compiler  clang/llvm                  gcc
+  Assembler       llvm integrated assembler   as
+  Linker          ld.lld                      ld.bfd ld.gold
+  Runtime         compiler-rt                 libgcc [#libgcc]_
+  Unwinder        libunwind                   libgcc_s
+  C++ library     libc++abi, libc++           libsupc++ libstdc++
+  Utils           llvm-ar, llvm-objdump etc.  ar, objdump etc.
+  C library                  -                libc
+  ==============  ==========================  =============
+
+The libgcc's Integer plus Soft float library [#libgcc]_ [#integer-lib]_ 
+[#soft-float-lib]_ are equal to functions of compiler-rt's builtins.
+
 This book include:
 
-1. The elf2hex extended from llvm-objump. Chapter 2.
-2. Optimization. Chapter 3.
-3. Porting C standard library from avr libc and software floating point library
+1. Add Cpu0 target to clang.
+2. The elf2hex extended from llvm-objump. Chapter 3.
+3. Optimization. Chapter 4.
+4. Porting C standard library from avr libc and software floating point library
    from LLVM compiler-rt.
-4. Add Cpu0 target to clang.
 
 With these implementation, reader can generate Cpu0 machine code through Cpu0 
 llvm backend compiler, linker and elf2hex, then see how it runs on your 
 computer. 
+
+:ref:`sec-clang`:
+
+Add Cpu0 target to clang.
 
 :ref:`sec-lld`:
 
@@ -158,6 +180,14 @@ Backend independent optimaization.
 
 Software floating point library and standard C library supporting. Under working.
 
-:ref:`sec-clang`:
 
-Add Cpu0 target to clang.
+
+.. [#gnu] https://en.wikipedia.org/wiki/GNU_Compiler_Collection#cite_note-55
+
+.. [#toolchain] page 8 - 9 of  https://archive.fosdem.org/2018/schedule/event/crosscompile/attachments/slides/2107/export/events/attachments/crosscompile/slides/2107/How_to_cross_compile_with_LLVM_based_tools.pdf
+
+.. [#libgcc] https://gcc.gnu.org/onlinedocs/gccint/Libgcc.html
+
+.. [#integer-lib] https://gcc.gnu.org/onlinedocs/gccint/Integer-library-routines.html#Integer-library-routines
+
+.. [#soft-float-lib] https://gcc.gnu.org/onlinedocs/gccint/Soft-float-library-routines.html#Soft-float-library-routines

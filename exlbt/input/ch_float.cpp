@@ -1,6 +1,6 @@
-// clang -I../libsoftfloat/compiler-rt/builtins -I../../lbdex/input -c ch_float_necessary.cpp -emit-llvm -o ch_float_necessary.bc
-// ~/llvm/test/build/bin/llc -march=cpu0 -mcpu=cpu032II -relocation-model=static -filetype=asm ch_float_necessary.bc -o -
-// ~/llvm/test/build/bin/llc -march=cpu0 -mcpu=cpu032II -cpu0-s32-calls=true -relocation-model=static -filetype=asm ch_float_necessary.bc -o -
+// clang -I../libsoftfloat/compiler-rt/builtins -I../../lbdex/input -S ch_float.cpp -emit-llvm
+// ~/llvm/test/build/bin/llc -march=cpu0 -mcpu=cpu032II -relocation-model=static -filetype=asm ch_float.ll
+// ~/llvm/test/build/bin/llc -march=cpu0 -mcpu=cpu032II -cpu0-s32-calls=true -relocation-model=static -filetype=asm ch_float.ll
 
 
 /// start
@@ -122,6 +122,21 @@ int main() {
 // call __divdf3, __fixdfsi
   c = (int)test_div<double, double, double>(-1.8, 0.5); // (int)-3.6 = -3
   check_result("(int)test_div<double, double, double>(-1.8, 0.5)", c, -3);
+
+#if 0 // these three do call builtins  
+  c = (int)test_mul<int, int, int>(-2, 3); // -6
+  check_result("(int)test_mul<int, int, int>(-2, 3)", c, -6);
+  
+  c = (int)test_div<int, int, int>(-10, 4); // -2 <- -2*4+2, quotient:-2, remainder:2 (remainder < 4:divident)
+  check_result("(int)test_div<int, int, int>(-10, 4)", c, -3);
+  
+  a = test_mul<long long, long long, long long>(-2LL, 3LL); // -6LL
+  check_result("test_mul<long long, long long, long long>(-2LL, 3LL)", a, -6LL);
+#endif
+
+// call __divdi3,
+  a = test_div<long long, long long, long long>(-10LL, 4LL); // -3
+  check_result("test_div<long long, long long, long long>(-10LL, 4LL)", a, -2LL);
   
   return 0;
 }
