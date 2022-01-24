@@ -95,8 +95,8 @@ Libm provides a lots of functions to support software floating point beyond
 basic operations [#math]_ .
 Libc provides file, high-level IO functions and basic float functions [#clib]_ .
 
-Cpu0 hires Compiler-rt/lib/builtins and the tiny single module printf-stdarg.c 
-[#printf-stdarg]_ at this point.
+Cpu0 hires Compiler-rt/lib/builtins and 
+compiler-rt/lib/sanitizer_common/sanitizer_printf.cpp at this point.
 Directory exlib/libsoftfloat/compiler-rt-12.x/builtins is a symbolic link to 
 llvm-project/compiler-rt/lib/builtins which is the floating point library from
 compiler-rt [#compiler-rt]_. The compiler-rt/lib/builtins is a 
@@ -346,5 +346,3 @@ Run as follows,
 .. [#math] https://www.programiz.com/c-programming/library-function/math.h
 
 .. [#clib] https://www.cplusplus.com/reference/clibrary
-
-.. [#printf-stdarg] https://github.com/atgreen/FreeRTOS/blob/master/Demo/CORTEX_STM32F103_Primer_GCC/printf-stdarg.c
