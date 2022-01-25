@@ -1,3 +1,5 @@
+#ifndef _IEEEFP_H_
+#define _IEEEFP_H_
 
 //#include "cpu0-cfg.h"
 
@@ -518,3 +520,4 @@
 #endif /* not __IEEE_LITTLE_ENDIAN */
 #endif /* not __IEEE_BIG_ENDIAN */
 
+#endif

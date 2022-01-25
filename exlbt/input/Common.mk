@@ -25,7 +25,7 @@ INC_FLAGS := $(addprefix -I,$(INC_DIRS))
 # These files will have .d instead of .o as the output.
 # fintegrated-as: for asm code in C/C++
 CPPFLAGS := -MMD -MP -target cpu0${ENDIAN}-unknown-linux-gnu -static \
-  -fintegrated-as ${INC_FLAGS} -mcpu=${CPU} -mllvm -has-lld=true
+  -fintegrated-as ${INC_FLAGS} -mcpu=${CPU} -mllvm -has-lld=true -DHAS_COMPLEX
 
 LLFLAGS := -march=cpu0${ENDIAN} -mcpu=${CPU} -relocation-model=static \
   -filetype=obj -has-lld=true
@@ -37,7 +37,12 @@ $(TARGET): $(OBJS) $(LIBS)
 	$(LD) -o $@ $(OBJS) $(LIBS)
 
 $(LIBS):
+ifdef LIBFLOAT_DIR
 	$(MAKE) -C $(LIBFLOAT_DIR) 
+endif
+ifdef LIBM_DIR
+	$(MAKE) -C $(LIBM_DIR) 
+endif
 
 # Build step for C source
 $(BUILD_DIR)/%.c.o: %.c
@@ -57,6 +62,9 @@ clean:
 	rm -rf $(BUILD_DIR)
 ifdef LIBFLOAT_DIR
 	cd $(LIBFLOAT_DIR) && $(MAKE) -f Makefile clean
+endif
+ifdef LIBM_DIR
+	cd $(LIBM_DIR) && $(MAKE) -f Makefile clean
 endif
 
 # Include the .d makefiles. The - at the f.cnt suppresses the er.crs.cf missing

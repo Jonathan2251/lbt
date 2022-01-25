@@ -1,3 +1,5 @@
+#ifndef _FDLIBM_H_
+#define _FDLIBM_H_
 
 /* @(#)fdlibm.h 5.1 93/09/24 */
 /*
@@ -426,3 +428,4 @@ typedef union {
 
 #endif  /* _COMPLEX_H */
 
+#endif

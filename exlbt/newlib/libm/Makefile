@@ -17,20 +17,25 @@ GENERIC_SOURCES := \
   common/s_finite.c \
   common/sf_finite.c \
   common/s_isinf.c \
-  common/sf_isinf.c
+  common/sf_isinf.c \
+  common/s_isnan.c \
+  common/sf_isnan.c \
+  complex/cabs.c \
+  mathfp/w_cabs.c \
+  mathfp/wf_cabs.c
 
 SRCS := $(GENERIC_SOURCES)
 
 # String substitution for every C file.
-# As an example, absvdi2.c turns into ./builtins/absvdi2.c
-SRCS := $(SRCS:%=$(SRC_DIR)/%) cpu0/abort.c
+# As an example, hello.c turns into ./hello.c
+SRCS := $(SRCS:%=$(SRC_DIR)/%)
 
 # String substitution for every C/C++ file.
-# As an example, absvdi2.c turns into ./build/absvdi2.c.o
+# As an example, hello.c turns into ./build/hello.c.o
 OBJS := $(SRCS:%=$(BUILD_DIR)/%.o)
 
 # String substitution (suffix version without %).
-# As an example, ./build/absvdi2.c.o turns into ./build/absvdi2.c.d
+# As an example, ./build/hello.c.o turns into ./build/hello.c.d
 DEPS := $(OBJS:.o=.d)
 
 # Every folder in ./src will need to be passed to GCC so that it can find header files

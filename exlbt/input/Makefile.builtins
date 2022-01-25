@@ -137,6 +137,7 @@ SRCS :=  start.cpp debug.cpp sanitizer_printf.cpp printf-stdarg-def.c \
   ch_builtins.cpp lib_cpu0.ll
 INC_DIRS := ./ ../../lbdex/input ../libsoftfloat/compiler-rt/builtins ../include
 LIBFLOAT_DIR := ../libsoftfloat/compiler-rt
-LIBS := $(LIBFLOAT_DIR)/build/libFloat.a 
+LIBM_DIR := ../newlib/libm
+LIBS := $(LIBFLOAT_DIR)/build/libFloat.a $(LIBM_DIR)/build/libm.a
 
 include Common.mk
