@@ -1,7 +1,7 @@
 #ifndef _IEEEFP_H_
 #define _IEEEFP_H_
 
-//#include "cpu0-cfg.h"
+#include "cpu0-cfg.h"
 
 #ifndef __IEEE_BIG_ENDIAN
 #ifndef __IEEE_LITTLE_ENDIAN
@@ -255,10 +255,12 @@
 #endif
 
 #ifdef __CPU0EL__
+#undef __IEEE_BIG_ENDIAN
 #define __IEEE_LITTLE_ENDIAN
 #endif
 #ifdef __CPU0EB__
 #define __IEEE_BIG_ENDIAN
+#undef __IEEE_LITTLE_ENDIAN
 #endif
 
 #ifdef __MMIX__

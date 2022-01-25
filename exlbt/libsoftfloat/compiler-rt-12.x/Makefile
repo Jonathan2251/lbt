@@ -42,6 +42,8 @@ GENERIC_SOURCES := \
   divdc3.c \
   divdf3.c \
   divdi3.c \
+  divsc3.c \
+  divtc3.c \
   divmoddi4.c \
   divmodsi4.c \
   divmodti4.c \
@@ -49,6 +51,7 @@ GENERIC_SOURCES := \
   divsf3.c \
   divsi3.c \
   divti3.c \
+  divxc3.c \
   extendsfdf2.c \
   extendhfsf2.c \
   ffsdi2.c \
@@ -97,6 +100,7 @@ GENERIC_SOURCES := \
   mulvdi3.c \
   mulvsi3.c \
   mulvti3.c \
+  mulxc3.c \
   negdf2.c \
   negdi2.c \
   negsf2.c \

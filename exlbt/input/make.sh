@@ -47,11 +47,11 @@ prologue() {
     ENDIAN=el
   fi
   echo "ENDIAN =" "${ENDIAN}"
-  if [ $ENDIAN == "" ]; then
-    echo "#define __CPU0EB__" &> ../newlib/libc/include/machine/cpu0-cfg.h
-  else
-    echo "#define __CPU0EL__" &> ../newlib/libc/include/machine/cpu0-cfg.h
-  fi
+#  if [ $ENDIAN == "" ]; then
+#    echo "#define __CPU0EB__" &> ../newlib/libc/include/machine/cpu0-cfg.h
+#  else
+#    echo "#define __CPU0EL__" &> ../newlib/libc/include/machine/cpu0-cfg.h
+#  fi
 
   bash clean.sh
   builtins="../libsoftfloat/compiler-rt/builtins"

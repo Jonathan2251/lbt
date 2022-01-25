@@ -14,13 +14,28 @@ AR := $(TOOLDIR)/llvm-ar
 
 # copy GENERIC_SOURCES from compiler-rt/lib/builtin/CMakeLists.txt
 GENERIC_SOURCES := \
+  common/logbl.c \
+  common/scalbnl.c \
+  common/sf_fpclassify.c \
   common/s_finite.c \
   common/sf_finite.c \
   common/s_isinf.c \
   common/sf_isinf.c \
   common/s_isnan.c \
   common/sf_isnan.c \
+  common/s_fmax.c \
+  common/sf_fmax.c \
+  common/s_logb.c \
+  common/sf_logb.c \
+  common/s_scalbn.c \
+  common/sf_scalbn.c \
+  common/s_fpclassify.c \
   complex/cabs.c \
+  complex/cabsl.c \
+  math/ef_hypot.c \
+  math/e_hypot.c \
+  mathfp/s_sqrt.c \
+  mathfp/sf_sqrt.c \
   mathfp/w_cabs.c \
   mathfp/wf_cabs.c
 

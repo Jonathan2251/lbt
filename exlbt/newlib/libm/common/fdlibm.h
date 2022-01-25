@@ -13,14 +13,18 @@
  * ====================================================
  */
 
+#include "cpu0-cfg.h"
+
 /* REDHAT LOCAL: Include files.  */
-//#include <math.h>
+#include <math.h>
 //#include <sys/types.h>
 
 #include <machine/ieeefp.h>
 
 #if 0
 #include "math_config.h"
+#endif // #if 0
+
 
 /* Most routines need to check whether a float is finite, infinite, or not a
    number, and many need to know whether the result of an operation will
@@ -260,8 +264,6 @@ extern int   __kernel_rem_pio2f __P((float*,float*,int,int,int,const __int32_t*)
    Unlike the original code, we determine the endianness at compile
    time, not at run time; I don't see much benefit to selecting
    endianness at run time.  */
-
-#endif // #if 0
 
 #define __int32_t int
 #define __uint32_t unsigned int
