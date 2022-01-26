@@ -184,7 +184,6 @@ void show_result(const char *fn, int res) {
 int main() {
   int res = 0;
 
-#if 0
   res = absvdi2_test();
   show_result("absvdi2_test()", res);
 
@@ -273,12 +272,9 @@ int main() {
 
   res = ctzti2_test();
   show_result("ctzti2_test()", res);
-#endif
 
 #ifdef HAS_COMPLEX
-  ENABLE_TRACE
   res = divdc3_test();
-  DISABLE_TRACE
   show_result("divdc3_test()", res);
 #endif
 

@@ -189,6 +189,20 @@ int test__multc3(long double a, long double b, long double c, long double d)
     return 0;
 }
 
+#if 1
+long double x[][2] =
+{
+    { 1.e-6,  1.e-6},
+    {-1.e+6,  1.e-6},
+    {NAN, NAN},
+    {-0.5, NAN},
+    {INFINITY, NAN},
+    {NAN, 0.},
+    {-INFINITY, 0.},
+    {INFINITY, INFINITY}
+};
+
+#else
 long double x[][2] =
 {
     { 1.e-6,  1.e-6},
@@ -344,6 +358,7 @@ long double x[][2] =
     {INFINITY, INFINITY}
 
 };
+#endif
 
 #endif
 

@@ -187,6 +187,23 @@ int test__muldc3(double a, double b, double c, double d)
     return 0;
 }
 
+#if 1
+static double x[][2] =
+{
+#if 1 // reduce test time
+    { 1.e-6,  1.e-6},
+    {-1.e+6,  1.e-6},
+    {NAN, NAN},
+    {-0.5, NAN},
+#else
+    {INFINITY, NAN},
+    {NAN, 0.},
+    {-INFINITY, 0.},
+    {INFINITY, INFINITY}
+#endif
+};
+
+#else
 static double x[][2] =
 {
     { 1.e-6,  1.e-6},
@@ -342,6 +359,7 @@ static double x[][2] =
     {INFINITY, INFINITY}
 
 };
+#endif
 
 int muldc3_test()
 {

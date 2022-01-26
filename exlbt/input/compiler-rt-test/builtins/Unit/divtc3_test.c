@@ -198,6 +198,23 @@ int test__divtc3(long double a, long double b, long double c, long double d)
     return 0;
 }
 
+#if 1
+static long double x[][2] =
+{
+#if 1 // reduce test time
+    { 1.e-6,  1.e-6},
+    {-1.e+6,  1.e-6},
+    {NAN, NAN},
+    {-0.5, NAN},
+#else
+    {INFINITY, NAN},
+    {NAN, 0.},
+    {-INFINITY, 0.},
+    {INFINITY, INFINITY}
+#endif
+};
+
+#else
 static long double x[][2] =
 {
     { 1.e-6,  1.e-6},
@@ -353,6 +370,7 @@ static long double x[][2] =
     {INFINITY, INFINITY}
 
 };
+#endif
 
 int divtc3_test()
 {

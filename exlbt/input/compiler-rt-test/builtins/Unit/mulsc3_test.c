@@ -192,6 +192,23 @@ int test__mulsc3(float a, float b, float c, float d)
     return 0;
 }
 
+#if 1
+static long x[][2] =
+{
+#if 0 // reduce test time
+    { 1.e-6,  1.e-6},
+    {-1.e+6,  1.e-6},
+    {NAN, NAN},
+    {-0.5, NAN},
+#else
+    {INFINITY, NAN},
+    {NAN, 0.},
+    {-INFINITY, 0.},
+    {INFINITY, INFINITY}
+#endif
+};
+
+#else
 static float x[][2] =
 {
     { 1.e-6,  1.e-6},
@@ -347,6 +364,7 @@ static float x[][2] =
     {INFINITY, INFINITY}
 
 };
+#endif
 
 int mulsc3_test()
 {
