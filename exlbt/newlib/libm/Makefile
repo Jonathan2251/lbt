@@ -14,6 +14,7 @@ AR := $(TOOLDIR)/llvm-ar
 
 # copy GENERIC_SOURCES from compiler-rt/lib/builtin/CMakeLists.txt
 GENERIC_SOURCES := \
+  libc-errno/errno.c \
   common/logbl.c \
   common/scalbnl.c \
   common/sf_fpclassify.c \
@@ -34,6 +35,15 @@ GENERIC_SOURCES := \
   complex/cabsl.c \
   math/ef_hypot.c \
   math/e_hypot.c \
+  mathfp/s_frexp.c \
+  mathfp/sf_frexp.c \
+  mathfp/s_ispos.c \
+  mathfp/sf_ispos.c \
+  mathfp/s_ldexp.c \
+  mathfp/sf_ldexp.c \
+  mathfp/s_mathcnst.c \
+  mathfp/s_numtest.c \
+  mathfp/sf_numtest.c \
   mathfp/s_sqrt.c \
   mathfp/sf_sqrt.c \
   mathfp/w_cabs.c \

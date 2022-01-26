@@ -2,8 +2,10 @@
 #define __ZMATH_H
 
 //#include <errno.h>
-#define errno (*__errno())
-extern int *__errno (void);
+//#define errno (*__errno())
+//extern int *__errno (void);
+extern int errno;
+
 #define EDOM 33         /* Mathematics argument out of domain of function */
 #define ERANGE 34       /* Result too large */
 
