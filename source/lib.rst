@@ -29,7 +29,7 @@ Compiler-rt
 Compiler-rt is a project with runtime libraries implentation [#compiler-rt]_ .
 Compiler-rt/lib/builtins provides functions for basic operations such as +, -, 
 \*, /, ... on type of float or double and for conversion between float and 
-integer, or on type of over 32-bit. The compier-rt/lib/builtins/README.txt 
+integer, or on type of over 32-bit. The compiler-rt/lib/builtins/README.txt 
 [#builtins-README]_ includes the dependent functions the whole builtins called.
 The dependent functions is a small part of libm listed in 
 compier-rt/lib/builtins/int_math.h [#builtins-int_math]_ .
@@ -40,8 +40,10 @@ compier-rt/lib/builtins/int_math.h [#builtins-int_math]_ .
   library         functions
   ==============  ==========================
   ported already  abort
-  libm/common     finite, isinf
-  libm/math       copysign, fabs, fmax, log, scalbn
+  libm/common     finite, isinf, isnan
+  libm/complex    cabs
+  libm/math       copysign, fcabs, fmax, log, scalbn
+  libm/mathfp     cabs
   ==============  ==========================
 
 - fabs (may includes fabsf, fabsl).
@@ -54,7 +56,7 @@ compier-rt/lib/builtins/int_math.h [#builtins-int_math]_ .
   compiler-rt/lib/sanitizer_common/sanitizer_printf.cpp to 
   lbt/exlbt/input/sanitizer_printf.cpp.
 
-- Next step is to porting these dependent functions from newlib/libm.
+- These dependent functions from has bee ported from newlib/libm.
 
 Web of newlib is here [#newlib]_ and newlib/libm here [#newlib-libm]_ .
 
@@ -238,6 +240,7 @@ Run as follows,
   ctzdi2_test(): PASS!
   ctzsi2_test(): PASS!
   ctzti2_test(): SKIPPED!
+  divdc3_test(): PASS!
   divdf3_test(): PASS!
   divdf3vfp_test(): SKIPPED!
   divdi3_test(): PASS!
@@ -246,8 +249,10 @@ Run as follows,
   divsf3_test(): PASS!
   divsf3vfp_test(): SKIPPED!
   divsi3_test(): PASS!
+  divtc3_test(): PASS!
   divtf3_test(): SKIPPED!
   divti3_test(): SKIPPED!
+  divxc3_test(): PASS!
   eqdf2vfp_test(): SKIPPED!
   eqsf2vfp_test(): SKIPPED!
   eqtf2_test(): SKIPPED!
@@ -273,17 +278,21 @@ Run as follows,
   moddi3_test(): PASS!
   modsi3_test(): PASS!
   modti3_test(): SKIPPED!
+  muldc3_test(): PASS!
   muldf3vfp_test(): SKIPPED!
   muldi3_test(): PASS!
   mulodi4_test(): PASS!
   mulosi4_test(): PASS!
   muloti4_test(): SKIPPED!
+  mulsc3_test(): PASS!
   mulsf3vfp_test(): SKIPPED!
+  multc3_test(): SKIPPED!
   multf3_test(): SKIPPED!
   multi3_test(): SKIPPED!
   mulvdi3_test(): PASS!
   mulvsi3_test(): PASS!
   mulvti3_test(): SKIPPED!
+  mulxc3_test(): PASS!
   nedf2vfp_test(): SKIPPED!
   negdf2vfp_test(): SKIPPED!
   negdi2_test(): PASS!
@@ -311,6 +320,7 @@ Run as follows,
   ucmpdi2_test(): PASS!
   ucmpti2_test(): SKIPPED!
   udivdi3_test(): PASS!
+  udivmoddi4_test(): PASS!
   udivmodsi4_test(): PASS!
   udivmodti4_test(): SKIPPED!
   udivsi3_test(): PASS!
