@@ -254,6 +254,9 @@
 #define __IEEE_BIG_ENDIAN
 #endif
 
+// pre-defined compiler macro (from llc -march=cpu0${ENDIAN} or 
+// clang -target cpu0${ENDIAN}-unknown-linux-gnu 
+// http://beefchunk.com/documentation/lang/c/pre-defined-c/prearch.html 
 #ifdef __CPU0EL__
 #undef __IEEE_BIG_ENDIAN
 #define __IEEE_LITTLE_ENDIAN

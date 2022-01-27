@@ -184,6 +184,15 @@ void show_result(const char *fn, int res) {
 int main() {
   int res = 0;
 
+// pre-defined compiler macro (from llc -march=cpu0${ENDIAN} or
+// clang -target cpu0${ENDIAN}-unknown-linux-gnu
+#ifdef __CPU0EB__
+  printf("__CPU0EB__\n");
+#endif
+#ifdef __CPU0EL__
+  printf("__CPU0EL__\n");
+#endif
+
   res = absvdi2_test();
   show_result("absvdi2_test()", res);
 

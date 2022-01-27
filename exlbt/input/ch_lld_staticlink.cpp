@@ -40,6 +40,15 @@ int test_staticlink()
 {
   int a = 0;
 
+// pre-defined compiler macro (from llc -march=cpu0${ENDIAN} or 
+// clang -target cpu0${ENDIAN}-unknown-linux-gnu
+// http://beefchunk.com/documentation/lang/c/pre-defined-c/prearch.html 
+#ifdef __CPU0EB__
+  printf("__CPU0EB__\n");
+#endif
+#ifdef __CPU0EL__
+  printf("__CPU0EL__\n");
+#endif
   a = test_add_overflow();
   a = test_sub_overflow();
   a = test_global();  // gI = 100
