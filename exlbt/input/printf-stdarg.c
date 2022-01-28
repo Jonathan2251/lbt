@@ -46,11 +46,11 @@ static void printchar(char **str, int c)
 
 static int prints(char **out, const char *string, int width, int pad)
 {
-  register int pc = 0, padchar = ' ';
+  int pc = 0, padchar = ' ';
 
   if (width > 0) {
-    register int len = 0;
-    register const char *ptr;
+    int len = 0;
+    const char *ptr;
     for (ptr = string; *ptr; ++ptr) ++len;
     if (len >= width) width = 0;
     else width -= len;
@@ -80,9 +80,9 @@ static int prints(char **out, const char *string, int width, int pad)
 static int printi(char **out, int i, int b, int sg, int width, int pad, int letbase)
 {
   char print_buf[PRINT_BUF_LEN];
-  register char *s;
-  register int t, neg = 0, pc = 0;
-  register unsigned int u = i;
+  char *s;
+  int t, neg = 0, pc = 0;
+  unsigned int u = i;
 
   if (i == 0) {
     print_buf[0] = '0';
@@ -122,8 +122,8 @@ static int printi(char **out, int i, int b, int sg, int width, int pad, int letb
 
 static int print(char **out, const char *format, va_list args )
 {
-  register int width, pad;
-  register int pc = 0;
+  int width, pad;
+  int pc = 0;
   char scr[2];
 
   for (; *format != 0; ++format) {
@@ -147,7 +147,7 @@ static int print(char **out, const char *format, va_list args )
         width += *format - '0';
       }
       if( *format == 's' ) {
-        register char *s = (char *)va_arg( args, int );
+        char *s = (char *)va_arg( args, int );
         pc += prints (out, s?s:"(null)", width, pad);
         continue;
       }
@@ -205,7 +205,7 @@ int sprintf(char *out, const char *format, ...)
 #ifdef TEST_PRINTF
 int main(void)
 {
-  char *ptr = "Hello world!";
+  char ptr[] = "Hello world!";
   char *np = 0;
   int i = 5;
   unsigned int bs = sizeof(int)*8;
@@ -222,7 +222,7 @@ int main(void)
   printf("hex %x = ff\n", 0xff);
   printf("hex %02x = 00\n", 0);
   printf("signed %d = unsigned %u = hex %x\n", -3, -3, -3);
-  printf("%d %s(s)%", 0, "message");
+  printf("%d %s(s)", 0, "message");
   printf("\n");
   printf("%d %s(s) with %%\n", 0, "message");
   sprintf(buf, "justif: \"%-10s\"\n", "left"); printf("%s", buf);

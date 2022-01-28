@@ -124,7 +124,7 @@ Static linker
 Let's run the static linker first and explain it next.
 
 File printf-stdarg.c [#printf-stdarg]_ come from internet download which is 
-GPL2 license. GPL2 `is more restricted than LLVM license. 
+GPL2 license. GPL2 is more restricted than LLVM license. 
 File printf-stdarg-1.c is the file for testing the printf() function which
 implemented on PC OS platform. Let's run printf-stdarg-2.cpp on Cpu0 and
 compare it against the result of PC's printf() as below.

@@ -3,7 +3,7 @@
 
 SRCS := start.cpp debug.cpp printf-stdarg-def.c printf-stdarg-2.cpp lib_cpu0.ll
 INC_DIRS := $(SRC_DIR) ../../lbdex/input
-LIBFLOAT_DIR :=
+LIBBUILTINS_DIR :=
 LIBS :=
 
 include Common.mk

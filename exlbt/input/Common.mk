@@ -30,15 +30,14 @@ CPPFLAGS := -MMD -MP -target cpu0${ENDIAN}-unknown-linux-gnu -static \
 LLFLAGS := -march=cpu0${ENDIAN} -mcpu=${CPU} -relocation-model=static \
   -filetype=obj -has-lld=true
 
-#FIND_LIBFLOAT_DIR := $(shell find . -iname $(LIBFLOAT_DIR))
+#FIND_LIBBUILTINS_DIR := $(shell find . -iname $(LIBBUILTINS_DIR))
 
 $(TARGET): $(OBJS) $(LIBS)
-	echo "LIBFLOAT_DIR: $(LIBFLOAT_DIR), LIBS: $(LIBS)"
 	$(LD) -o $@ $(OBJS) $(LIBS)
 
 $(LIBS):
-ifdef LIBFLOAT_DIR
-	$(MAKE) -C $(LIBFLOAT_DIR) 
+ifdef LIBBUILTINS_DIR
+	$(MAKE) -C $(LIBBUILTINS_DIR) 
 endif
 ifdef LIBM_DIR
 	$(MAKE) -C $(LIBM_DIR) 
@@ -60,8 +59,8 @@ $(BUILD_DIR)/lib_cpu0.ll.o: lib_cpu0.ll
 .PHONY: clean
 clean: 
 	rm -rf $(BUILD_DIR)
-ifdef LIBFLOAT_DIR
-	cd $(LIBFLOAT_DIR) && $(MAKE) -f Makefile clean
+ifdef LIBBUILTINS_DIR
+	cd $(LIBBUILTINS_DIR) && $(MAKE) -f Makefile clean
 endif
 ifdef LIBM_DIR
 	cd $(LIBM_DIR) && $(MAKE) -f Makefile clean

@@ -49,7 +49,7 @@ compier-rt/lib/builtins/int_math.h [#builtins-int_math]_ .
 - fabs (may includes fabsf, fabsl).
 
 - Only type of complex need above, others (float and double) depend on abort() 
-  only which I ported in lbt/exlbt/libsoftfloat/compiler-rt/cpu0/abort.c.
+  only which I ported in lbt/exlbt/compiler-rt/cpu0/abort.c.
 
 - All test cases in compiler-rt/test/builtins/Unit depend on 
   printf(%lld or %llX, ...), I ported from 
@@ -99,9 +99,7 @@ Libc provides file, high-level IO functions and basic float functions [#clib]_ .
 
 Cpu0 hires Compiler-rt/lib/builtins and 
 compiler-rt/lib/sanitizer_common/sanitizer_printf.cpp at this point.
-Directory exlib/libsoftfloat/compiler-rt-12.x/builtins is a symbolic link to 
-llvm-project/compiler-rt/lib/builtins which is the floating point library from
-compiler-rt [#compiler-rt]_. The compiler-rt/lib/builtins is a 
+The compiler-rt/lib/builtins is a 
 target-independent C form of software float library implementation. Cpu0 
 implements compiler-rt-12.x/cpu0/abort.c only at this point for supporting 
 this feature.
@@ -126,8 +124,8 @@ in compiler-rt/lib/builtins.
 .. rubric:: exlbt/include/string.h
 .. literalinclude:: ../exlbt/include/string.h
 
-.. rubric:: exlbt/libsoftfloat/compiler-rt/cpu0/abort.c
-.. literalinclude:: ../exlbt/libsoftfloat/compiler-rt/cpu0/abort.c
+.. rubric:: exlbt/compiler-rt/cpu0/abort.c
+.. literalinclude:: ../exlbt/compiler-rt/cpu0/abort.c
 
 .. rubric:: exlbt/input/sanitizer_internal_defs.h
 .. literalinclude:: ../exlbt/input/sanitizer_internal_defs.h
@@ -157,8 +155,8 @@ in compiler-rt/lib/builtins.
 
 The following ch_float.cpp test the float lib.
 
-.. rubric:: lbt/exlbt/libsoftfloat/compiler-rt-12.x/Makefile
-.. literalinclude:: ../exlbt/libsoftfloat/compiler-rt-12.x/Makefile
+.. rubric:: lbt/exlbt/compiler-rt-12.x/Makefile
+.. literalinclude:: ../exlbt/compiler-rt-12.x/Makefile
 
 .. rubric:: exlbt/input/ch_float.cpp
 .. literalinclude:: ../exlbt/input/ch_float.cpp

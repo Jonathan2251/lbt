@@ -1,11 +1,7 @@
 # Thanks https://makefiletutorial.com
 
 # CPU and endian passed from command line, such as 
-#   "make -f Makefile.float-necessary.mips-clang CPU=cpu032II endian="
-#   Ignore argument and set CPU to cpu032II since software float point library, 
-#   libsoftfloat, only supports cpu032II at this point.
-CPU := cpu032II
-#endian :=
+#   "make -f Makefile.float.mips-clang CPU=cpu032II endian="
 
 TARGET_EXEC := a.out
 BUILD_DIR := ./build
@@ -18,7 +14,7 @@ LLC := $(TOOLDIR)/llc
 AS := $(TOOLDIR)/llvm-as
 LD := $(TOOLDIR)/ld.lld
 
-SRCS := start.cpp debug.cpp printf-stdarg-def.c printf-stdarg.c ch_float_necessary.cpp lib_cpu0.ll
+SRCS := start.cpp debug.cpp printf-stdarg-def.c printf-stdarg.c ch_float.cpp lib_cpu0.ll
 
 # String substitution for every C/C++ file.
 # As an example, hello.cpp turns into ./build/hello.cpp.o
@@ -40,8 +36,8 @@ LLFLAGS := -march=cpu0${endian} -mcpu=${CPU} -relocation-model=static \
   -filetype=obj -has-lld=true
 
 $(TARGET): $(OBJS)
-	cd ../libsoftfloat/compiler-rt && $(MAKE) -f ./Makefile.mips-clang CPU=cpu032II
-	$(LD) -o $@ $(OBJS) ../libsoftfloat/compiler-rt/build/libFloat.a
+	cd ../compiler-rt && $(MAKE) -f ./Makefile.mips-clang
+	$(LD) -o $@ $(OBJS) ../compiler-rt/build/libbuiltins.a
 
 # Build step for C source
 $(BUILD_DIR)/%.c.o: %.c
@@ -61,7 +57,7 @@ $(BUILD_DIR)/lib_cpu0.ll.o: lib_cpu0.ll
 .PHONY: clean
 clean:
 	rm -rf $(BUILD_DIR)
-	$(MAKE) -C ../libsoftfloat/compiler-rt clean
+	$(MAKE) -C ../compiler-rt clean
 
 # Include the .d makefiles. The - at the f.cnt suppresses the er.crs.cf missing
 # Makefiles. Initially, all the .d files will be missing, and we .cn't want t.cse
