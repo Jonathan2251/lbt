@@ -156,8 +156,8 @@ in compiler-rt/lib/builtins.
 
 The following ch_float.cpp test the float lib.
 
-.. rubric:: lbt/exlbt/compiler-rt-12.x/Makefile
-.. literalinclude:: ../exlbt/compiler-rt-12.x/Makefile
+.. rubric:: lbt/exlbt/compiler-rt-12.x/builtins/Makefile
+.. literalinclude:: ../exlbt/compiler-rt-12.x/builtins/Makefile
 
 .. rubric:: exlbt/input/ch_float.cpp
 .. literalinclude:: ../exlbt/input/ch_float.cpp

@@ -134,7 +134,7 @@ part.
 The Cpu0 llvm backend can be find on 
 http://jonathan2251.github.io/lbd/index.html.
 
-.. table:: Toolchain components [#toolchain]_
+.. table:: Toolchain components [#toolchain]_ [#toolchain2]_
 
   ==============  ==========================  =============
   Component       LLVM                        GNU [#gnu]_
@@ -185,6 +185,8 @@ Software floating point library and standard C library supporting. Under working
 .. [#gnu] https://en.wikipedia.org/wiki/GNU_Compiler_Collection#cite_note-55
 
 .. [#toolchain] page 8 - 9 of  https://archive.fosdem.org/2018/schedule/event/crosscompile/attachments/slides/2107/export/events/attachments/crosscompile/slides/2107/How_to_cross_compile_with_LLVM_based_tools.pdf
+
+.. [#toolchain2] https://bcain-llvm.readthedocs.io/projects/clang/en/latest/Toolchain/#compiler-runtime
 
 .. [#libgcc] https://gcc.gnu.org/onlinedocs/gccint/Libgcc.html
 
