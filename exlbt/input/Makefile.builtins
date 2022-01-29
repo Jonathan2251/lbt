@@ -135,7 +135,7 @@ SRCS :=  start.cpp debug.cpp sanitizer_printf.cpp printf-stdarg-def.c \
   ch_builtins.cpp lib_cpu0.ll
 INC_DIRS := ./ ../../lbdex/input ../include \
             $(HOME)/llvm/llvm-project/compiler-rt/lib/builtins
-LIBBUILTINS_DIR := ../compiler-rt
+LIBBUILTINS_DIR := ../compiler-rt/builtins
 LIBM_DIR := ../newlib/libm
 LIBS := $(LIBBUILTINS_DIR)/build/libbuiltins.a $(LIBM_DIR)/build/libm.a
 

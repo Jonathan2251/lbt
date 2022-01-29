@@ -63,7 +63,8 @@ Web of newlib is here [#newlib]_ and newlib/libm here [#newlib-libm]_ .
 The libgcc's Integer plus Soft float library  [#lib-gcc]_ [#int-lib]_ 
 [#sw-float-lib]_ are equal to functions of compiler-rt's builtins.
 
-Though the 'rt' means RunTime libaraies, most of these functions 
+Though the 'rt' means RunTime libaraies, in builtins library, 
+most of these functions 
 written in target-independent C form and can be compiled and static-linked
 into target. When you compile the following c code, llc generates 
 **jsub __addsf3** to call compiler-rt float function since Cpu0 hasn't hardware

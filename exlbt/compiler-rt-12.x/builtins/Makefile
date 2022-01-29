@@ -8,6 +8,8 @@ TARGET := $(BUILD_DIR)/$(TARGET_LIB)
 
 SRC_DIR := $(HOME)/llvm/llvm-project/compiler-rt/lib/builtins
 
+PWD := $(shell pwd)
+
 TOOLDIR := ~/llvm/test/build/bin
 CC := $(TOOLDIR)/clang
 AR := $(TOOLDIR)/llvm-ar
@@ -142,7 +144,7 @@ SRCS := $(GENERIC_SOURCES)
 
 # String substitution for every C file.
 # As an example, absvdi2.c turns into ./builtins/absvdi2.c
-SRCS := $(SRCS:%=$(SRC_DIR)/%) cpu0/abort.c
+SRCS := $(SRCS:%=$(SRC_DIR)/%) $(PWD)/../cpu0/abort.c
 
 # String substitution for every C/C++ file.
 # As an example, absvdi2.c turns into ./build/absvdi2.c.o
@@ -154,7 +156,7 @@ DEPS := $(OBJS:.o=.d)
 
 # Every folder in ./src will need to be passed to GCC so that it can find header files
 # stdlib.h, ..., etc existed in ../../include
-INC_DIRS := $(shell find $(SRC_DIR) -type d)  ../include
+INC_DIRS := $(shell find $(SRC_DIR) -type d)  ../../include
 # Add a prefix to INC_DIRS. So moduleA would become -ImoduleA. GCC understands this -I flag
 INC_FLAGS := $(addprefix -I,$(INC_DIRS))
 
