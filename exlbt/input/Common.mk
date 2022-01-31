@@ -39,6 +39,9 @@ $(LIBS):
 ifdef LIBBUILTINS_DIR
 	$(MAKE) -C $(LIBBUILTINS_DIR) 
 endif
+ifdef LIBSANITIZER_COMMON_DIR
+	$(MAKE) -C $(LIBSANITIZER_COMMON_DIR) 
+endif
 ifdef LIBM_DIR
 	$(MAKE) -C $(LIBM_DIR) 
 endif
@@ -61,6 +64,9 @@ clean:
 	rm -rf $(BUILD_DIR)
 ifdef LIBBUILTINS_DIR
 	cd $(LIBBUILTINS_DIR) && $(MAKE) -f Makefile clean
+endif
+ifdef LIBSANITIZER_COMMON_DIR
+	cd $(LIBSANITIZER_COMMON_DIR) && $(MAKE) -f Makefile clean
 endif
 ifdef LIBM_DIR
 	cd $(LIBM_DIR) && $(MAKE) -f Makefile clean
