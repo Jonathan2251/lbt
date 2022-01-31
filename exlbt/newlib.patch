@@ -1,0 +1,99 @@
+diff --git a/config.sub b/config.sub
+index 63c1f1c8b..575e8d9d7 100755
+--- a/config.sub
++++ b/config.sub
+@@ -1177,6 +1177,7 @@ case $cpu-$vendor in
+ 			| d10v | d30v | dlx | dsp16xx \
+ 			| e2k | elxsi | epiphany \
+ 			| f30[01] | f700 | fido | fr30 | frv | ft32 | fx80 \
++                        | cpu0 \
+ 			| h8300 | h8500 \
+ 			| hppa | hppa1.[01] | hppa2.0 | hppa2.0[nw] | hppa64 \
+ 			| hexagon \
+diff --git a/newlib/configure.host b/newlib/configure.host
+index ca6b46f03..7bbf46f25 100644
+--- a/newlib/configure.host
++++ b/newlib/configure.host
+@@ -176,6 +176,10 @@ case "${host_cpu}" in
+   fr30)
+ 	machine_dir=fr30
+ 	;;
++  cpu0)
++	machine_dir=cpu0
++	newlib_cflags="${newlib_cflags} -DCOMPACT_CTYPE"
++	;;
+   frv)
+ 	machine_dir=frv
+         ;;
+@@ -751,6 +755,9 @@ newlib_cflags="${newlib_cflags} -DCLOCK_PROVIDED -DMALLOC_PROVIDED -DEXIT_PROVID
+   fr30-*-*)
+ 	syscall_dir=syscalls
+ 	;;
++  cpu0-*)
++	syscall_dir=syscalls
++	;;
+   frv-*-*)
+         syscall_dir=syscalls
+ 	default_newlib_io_long_long="yes"
+diff --git a/newlib/libc/include/machine/ieeefp.h b/newlib/libc/include/machine/ieeefp.h
+index 3c1f41e03..5ff57e13a 100644
+--- a/newlib/libc/include/machine/ieeefp.h
++++ b/newlib/libc/include/machine/ieeefp.h
+@@ -249,6 +249,18 @@
+ #define __IEEE_BIG_ENDIAN
+ #endif
+ 
++// pre-defined compiler macro (from llc -march=cpu0${ENDIAN} or 
++// clang -target cpu0${ENDIAN}-unknown-linux-gnu 
++// http://beefchunk.com/documentation/lang/c/pre-defined-c/prearch.html 
++#ifdef __CPU0EL__
++#undef __IEEE_BIG_ENDIAN
++#define __IEEE_LITTLE_ENDIAN
++#endif
++#ifdef __CPU0EB__
++#define __IEEE_BIG_ENDIAN
++#undef __IEEE_LITTLE_ENDIAN
++#endif
++
+ #ifdef __MMIX__
+ #define __IEEE_BIG_ENDIAN
+ #endif
+@@ -507,4 +519,3 @@
+ 
+ #endif /* not __IEEE_LITTLE_ENDIAN */
+ #endif /* not __IEEE_BIG_ENDIAN */
+-
+diff --git a/newlib/libc/include/sys/unistd.h b/newlib/libc/include/sys/unistd.h
+index 3cc313080..605929173 100644
+--- a/newlib/libc/include/sys/unistd.h
++++ b/newlib/libc/include/sys/unistd.h
+@@ -50,7 +50,7 @@ int     dup3 (int __fildes, int __fildes2, int flags);
+ int	eaccess (const char *__path, int __mode);
+ #endif
+ #if __XSI_VISIBLE
+-void	encrypt (char *__block, int __edflag);
++void	encrypt (char *__libc_block, int __edflag);
+ #endif
+ #if __BSD_VISIBLE || (__XSI_VISIBLE && __XSI_VISIBLE < 500)
+ void	endusershell (void);
+diff --git a/newlib/libc/machine/configure b/newlib/libc/machine/configure
+index 62064cdfd..5ef5eec08 100755
+--- a/newlib/libc/machine/configure
++++ b/newlib/libc/machine/configure
+@@ -823,6 +823,7 @@ csky
+ d10v
+ d30v
+ epiphany
++cpu0
+ fr30
+ frv
+ ft32
+@@ -12007,6 +12008,8 @@ subdirs="$subdirs a29k"
+ 	d30v) subdirs="$subdirs d30v"
+  ;;
+ 	epiphany) subdirs="$subdirs epiphany"
++ ;;
++	cpu0) subdirs="$subdirs cpu0"
+  ;;
+ 	fr30) subdirs="$subdirs fr30"
+  ;;
