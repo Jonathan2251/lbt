@@ -23,13 +23,40 @@ empty include-files in exlbt/include.
 .. graphviz:: ../Fig/lib/lib.gv
 
 
+C Library (Newlib)
+------------------
+
+Newlib is a C library for bare metal platform.
+Two libraries in newlib are libc and libm. Libc is for functions of
+IO, file and string supported while libm is for mathematical functions.
+Web of newlib is here [#newlib]_ and newlib/libm here [#newlib-libm]_ .
+Since the next section compiler-rt/builtins depends on libm, please running
+the following bash script is for installing and building newlib for
+Cpu0.
+
+.. rubric:: lbt/exlbt/newlib-cpu0.sh
+.. literalinclude:: ../exlbt/newlib-cpu0.sh
+
+.. rubric:: lbt/exlbt/newlib.patch
+.. literalinclude:: ../exlbt/newlib.patch
+
+.. rubric:: lbt/exlbt/newlib-cygwin/newlib/libc/machine/cpu0/setjmp.S
+.. literalinclude:: ../exlbt/newlib-cygwin/newlib/libc/machine/cpu0/setjmp.S
+
+.. code-block:: console
+
+  cschen@cschendeiMac exlbt % bash newlib-cpu0.sh
+
+The libm.a depends on variable errno of libc only defined in sys/errno.h.
+
+
 Compiler-rt
 -------------
 
 Compiler-rt is a project with runtime libraries implentation [#compiler-rt]_ .
 Compiler-rt/lib/builtins provides functions for basic operations such as +, -, 
 \*, /, ... on type of float or double and for conversion between float and 
-integer, or on type of over 32-bit. The compier-rt/lib/builtins/README.txt 
+integer, or on type of over 32-bit. The compiler-rt/lib/builtins/README.txt 
 [#builtins-README]_ includes the dependent functions the whole builtins called.
 The dependent functions is a small part of libm listed in 
 compier-rt/lib/builtins/int_math.h [#builtins-int_math]_ .
@@ -40,28 +67,31 @@ compier-rt/lib/builtins/int_math.h [#builtins-int_math]_ .
   library         functions
   ==============  ==========================
   ported already  abort
-  libm/common     finite, isinf
-  libm/math       copysign, fabs, fmax, log, scalbn
+  libm/common     finite, isinf, isnan
+  libm/complex    cabs
+  libm/math       copysign, fcabs, fmax, log, scalbn
+  libm/mathfp     cabs
   ==============  ==========================
 
 - fabs (may includes fabsf, fabsl).
 
 - Only type of complex need above, others (float and double) depend on abort() 
-  only which I ported in lbt/exlbt/libsoftfloat/compiler-rt/cpu0/abort.c.
+  only which I ported in lbt/exlbt/compiler-rt/cpu0/abort.c.
 
 - All test cases in compiler-rt/test/builtins/Unit depend on 
   printf(%lld or %llX, ...), I ported from 
   compiler-rt/lib/sanitizer_common/sanitizer_printf.cpp to 
   lbt/exlbt/input/sanitizer_printf.cpp.
 
-- Next step is to porting these dependent functions from newlib/libm.
+- These dependent functions from has bee ported from newlib/libm.
 
-Web of newlib is here [#newlib]_ and newlib/libm here [#newlib-libm]_ .
+- Except builtins, the other three, sanitizer runtimes, profile and BlocksRuntime, are not needed for my embedded Cpu0.
 
 The libgcc's Integer plus Soft float library  [#lib-gcc]_ [#int-lib]_ 
 [#sw-float-lib]_ are equal to functions of compiler-rt's builtins.
 
-Though the 'rt' means RunTime libaraies, most of these functions 
+Though the 'rt' means RunTime libaraies, in builtins library, 
+most of these functions 
 written in target-independent C form and can be compiled and static-linked
 into target. When you compile the following c code, llc generates 
 **jsub __addsf3** to call compiler-rt float function since Cpu0 hasn't hardware
@@ -95,11 +125,9 @@ Libm provides a lots of functions to support software floating point beyond
 basic operations [#math]_ .
 Libc provides file, high-level IO functions and basic float functions [#clib]_ .
 
-Cpu0 hires Compiler-rt/lib/builtins and the tiny single module printf-stdarg.c 
-[#printf-stdarg]_ at this point.
-Directory exlib/libsoftfloat/compiler-rt-12.x/builtins is a symbolic link to 
-llvm-project/compiler-rt/lib/builtins which is the floating point library from
-compiler-rt [#compiler-rt]_. The compiler-rt/lib/builtins is a 
+Cpu0 hires Compiler-rt/lib/builtins and 
+compiler-rt/lib/sanitizer_common/sanitizer_printf.cpp at this point.
+The compiler-rt/lib/builtins is a 
 target-independent C form of software float library implementation. Cpu0 
 implements compiler-rt-12.x/cpu0/abort.c only at this point for supporting 
 this feature.
@@ -124,8 +152,8 @@ in compiler-rt/lib/builtins.
 .. rubric:: exlbt/include/string.h
 .. literalinclude:: ../exlbt/include/string.h
 
-.. rubric:: exlbt/libsoftfloat/compiler-rt/cpu0/abort.c
-.. literalinclude:: ../exlbt/libsoftfloat/compiler-rt/cpu0/abort.c
+.. rubric:: exlbt/compiler-rt/cpu0/abort.c
+.. literalinclude:: ../exlbt/compiler-rt/cpu0/abort.c
 
 .. rubric:: exlbt/input/sanitizer_internal_defs.h
 .. literalinclude:: ../exlbt/input/sanitizer_internal_defs.h
@@ -155,8 +183,8 @@ in compiler-rt/lib/builtins.
 
 The following ch_float.cpp test the float lib.
 
-.. rubric:: lbt/exlbt/libsoftfloat/compiler-rt-12.x/Makefile
-.. literalinclude:: ../exlbt/libsoftfloat/compiler-rt-12.x/Makefile
+.. rubric:: lbt/exlbt/compiler-rt-12.x/builtins/Makefile
+.. literalinclude:: ../exlbt/compiler-rt-12.x/builtins/Makefile
 
 .. rubric:: exlbt/input/ch_float.cpp
 .. literalinclude:: ../exlbt/input/ch_float.cpp
@@ -238,6 +266,7 @@ Run as follows,
   ctzdi2_test(): PASS!
   ctzsi2_test(): PASS!
   ctzti2_test(): SKIPPED!
+  divdc3_test(): PASS!
   divdf3_test(): PASS!
   divdf3vfp_test(): SKIPPED!
   divdi3_test(): PASS!
@@ -246,8 +275,10 @@ Run as follows,
   divsf3_test(): PASS!
   divsf3vfp_test(): SKIPPED!
   divsi3_test(): PASS!
+  divtc3_test(): PASS!
   divtf3_test(): SKIPPED!
   divti3_test(): SKIPPED!
+  divxc3_test(): PASS!
   eqdf2vfp_test(): SKIPPED!
   eqsf2vfp_test(): SKIPPED!
   eqtf2_test(): SKIPPED!
@@ -273,17 +304,21 @@ Run as follows,
   moddi3_test(): PASS!
   modsi3_test(): PASS!
   modti3_test(): SKIPPED!
+  muldc3_test(): PASS!
   muldf3vfp_test(): SKIPPED!
   muldi3_test(): PASS!
   mulodi4_test(): PASS!
   mulosi4_test(): PASS!
   muloti4_test(): SKIPPED!
+  mulsc3_test(): PASS!
   mulsf3vfp_test(): SKIPPED!
+  multc3_test(): SKIPPED!
   multf3_test(): SKIPPED!
   multi3_test(): SKIPPED!
   mulvdi3_test(): PASS!
   mulvsi3_test(): PASS!
   mulvti3_test(): SKIPPED!
+  mulxc3_test(): PASS!
   nedf2vfp_test(): SKIPPED!
   negdf2vfp_test(): SKIPPED!
   negdi2_test(): PASS!
@@ -311,6 +346,7 @@ Run as follows,
   ucmpdi2_test(): PASS!
   ucmpti2_test(): SKIPPED!
   udivdi3_test(): PASS!
+  udivmoddi4_test(): PASS!
   udivmodsi4_test(): PASS!
   udivmodti4_test(): SKIPPED!
   udivsi3_test(): PASS!
@@ -325,17 +361,15 @@ Run as follows,
   RET to PC < 0, finished!
 
 
-.. [#soft-float-lib] https://gcc.gnu.org/onlinedocs/gccint/Soft-float-library-routines.html#Soft-float-library-routines
+.. [#newlib] https://sourceware.org/newlib/
+
+.. [#newlib-libm] https://sourceware.org/newlib/libm.html
 
 .. [#compiler-rt] http://compiler-rt.llvm.org/
 
 .. [#builtins-README] https://github.com/llvm-mirror/compiler-rt/blob/master/lib/builtins/README.txt
 
 .. [#builtins-int_math] https://github.com/microsoft/compiler-rt/blob/master/lib/builtins/int_math.h
-
-.. [#newlib] https://sourceware.org/newlib/
-
-.. [#newlib-libm] https://sourceware.org/newlib/libm.html
 
 .. [#lib-gcc] https://gcc.gnu.org/onlinedocs/gccint/Libgcc.html
 
@@ -346,5 +380,3 @@ Run as follows,
 .. [#math] https://www.programiz.com/c-programming/library-function/math.h
 
 .. [#clib] https://www.cplusplus.com/reference/clibrary
-
-.. [#printf-stdarg] https://github.com/atgreen/FreeRTOS/blob/master/Demo/CORTEX_STM32F103_Primer_GCC/printf-stdarg.c

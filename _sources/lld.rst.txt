@@ -123,8 +123,8 @@ Static linker
 
 Let's run the static linker first and explain it next.
 
-File printf-stdarg.c come from internet download which is GPL2 license. GPL2 
-is more restricted than LLVM license. 
+File printf-stdarg.c [#printf-stdarg]_ come from internet download which is 
+GPL2 license. GPL2 is more restricted than LLVM license. 
 File printf-stdarg-1.c is the file for testing the printf() function which
 implemented on PC OS platform. Let's run printf-stdarg-2.cpp on Cpu0 and
 compare it against the result of PC's printf() as below.
@@ -476,6 +476,8 @@ to somewhere you didn't expect".
 .. [#move] http://www.cplusplus.com/reference/utility/move/
 
 .. [#pic-call-stub] Page 5-12 of http://www.linux-mips.org/pub/linux/mips/doc/ABI/mipsabi.pdf
+
+.. [#printf-stdarg] https://github.com/atgreen/FreeRTOS/blob/master/Demo/CORTEX_STM32F103_Primer_GCC/printf-stdarg.c
 
 .. [#BSDLicense] http://en.wikipedia.org/wiki/BSD_Documentation_License
 

@@ -42,18 +42,18 @@
 <span id="sec-lld"></span><h1>Cpu0 ELF linker<a class="headerlink" href="#cpu0-elf-linker" title="Permalink to this headline">¶</a></h1>
 <div class="contents local topic" id="contents">
 <ul class="simple">
-<li><p><a class="reference internal" href="#elf-to-hex" id="id16">ELF to Hex</a></p></li>
-<li><p><a class="reference internal" href="#create-cpu0-backend-under-lld" id="id17">Create Cpu0 backend under LLD</a></p>
+<li><p><a class="reference internal" href="#elf-to-hex" id="id17">ELF to Hex</a></p></li>
+<li><p><a class="reference internal" href="#create-cpu0-backend-under-lld" id="id18">Create Cpu0 backend under LLD</a></p>
 <ul>
-<li><p><a class="reference internal" href="#lld-introduction" id="id18">LLD introduction</a></p></li>
-<li><p><a class="reference internal" href="#static-linker" id="id19">Static linker</a></p></li>
-<li><p><a class="reference internal" href="#dynamic-linker" id="id20">Dynamic linker</a></p></li>
+<li><p><a class="reference internal" href="#lld-introduction" id="id19">LLD introduction</a></p></li>
+<li><p><a class="reference internal" href="#static-linker" id="id20">Static linker</a></p></li>
+<li><p><a class="reference internal" href="#dynamic-linker" id="id21">Dynamic linker</a></p></li>
 </ul>
 </li>
-<li><p><a class="reference internal" href="#summary" id="id21">Summary</a></p>
+<li><p><a class="reference internal" href="#summary" id="id22">Summary</a></p>
 <ul>
-<li><p><a class="reference internal" href="#create-a-new-backend-base-on-llvm" id="id22">Create a new backend base on LLVM</a></p></li>
-<li><p><a class="reference internal" href="#contribute-back-to-open-source-through-working-and-learning" id="id23">Contribute back to Open Source through working and learning</a></p></li>
+<li><p><a class="reference internal" href="#create-a-new-backend-base-on-llvm" id="id23">Create a new backend base on LLVM</a></p></li>
+<li><p><a class="reference internal" href="#contribute-back-to-open-source-through-working-and-learning" id="id24">Contribute back to Open Source through working and learning</a></p></li>
 </ul>
 </li>
 </ul>
@@ -63,10 +63,10 @@ Like llvm, lld linker include a couple of target in ELF format handling.
 The term Cpu0 backend used in this chapter can refer to the ELF format handling
 for Cpu0 target machine under lld, llvm compiler backend, or both. But
 supposing readers will easy knowing what it refer to.</p>
-<figure class="align-center" id="id14">
+<figure class="align-center" id="id15">
 <span id="lld-f-workflow"></span><a class="reference internal image-reference" href="_images/mywork_1.png"><img alt="_images/mywork_1.png" src="_images/mywork_1.png" style="width: 1121.0px; height: 387.0px;" /></a>
 <figcaption>
-<p><span class="caption-number">Fig. 3 </span><span class="caption-text">Code generation and execution flow</span><a class="headerlink" href="#id14" title="Permalink to this image">¶</a></p>
+<p><span class="caption-number">Fig. 3 </span><span class="caption-text">Code generation and execution flow</span><a class="headerlink" href="#id15" title="Permalink to this image">¶</a></p>
 </figcaption>
 </figure>
 <p>As depicted in <a class="reference internal" href="#lld-f-workflow"><span class="std std-numref">Fig. 3</span></a> of chapter About. Beside llvm backend,
@@ -92,7 +92,7 @@ section.
 If you run with Virtual Machine (VM), please keep your phisical memory size
 setting over 1GB to avoid insufficient memory link error.</p>
 <section id="elf-to-hex">
-<h2><a class="toc-backref" href="#id16">ELF to Hex</a><a class="headerlink" href="#elf-to-hex" title="Permalink to this headline">¶</a></h2>
+<h2><a class="toc-backref" href="#id17">ELF to Hex</a><a class="headerlink" href="#elf-to-hex" title="Permalink to this headline">¶</a></h2>
 <p>As follows,</p>
 <p class="rubric">exlbt/elf2hex/CMakeLists.txt</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span># elf2hex.cpp needs backend related functions, like 
@@ -876,9 +876,9 @@ Cpu0, the code add to llvm-objdump.cpp as follows,</p>
 </div>
 </section>
 <section id="create-cpu0-backend-under-lld">
-<h2><a class="toc-backref" href="#id17">Create Cpu0 backend under LLD</a><a class="headerlink" href="#create-cpu0-backend-under-lld" title="Permalink to this headline">¶</a></h2>
+<h2><a class="toc-backref" href="#id18">Create Cpu0 backend under LLD</a><a class="headerlink" href="#create-cpu0-backend-under-lld" title="Permalink to this headline">¶</a></h2>
 <section id="lld-introduction">
-<h3><a class="toc-backref" href="#id18">LLD introduction</a><a class="headerlink" href="#lld-introduction" title="Permalink to this headline">¶</a></h3>
+<h3><a class="toc-backref" href="#id19">LLD introduction</a><a class="headerlink" href="#lld-introduction" title="Permalink to this headline">¶</a></h3>
 <p>In general, linker do the Relocation Records Resolve as Chapter ELF support
 depicted, and optimization for those cannot finish in compiler stage. One of
 the optimization opportunities in linker is Dead Code Stripping which is
@@ -936,10 +936,10 @@ explained as follows,</p>
 </div>
 <p>Above code can be reduced to <a class="reference internal" href="#lld-deadcodestripping"><span class="std std-numref">Fig. 4</span></a> to perform
 mark and swip in graph for Dead Code Stripping.</p>
-<figure class="align-center" id="id15">
+<figure class="align-center" id="id16">
 <span id="lld-deadcodestripping"></span><a class="reference internal image-reference" href="_images/deadcodestripping.png"><img alt="_images/deadcodestripping.png" src="_images/deadcodestripping.png" style="width: 144.4px; height: 270.8px;" /></a>
 <figcaption>
-<p><span class="caption-number">Fig. 4 </span><span class="caption-text">Atom classified (from lld web)</span><a class="headerlink" href="#id15" title="Permalink to this image">¶</a></p>
+<p><span class="caption-number">Fig. 4 </span><span class="caption-text">Atom classified (from lld web)</span><a class="headerlink" href="#id16" title="Permalink to this image">¶</a></p>
 </figcaption>
 </figure>
 <p>As above example, the foo2() is an isolated node without any reference. It’s
@@ -958,10 +958,10 @@ the native linker (such as lld) have the opportunity to do Dead Code Stripping
 while the IR linker hasn’t.</p>
 </section>
 <section id="static-linker">
-<h3><a class="toc-backref" href="#id19">Static linker</a><a class="headerlink" href="#static-linker" title="Permalink to this headline">¶</a></h3>
+<h3><a class="toc-backref" href="#id20">Static linker</a><a class="headerlink" href="#static-linker" title="Permalink to this headline">¶</a></h3>
 <p>Let’s run the static linker first and explain it next.</p>
-<p>File printf-stdarg.c come from internet download which is GPL2 license. GPL2
-is more restricted than LLVM license.
+<p>File printf-stdarg.c <a class="footnote-reference brackets" href="#printf-stdarg" id="id3">7</a> come from internet download which is
+GPL2 license. GPL2 is more restricted than LLVM license.
 File printf-stdarg-1.c is the file for testing the printf() function which
 implemented on PC OS platform. Let’s run printf-stdarg-2.cpp on Cpu0 and
 compare it against the result of PC’s printf() as below.</p>
@@ -1145,11 +1145,11 @@ static void printchar(char **str, int c)
 
 static int prints(char **out, const char *string, int width, int pad)
 {
-  register int pc = 0, padchar = &#39; &#39;;
+  int pc = 0, padchar = &#39; &#39;;
 
   if (width &gt; 0) {
-    register int len = 0;
-    register const char *ptr;
+    int len = 0;
+    const char *ptr;
     for (ptr = string; *ptr; ++ptr) ++len;
     if (len &gt;= width) width = 0;
     else width -= len;
@@ -1179,9 +1179,9 @@ static int prints(char **out, const char *string, int width, int pad)
 static int printi(char **out, int i, int b, int sg, int width, int pad, int letbase)
 {
   char print_buf[PRINT_BUF_LEN];
-  register char *s;
-  register int t, neg = 0, pc = 0;
-  register unsigned int u = i;
+  char *s;
+  int t, neg = 0, pc = 0;
+  unsigned int u = i;
 
   if (i == 0) {
     print_buf[0] = &#39;0&#39;;
@@ -1221,8 +1221,8 @@ static int printi(char **out, int i, int b, int sg, int width, int pad, int letb
 
 static int print(char **out, const char *format, va_list args )
 {
-  register int width, pad;
-  register int pc = 0;
+  int width, pad;
+  int pc = 0;
   char scr[2];
 
   for (; *format != 0; ++format) {
@@ -1246,7 +1246,7 @@ static int print(char **out, const char *format, va_list args )
         width += *format - &#39;0&#39;;
       }
       if( *format == &#39;s&#39; ) {
-        register char *s = (char *)va_arg( args, int );
+        char *s = (char *)va_arg( args, int );
         pc += prints (out, s?s:&quot;(null)&quot;, width, pad);
         continue;
       }
@@ -1304,7 +1304,7 @@ int sprintf(char *out, const char *format, ...)
 #ifdef TEST_PRINTF
 int main(void)
 {
-  char *ptr = &quot;Hello world!&quot;;
+  char ptr[] = &quot;Hello world!&quot;;
   char *np = 0;
   int i = 5;
   unsigned int bs = sizeof(int)*8;
@@ -1321,7 +1321,7 @@ int main(void)
   printf(&quot;hex %x = ff\n&quot;, 0xff);
   printf(&quot;hex %02x = 00\n&quot;, 0);
   printf(&quot;signed %d = unsigned %u = hex %x\n&quot;, -3, -3, -3);
-  printf(&quot;%d %s(s)%&quot;, 0, &quot;message&quot;);
+  printf(&quot;%d %s(s)&quot;, 0, &quot;message&quot;);
   printf(&quot;\n&quot;);
   printf(&quot;%d %s(s) with %%\n&quot;, 0, &quot;message&quot;);
   sprintf(buf, &quot;justif: \&quot;%-10s\&quot;\n&quot;, &quot;left&quot;); printf(&quot;%s&quot;, buf);
@@ -1479,6 +1479,9 @@ TOOLDIR := ~/llvm/test/build/bin
 CC := $(TOOLDIR)/clang
 LLC := $(TOOLDIR)/llc
 LD := $(TOOLDIR)/ld.lld
+AS := $(TOOLDIR)/clang -static -fintegrated-as -c
+RANLIB := $(TOOLDIR)/llvm-ranlib
+READELF := $(TOOLDIR)/llvm-readelf
 
 # String substitution for every C/C++ file.
 # As an example, hello.cpp turns into ./build/hello.cpp.o
@@ -1494,20 +1497,25 @@ INC_FLAGS := $(addprefix -I,$(INC_DIRS))
 # The -MMD and -MP flags together generate Makefiles for us!
 # These files will have .d instead of .o as the output.
 # fintegrated-as: for asm code in C/C++
-CPPFLAGS := -MMD -MP -target cpu0${ENDIAN}-unknown-linux-gnu -static \
-  -fintegrated-as ${INC_FLAGS} -mcpu=${CPU} -mllvm -has-lld=true
+CPPFLAGS := -MMD -MP -target cpu0$(ENDIAN)-unknown-linux-gnu -static \
+  -fintegrated-as $(INC_FLAGS) -mcpu=$(CPU) -mllvm -has-lld=true -DHAS_COMPLEX
 
-LLFLAGS := -march=cpu0${ENDIAN} -mcpu=${CPU} -relocation-model=static \
+LLFLAGS := -march=cpu0$(ENDIAN) -mcpu=$(CPU) -relocation-model=static \
   -filetype=obj -has-lld=true
 
-#FIND_LIBFLOAT_DIR := $(shell find . -iname $(LIBFLOAT_DIR))
+CFLAGS := -target cpu0$(ENDIAN)-unknown-linux-gnu -static -mcpu=$(CPU) \
+          -fintegrated-as -Wno-error=implicit-function-declaration
+CONFIGURE := CC=&quot;$(CC)&quot; CFLAGS=&quot;$(CFAGS)&quot; AS=&quot;$(AS)&quot; RANLIB=&quot;$(RANLIB)&quot; READELF=&quot;$(READELF)&quot; ../newlib/configure --host=cpu0
+
+#FIND_LIBBUILTINS_DIR := $(shell find . -iname $(LIBBUILTINS_DIR))
 
 $(TARGET): $(OBJS) $(LIBS)
-	echo &quot;LIBFLOAT_DIR: $(LIBFLOAT_DIR), LIBS: $(LIBS)&quot;
 	$(LD) -o $@ $(OBJS) $(LIBS)
 
 $(LIBS):
-	$(MAKE) -C $(LIBFLOAT_DIR) 
+ifdef LIBBUILTINS_DIR
+	$(MAKE) -C $(LIBBUILTINS_DIR) 
+endif
 
 # Build step for C source
 $(BUILD_DIR)/%.c.o: %.c
@@ -1525,8 +1533,11 @@ $(BUILD_DIR)/lib_cpu0.ll.o: lib_cpu0.ll
 .PHONY: clean
 clean: 
 	rm -rf $(BUILD_DIR)
-ifdef LIBFLOAT_DIR
-	cd $(LIBFLOAT_DIR) &amp;&amp; $(MAKE) -f Makefile clean
+ifdef LIBBUILTINS_DIR
+	cd $(LIBBUILTINS_DIR) &amp;&amp; $(MAKE) -f Makefile clean
+endif
+ifdef NEWLIB_DIR
+	cd $(NEWLIB_DIR) &amp;&amp; rm -rf build/*
 endif
 
 # Include the .d makefiles. The - at the f.cnt suppresses the er.crs.cf missing
@@ -1541,7 +1552,7 @@ endif
 
 SRCS := start.cpp debug.cpp printf-stdarg-def.c printf-stdarg-2.cpp lib_cpu0.ll
 INC_DIRS := $(SRC_DIR) ../../lbdex/input
-LIBFLOAT_DIR :=
+LIBBUILTINS_DIR :=
 LIBS :=
 
 include Common.mk
@@ -1791,6 +1802,15 @@ int test_staticlink()
 {
   int a = 0;
 
+// pre-defined compiler macro (from llc -march=cpu0${ENDIAN} or 
+// clang -target cpu0${ENDIAN}-unknown-linux-gnu
+// http://beefchunk.com/documentation/lang/c/pre-defined-c/prearch.html 
+#ifdef __CPU0EB__
+  printf(&quot;__CPU0EB__\n&quot;);
+#endif
+#ifdef __CPU0EL__
+  printf(&quot;__CPU0EL__\n&quot;);
+#endif
   a = test_add_overflow();
   a = test_sub_overflow();
   a = test_global();  // gI = 100
@@ -1913,12 +1933,12 @@ int test_staticlink()
 </div>
 <p class="rubric">exlbt/input/Makefile.slinker</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span># CPU and endian passed from command line, such as 
-#   &quot;make -f Makefile.slinker CPU=cpu032I endian=le&quot;
+#   &quot;make -f Makefile.slinker CPU=cpu032I ENDIAN=le&quot;
 
 SRCS := start.cpp debug.cpp printf-stdarg-def.c printf-stdarg.c ch_slinker.cpp \
 	lib_cpu0.ll
 INC_DIRS := $(SRC_DIR) ../../lbdex/input
-LIBFLOAT_DIR :=
+LIBBUILTINS_DIR :=
 LIBS :=
 
 include Common.mk
@@ -1928,6 +1948,7 @@ include Common.mk
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span>#!/usr/bin/env bash
 
 # for example:
+# bash make.sh cpu032I be Makefile.newlib
 # bash make.sh cpu032II be Makefile.builtins
 # bash make.sh cpu032I le Makefile.slinker
 # bash make.sh cpu032II be Makefile.float
@@ -1935,9 +1956,25 @@ include Common.mk
 # bash make.sh cpu032II be Makefile.ch13_1
 # bash make.sh cpu032I le Makefile.sanitizer-printf
 
+NEWLIB_DIR=$HOME/git/newlib-cygwin
+
 ARG_NUM=$#
 CPU=$1
 ENDIAN=$2
+MKFILE=$3
+
+build_newlib() {
+  pushd $NEWLIB_DIR
+  rm -rf build
+  mkdir build
+  cd build
+  CC=$TOOLDIR/clang \
+  CFLAGS=&quot;-target cpu0$ENDIAN-unknown-linux-gnu -mcpu=$CPU -static -fintegrated-as -Wno-error=implicit-function-declaration&quot; \
+  AS=&quot;$TOOLDIR/clang -static -fintegrated-as -c&quot; AR=&quot;$TOOLDIR/llvm-ar&quot; RANLIB=&quot;$TOOLDIR/llvm-ranlib&quot; \
+  READELF=&quot;$TOOLDIR/llvm-readelf&quot; ../newlib/configure --host=cpu0
+  make
+  popd
+}
 
 prologue() {
   LBDEXDIR=../../lbdex
@@ -1976,9 +2013,9 @@ prologue() {
   echo &quot;ENDIAN =&quot; &quot;${ENDIAN}&quot;
 
   bash clean.sh
-  builtins=&quot;../libsoftfloat/compiler-rt/builtins&quot;
-  if [ ! -L $builtins ]; then
-    ln -s $HOME/llvm/llvm-project/compiler-rt/lib/builtins $builtins
+  if [ $MKFILE == &quot;Makefile.newlib&quot; ] || [ $MKFILE == &quot;Makefile.builtins&quot; ]; then
+    echo &quot;build_newlib&quot;
+    build_newlib;
   fi
 }
 
@@ -2019,7 +2056,7 @@ fi
 
 prologue;
 
-make -f $FILE CPU=${CPU} ENDIAN=${ENDIAN}
+make -f $FILE CPU=${CPU} ENDIAN=${ENDIAN} NEWLIB_DIR=${NEWLIB_DIR}
 
 cp ./build/a.out .
 
@@ -2109,7 +2146,7 @@ The printed “taskInterrupt(001)” and “taskInterrupt(011)” just are trace
 message from cpu0.v code.</p>
 </section>
 <section id="dynamic-linker">
-<h3><a class="toc-backref" href="#id20">Dynamic linker</a><a class="headerlink" href="#dynamic-linker" title="Permalink to this headline">¶</a></h3>
+<h3><a class="toc-backref" href="#id21">Dynamic linker</a><a class="headerlink" href="#dynamic-linker" title="Permalink to this headline">¶</a></h3>
 <p>I remove dynamic linker demostration from 3.9.0 because I don’t know how to
 do it from lld 3.9 and this demostration add lots of code in elf2hex, verilog
 and lld of Cpu0 backend. However it can be run with llvm 3.7 with the following
@@ -2131,9 +2168,9 @@ command.</p>
 </section>
 </section>
 <section id="summary">
-<h2><a class="toc-backref" href="#id21">Summary</a><a class="headerlink" href="#summary" title="Permalink to this headline">¶</a></h2>
+<h2><a class="toc-backref" href="#id22">Summary</a><a class="headerlink" href="#summary" title="Permalink to this headline">¶</a></h2>
 <section id="create-a-new-backend-base-on-llvm">
-<h3><a class="toc-backref" href="#id22">Create a new backend base on LLVM</a><a class="headerlink" href="#create-a-new-backend-base-on-llvm" title="Permalink to this headline">¶</a></h3>
+<h3><a class="toc-backref" href="#id23">Create a new backend base on LLVM</a><a class="headerlink" href="#create-a-new-backend-base-on-llvm" title="Permalink to this headline">¶</a></h3>
 <p>Thanks the llvm open source project.
 To write a linker and ELF to Hex tools for a new CPU architecture is easy and
 reliable.
@@ -2160,7 +2197,7 @@ Based on this truth, we believe llvm is a well defined structure in compiler
 architecture.</p>
 </section>
 <section id="contribute-back-to-open-source-through-working-and-learning">
-<h3><a class="toc-backref" href="#id23">Contribute back to Open Source through working and learning</a><a class="headerlink" href="#contribute-back-to-open-source-through-working-and-learning" title="Permalink to this headline">¶</a></h3>
+<h3><a class="toc-backref" href="#id24">Contribute back to Open Source through working and learning</a><a class="headerlink" href="#contribute-back-to-open-source-through-working-and-learning" title="Permalink to this headline">¶</a></h3>
 <p>Finally, 10 thousands lines of source code in Cpu0 backend is very small in UI
 program. But it’s quite complex in system program which based on llvm.
 We spent 600 pages of pdf to explain these code. Open source code give
@@ -2168,10 +2205,10 @@ programmers best opportunity to understand the code and enhance/extend the
 code function. But it can be better, we believe the documentation is the next
 most important thing to improve the open source code development.
 The Open Source Organization recognized this point and set
-Open Source Document Project years ago <a class="footnote-reference brackets" href="#bsdlicense" id="id3">7</a> <a class="footnote-reference brackets" href="#docproj" id="id4">8</a>
-<a class="footnote-reference brackets" href="#freebsdlicense" id="id5">9</a> <a class="footnote-reference brackets" href="#gnulicense" id="id6">10</a> <a class="footnote-reference brackets" href="#fdl" id="id7">11</a>.
+Open Source Document Project years ago <a class="footnote-reference brackets" href="#bsdlicense" id="id4">8</a> <a class="footnote-reference brackets" href="#docproj" id="id5">9</a>
+<a class="footnote-reference brackets" href="#freebsdlicense" id="id6">10</a> <a class="footnote-reference brackets" href="#gnulicense" id="id7">11</a> <a class="footnote-reference brackets" href="#fdl" id="id8">12</a>.
 Open Source grows up and becomes a giant software infrastructure with the forces
-of company <a class="footnote-reference brackets" href="#apple-opensource" id="id8">12</a>  <a class="footnote-reference brackets" href="#ibm-opensource" id="id9">13</a>, school research team and
+of company <a class="footnote-reference brackets" href="#apple-opensource" id="id9">13</a>  <a class="footnote-reference brackets" href="#ibm-opensource" id="id10">14</a>, school research team and
 countless talent engineers passion.
 It terminated the situation of everyone trying to re-invent wheels during 10
 years ago.
@@ -2185,7 +2222,7 @@ We think this book cannot exists in traditional paper book form since only
 few number of readers interested in study llvm backend even though
 there are many paper published books in concept of compiler. So, this book
 is published via electric media form and try to match the Open Document License
-Expection <a class="footnote-reference brackets" href="#gnu-phi" id="id10">14</a>.
+Expection <a class="footnote-reference brackets" href="#gnu-phi" id="id11">15</a>.
 There are distance between the concept and the realistic program implemenation.
 Keep note through learning a large complicate software such as this llvm backend
 is not enough.
@@ -2193,7 +2230,7 @@ We all learned the knowledge through books during school and after school.
 So, if you cannot find a good way to produce documents, you can consider to
 write documents like this book. This book document uses sphinx tool
 just like the llvm development team. Sphinx uses restructured text format here
-<a class="footnote-reference brackets" href="#rst-ref" id="id11">15</a> <a class="footnote-reference brackets" href="#rst-directives" id="id12">16</a> <a class="footnote-reference brackets" href="#rst" id="id13">17</a>.
+<a class="footnote-reference brackets" href="#rst-ref" id="id12">16</a> <a class="footnote-reference brackets" href="#rst-directives" id="id13">17</a> <a class="footnote-reference brackets" href="#rst" id="id14">18</a>.
 Appendix A of lbd book tell you how to install sphinx tool.
 Documentation work will help yourself to re-examine your software and make your
 program better in structure, reliability and more important “Extend your code
@@ -2219,37 +2256,40 @@ to somewhere you didn’t expect”.</p>
 <dt class="label" id="pic-call-stub"><span class="brackets">6</span></dt>
 <dd><p>Page 5-12 of <a class="reference external" href="http://www.linux-mips.org/pub/linux/mips/doc/ABI/mipsabi.pdf">http://www.linux-mips.org/pub/linux/mips/doc/ABI/mipsabi.pdf</a></p>
 </dd>
-<dt class="label" id="bsdlicense"><span class="brackets"><a class="fn-backref" href="#id3">7</a></span></dt>
+<dt class="label" id="printf-stdarg"><span class="brackets"><a class="fn-backref" href="#id3">7</a></span></dt>
+<dd><p><a class="reference external" href="https://github.com/atgreen/FreeRTOS/blob/master/Demo/CORTEX_STM32F103_Primer_GCC/printf-stdarg.c">https://github.com/atgreen/FreeRTOS/blob/master/Demo/CORTEX_STM32F103_Primer_GCC/printf-stdarg.c</a></p>
+</dd>
+<dt class="label" id="bsdlicense"><span class="brackets"><a class="fn-backref" href="#id4">8</a></span></dt>
 <dd><p><a class="reference external" href="http://en.wikipedia.org/wiki/BSD_Documentation_License">http://en.wikipedia.org/wiki/BSD_Documentation_License</a></p>
 </dd>
-<dt class="label" id="docproj"><span class="brackets"><a class="fn-backref" href="#id4">8</a></span></dt>
+<dt class="label" id="docproj"><span class="brackets"><a class="fn-backref" href="#id5">9</a></span></dt>
 <dd><p><a class="reference external" href="http://www.freebsd.org/docproj/">http://www.freebsd.org/docproj/</a></p>
 </dd>
-<dt class="label" id="freebsdlicense"><span class="brackets"><a class="fn-backref" href="#id5">9</a></span></dt>
+<dt class="label" id="freebsdlicense"><span class="brackets"><a class="fn-backref" href="#id6">10</a></span></dt>
 <dd><p><a class="reference external" href="http://www.freebsd.org/copyright/freebsd-doc-license.html">http://www.freebsd.org/copyright/freebsd-doc-license.html</a></p>
 </dd>
-<dt class="label" id="gnulicense"><span class="brackets"><a class="fn-backref" href="#id6">10</a></span></dt>
+<dt class="label" id="gnulicense"><span class="brackets"><a class="fn-backref" href="#id7">11</a></span></dt>
 <dd><p><a class="reference external" href="http://en.wikipedia.org/wiki/GNU_Free_Documentation_License">http://en.wikipedia.org/wiki/GNU_Free_Documentation_License</a></p>
 </dd>
-<dt class="label" id="fdl"><span class="brackets"><a class="fn-backref" href="#id7">11</a></span></dt>
+<dt class="label" id="fdl"><span class="brackets"><a class="fn-backref" href="#id8">12</a></span></dt>
 <dd><p><a class="reference external" href="http://www.gnu.org/copyleft/fdl.html">http://www.gnu.org/copyleft/fdl.html</a></p>
 </dd>
-<dt class="label" id="apple-opensource"><span class="brackets"><a class="fn-backref" href="#id8">12</a></span></dt>
+<dt class="label" id="apple-opensource"><span class="brackets"><a class="fn-backref" href="#id9">13</a></span></dt>
 <dd><p><a class="reference external" href="http://www.apple.com/opensource/">http://www.apple.com/opensource/</a></p>
 </dd>
-<dt class="label" id="ibm-opensource"><span class="brackets"><a class="fn-backref" href="#id9">13</a></span></dt>
+<dt class="label" id="ibm-opensource"><span class="brackets"><a class="fn-backref" href="#id10">14</a></span></dt>
 <dd><p><a class="reference external" href="https://www.ibm.com/developerworks/opensource/">https://www.ibm.com/developerworks/opensource/</a></p>
 </dd>
-<dt class="label" id="gnu-phi"><span class="brackets"><a class="fn-backref" href="#id10">14</a></span></dt>
+<dt class="label" id="gnu-phi"><span class="brackets"><a class="fn-backref" href="#id11">15</a></span></dt>
 <dd><p><a class="reference external" href="http://www.gnu.org/philosophy/free-doc.en.html">http://www.gnu.org/philosophy/free-doc.en.html</a></p>
 </dd>
-<dt class="label" id="rst-ref"><span class="brackets"><a class="fn-backref" href="#id11">15</a></span></dt>
+<dt class="label" id="rst-ref"><span class="brackets"><a class="fn-backref" href="#id12">16</a></span></dt>
 <dd><p><a class="reference external" href="http://docutils.sourceforge.net/docs/ref/rst/restructuredtext.html">http://docutils.sourceforge.net/docs/ref/rst/restructuredtext.html</a></p>
 </dd>
-<dt class="label" id="rst-directives"><span class="brackets"><a class="fn-backref" href="#id12">16</a></span></dt>
+<dt class="label" id="rst-directives"><span class="brackets"><a class="fn-backref" href="#id13">17</a></span></dt>
 <dd><p><a class="reference external" href="http://docutils.sourceforge.net/docs/ref/rst/directives.html">http://docutils.sourceforge.net/docs/ref/rst/directives.html</a></p>
 </dd>
-<dt class="label" id="rst"><span class="brackets"><a class="fn-backref" href="#id13">17</a></span></dt>
+<dt class="label" id="rst"><span class="brackets"><a class="fn-backref" href="#id14">18</a></span></dt>
 <dd><p><a class="reference external" href="http://docutils.sourceforge.net/rst.html">http://docutils.sourceforge.net/rst.html</a></p>
 </dd>
 </dl>
