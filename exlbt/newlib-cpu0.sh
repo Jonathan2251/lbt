@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
 # change this dir for newlib-cygwin
-NEWLIB_PARENT_DIR=$HOME/git/2
+NEWLIB_PARENT_DIR=$HOME/git
 
 NEWLIB_DIR=$NEWLIB_PARENT_DIR/newlib-cygwin
 CURR_DIR=`pwd`
@@ -33,5 +33,5 @@ build_newlib() {
   popd
 }
 
-#install_newlib;
+install_newlib;
 build_newlib;

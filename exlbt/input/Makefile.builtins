@@ -1,5 +1,5 @@
 # CPU and endian passed from command line, such as 
-#   "make -f Makefile.float-necessary CPU=cpu032II endian="
+#   "make -f Makefile.builtins CPU=cpu032II ENDIAN= NEWLIB_DIR=${HOME}/git/newlib-cygwin"
 
 # start.cpp must be put at beginning
 SRCS :=  start.cpp debug.cpp sanitizer_printf.cpp printf-stdarg-def.c \
@@ -133,10 +133,10 @@ SRCS :=  start.cpp debug.cpp sanitizer_printf.cpp printf-stdarg-def.c \
   compiler-rt-test/builtins/Unit/unordsf2vfp_test.c \
   compiler-rt-test/builtins/Unit/unordtf2_test.c \
   ch_builtins.cpp lib_cpu0.ll
-INC_DIRS := ./ ../../lbdex/input $(HOME)/git/2/newlib-cygwin/newlib/libc/include \
+
+INC_DIRS := ./ ../../lbdex/input $(NEWLIB_DIR)/newlib/libc/include \
             $(HOME)/llvm/llvm-project/compiler-rt/lib/builtins
 LIBBUILTINS_DIR := ../compiler-rt/builtins
-NEWLIB_DIR := $(HOME)/git/2/newlib-cygwin
 LIBS := $(LIBBUILTINS_DIR)/build/libbuiltins.a $(NEWLIB_DIR)/build/libm.a $(NEWLIB_DIR)/build/libc.a
 
 include Common.mk

@@ -32,7 +32,7 @@ INC_FLAGS := $(addprefix -I,$(INC_DIRS))
 # These files will have .d instead of .o as the output.
 CPPFLAGS := $(INC_FLAGS) -MMD -MP -target mips-unknown-linux-gnu -emit-llvm  
 
-LLFLAGS := -march=cpu0${ENDIAN} -mcpu=${CPU} -relocation-model=static \
+LLFLAGS := -march=cpu0$(ENDIAN) -mcpu=$(CPU) -relocation-model=static \
   -filetype=obj -has-lld=true
 
 $(TARGET): $(OBJS)

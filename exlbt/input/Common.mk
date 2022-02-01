@@ -27,13 +27,13 @@ INC_FLAGS := $(addprefix -I,$(INC_DIRS))
 # The -MMD and -MP flags together generate Makefiles for us!
 # These files will have .d instead of .o as the output.
 # fintegrated-as: for asm code in C/C++
-CPPFLAGS := -MMD -MP -target cpu0${ENDIAN}-unknown-linux-gnu -static \
-  -fintegrated-as ${INC_FLAGS} -mcpu=${CPU} -mllvm -has-lld=true -DHAS_COMPLEX
+CPPFLAGS := -MMD -MP -target cpu0$(ENDIAN)-unknown-linux-gnu -static \
+  -fintegrated-as $(INC_FLAGS) -mcpu=$(CPU) -mllvm -has-lld=true -DHAS_COMPLEX
 
-LLFLAGS := -march=cpu0${ENDIAN} -mcpu=${CPU} -relocation-model=static \
+LLFLAGS := -march=cpu0$(ENDIAN) -mcpu=$(CPU) -relocation-model=static \
   -filetype=obj -has-lld=true
 
-CFLAGS := -target cpu0${ENDIAN}-unknown-linux-gnu -static -mcpu=${CPU} \
+CFLAGS := -target cpu0$(ENDIAN)-unknown-linux-gnu -static -mcpu=$(CPU) \
           -fintegrated-as -Wno-error=implicit-function-declaration
 CONFIGURE := CC="$(CC)" CFLAGS="$(CFAGS)" AS="$(AS)" RANLIB="$(RANLIB)" READELF="$(READELF)" ../newlib/configure --host=cpu0
 

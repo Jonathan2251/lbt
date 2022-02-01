@@ -9,12 +9,25 @@
 # bash make.sh cpu032II be Makefile.ch13_1
 # bash make.sh cpu032I le Makefile.sanitizer-printf
 
-NEWLIB_DIR=$HOME/git/2/newlib-cygwin
+NEWLIB_DIR=$HOME/git/newlib-cygwin
 
 ARG_NUM=$#
 CPU=$1
 ENDIAN=$2
 MKFILE=$3
+
+build_newlib() {
+  pushd $NEWLIB_DIR
+  rm -rf build
+  mkdir build
+  cd build
+  CC=$TOOLDIR/clang \
+  CFLAGS="-target cpu0$ENDIAN-unknown-linux-gnu -mcpu=$CPU -static -fintegrated-as -Wno-error=implicit-function-declaration" \
+  AS="$TOOLDIR/clang -static -fintegrated-as -c" AR="$TOOLDIR/llvm-ar" RANLIB="$TOOLDIR/llvm-ranlib" \
+  READELF="$TOOLDIR/llvm-readelf" ../newlib/configure --host=cpu0
+  make
+  popd
+}
 
 prologue() {
   LBDEXDIR=../../lbdex
@@ -54,16 +67,8 @@ prologue() {
 
   bash clean.sh
   if [ $MKFILE == "Makefile.newlib" ] || [ $MKFILE == "Makefile.builtins" ]; then
-    pushd $NEWLIB_DIR
-    rm -rf build
-    mkdir build
-    cd build
-    CC=$TOOLDIR/clang \
-    CFLAGS="-target cpu0$ENDIAN-unknown-linux-gnu -mcpu=$CPU -static -fintegrated-as -Wno-error=implicit-function-declaration" \
-    AS="$TOOLDIR/clang -static -fintegrated-as -c" AR="$TOOLDIR/llvm-ar" RANLIB="$TOOLDIR/llvm-ranlib" \
-    READELF="$TOOLDIR/llvm-readelf" ../newlib/configure --host=cpu0
-    make
-    popd
+    echo "build_newlib"
+    build_newlib;
   fi
 }
 
@@ -104,7 +109,7 @@ fi
 
 prologue;
 
-make -f $FILE CPU=${CPU} ENDIAN=${ENDIAN} VERBOSE=1
+make -f $FILE CPU=${CPU} ENDIAN=${ENDIAN} NEWLIB_DIR=${NEWLIB_DIR}
 
 cp ./build/a.out .
 
