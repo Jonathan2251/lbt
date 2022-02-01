@@ -85,6 +85,8 @@ compier-rt/lib/builtins/int_math.h [#builtins-int_math]_ .
 
 - These dependent functions from has bee ported from newlib/libm.
 
+- Except builtins, the other three, sanitizer runtimes, profile and BlocksRuntime, are not needed for my embedded Cpu0.
+
 The libgcc's Integer plus Soft float library  [#lib-gcc]_ [#int-lib]_ 
 [#sw-float-lib]_ are equal to functions of compiler-rt's builtins.
 

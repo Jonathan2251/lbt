@@ -38,7 +38,11 @@ https://github.com/Jonathan2251/lbt/blob/master/README.md
 Revision history
 ----------------
 
-Version 12.0.5, not released yet.
+Version 12.0.6, not released yet.
+
+Version 12.0.5, Released February 1, 2022.
+
+  Newlib/libm and complex type test for builtins-test.
 
 Version 12.0.4, Released January 22, 2022.
 
