@@ -23,7 +23,7 @@ if test -d ${LLVM_TEST_DIR}; then
   cmake -DCMAKE_BUILD_TYPE=Debug -DCMAKE_CXX_COMPILER=clang++ -DCMAKE_C_COMPILER=clang \
   -DLLVM_TARGETS_TO_BUILD=Cpu0 -DLLVM_ENABLE_PROJECTS="clang;lld" \
   -DLLVM_PARALLEL_COMPILE_JOBS=4 -DLLVM_PARALLEL_LINK_JOBS=1 \
-  -DLLVM_DEFAULT_TARGET_TRIPLE=cpu0-unknown-elf -G "Ninja" ../llvm
+  -DLLVM_DEFAULT_TARGET_TRIPLE=cpu0-unknown-linux-gnu -G "Ninja" ../llvm
   ninja
   popd
 else

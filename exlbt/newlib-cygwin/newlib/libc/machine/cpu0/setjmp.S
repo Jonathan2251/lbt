@@ -1,15 +1,13 @@
-# setjmp/longjmp for FR30.  The jmpbuf looks like this:
+# setjmp/longjmp for cpu0.  The jmpbuf looks like this:
 #	
 # Register	jmpbuf offset
-# R8		0x00
-# R9		0x04
-# R10		0x08
-# R11		0x0c
-# R12		0x10
-# R13		0x14
-# R14 (FP)	0x18
-# R15 (SP)	0x1c
-# RP            0x20
+# $9		0x00
+# $10		0x04
+# $11		0x08
+# $12		0x0c
+# $13		0x10
+# $14		0x14
+# $15		0x18
 	
 .macro save reg
 	st	\reg,@r4
@@ -47,8 +45,9 @@ longjmp:
 	ld $15, 24($a0)
 
 # If caller attempted to return 0, return 1 instead.
-        bne     $5,$0,1f
+        cmp     $sw, $5,$0
+        jne     $sw, $BB1
         addiu   $5,$0,1
-1:
+$BB1:
         addu    $2,$0,$5
         ret	$lr

@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
 
 # for example:
+# bash make.sh cpu032I be Makefile.newlib
 # bash make.sh cpu032II be Makefile.builtins
 # bash make.sh cpu032I le Makefile.slinker
 # bash make.sh cpu032II be Makefile.float
@@ -8,9 +9,12 @@
 # bash make.sh cpu032II be Makefile.ch13_1
 # bash make.sh cpu032I le Makefile.sanitizer-printf
 
+NEWLIB_DIR=$HOME/git/2/newlib-cygwin
+
 ARG_NUM=$#
 CPU=$1
 ENDIAN=$2
+MKFILE=$3
 
 prologue() {
   LBDEXDIR=../../lbdex
@@ -49,6 +53,18 @@ prologue() {
   echo "ENDIAN =" "${ENDIAN}"
 
   bash clean.sh
+  if [ $MKFILE == "Makefile.newlib" ] || [ $MKFILE == "Makefile.builtins" ]; then
+    pushd $NEWLIB_DIR
+    rm -rf build
+    mkdir build
+    cd build
+    CC=$TOOLDIR/clang \
+    CFLAGS="-target cpu0$ENDIAN-unknown-linux-gnu -mcpu=$CPU -static -fintegrated-as -Wno-error=implicit-function-declaration" \
+    AS="$TOOLDIR/clang -static -fintegrated-as -c" AR="$TOOLDIR/llvm-ar" RANLIB="$TOOLDIR/llvm-ranlib" \
+    READELF="$TOOLDIR/llvm-readelf" ../newlib/configure --host=cpu0
+    make
+    popd
+  fi
 }
 
 isLittleEndian() {
@@ -88,7 +104,7 @@ fi
 
 prologue;
 
-make -f $FILE CPU=${CPU} ENDIAN=${ENDIAN}
+make -f $FILE CPU=${CPU} ENDIAN=${ENDIAN} VERBOSE=1
 
 cp ./build/a.out .
 

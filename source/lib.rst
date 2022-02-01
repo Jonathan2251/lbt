@@ -23,6 +23,33 @@ empty include-files in exlbt/include.
 .. graphviz:: ../Fig/lib/lib.gv
 
 
+C Library (Newlib)
+------------------
+
+Newlib is a C library for bare metal platform.
+Two libraries in newlib are libc and libm. Libc is for functions of
+IO, file and string supported while libm is for mathematical functions.
+Web of newlib is here [#newlib]_ and newlib/libm here [#newlib-libm]_ .
+Since the next section compiler-rt/builtins depends on libm, please running
+the following bash script is for installing and building newlib for
+Cpu0.
+
+.. rubric:: lbt/exlbt/newlib-cpu0.sh
+.. literalinclude:: ../exlbt/newlib-cpu0.sh
+
+.. rubric:: lbt/exlbt/newlib.patch
+.. literalinclude:: ../exlbt/newlib.patch
+
+.. rubric:: lbt/exlbt/newlib-cygwin/newlib/libc/machine/cpu0/setjmp.S
+.. literalinclude:: ../exlbt/newlib-cygwin/newlib/libc/machine/cpu0/setjmp.S
+
+.. code-block:: console
+
+  cschen@cschendeiMac exlbt % bash newlib-cpu0.sh
+
+The libm.a depends on variable errno of libc only defined in sys/errno.h.
+
+
 Compiler-rt
 -------------
 
@@ -57,8 +84,6 @@ compier-rt/lib/builtins/int_math.h [#builtins-int_math]_ .
   lbt/exlbt/input/sanitizer_printf.cpp.
 
 - These dependent functions from has bee ported from newlib/libm.
-
-Web of newlib is here [#newlib]_ and newlib/libm here [#newlib-libm]_ .
 
 The libgcc's Integer plus Soft float library  [#lib-gcc]_ [#int-lib]_ 
 [#sw-float-lib]_ are equal to functions of compiler-rt's builtins.
@@ -334,17 +359,15 @@ Run as follows,
   RET to PC < 0, finished!
 
 
-.. [#soft-float-lib] https://gcc.gnu.org/onlinedocs/gccint/Soft-float-library-routines.html#Soft-float-library-routines
+.. [#newlib] https://sourceware.org/newlib/
+
+.. [#newlib-libm] https://sourceware.org/newlib/libm.html
 
 .. [#compiler-rt] http://compiler-rt.llvm.org/
 
 .. [#builtins-README] https://github.com/llvm-mirror/compiler-rt/blob/master/lib/builtins/README.txt
 
 .. [#builtins-int_math] https://github.com/microsoft/compiler-rt/blob/master/lib/builtins/int_math.h
-
-.. [#newlib] https://sourceware.org/newlib/
-
-.. [#newlib-libm] https://sourceware.org/newlib/libm.html
 
 .. [#lib-gcc] https://gcc.gnu.org/onlinedocs/gccint/Libgcc.html
 

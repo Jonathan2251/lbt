@@ -1,0 +1,13 @@
+# CPU and endian passed from command line, such as 
+#   "make -f Makefile.newlib CPU=cpu032II ENDIAN="
+
+# start.cpp must be put at beginning
+SRCS :=  start.cpp debug.cpp sanitizer_printf.cpp printf-stdarg-def.c \
+         ch_newlib.cpp lib_cpu0.ll
+INC_DIRS := ./ ../../lbdex/input $(HOME)/git/2/newlib-cygwin/newlib/libc/include \
+            $(HOME)/llvm/llvm-project/compiler-rt/lib/builtins
+LIBBUILTINS_DIR := ../compiler-rt/builtins
+NEWLIB_DIR := $(HOME)/git/2/newlib-cygwin
+LIBS := $(LIBBUILTINS_DIR)/build/libbuiltins.a $(NEWLIB_DIR)/build/libm.a $(NEWLIB_DIR)/build/libc.a
+
+include Common.mk

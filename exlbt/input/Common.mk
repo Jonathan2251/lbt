@@ -9,6 +9,9 @@ TOOLDIR := ~/llvm/test/build/bin
 CC := $(TOOLDIR)/clang
 LLC := $(TOOLDIR)/llc
 LD := $(TOOLDIR)/ld.lld
+AS := $(TOOLDIR)/clang -static -fintegrated-as -c
+RANLIB := $(TOOLDIR)/llvm-ranlib
+READELF := $(TOOLDIR)/llvm-readelf
 
 # String substitution for every C/C++ file.
 # As an example, hello.cpp turns into ./build/hello.cpp.o
@@ -30,6 +33,10 @@ CPPFLAGS := -MMD -MP -target cpu0${ENDIAN}-unknown-linux-gnu -static \
 LLFLAGS := -march=cpu0${ENDIAN} -mcpu=${CPU} -relocation-model=static \
   -filetype=obj -has-lld=true
 
+CFLAGS := -target cpu0${ENDIAN}-unknown-linux-gnu -static -mcpu=${CPU} \
+          -fintegrated-as -Wno-error=implicit-function-declaration
+CONFIGURE := CC="$(CC)" CFLAGS="$(CFAGS)" AS="$(AS)" RANLIB="$(RANLIB)" READELF="$(READELF)" ../newlib/configure --host=cpu0
+
 #FIND_LIBBUILTINS_DIR := $(shell find . -iname $(LIBBUILTINS_DIR))
 
 $(TARGET): $(OBJS) $(LIBS)
@@ -38,12 +45,6 @@ $(TARGET): $(OBJS) $(LIBS)
 $(LIBS):
 ifdef LIBBUILTINS_DIR
 	$(MAKE) -C $(LIBBUILTINS_DIR) 
-endif
-ifdef LIBSANITIZER_COMMON_DIR
-	$(MAKE) -C $(LIBSANITIZER_COMMON_DIR) 
-endif
-ifdef LIBM_DIR
-	$(MAKE) -C $(LIBM_DIR) 
 endif
 
 # Build step for C source
@@ -65,11 +66,8 @@ clean:
 ifdef LIBBUILTINS_DIR
 	cd $(LIBBUILTINS_DIR) && $(MAKE) -f Makefile clean
 endif
-ifdef LIBSANITIZER_COMMON_DIR
-	cd $(LIBSANITIZER_COMMON_DIR) && $(MAKE) -f Makefile clean
-endif
-ifdef LIBM_DIR
-	cd $(LIBM_DIR) && $(MAKE) -f Makefile clean
+ifdef NEWLIB_DIR
+	cd $(NEWLIB_DIR) && rm -rf build/*
 endif
 
 # Include the .d makefiles. The - at the f.cnt suppresses the er.crs.cf missing

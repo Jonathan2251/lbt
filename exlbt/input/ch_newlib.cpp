@@ -1,10 +1,19 @@
 #include "debug.h"
+#include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 
-extern "C" int printf(const char *format, ...);
-extern "C" int sprintf(char *out, const char *format, ...);
+//extern "C" int printf(const char *format, ...);
+//extern "C" int sprintf(char *out, const char *format, ...);
 
-extern "C" int absvdi2_test();
+static int test() {
+    char source[] = "once upon a midnight dreary...";
+    char dest[512];
+    memcpy(dest, source, sizeof source);
+    dest[strlen(source)] = '\0';
+    printf("dest: %s\n", dest);
+    return 0;
+}
 
 void show_result(const char *fn, int res) {
   if (res == 1)
@@ -31,8 +40,9 @@ int main() {
   printf("__CPU0EL__\n");
 #endif
 
-  res = absvdi2_test();
-  show_result("absvdi2_test()", res);
+  res = test();
+  show_result("test()", res);
 
   return 0;
 }
+

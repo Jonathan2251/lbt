@@ -1,7 +1,16 @@
 #!/usr/bin/env bash
 
+# change this dir for newlib-cygwin
 NEWLIB_PARENT_DIR=$HOME/git/2
+
+NEWLIB_DIR=$NEWLIB_PARENT_DIR/newlib-cygwin
 CURR_DIR=`pwd`
+CC=$HOME/llvm/test/build/bin/clang
+CFLAGS="-I/$HOME/git/2/newlib-cygwin/newlib/libc/include -target cpu0el-unknown-linux-gnu -static -fintegrated-as -Wno-error=implicit-function-declaration"
+AS="$HOME/llvm/test/build/bin/clang -static -fintegrated-as -c"
+AR="$HOME/llvm/test/build/bin/llvm-ar"
+RANLIB="$HOME/llvm/test/build/bin/llvm-ranlib"
+READELF="$HOME/llvm/test/build/bin/llvm-readelf"
 
 install_newlib() {
   pushd $NEWLIB_PARENT_DIR
@@ -15,13 +24,14 @@ install_newlib() {
 }
 
 build_newlib() {
-  pushd $NEWLIB_PARENT_DIR/newlib-cygwin
+  pushd $NEWLIB_DIR
+  rm -rf build
   mkdir build
   cd build
-  CC=/Users/cschen/llvm/test/build/bin/clang CFLAGS="-static -fintegrated-as -Wno-error=implicit-function-declaration" AS="/Users/cschen/llvm/test/build/bin/clang -static -fintegrated-as -c" AR="/Users/cschen/llvm/test/build/bin/llvm-ar" RANLIB="/Users/cschen/llvm/test/build/bin/llvm-ranlib" READELF="/Users/cschen/llvm/test/build/bin/llvm-readelf" ../newlib/configure --host=cpu0
+  CC=$CC CFLAGS=$CFLAGS AS=$AS AR=$AR RANLIB=$RANLIB READELF=$READELF ../newlib/configure --host=cpu0
   make
   popd
 }
 
-install_newlib;
+#install_newlib;
 build_newlib;
