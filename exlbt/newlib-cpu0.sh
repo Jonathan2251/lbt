@@ -6,7 +6,7 @@ NEWLIB_PARENT_DIR=$HOME/git
 NEWLIB_DIR=$NEWLIB_PARENT_DIR/newlib-cygwin
 CURR_DIR=`pwd`
 CC=$HOME/llvm/test/build/bin/clang
-CFLAGS="-I/$HOME/git/2/newlib-cygwin/newlib/libc/include -target cpu0el-unknown-linux-gnu -static -fintegrated-as -Wno-error=implicit-function-declaration"
+CFLAGS="-target cpu0el-unknown-linux-gnu -static -fintegrated-as -Wno-error=implicit-function-declaration"
 AS="$HOME/llvm/test/build/bin/clang -static -fintegrated-as -c"
 AR="$HOME/llvm/test/build/bin/llvm-ar"
 RANLIB="$HOME/llvm/test/build/bin/llvm-ranlib"
@@ -23,15 +23,32 @@ install_newlib() {
   popd
 }
 
-build_newlib() {
-  pushd $NEWLIB_DIR
-  rm -rf build
-  mkdir build
-  cd build
+build_cpu0() {
+  rm -rf build-$CPU-$ENDIAN
+  mkdir build-$CPU-$ENDIAN
+  cd build-$CPU-$ENDIAN
+  CFLAGS="-target cpu0$ENDIAN-unknown-linux-gnu -mcpu=$CPU -static -fintegrated-as -Wno-error=implicit-function-declaration"
   CC=$CC CFLAGS=$CFLAGS AS=$AS AR=$AR RANLIB=$RANLIB READELF=$READELF ../newlib/configure --host=cpu0
   make
+  cd ..
+}
+
+build_newlib() {
+  pushd $NEWLIB_DIR
+  CPU=cpu032I
+  ENDIAN=
+  build_cpu0;
+  CPU=cpu032I
+  ENDIAN=el
+  build_cpu0;
+  CPU=cpu032II
+  ENDIAN=
+  build_cpu0;
+  CPU=cpu032II
+  ENDIAN=el
+  build_cpu0;
   popd
 }
 
-install_newlib;
+#install_newlib;
 build_newlib;

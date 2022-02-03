@@ -3,9 +3,6 @@
 #include <stdlib.h>
 #include <string.h>
 
-//extern "C" int printf(const char *format, ...);
-//extern "C" int sprintf(char *out, const char *format, ...);
-
 static int test() {
     char source[] = "once upon a midnight dreary...";
     char dest[512];

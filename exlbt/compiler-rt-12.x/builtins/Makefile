@@ -3,7 +3,7 @@
 # CPU and endian passed from command line, such as "make CPU=cpu032II ENDIAN=el"
 
 TARGET_LIB := libbuiltins.a
-BUILD_DIR := ./build
+BUILD_DIR := ./build-$(CPU)-$(ENDIAN)
 TARGET := $(BUILD_DIR)/$(TARGET_LIB)
 
 SRC_DIR := $(HOME)/llvm/llvm-project/compiler-rt/lib/builtins
@@ -147,11 +147,11 @@ SRCS := $(GENERIC_SOURCES)
 SRCS := $(SRCS:%=$(SRC_DIR)/%) $(PWD)/../cpu0/abort.c
 
 # String substitution for every C/C++ file.
-# As an example, absvdi2.c turns into ./build/absvdi2.c.o
+# As an example, absvdi2.c turns into ./build-$(CPU)-$(ENDIAN)/absvdi2.c.o
 OBJS := $(SRCS:%=$(BUILD_DIR)/%.o)
 
 # String substitution (suffix version without %).
-# As an example, ./build/absvdi2.c.o turns into ./build/absvdi2.c.d
+# As an example, ./build/absvdi2.c.o turns into ./build-$(CPU)-$(ENDIAN)/absvdi2.c.d
 DEPS := $(OBJS:.o=.d)
 
 # Every folder in ./src will need to be passed to GCC so that it can find header files
@@ -162,8 +162,8 @@ INC_FLAGS := $(addprefix -I,$(INC_DIRS))
 
 # The -MMD and -MP flags together generate Makefiles for us!
 # These files will have .d instead of .o as the output.
-CPPFLAGS := -MMD -MP -target cpu0${ENDIAN}-unknown-linux-gnu -static \
-  -fintegrated-as ${INC_FLAGS} -mcpu=${CPU} -mllvm -has-lld=true
+CPPFLAGS := -MMD -MP -target cpu0$(ENDIAN)-unknown-linux-gnu -static \
+  -fintegrated-as $(INC_FLAGS) -mcpu=$(CPU) -mllvm -has-lld=true
 
 # The final build step.
 $(TARGET): $(OBJS)

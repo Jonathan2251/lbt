@@ -1,9 +1,0 @@
-
-SRCS := start.cpp debug.cpp sanitizer_printf.cpp printf-stdarg-def.c ch_hello.c \
-        lib_cpu0.ll
-
-LIBBUILTINS_DIR := ../compiler-rt/builtins
-INC_DIRS := ./ $(NEWLIB_DIR)/newlib/libc/include ../../lbdex/input $(HOME)/llvm/test/compiler-rt/lib/sanitizer_common
-LIBS := $(LIBBUILTINS_DIR)/build/libbuiltins.a
-
-include Common.mk

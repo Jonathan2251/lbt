@@ -1,7 +1,6 @@
 
 /// start
 
-#include "dynamic_linker.h"
 #include "start.h"
 
 extern int main();
@@ -12,12 +11,6 @@ void start() {
   asm("start:");
   
   INIT_SP
-  int *gpaddr;
-  gpaddr = (int*)GPADDR;
-  __asm__ __volatile__("ld  $gp, %0"
-                       : // no output register, specify output register to $gp
-                       :"m"(*gpaddr)
-                       );
   initRegs();
   main();
   asm("addiu $lr, $ZERO, -1");

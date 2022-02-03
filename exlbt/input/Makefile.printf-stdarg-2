@@ -1,9 +1,0 @@
-# CPU and endian passed from command line, such as 
-#   "make -f Makefile.printf-stdarg-2 CPU=cpu032I ENDIAN=el"
-
-SRCS := start.cpp debug.cpp printf-stdarg-def.c printf-stdarg-2.cpp lib_cpu0.ll
-INC_DIRS := $(SRC_DIR) ../../lbdex/input
-LIBBUILTINS_DIR :=
-LIBS :=
-
-include Common.mk

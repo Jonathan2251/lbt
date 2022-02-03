@@ -1,7 +1,7 @@
 # Thanks https://makefiletutorial.com
 
 TARGET_EXEC := a.out
-BUILD_DIR := ./build
+BUILD_DIR := ./build-$(CPU)-$(ENDIAN)
 TARGET := $(BUILD_DIR)/$(TARGET_EXEC)
 SRC_DIR := ./
 
@@ -28,7 +28,8 @@ INC_FLAGS := $(addprefix -I,$(INC_DIRS))
 # These files will have .d instead of .o as the output.
 # fintegrated-as: for asm code in C/C++
 CPPFLAGS := -MMD -MP -target cpu0$(ENDIAN)-unknown-linux-gnu -static \
-  -fintegrated-as $(INC_FLAGS) -mcpu=$(CPU) -mllvm -has-lld=true -DHAS_COMPLEX
+  -fintegrated-as $(INC_FLAGS) -march=cpu0$(ENDIAN) -mcpu=$(CPU) -mllvm \
+  -has-lld=true -DHAS_COMPLEX
 
 LLFLAGS := -march=cpu0$(ENDIAN) -mcpu=$(CPU) -relocation-model=static \
   -filetype=obj -has-lld=true
@@ -67,7 +68,7 @@ ifdef LIBBUILTINS_DIR
 	cd $(LIBBUILTINS_DIR) && $(MAKE) -f Makefile clean
 endif
 ifdef NEWLIB_DIR
-	cd $(NEWLIB_DIR) && rm -rf build/*
+	cd $(NEWLIB_DIR) && rm -rf build-$(CPU)-$(ENDIAN)/*
 endif
 
 # Include the .d makefiles. The - at the f.cnt suppresses the er.crs.cf missing

@@ -22,9 +22,7 @@
 
 extern "C" int putchar(int c);
 
-static void abort() {
-  for (;;);
-}
+extern void* internal_memset(void* b, int c, size_t len);
 
 #if SANITIZER_WINDOWS && defined(_MSC_VER) && _MSC_VER < 1800 &&               \
       !defined(va_copy)
@@ -32,6 +30,14 @@ static void abort() {
 #endif
 
 namespace __sanitizer {
+
+static int strlen(const char* s) {
+  int len = 0;
+  for (const char* p = s; *p != '\0'; p++) {
+    len++;
+  }
+  return len;
+}
 
 static int AppendChar(char **buff, const char *buff_end, char c) {
   if (*buff < buff_end) {
@@ -46,7 +52,7 @@ static int AppendChar(char **buff, const char *buff_end, char c) {
 // on the value of |pad_with_zero|.
 static int AppendNumber(char **buff, const char *buff_end, u64 absolute_value,
                         u8 base, u8 minimal_num_length, bool pad_with_zero,
-                        bool negative, bool uppercase) {
+                        bool negative, bool uppercase, bool left_justified) {
   uptr const kMaxLen = 30;
   RAW_CHECK(base == 10 || base == 16);
   RAW_CHECK(base == 10 || !negative);
@@ -58,6 +64,7 @@ static int AppendNumber(char **buff, const char *buff_end, u64 absolute_value,
   if (negative && pad_with_zero)
     result += AppendChar(buff, buff_end, '-');
   uptr num_buffer[kMaxLen];
+  int num_pads = 0;
   int pos = 0;
   do {
     RAW_CHECK_MSG((uptr)pos < kMaxLen, "AppendNumber buffer overflow");
@@ -65,20 +72,18 @@ static int AppendNumber(char **buff, const char *buff_end, u64 absolute_value,
     absolute_value /= base;
   } while (absolute_value > 0);
   if (pos < minimal_num_length) {
-#if 1
-    abort();
-#else
     // Make sure compiler doesn't insert call to memset here.
     internal_memset(&num_buffer[pos], 0,
                     sizeof(num_buffer[0]) * (minimal_num_length - pos));
+    num_pads = minimal_num_length - pos;
     pos = minimal_num_length;
-#endif
   }
   RAW_CHECK(pos > 0);
   pos--;
   for (; pos >= 0 && num_buffer[pos] == 0; pos--) {
     char c = (pad_with_zero || pos == 0) ? '0' : ' ';
-    result += AppendChar(buff, buff_end, c);
+    if (!left_justified)
+      result += AppendChar(buff, buff_end, c);
   }
   if (negative && !pad_with_zero) result += AppendChar(buff, buff_end, '-');
   for (; pos >= 0; pos--) {
@@ -86,22 +91,28 @@ static int AppendNumber(char **buff, const char *buff_end, u64 absolute_value,
     digit = (digit < 10) ? '0' + digit : (uppercase ? 'A' : 'a') + digit - 10;
     result += AppendChar(buff, buff_end, digit);
   }
+  if (left_justified) {
+    for (int i = 0; i < num_pads; i++)
+      result += AppendChar(buff, buff_end, ' ');
+  }
   return result;
 }
 
 static int AppendUnsigned(char **buff, const char *buff_end, u64 num, u8 base,
                           u8 minimal_num_length, bool pad_with_zero,
-                          bool uppercase) {
+                          bool uppercase, bool left_justified) {
   return AppendNumber(buff, buff_end, num, base, minimal_num_length,
-                      pad_with_zero, false /* negative */, uppercase);
+                      pad_with_zero, false /* negative */, uppercase, 
+                      left_justified);
 }
 
 static int AppendSignedDecimal(char **buff, const char *buff_end, s64 num,
-                               u8 minimal_num_length, bool pad_with_zero) {
+                               u8 minimal_num_length, bool pad_with_zero,
+                               bool left_justified) {
   bool negative = (num < 0);
   return AppendNumber(buff, buff_end, (u64)(negative ? -num : num), 10,
                       minimal_num_length, pad_with_zero, negative,
-                      false /* uppercase */);
+                      false /* uppercase */, left_justified);
 }
 
 
@@ -109,31 +120,39 @@ static int AppendSignedDecimal(char **buff, const char *buff_end, s64 num,
 // interpret width == 0 as "no width requested":
 // width == 0 - no width requested
 // width  < 0 - left-justify s within and pad it to -width chars, if necessary
-// width  > 0 - right-justify s, not implemented yet
+// width  > 0 - right-justify s, implement for cpu0
 static int AppendString(char **buff, const char *buff_end, int width,
-                        int max_chars, const char *s) {
+                        int max_chars, const char *s, bool left_justified) {
   if (!s)
     s = "<null>";
   int result = 0;
+  if (!left_justified) {
+    int s_len = strlen(s);
+    while (result < width - s_len)
+      result += AppendChar(buff, buff_end, ' ');
+  }
   for (; *s; s++) {
     if (max_chars >= 0 && result >= max_chars)
       break;
     result += AppendChar(buff, buff_end, *s);
   }
-  // Only the left justified strings are supported.
-  while (width < -result)
-    result += AppendChar(buff, buff_end, ' ');
+  if (left_justified) {
+    while (width < -result)
+      result += AppendChar(buff, buff_end, ' ');
+  }
   return result;
 }
 
-static int AppendPointer(char **buff, const char *buff_end, u64 ptr_value) {
+static int AppendPointer(char **buff, const char *buff_end, u64 ptr_value,
+                         bool left_justified) {
   int result = 0;
-  result += AppendString(buff, buff_end, 0, -1, "0x");
+  result += AppendString(buff, buff_end, 0, -1, "0x", left_justified);
   result += AppendUnsigned(buff, buff_end, ptr_value, 16,
 // By running clang -E, can get the macro value for SANITIZER_POINTER_FORMAT_LENGTH is (12)
 //                           SANITIZER_POINTER_FORMAT_LENGTH,
                            (12),
-                           true /* pad_with_zero */, false /* uppercase */);
+                           true /* pad_with_zero */, false /* uppercase */,
+                           left_justified);
   return result;
 }
 
@@ -186,7 +205,7 @@ int VSNPrintf(char *buff, int buff_length,
              : have_z ? va_arg(args, sptr)
              : va_arg(args, int);
         result += AppendSignedDecimal(&buff, buff_end, dval, width,
-                                      pad_with_zero);
+                                      pad_with_zero, left_justified);
         break;
       }
       case 'u':
@@ -197,20 +216,20 @@ int VSNPrintf(char *buff, int buff_length,
              : va_arg(args, unsigned);
         bool uppercase = (*cur == 'X');
         result += AppendUnsigned(&buff, buff_end, uval, (*cur == 'u') ? 10 : 16,
-                                 width, pad_with_zero, uppercase);
+                                 width, pad_with_zero, uppercase, left_justified);
         break;
       }
       case 'p': {
         RAW_CHECK_MSG(!have_flags, kPrintfFormatsHelp);
-        result += AppendPointer(&buff, buff_end, va_arg(args, uptr));
+        result += AppendPointer(&buff, buff_end, va_arg(args, uptr),
+                                left_justified);
         break;
       }
       case 's': {
         RAW_CHECK_MSG(!have_length, kPrintfFormatsHelp);
-        // Only left-justified width is supported.
         CHECK(!have_width || left_justified);
         result += AppendString(&buff, buff_end, left_justified ? -width : width,
-                               precision, va_arg(args, char*));
+                               precision, va_arg(args, char*), left_justified);
         break;
       }
       case 'c': {
@@ -245,6 +264,15 @@ int prints(const char *string)
   }
 
   return pc;
+}
+
+extern "C" int sprintf(char *buffer, const char *format, ...) {
+  int length = 1000;
+  va_list args;
+  va_start(args, format);
+  int needed_length = __sanitizer::VSNPrintf(buffer, length, format, args);
+  va_end(args);
+  return 0;
 }
 
 extern "C" int printf(const char *format, ...) {

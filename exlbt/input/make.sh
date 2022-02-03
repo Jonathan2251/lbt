@@ -5,10 +5,9 @@
 # bash make.sh cpu032II be Makefile.builtins
 # bash make.sh cpu032I le Makefile.slinker
 # bash make.sh cpu032II be Makefile.float
-# bash make.sh cpu032II be Makefile.printf-stdarg-2
 # bash make.sh cpu032II be Makefile.ch13_1
-# bash make.sh cpu032I le Makefile.sanitizer-printf
 
+LBDEX_DIR=$HOME/git/lbd/lbdex
 NEWLIB_DIR=$HOME/git/newlib-cygwin
 
 ARG_NUM=$#
@@ -30,8 +29,6 @@ build_newlib() {
 }
 
 prologue() {
-  LBDEXDIR=../../lbdex
-
   if [ $ARG_NUM == 0 ]; then
     echo "useage: bash $sh_name cpu_type ENDIAN"
     echo "  cpu_type: cpu032I or cpu032II"
@@ -65,10 +62,9 @@ prologue() {
   fi
   echo "ENDIAN =" "${ENDIAN}"
 
-  bash clean.sh
   if [ $MKFILE == "Makefile.newlib" ] || [ $MKFILE == "Makefile.builtins" ]; then
     echo "build_newlib"
-    build_newlib;
+#    build_newlib;
   fi
 }
 
@@ -85,13 +81,13 @@ isLittleEndian() {
 }
 
 elf2hex() {
-  ${TOOLDIR}/elf2hex -le=${le} a.out > ${LBDEXDIR}/verilog/cpu0.hex
+  ${TOOLDIR}/elf2hex -le=${le} a.out > ${LBDEX_DIR}/verilog/cpu0.hex
   if [ ${le} == "true" ] ; then
-    echo "1   /* 0: big ENDIAN, 1: little ENDIAN */" > ${LBDEXDIR}/verilog/cpu0.config
+    echo "1   /* 0: big ENDIAN, 1: little ENDIAN */" > ${LBDEX_DIR}/verilog/cpu0.config
   else
-    echo "0   /* 0: big ENDIAN, 1: little ENDIAN */" > ${LBDEXDIR}/verilog/cpu0.config
+    echo "0   /* 0: big ENDIAN, 1: little ENDIAN */" > ${LBDEX_DIR}/verilog/cpu0.config
   fi
-  cat ${LBDEXDIR}/verilog/cpu0.config
+  cat ${LBDEX_DIR}/verilog/cpu0.config
 }
 
 epilogue() {
@@ -109,9 +105,9 @@ fi
 
 prologue;
 
-make -f $FILE CPU=${CPU} ENDIAN=${ENDIAN} NEWLIB_DIR=${NEWLIB_DIR}
+make -f $FILE CPU=${CPU} ENDIAN=${ENDIAN} LBDEX_DIR=${LBDEX_DIR} NEWLIB_DIR=${NEWLIB_DIR}
 
-cp ./build/a.out .
+cp ./build-$CPU-$ENDIAN/a.out .
 
 epilogue;
 
