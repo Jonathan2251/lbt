@@ -17,6 +17,7 @@
     <link rel="author" title="About these documents" href="about.html" />
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="LLDB" href="lldb.html" />
     <link rel="prev" title="Optimization" href="opt.html" /> 
   </head><body>
       <div class="header" role="banner"><h1 class="heading"><a href="index.html">
@@ -29,6 +30,8 @@
         «&#160;&#160;<a href="opt.html">Optimization</a>
         &#160;&#160;::&#160;&#160;
         <a class="uplink" href="index.html">Contents</a>
+        &#160;&#160;::&#160;&#160;
+        <a href="lldb.html">LLDB</a>&#160;&#160;»
         </p>
 
       </div>
@@ -39,9 +42,9 @@
 <span id="sec-lib"></span><h1>Library<a class="headerlink" href="#library" title="Permalink to this headline">¶</a></h1>
 <div class="contents local topic" id="contents">
 <ul class="simple">
-<li><p><a class="reference internal" href="#c-library-newlib" id="id14">C Library (Newlib)</a></p></li>
-<li><p><a class="reference internal" href="#compiler-rt" id="id15">Compiler-rt</a></p></li>
-<li><p><a class="reference internal" href="#software-float-point-support" id="id16">Software Float Point Support</a></p></li>
+<li><p><a class="reference internal" href="#c-library-newlib" id="id16">C Library (Newlib)</a></p></li>
+<li><p><a class="reference internal" href="#compiler-rt" id="id17">Compiler-rt</a></p></li>
+<li><p><a class="reference internal" href="#software-float-point-support" id="id18">Software Float Point Support</a></p></li>
 </ul>
 </div>
 <p>Since Cpu0 has not hardware float point instructions, it needs soft float point
@@ -56,18 +59,55 @@ empty include-files in exlbt/include.</p>
 <p><span class="caption-number">Fig. 6 </span><span class="caption-text">compiler-rt/lib/builtins’ software float library</span><a class="headerlink" href="#id12" title="Permalink to this image">¶</a></p>
 </figcaption>
 </figure>
-<div class="graphviz"><img src="_images/graphviz-1a6820436b9916ba2659af7cf9c4ac8540e37378.png" alt="// dot -Tpng lib.gv -o lib.png
+<div class="graphviz"><img src="_images/graphviz-27ca1dabd6b60df91c84b556090fa1e8f64984d7.png" alt="// dot -Tpng lib.gv -o lib.png
 digraph G {
   rankdir=LR;
 
-  node [shape=&quot;&quot;,style=filled,fillcolor=lightyellow]; lib [label=&quot;lib (libm/SoftFloat)&quot;];
+  node [shape=&quot;&quot;,style=filled,fillcolor=lightyellow]; lib [label=&quot;lib (libm/soft-float/\nscanf/printf)&quot;];
   node [shape=&quot;&quot;,style=solid,color=black];
   &quot;User program&quot; -&gt; &quot;clang/llc&quot; [ label = &quot;c/c++&quot; ];
   lib -&gt; &quot;clang/llc&quot; [ label = &quot;c&quot; ];
   &quot;clang/llc&quot; -&gt; lld [ label = &quot;obj&quot; ];
 }" class="graphviz" /></div>
+<table class="docutils align-default" id="id13">
+<caption><span class="caption-number">Table 2 </span><span class="caption-text">lldb dependences</span><a class="headerlink" href="#id13" title="Permalink to this table">¶</a></caption>
+<colgroup>
+<col style="width: 29%" />
+<col style="width: 71%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>functions</p></th>
+<th class="head"><p>depend on</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>scanf</p></td>
+<td><p>newlib/libc</p></td>
+</tr>
+<tr class="row-odd"><td><p>printf</p></td>
+<td><p>sanitizter_printf.c of compiler-rt</p></td>
+</tr>
+</tbody>
+</table>
+<table class="docutils align-default" id="id14">
+<caption><span class="caption-number">Table 3 </span><span class="caption-text">sanitizer_printf.c of compiler-rt dependences</span><a class="headerlink" href="#id14" title="Permalink to this table">¶</a></caption>
+<colgroup>
+<col style="width: 43%" />
+<col style="width: 57%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>functions</p></th>
+<th class="head"><p>depend on</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>sanitizter_printf.c</p></td>
+<td><p>builtins of compiler-rt</p></td>
+</tr>
+</tbody>
+</table>
 <section id="c-library-newlib">
-<h2><a class="toc-backref" href="#id14">C Library (Newlib)</a><a class="headerlink" href="#c-library-newlib" title="Permalink to this headline">¶</a></h2>
+<h2><a class="toc-backref" href="#id16">C Library (Newlib)</a><a class="headerlink" href="#c-library-newlib" title="Permalink to this headline">¶</a></h2>
 <p>Newlib is a C library for bare metal platform.
 Two libraries in newlib are libc and libm. Libc is for functions of
 IO, file and string supported while libm is for mathematical functions.
@@ -84,7 +124,7 @@ NEWLIB_PARENT_DIR=$HOME/git
 NEWLIB_DIR=$NEWLIB_PARENT_DIR/newlib-cygwin
 CURR_DIR=`pwd`
 CC=$HOME/llvm/test/build/bin/clang
-CFLAGS=&quot;-I/$HOME/git/2/newlib-cygwin/newlib/libc/include -target cpu0el-unknown-linux-gnu -static -fintegrated-as -Wno-error=implicit-function-declaration&quot;
+CFLAGS=&quot;-target cpu0el-unknown-linux-gnu -static -fintegrated-as -Wno-error=implicit-function-declaration&quot;
 AS=&quot;$HOME/llvm/test/build/bin/clang -static -fintegrated-as -c&quot;
 AR=&quot;$HOME/llvm/test/build/bin/llvm-ar&quot;
 RANLIB=&quot;$HOME/llvm/test/build/bin/llvm-ranlib&quot;
@@ -101,17 +141,34 @@ install_newlib() {
   popd
 }
 
-build_newlib() {
-  pushd $NEWLIB_DIR
-  rm -rf build
-  mkdir build
-  cd build
+build_cpu0() {
+  rm -rf build-$CPU-$ENDIAN
+  mkdir build-$CPU-$ENDIAN
+  cd build-$CPU-$ENDIAN
+  CFLAGS=&quot;-target cpu0$ENDIAN-unknown-linux-gnu -mcpu=$CPU -static -fintegrated-as -Wno-error=implicit-function-declaration&quot;
   CC=$CC CFLAGS=$CFLAGS AS=$AS AR=$AR RANLIB=$RANLIB READELF=$READELF ../newlib/configure --host=cpu0
   make
+  cd ..
+}
+
+build_newlib() {
+  pushd $NEWLIB_DIR
+  CPU=cpu032I
+  ENDIAN=eb
+  build_cpu0;
+  CPU=cpu032I
+  ENDIAN=el
+  build_cpu0;
+  CPU=cpu032II
+  ENDIAN=eb
+  build_cpu0;
+  CPU=cpu032II
+  ENDIAN=el
+  build_cpu0;
   popd
 }
 
-install_newlib;
+#install_newlib;
 build_newlib;
 </pre></div>
 </div>
@@ -154,10 +211,10 @@ index ca6b46f03..7bbf46f25 100644
          syscall_dir=syscalls
  	default_newlib_io_long_long=&quot;yes&quot;
 diff --git a/newlib/libc/include/machine/ieeefp.h b/newlib/libc/include/machine/ieeefp.h
-index 3c1f41e03..5ff57e13a 100644
+index 3c1f41e03..1e79a6b26 100644
 --- a/newlib/libc/include/machine/ieeefp.h
 +++ b/newlib/libc/include/machine/ieeefp.h
-@@ -249,6 +249,18 @@
+@@ -249,6 +249,16 @@
  #define __IEEE_BIG_ENDIAN
  #endif
  
@@ -165,18 +222,16 @@ index 3c1f41e03..5ff57e13a 100644
 +// clang -target cpu0${ENDIAN}-unknown-linux-gnu 
 +// http://beefchunk.com/documentation/lang/c/pre-defined-c/prearch.html 
 +#ifdef __CPU0EL__
-+#undef __IEEE_BIG_ENDIAN
 +#define __IEEE_LITTLE_ENDIAN
 +#endif
 +#ifdef __CPU0EB__
 +#define __IEEE_BIG_ENDIAN
-+#undef __IEEE_LITTLE_ENDIAN
 +#endif
 +
  #ifdef __MMIX__
  #define __IEEE_BIG_ENDIAN
  #endif
-@@ -507,4 +519,3 @@
+@@ -507,4 +517,3 @@
  
  #endif /* not __IEEE_LITTLE_ENDIAN */
  #endif /* not __IEEE_BIG_ENDIAN */
@@ -279,7 +334,7 @@ $BB1:
 <p>The libm.a depends on variable errno of libc only defined in sys/errno.h.</p>
 </section>
 <section id="compiler-rt">
-<h2><a class="toc-backref" href="#id15">Compiler-rt</a><a class="headerlink" href="#compiler-rt" title="Permalink to this headline">¶</a></h2>
+<h2><a class="toc-backref" href="#id17">Compiler-rt</a><a class="headerlink" href="#compiler-rt" title="Permalink to this headline">¶</a></h2>
 <p>Compiler-rt is a project with runtime libraries implentation <a class="footnote-reference brackets" href="#id11" id="id3">3</a> .
 Compiler-rt/lib/builtins provides functions for basic operations such as +, -,
 *, /, … on type of float or double and for conversion between float and
@@ -287,8 +342,8 @@ integer, or on type of over 32-bit. The compiler-rt/lib/builtins/README.txt
 <a class="footnote-reference brackets" href="#builtins-readme" id="id4">4</a> includes the dependent functions the whole builtins called.
 The dependent functions is a small part of libm listed in
 compier-rt/lib/builtins/int_math.h <a class="footnote-reference brackets" href="#builtins-int-math" id="id5">5</a> .</p>
-<table class="docutils align-default" id="id13">
-<caption><span class="caption-number">Table 2 </span><span class="caption-text">compiler-rt builtins dependences on newlib/libm (open source libc for bare metal)</span><a class="headerlink" href="#id13" title="Permalink to this table">¶</a></caption>
+<table class="docutils align-default" id="id15">
+<caption><span class="caption-number">Table 4 </span><span class="caption-text">compiler-rt builtins dependences on newlib/libm (open source libc for bare metal)</span><a class="headerlink" href="#id15" title="Permalink to this table">¶</a></caption>
 <colgroup>
 <col style="width: 29%" />
 <col style="width: 71%" />
@@ -325,7 +380,8 @@ printf(%lld or %llX, …), I ported from
 compiler-rt/lib/sanitizer_common/sanitizer_printf.cpp to
 lbt/exlbt/input/sanitizer_printf.cpp.</p></li>
 <li><p>These dependent functions from has bee ported from newlib/libm.</p></li>
-<li><p>Except builtins, the other three, sanitizer runtimes, profile and BlocksRuntime, are not needed for my embedded Cpu0.</p></li>
+<li><p>Except builtins, the other three, sanitizer runtimes, profile and BlocksRuntime,
+are not needed for my embedded Cpu0.</p></li>
 </ul>
 <p>The libgcc’s Integer plus Soft float library  <a class="footnote-reference brackets" href="#lib-gcc" id="id6">6</a> <a class="footnote-reference brackets" href="#int-lib" id="id7">7</a>
 <a class="footnote-reference brackets" href="#sw-float-lib" id="id8">8</a> are equal to functions of compiler-rt’s builtins.</p>
@@ -381,7 +437,7 @@ implements compiler-rt-12.x/cpu0/abort.c only at this point for supporting
 this feature.</p>
 </section>
 <section id="software-float-point-support">
-<h2><a class="toc-backref" href="#id16">Software Float Point Support</a><a class="headerlink" href="#software-float-point-support" title="Permalink to this headline">¶</a></h2>
+<h2><a class="toc-backref" href="#id18">Software Float Point Support</a><a class="headerlink" href="#software-float-point-support" title="Permalink to this headline">¶</a></h2>
 <p>The following sanitizer_printf.cpp extended from compiler-rt can support
 printf(“%lld”). It’s implementation calling some floating lib functions
 in compiler-rt/lib/builtins.</p>
@@ -543,9 +599,7 @@ in compiler-rt/lib/builtins.</p>
 
 extern &quot;C&quot; int putchar(int c);
 
-static void abort() {
-  for (;;);
-}
+extern void* internal_memset(void* b, int c, size_t len);
 
 #if SANITIZER_WINDOWS &amp;&amp; defined(_MSC_VER) &amp;&amp; _MSC_VER &lt; 1800 &amp;&amp;               \
       !defined(va_copy)
@@ -553,6 +607,14 @@ static void abort() {
 #endif
 
 namespace __sanitizer {
+
+static int strlen(const char* s) {
+  int len = 0;
+  for (const char* p = s; *p != &#39;\0&#39;; p++) {
+    len++;
+  }
+  return len;
+}
 
 static int AppendChar(char **buff, const char *buff_end, char c) {
   if (*buff &lt; buff_end) {
@@ -567,7 +629,7 @@ static int AppendChar(char **buff, const char *buff_end, char c) {
 // on the value of |pad_with_zero|.
 static int AppendNumber(char **buff, const char *buff_end, u64 absolute_value,
                         u8 base, u8 minimal_num_length, bool pad_with_zero,
-                        bool negative, bool uppercase) {
+                        bool negative, bool uppercase, bool left_justified) {
   uptr const kMaxLen = 30;
   RAW_CHECK(base == 10 || base == 16);
   RAW_CHECK(base == 10 || !negative);
@@ -579,6 +641,7 @@ static int AppendNumber(char **buff, const char *buff_end, u64 absolute_value,
   if (negative &amp;&amp; pad_with_zero)
     result += AppendChar(buff, buff_end, &#39;-&#39;);
   uptr num_buffer[kMaxLen];
+  int num_pads = 0;
   int pos = 0;
   do {
     RAW_CHECK_MSG((uptr)pos &lt; kMaxLen, &quot;AppendNumber buffer overflow&quot;);
@@ -586,20 +649,18 @@ static int AppendNumber(char **buff, const char *buff_end, u64 absolute_value,
     absolute_value /= base;
   } while (absolute_value &gt; 0);
   if (pos &lt; minimal_num_length) {
-#if 1
-    abort();
-#else
     // Make sure compiler doesn&#39;t insert call to memset here.
     internal_memset(&amp;num_buffer[pos], 0,
                     sizeof(num_buffer[0]) * (minimal_num_length - pos));
+    num_pads = minimal_num_length - pos;
     pos = minimal_num_length;
-#endif
   }
   RAW_CHECK(pos &gt; 0);
   pos--;
   for (; pos &gt;= 0 &amp;&amp; num_buffer[pos] == 0; pos--) {
     char c = (pad_with_zero || pos == 0) ? &#39;0&#39; : &#39; &#39;;
-    result += AppendChar(buff, buff_end, c);
+    if (!left_justified)
+      result += AppendChar(buff, buff_end, c);
   }
   if (negative &amp;&amp; !pad_with_zero) result += AppendChar(buff, buff_end, &#39;-&#39;);
   for (; pos &gt;= 0; pos--) {
@@ -607,22 +668,28 @@ static int AppendNumber(char **buff, const char *buff_end, u64 absolute_value,
     digit = (digit &lt; 10) ? &#39;0&#39; + digit : (uppercase ? &#39;A&#39; : &#39;a&#39;) + digit - 10;
     result += AppendChar(buff, buff_end, digit);
   }
+  if (left_justified) {
+    for (int i = 0; i &lt; num_pads; i++)
+      result += AppendChar(buff, buff_end, &#39; &#39;);
+  }
   return result;
 }
 
 static int AppendUnsigned(char **buff, const char *buff_end, u64 num, u8 base,
                           u8 minimal_num_length, bool pad_with_zero,
-                          bool uppercase) {
+                          bool uppercase, bool left_justified) {
   return AppendNumber(buff, buff_end, num, base, minimal_num_length,
-                      pad_with_zero, false /* negative */, uppercase);
+                      pad_with_zero, false /* negative */, uppercase, 
+                      left_justified);
 }
 
 static int AppendSignedDecimal(char **buff, const char *buff_end, s64 num,
-                               u8 minimal_num_length, bool pad_with_zero) {
+                               u8 minimal_num_length, bool pad_with_zero,
+                               bool left_justified) {
   bool negative = (num &lt; 0);
   return AppendNumber(buff, buff_end, (u64)(negative ? -num : num), 10,
                       minimal_num_length, pad_with_zero, negative,
-                      false /* uppercase */);
+                      false /* uppercase */, left_justified);
 }
 
 
@@ -630,31 +697,39 @@ static int AppendSignedDecimal(char **buff, const char *buff_end, s64 num,
 // interpret width == 0 as &quot;no width requested&quot;:
 // width == 0 - no width requested
 // width  &lt; 0 - left-justify s within and pad it to -width chars, if necessary
-// width  &gt; 0 - right-justify s, not implemented yet
+// width  &gt; 0 - right-justify s, implement for cpu0
 static int AppendString(char **buff, const char *buff_end, int width,
-                        int max_chars, const char *s) {
+                        int max_chars, const char *s, bool left_justified) {
   if (!s)
     s = &quot;&lt;null&gt;&quot;;
   int result = 0;
+  if (!left_justified) {
+    int s_len = strlen(s);
+    while (result &lt; width - s_len)
+      result += AppendChar(buff, buff_end, &#39; &#39;);
+  }
   for (; *s; s++) {
     if (max_chars &gt;= 0 &amp;&amp; result &gt;= max_chars)
       break;
     result += AppendChar(buff, buff_end, *s);
   }
-  // Only the left justified strings are supported.
-  while (width &lt; -result)
-    result += AppendChar(buff, buff_end, &#39; &#39;);
+  if (left_justified) {
+    while (width &lt; -result)
+      result += AppendChar(buff, buff_end, &#39; &#39;);
+  }
   return result;
 }
 
-static int AppendPointer(char **buff, const char *buff_end, u64 ptr_value) {
+static int AppendPointer(char **buff, const char *buff_end, u64 ptr_value,
+                         bool left_justified) {
   int result = 0;
-  result += AppendString(buff, buff_end, 0, -1, &quot;0x&quot;);
+  result += AppendString(buff, buff_end, 0, -1, &quot;0x&quot;, left_justified);
   result += AppendUnsigned(buff, buff_end, ptr_value, 16,
 // By running clang -E, can get the macro value for SANITIZER_POINTER_FORMAT_LENGTH is (12)
 //                           SANITIZER_POINTER_FORMAT_LENGTH,
                            (12),
-                           true /* pad_with_zero */, false /* uppercase */);
+                           true /* pad_with_zero */, false /* uppercase */,
+                           left_justified);
   return result;
 }
 
@@ -707,7 +782,7 @@ int VSNPrintf(char *buff, int buff_length,
              : have_z ? va_arg(args, sptr)
              : va_arg(args, int);
         result += AppendSignedDecimal(&amp;buff, buff_end, dval, width,
-                                      pad_with_zero);
+                                      pad_with_zero, left_justified);
         break;
       }
       case &#39;u&#39;:
@@ -718,20 +793,20 @@ int VSNPrintf(char *buff, int buff_length,
              : va_arg(args, unsigned);
         bool uppercase = (*cur == &#39;X&#39;);
         result += AppendUnsigned(&amp;buff, buff_end, uval, (*cur == &#39;u&#39;) ? 10 : 16,
-                                 width, pad_with_zero, uppercase);
+                                 width, pad_with_zero, uppercase, left_justified);
         break;
       }
       case &#39;p&#39;: {
         RAW_CHECK_MSG(!have_flags, kPrintfFormatsHelp);
-        result += AppendPointer(&amp;buff, buff_end, va_arg(args, uptr));
+        result += AppendPointer(&amp;buff, buff_end, va_arg(args, uptr),
+                                left_justified);
         break;
       }
       case &#39;s&#39;: {
         RAW_CHECK_MSG(!have_length, kPrintfFormatsHelp);
-        // Only left-justified width is supported.
         CHECK(!have_width || left_justified);
         result += AppendString(&amp;buff, buff_end, left_justified ? -width : width,
-                               precision, va_arg(args, char*));
+                               precision, va_arg(args, char*), left_justified);
         break;
       }
       case &#39;c&#39;: {
@@ -768,6 +843,15 @@ int prints(const char *string)
   return pc;
 }
 
+extern &quot;C&quot; int sprintf(char *buffer, const char *format, ...) {
+  int length = 1000;
+  va_list args;
+  va_start(args, format);
+  int needed_length = __sanitizer::VSNPrintf(buffer, length, format, args);
+  va_end(args);
+  return 0;
+}
+
 extern &quot;C&quot; int printf(const char *format, ...) {
   int length = 1000;
   char buffer[1000];
@@ -780,59 +864,16 @@ extern &quot;C&quot; int printf(const char *format, ...) {
 }
 </pre></div>
 </div>
-<p class="rubric">exlbt/input/ch_hello.c</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="o">//</span> <span class="o">~/</span><span class="n">llvm</span><span class="o">/</span><span class="n">release</span><span class="o">/</span><span class="n">build</span><span class="o">/</span><span class="nb">bin</span><span class="o">/</span><span class="n">clang</span> <span class="o">-</span><span class="n">target</span> <span class="n">mips</span><span class="o">-</span><span class="n">unknown</span><span class="o">-</span><span class="n">linux</span><span class="o">-</span><span class="n">gnu</span> <span class="o">-</span><span class="n">c</span> <span class="n">hello</span><span class="o">.</span><span class="n">cpp</span> <span class="o">-</span><span class="n">emit</span><span class="o">-</span><span class="n">llvm</span> <span class="o">-</span><span class="n">o</span> <span class="n">hello</span><span class="o">.</span><span class="n">bc</span>
-<span class="o">//</span> <span class="o">~/</span><span class="n">llvm</span><span class="o">/</span><span class="n">test</span><span class="o">/</span><span class="n">build</span><span class="o">/</span><span class="nb">bin</span><span class="o">/</span><span class="n">llc</span> <span class="o">-</span><span class="n">march</span><span class="o">=</span><span class="n">cpu0</span> <span class="o">-</span><span class="n">mcpu</span><span class="o">=</span><span class="n">cpu032I</span> <span class="o">-</span><span class="n">relocation</span><span class="o">-</span><span class="n">model</span><span class="o">=</span><span class="n">static</span> <span class="o">-</span><span class="n">filetype</span><span class="o">=</span><span class="n">obj</span> <span class="n">ch_hello</span><span class="o">.</span><span class="n">bc</span> <span class="o">-</span><span class="n">o</span> <span class="n">ch_hello</span><span class="o">.</span><span class="n">cpu0</span><span class="o">.</span><span class="n">o</span>
-
-<span class="o">//</span> <span class="n">start</span>
-<span class="n">extern</span> <span class="nb">int</span> <span class="n">printf</span><span class="p">(</span><span class="n">const</span> <span class="n">char</span> <span class="o">*</span><span class="nb">format</span><span class="p">,</span> <span class="o">...</span><span class="p">);</span>
-
-<span class="nb">int</span> <span class="n">main</span><span class="p">(</span><span class="n">void</span><span class="p">)</span>
-<span class="p">{</span>
-  <span class="n">char</span> <span class="n">ptr</span><span class="p">[]</span> <span class="o">=</span> <span class="s2">&quot;Hello world!&quot;</span><span class="p">;</span>
-
-  <span class="n">long</span> <span class="n">long</span> <span class="n">a</span> <span class="o">=</span> <span class="mh">0x100000007fffffff</span><span class="p">;</span>
-  <span class="n">printf</span><span class="p">(</span><span class="s2">&quot;</span><span class="si">%s</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">ptr</span><span class="p">);</span>
-  <span class="n">printf</span><span class="p">(</span><span class="s2">&quot;a: %llX, %llx, %lld</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">a</span><span class="p">,</span> <span class="n">a</span><span class="p">,</span> <span class="n">a</span><span class="p">);</span>
-  <span class="nb">int</span> <span class="n">b</span> <span class="o">=</span> <span class="mh">0x10000000</span><span class="p">;</span>
-  <span class="n">printf</span><span class="p">(</span><span class="s2">&quot;b: </span><span class="si">%x</span><span class="s2">, </span><span class="si">%d</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">b</span><span class="p">,</span> <span class="n">b</span><span class="p">);</span>
-
-  <span class="k">return</span> <span class="mi">0</span><span class="p">;</span>
-<span class="p">}</span>
-
-</pre></div>
-</div>
-<p class="rubric">exlbt/input/Makefile.sanitizer-printf</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>
-SRCS := start.cpp debug.cpp sanitizer_printf.cpp printf-stdarg-def.c ch_hello.c \
-        lib_cpu0.ll
-
-LIBBUILTINS_DIR := ../compiler-rt/builtins
-INC_DIRS := ./ $(NEWLIB_DIR)/newlib/libc/include ../../lbdex/input $(HOME)/llvm/test/compiler-rt/lib/sanitizer_common
-LIBS := $(LIBBUILTINS_DIR)/build/libbuiltins.a
-
-include Common.mk
-</pre></div>
-</div>
-<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">cschen@cschendeiMac input %  </span>bash make.sh cpu032I le Makefile.sanitizer-printf
-
-<span class="gp">cschen@cschendeiMac verilog % </span>./cpu0Is
-<span class="go">...</span>
-<span class="go">Hello world!</span>
-<span class="go">a: 100000007FFFFFFF, 100000007fffffff, 1152921506754330623</span>
-<span class="go">b: 10000000, 268435456</span>
-<span class="go">total cpu cycles = 1266990</span>
-<span class="go">RET to PC &lt; 0, finished!</span>
-</pre></div>
-</div>
-<p>The following ch_float.cpp test the float lib.</p>
+<p>Above two sanitizer_*.* files are ported from compiler-rt and I add code to
+support left-justify for number-printf and right-justify for string-printf.
+The following ch_float.cpp test the float lib.</p>
 <p class="rubric">lbt/exlbt/compiler-rt-12.x/builtins/Makefile</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span># Thanks .c .cb Vranish (https://spin.a.cmi.cbject..cm/2016/08/26/makefile-c-p.cjects/)
 
 # CPU and endian passed from command line, such as &quot;make CPU=cpu032II ENDIAN=el&quot;
 
 TARGET_LIB := libbuiltins.a
-BUILD_DIR := ./build
+BUILD_DIR := ./build-$(CPU)-$(ENDIAN)
 TARGET := $(BUILD_DIR)/$(TARGET_LIB)
 
 SRC_DIR := $(HOME)/llvm/llvm-project/compiler-rt/lib/builtins
@@ -976,11 +1017,11 @@ SRCS := $(GENERIC_SOURCES)
 SRCS := $(SRCS:%=$(SRC_DIR)/%) $(PWD)/../cpu0/abort.c
 
 # String substitution for every C/C++ file.
-# As an example, absvdi2.c turns into ./build/absvdi2.c.o
+# As an example, absvdi2.c turns into ./build-$(CPU)-$(ENDIAN)/absvdi2.c.o
 OBJS := $(SRCS:%=$(BUILD_DIR)/%.o)
 
 # String substitution (suffix version without %).
-# As an example, ./build/absvdi2.c.o turns into ./build/absvdi2.c.d
+# As an example, ./build/absvdi2.c.o turns into ./build-$(CPU)-$(ENDIAN)/absvdi2.c.d
 DEPS := $(OBJS:.o=.d)
 
 # Every folder in ./src will need to be passed to GCC so that it can find header files
@@ -991,8 +1032,8 @@ INC_FLAGS := $(addprefix -I,$(INC_DIRS))
 
 # The -MMD and -MP flags together generate Makefiles for us!
 # These files will have .d instead of .o as the output.
-CPPFLAGS := -MMD -MP -target cpu0${ENDIAN}-unknown-linux-gnu -static \
-  -fintegrated-as ${INC_FLAGS} -mcpu=${CPU} -mllvm -has-lld=true
+CPPFLAGS := -MMD -MP -target cpu0$(ENDIAN)-unknown-linux-gnu -static \
+  -fintegrated-as $(INC_FLAGS) -mcpu=$(CPU) -mllvm -has-lld=true
 
 # The final build step.
 $(TARGET): $(OBJS)
@@ -1020,7 +1061,47 @@ clean:
 extern &quot;C&quot; int printf(const char *format, ...);
 extern &quot;C&quot; int sprintf(char *out, const char *format, ...);
 
-#include &quot;../../lbdex/input/ch9_3_longlongshift.cpp&quot;
+#include &quot;ch9_3_longlongshift.cpp&quot;
+
+void test_printf()
+{
+  char buf[80];
+  long long a = 0x100000007fffffff;
+  printf(&quot;a: %llX, %llx, %lld\n&quot;, a, a, a);
+  int b = 0x10000000;
+  printf(&quot;b: %x, %d\n&quot;, b, b);
+  sprintf(buf, &quot;b: %x, %d\n&quot;, b, b); printf(&quot;%s&quot;, buf);
+
+  // sanitizer_printf.cpp support right-justify for num only and left-justify
+  // for string only. However, I change and support right-justify for cpu0.
+  char ptr[] = &quot;Hello world!&quot;;
+  char *np = 0;
+  int i = 5;
+  unsigned int bs = sizeof(int)*8;
+  int mi;
+
+  mi = (1 &lt;&lt; (bs-1)) + 1;
+  printf(&quot;%s\n&quot;, ptr);
+  printf(&quot;printf test\n&quot;);
+  printf(&quot;%s is null pointer\n&quot;, np);
+  printf(&quot;%d = 5\n&quot;, i);
+  printf(&quot;%d = - max int\n&quot;, mi);
+  printf(&quot;char %c = &#39;a&#39;\n&quot;, &#39;a&#39;);
+  printf(&quot;hex %x = ff\n&quot;, 0xff);
+  printf(&quot;hex %02x = 00\n&quot;, 0);
+  printf(&quot;signed %d = unsigned %u = hex %x\n&quot;, -3, -3, -3);
+  printf(&quot;%d %s(s)&quot;, 0, &quot;message&quot;);
+  printf(&quot;\n&quot;);
+  printf(&quot;%d %s(s) with %%\n&quot;, 0, &quot;message&quot;);
+  sprintf(buf, &quot;justif: \&quot;%-10s\&quot;\n&quot;, &quot;left&quot;); printf(&quot;%s&quot;, buf);
+  sprintf(buf, &quot;justif: \&quot;%10s\&quot;\n&quot;, &quot;right&quot;); printf(&quot;%s&quot;, buf);
+  sprintf(buf, &quot; 3: %04d zero padded\n&quot;, 3); printf(&quot;%s&quot;, buf);
+  sprintf(buf, &quot; 3: %-4d left justif.\n&quot;, 3); printf(&quot;%s&quot;, buf);
+  sprintf(buf, &quot; 3: %4d right justif.\n&quot;, 3); printf(&quot;%s&quot;, buf);
+  sprintf(buf, &quot;-3: %04d zero padded\n&quot;, -3); printf(&quot;%s&quot;, buf);
+  sprintf(buf, &quot;-3: %-4d left justif.\n&quot;, -3); printf(&quot;%s&quot;, buf);
+  sprintf(buf, &quot;-3: %4d right justif.\n&quot;, -3); printf(&quot;%s&quot;, buf);
+}
 
 template &lt;class T&gt;
 T test_shift_left(T a, T b) {
@@ -1078,6 +1159,8 @@ int main() {
   long long a;
   unsigned long long b;
   int c;
+
+  test_printf();
 
   a = test_longlong_shift1();
   check_result(&quot;test_longlong_shift1()&quot;, a, 289LL);
@@ -1156,15 +1239,16 @@ int main() {
 </div>
 <p class="rubric">exlbt/input/Makefile.float</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span>
-SRCS := start.cpp debug.cpp sanitizer_printf.cpp printf-stdarg-def.c ch_float.cpp lib_cpu0.ll
+SRCS := start.cpp debug.cpp sanitizer_printf.cpp printf-stdarg-def.c \
+        cpu0-builtins.cpp ch_float.cpp lib_cpu0.ll
 LIBBUILTINS_DIR := ../compiler-rt/builtins
-INC_DIRS := ../ $(NEWLIB_DIR)/newlib/libc/include ../../lbdex/input
-LIBS := $(LIBBUILTINS_DIR)/build/libbuiltins.a
+INC_DIRS := ../ $(NEWLIB_DIR)/newlib/libc/include $(LBDEX_DIR)/input
+LIBS := $(LIBBUILTINS_DIR)/build-$(CPU)-$(ENDIAN)/libbuiltins.a
 
 include Common.mk
 </pre></div>
 </div>
-<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">chungshu@ChungShudeMacBook-Air input % </span>bash make.sh cpu032II be Makefile.float
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">chungshu@ChungShudeMacBook-Air input % </span>bash make.sh cpu032II eb Makefile.float
 <span class="go">...</span>
 <span class="go">endian =  BigEndian</span>
 <span class="go">ISR address:00020614</span>
@@ -1173,6 +1257,29 @@ include Common.mk
 <span class="gp">chungshu@ChungShudeMacBook-Air verilog % </span>iverilog -o cpu0IIs cpu0IIs.v
 <span class="gp">chungshu@ChungShudeMacBook-Air verilog % </span>./cpu0IIs
 <span class="go">...</span>
+
+<span class="go">a: 100000007FFFFFFF, 100000007fffffff, 1152921506754330623</span>
+<span class="go">b: 10000000, 268435456</span>
+<span class="go">b: 10000000, 268435456</span>
+<span class="go">Hello world!</span>
+<span class="go">printf test</span>
+<span class="go">&lt;null&gt; is null pointer</span>
+<span class="go">5 = 5</span>
+<span class="go">-2147483647 = - max int</span>
+<span class="go">char a = &#39;a&#39;</span>
+<span class="go">hex ff = ff</span>
+<span class="go">hex 00 = 00</span>
+<span class="go">signed -3 = unsigned 4294967293 = hex fffffffd</span>
+<span class="go">0 message(s)</span>
+<span class="go">0 message(s) with %</span>
+<span class="go">justif: &quot;left      &quot;</span>
+<span class="go">justif: &quot;     right&quot;</span>
+<span class="go"> 3: 0003 zero padded</span>
+<span class="go"> 3: 3    left justif.</span>
+<span class="go"> 3:    3 right justif.</span>
+<span class="go">-3: -003 zero padded</span>
+<span class="go">-3: -3   left justif.</span>
+<span class="go">-3:   -3 right justif.</span>
 <span class="go">test_longlong_shift1() = 289</span>
 <span class="go">test_longlong_shift2() = 22</span>
 <span class="go">test_shift_left&lt;long long&gt;(0x12, 4LL) = 288</span>
@@ -1824,7 +1931,7 @@ int main() {
 </div>
 <p class="rubric">exlbt/input/Makefile.builtins</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span># CPU and endian passed from command line, such as 
-#   &quot;make -f Makefile.builtins CPU=cpu032II ENDIAN= NEWLIB_DIR=${HOME}/git/newlib-cygwin&quot;
+#   &quot;make -f Makefile.builtins CPU=cpu032II ENDIAN=eb \
 
 # start.cpp must be put at beginning
 SRCS :=  start.cpp debug.cpp sanitizer_printf.cpp printf-stdarg-def.c \
@@ -1957,18 +2064,19 @@ SRCS :=  start.cpp debug.cpp sanitizer_printf.cpp printf-stdarg-def.c \
   compiler-rt-test/builtins/Unit/unorddf2vfp_test.c \
   compiler-rt-test/builtins/Unit/unordsf2vfp_test.c \
   compiler-rt-test/builtins/Unit/unordtf2_test.c \
-  ch_builtins.cpp lib_cpu0.ll
+  cpu0-builtins.cpp ch_builtins.cpp lib_cpu0.ll
 
-INC_DIRS := ./ ../../lbdex/input $(NEWLIB_DIR)/newlib/libc/include \
+INC_DIRS := ./ $(LBDEX_DIR)/input $(NEWLIB_DIR)/newlib/libc/include \
             $(HOME)/llvm/llvm-project/compiler-rt/lib/builtins
 LIBBUILTINS_DIR := ../compiler-rt/builtins
-LIBS := $(LIBBUILTINS_DIR)/build/libbuiltins.a $(NEWLIB_DIR)/build/libm.a $(NEWLIB_DIR)/build/libc.a
+LIBS := $(LIBBUILTINS_DIR)/build-$(CPU)-$(ENDIAN)/libbuiltins.a \
+        $(NEWLIB_DIR)/build-$(CPU)-$(ENDIAN)/libm.a $(NEWLIB_DIR)/build-$(CPU)-$(ENDIAN)/libc.a
 
 include Common.mk
 </pre></div>
 </div>
 <p>Run as follows,</p>
-<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">chungshu@ChungShudeMacBook-Air input % </span>bash make.sh cpu032II be Makefile.builtins
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">chungshu@ChungShudeMacBook-Air input % </span>bash make.sh cpu032II eb Makefile.builtins
 <span class="go">...</span>
 <span class="gp">chungshu@ChungShudeMacBook-Air verilog % </span>./cpu0IIs
 <span class="go">...</span>
@@ -2135,6 +2243,8 @@ include Common.mk
         «&#160;&#160;<a href="opt.html">Optimization</a>
         &#160;&#160;::&#160;&#160;
         <a class="uplink" href="index.html">Contents</a>
+        &#160;&#160;::&#160;&#160;
+        <a href="lldb.html">LLDB</a>&#160;&#160;»
         </p>
 
       </div>

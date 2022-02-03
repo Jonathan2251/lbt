@@ -125,16 +125,9 @@ Let's run the static linker first and explain it next.
 
 File printf-stdarg.c [#printf-stdarg]_ come from internet download which is 
 GPL2 license. GPL2 is more restricted than LLVM license. 
-File printf-stdarg-1.c is the file for testing the printf() function which
-implemented on PC OS platform. Let's run printf-stdarg-2.cpp on Cpu0 and
-compare it against the result of PC's printf() as below.
 
 .. rubric:: exlbt/input/printf-stdarg-1.c
 .. literalinclude:: ../exlbt/input/printf-stdarg-1.c
-    :start-after: /// start
-
-.. rubric:: exlbt/input/printf-stdarg-2.cpp
-.. literalinclude:: ../exlbt/input/printf-stdarg-2.cpp
     :start-after: /// start
 
 .. rubric:: exlbt/input/printf-stdarg-def.c
@@ -156,103 +149,8 @@ compare it against the result of PC's printf() as below.
 .. rubric:: exlbt/input/Common.mk
 .. literalinclude:: ../exlbt/input/Common.mk
 
-.. rubric:: exlbt/input/Makefile.printf-stdarg-2
-.. literalinclude:: ../exlbt/input/Makefile.printf-stdarg-2
 
 
-The Makefile.printf-stdarg-2 is for my PC setting. Please change this script to
-the directory of your llvm/lld setting. After that run static linker example 
-code as follows,
-
-.. code-block:: console
-
-  1-160-136-173:input Jonathan$ pwd
-  /Users/Jonathan/Downloads/exlbt/input
-  1-160-136-173:input Jonathan$ bash Makefile.printf-stdarg-2 cpu032I be
-  In file included from printf-stdarg-2.cpp:11:
-  ./printf-stdarg.c:206:15: warning: conversion from string literal to 'char *' 
-  is deprecated [-Wdeprecated-writable-strings]
-    char *ptr = "Hello world!";
-                ^
-  1 warning generated.
-  
-  1-160-136-173:input Jonathan$ cd ../../lbdex/verilog/
-  1-160-136-173:verilog Jonathan$ pwd
-  /Users/Jonathan/Download/lbdex/verilog
-  1-160-136-173:verilog Jonathan$ make
-  1-160-136-173:verilog Jonathan$ ls
-  ... cpu0Is ... cpu0IIs ...
-  1-160-136-173:verilog Jonathan$ ./cpu0Is
-  Hello world!
-  printf test
-  (null) is null pointer
-  5 = 5
-  -2147483647 = - max int
-  char a = 'a'
-  hex ff = ff
-  hex 00 = 00
-  signed -3 = unsigned 4294967293 = hex fffffffd
-  0 message(s)
-  0 message(s) with \%
-  justif: "left      "
-  justif: "     right"
-   3: 0003 zero padded
-   3: 3    left justif.
-   3:    3 right justif.
-  -3: -003 zero padded
-
-Let's check the result with PC program printf-stdarg-1.c output as follows,
-
-.. code-block:: console
-
-  1-160-136-173:input Jonathan$ clang printf-stdarg-1.c
-  printf-stdarg-1.c:58:19: warning: incomplete format specifier [-Wformat]
-    printf("%d %s(s)%", 0, "message");
-                    ^
-  1 warning generated.
-  1-160-136-173:input Jonathan$ ./a.out
-  Hello world!
-  printf test
-  (null) is null pointer
-  5 = 5
-  -2147483647 = - max int
-  char a = 'a'
-  hex ff = ff
-  hex 00 = 00
-  signed -3 = unsigned 4294967293 = hex fffffffd
-  0 message(s)
-  0 message(s) with \%
-  justif: "left      "
-  justif: "     right"
-   3: 0003 zero padded
-   3: 3    left justif.
-   3:    3 right justif.
-  -3: -003 zero padded
-  -3: -3   left justif.
-  -3:   -3 right justif.
-
-They are same. You can verify the slt instructions is work fine too by change 
-variable cpu from cpu032I to cpu032II as follows,
-
-.. rubric:: exlbt/input/Makefile.printf-stdarg-2
-
-
-.. code-block:: console
-
-  1-160-136-173:verilog Jonathan$ pwd
-  /Users/Jonathan/Download/lbdex/verilog
-  1-160-136-173:verilog Jonathan$ cd ../../exlbt/input
-  1-160-136-173:input Jonathan$ pwd
-  /Users/Jonathan/Download/exlbt/input
-  1-160-136-173:input Jonathan$ bash Makefile.printf-stdarg-2 cpu032II be
-  ...
-  1-160-136-173:input Jonathan$ cd ../lbdex/verilog/
-  1-160-136-173:verilog Jonathan$ ./cpu0IIs
-
-The verilog machine cpu0IIs include all instructions of cpu032I and add 
-slt, beq, ..., instructions.
-Run Makefile.printf-stdarg-2 with cpu=cpu032II will generate slt, beq and bne 
-instructions instead of cmp, jeq, ... instructions.
 
 With the printf() of GPL source code, we can program more test code with it 
 to verify the previous llvm Cpu0 backend generated program. The following code 
@@ -322,6 +220,26 @@ is for this purpose.
   31
   49
   test_nolld(): PASS
+  __CPU0EL__
+  Hello world!
+  printf test
+  (null) is null pointer
+  5 = 5
+  -2147483647 = - max int
+  char a = 'a'
+  hex ff = ff
+  hex 00 = 00
+  signed -3 = unsigned 4294967293 = hex fffffffd
+  0 message(s)
+  0 message(s) with %
+  justif: "left      "
+  justif: "     right"
+   3: 0003 zero padded
+   3: 3    left justif.
+   3:    3 right justif.
+  -3: -003 zero padded
+  -3: -3   left justif.
+  -3:   -3 right justif.
   global variable gI = 100, PASS
   test_ctrl2(): a = 1, b = 0, c = 1, d = 0, PASS
   test_phinode(3, 1) = 3, PASS
@@ -348,6 +266,37 @@ is for this purpose.
   Harware interrupt 1
   ...             
   RET to PC < 0, finished!
+
+Above test includes the printf format verification.
+Let's check the result with PC program printf-stdarg-1.c output as follows,
+
+.. code-block:: console
+
+  1-160-136-173:input Jonathan$ clang printf-stdarg-1.c
+  printf-stdarg-1.c:58:19: warning: incomplete format specifier [-Wformat]
+    printf("%d %s(s)%", 0, "message");
+                    ^
+  1 warning generated.
+  1-160-136-173:input Jonathan$ ./a.out
+  Hello world!
+  printf test
+  (null) is null pointer
+  5 = 5
+  -2147483647 = - max int
+  char a = 'a'
+  hex ff = ff
+  hex 00 = 00
+  signed -3 = unsigned 4294967293 = hex fffffffd
+  0 message(s)
+  0 message(s) with \%
+  justif: "left      "
+  justif: "     right"
+   3: 0003 zero padded
+   3: 3    left justif.
+   3:    3 right justif.
+  -3: -003 zero padded
+  -3: -3   left justif.
+  -3:   -3 right justif.
 
 As above, by taking the open source code advantage, Cpu0 got the more stable 
 printf() program. 

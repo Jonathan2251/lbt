@@ -64,7 +64,7 @@ The term Cpu0 backend used in this chapter can refer to the ELF format handling
 for Cpu0 target machine under lld, llvm compiler backend, or both. But
 supposing readers will easy knowing what it refer to.</p>
 <figure class="align-center" id="id15">
-<span id="lld-f-workflow"></span><a class="reference internal image-reference" href="_images/mywork_1.png"><img alt="_images/mywork_1.png" src="_images/mywork_1.png" style="width: 1185.0px; height: 387.0px;" /></a>
+<span id="lld-f-workflow"></span><a class="reference internal image-reference" href="_images/mywork_1.png"><img alt="_images/mywork_1.png" src="_images/mywork_1.png" style="width: 1194.0px; height: 411.0px;" /></a>
 <figcaption>
 <p><span class="caption-number">Fig. 3 </span><span class="caption-text">Code generation and execution flow</span><a class="headerlink" href="#id15" title="Permalink to this image">¶</a></p>
 </figcaption>
@@ -961,10 +961,7 @@ while the IR linker hasn’t.</p>
 <h3><a class="toc-backref" href="#id20">Static linker</a><a class="headerlink" href="#static-linker" title="Permalink to this headline">¶</a></h3>
 <p>Let’s run the static linker first and explain it next.</p>
 <p>File printf-stdarg.c <a class="footnote-reference brackets" href="#printf-stdarg" id="id3">7</a> come from internet download which is
-GPL2 license. GPL2 is more restricted than LLVM license.
-File printf-stdarg-1.c is the file for testing the printf() function which
-implemented on PC OS platform. Let’s run printf-stdarg-2.cpp on Cpu0 and
-compare it against the result of PC’s printf() as below.</p>
+GPL2 license. GPL2 is more restricted than LLVM license.</p>
 <p class="rubric">exlbt/input/printf-stdarg-1.c</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span>/*
   Copyright 2001, 2002 Georges Menie (www.menie.org)
@@ -1067,20 +1064,6 @@ int main(void)
  */
 
 #endif
-</pre></div>
-</div>
-<p class="rubric">exlbt/input/printf-stdarg-2.cpp</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>
-<span class="c1">#include &quot;debug.h&quot;</span>
-<span class="c1">#include &quot;print.h&quot;</span>
-
-<span class="c1">#define TEST_PRINTF</span>
-
-<span class="n">extern</span> <span class="s2">&quot;C&quot;</span> <span class="nb">int</span> <span class="n">putchar</span><span class="p">(</span><span class="nb">int</span> <span class="n">c</span><span class="p">);</span> 
-
-<span class="n">extern</span> <span class="s2">&quot;C&quot;</span> <span class="p">{</span>
-<span class="c1">#include &quot;printf-stdarg.c&quot;</span>
-<span class="p">}</span>
 </pre></div>
 </div>
 <p class="rubric">exlbt/input/printf-stdarg-def.c</p>
@@ -1371,28 +1354,21 @@ int main(void)
 </div>
 <p class="rubric">exlbt/input/start.cpp</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span>
-#include &quot;dynamic_linker.h&quot;
-#include &quot;start.h&quot;
+<span class="c1">#include &quot;start.h&quot;</span>
 
-extern int main();
+<span class="n">extern</span> <span class="nb">int</span> <span class="n">main</span><span class="p">();</span>
 
-// Real entry (first instruction) is from cpu0BootAtomContent of 
-// Cpu0RelocationPass.cpp jump to asm(&quot;start:&quot;) of start.cpp.
-void start() {
-  asm(&quot;start:&quot;);
+<span class="o">//</span> <span class="n">Real</span> <span class="n">entry</span> <span class="p">(</span><span class="n">first</span> <span class="n">instruction</span><span class="p">)</span> <span class="ow">is</span> <span class="kn">from</span> <span class="nn">cpu0BootAtomContent</span> <span class="n">of</span> 
+<span class="o">//</span> <span class="n">Cpu0RelocationPass</span><span class="o">.</span><span class="n">cpp</span> <span class="n">jump</span> <span class="n">to</span> <span class="n">asm</span><span class="p">(</span><span class="s2">&quot;start:&quot;</span><span class="p">)</span> <span class="n">of</span> <span class="n">start</span><span class="o">.</span><span class="n">cpp</span><span class="o">.</span>
+<span class="n">void</span> <span class="n">start</span><span class="p">()</span> <span class="p">{</span>
+  <span class="n">asm</span><span class="p">(</span><span class="s2">&quot;start:&quot;</span><span class="p">);</span>
   
-  INIT_SP
-  int *gpaddr;
-  gpaddr = (int*)GPADDR;
-  __asm__ __volatile__(&quot;ld  $gp, %0&quot;
-                       : // no output register, specify output register to $gp
-                       :&quot;m&quot;(*gpaddr)
-                       );
-  initRegs();
-  main();
-  asm(&quot;addiu $lr, $ZERO, -1&quot;);
-  asm(&quot;ret $lr&quot;);
-}
+  <span class="n">INIT_SP</span>
+  <span class="n">initRegs</span><span class="p">();</span>
+  <span class="n">main</span><span class="p">();</span>
+  <span class="n">asm</span><span class="p">(</span><span class="s2">&quot;addiu $lr, $ZERO, -1&quot;</span><span class="p">);</span>
+  <span class="n">asm</span><span class="p">(</span><span class="s2">&quot;ret $lr&quot;</span><span class="p">);</span>
+<span class="p">}</span>
 
 </pre></div>
 </div>
@@ -1471,7 +1447,7 @@ void start() {
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span># Thanks https://makefiletutorial.com
 
 TARGET_EXEC := a.out
-BUILD_DIR := ./build
+BUILD_DIR := ./build-$(CPU)-$(ENDIAN)
 TARGET := $(BUILD_DIR)/$(TARGET_EXEC)
 SRC_DIR := ./
 
@@ -1491,21 +1467,24 @@ OBJS := $(SRCS:%=$(BUILD_DIR)/%.o)
 # As an example, ./build/hello.cpp.o turns into ./build/hello.cpp.d
 DEPS := $(OBJS:.o=.d)
 
-# Add a prefix to INC_DIRS. So moduleA would become -ImoduleA. GCC understands this -I flag
+# Add a prefix to INC_DIRS. So moduleA would become -ImoduleA. GCC understands 
+# this -I flag
 INC_FLAGS := $(addprefix -I,$(INC_DIRS))
 
 # The -MMD and -MP flags together generate Makefiles for us!
 # These files will have .d instead of .o as the output.
 # fintegrated-as: for asm code in C/C++
 CPPFLAGS := -MMD -MP -target cpu0$(ENDIAN)-unknown-linux-gnu -static \
-  -fintegrated-as $(INC_FLAGS) -mcpu=$(CPU) -mllvm -has-lld=true -DHAS_COMPLEX
+            -fintegrated-as $(INC_FLAGS) -march=cpu0$(ENDIAN) -mcpu=$(CPU) \
+            -mllvm -has-lld=true -DHAS_COMPLEX
 
-LLFLAGS := -march=cpu0$(ENDIAN) -mcpu=$(CPU) -relocation-model=static \
+LLFLAGS := -mcpu=$(CPU) -relocation-model=static \
   -filetype=obj -has-lld=true
 
 CFLAGS := -target cpu0$(ENDIAN)-unknown-linux-gnu -static -mcpu=$(CPU) \
           -fintegrated-as -Wno-error=implicit-function-declaration
-CONFIGURE := CC=&quot;$(CC)&quot; CFLAGS=&quot;$(CFAGS)&quot; AS=&quot;$(AS)&quot; RANLIB=&quot;$(RANLIB)&quot; READELF=&quot;$(READELF)&quot; ../newlib/configure --host=cpu0
+CONFIGURE := CC=&quot;$(CC)&quot; CFLAGS=&quot;$(CFAGS)&quot; AS=&quot;$(AS)&quot; RANLIB=&quot;$(RANLIB)&quot; \
+            READELF=&quot;$(READELF)&quot; ../newlib/configure --host=cpu0
 
 #FIND_LIBBUILTINS_DIR := $(shell find . -iname $(LIBBUILTINS_DIR))
 
@@ -1515,6 +1494,9 @@ $(TARGET): $(OBJS) $(LIBS)
 $(LIBS):
 ifdef LIBBUILTINS_DIR
 	$(MAKE) -C $(LIBBUILTINS_DIR) 
+endif
+ifdef NEWLIB_DIR
+	$(MAKE) -C $(NEWLIB_DIR)/$(BUILD_DIR) 
 endif
 
 # Build step for C source
@@ -1537,7 +1519,7 @@ ifdef LIBBUILTINS_DIR
 	cd $(LIBBUILTINS_DIR) &amp;&amp; $(MAKE) -f Makefile clean
 endif
 ifdef NEWLIB_DIR
-	cd $(NEWLIB_DIR) &amp;&amp; rm -rf build/*
+	cd $(NEWLIB_DIR) &amp;&amp; rm -rf build-$(CPU)-$(ENDIAN)/*
 endif
 
 # Include the .d makefiles. The - at the f.cnt suppresses the er.crs.cf missing
@@ -1546,103 +1528,6 @@ endif
 -include $(DEPS)
 </pre></div>
 </div>
-<p class="rubric">exlbt/input/Makefile.printf-stdarg-2</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span># CPU and endian passed from command line, such as 
-#   &quot;make -f Makefile.printf-stdarg-2 CPU=cpu032I ENDIAN=el&quot;
-
-SRCS := start.cpp debug.cpp printf-stdarg-def.c printf-stdarg-2.cpp lib_cpu0.ll
-INC_DIRS := $(SRC_DIR) ../../lbdex/input
-LIBBUILTINS_DIR :=
-LIBS :=
-
-include Common.mk
-</pre></div>
-</div>
-<p>The Makefile.printf-stdarg-2 is for my PC setting. Please change this script to
-the directory of your llvm/lld setting. After that run static linker example
-code as follows,</p>
-<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">1-160-136-173:input Jonathan$ </span><span class="nb">pwd</span>
-<span class="go">/Users/Jonathan/Downloads/exlbt/input</span>
-<span class="gp">1-160-136-173:input Jonathan$ </span>bash Makefile.printf-stdarg-2 cpu032I be
-<span class="go">In file included from printf-stdarg-2.cpp:11:</span>
-<span class="go">./printf-stdarg.c:206:15: warning: conversion from string literal to &#39;char *&#39;</span>
-<span class="go">is deprecated [-Wdeprecated-writable-strings]</span>
-<span class="go">  char *ptr = &quot;Hello world!&quot;;</span>
-<span class="go">              ^</span>
-<span class="go">1 warning generated.</span>
-
-<span class="gp">1-160-136-173:input Jonathan$ </span><span class="nb">cd</span> ../../lbdex/verilog/
-<span class="gp">1-160-136-173:verilog Jonathan$ </span><span class="nb">pwd</span>
-<span class="go">/Users/Jonathan/Download/lbdex/verilog</span>
-<span class="gp">1-160-136-173:verilog Jonathan$ </span>make
-<span class="gp">1-160-136-173:verilog Jonathan$ </span>ls
-<span class="go">... cpu0Is ... cpu0IIs ...</span>
-<span class="gp">1-160-136-173:verilog Jonathan$ </span>./cpu0Is
-<span class="go">Hello world!</span>
-<span class="go">printf test</span>
-<span class="gp gp-VirtualEnv">(null)</span> <span class="go">is null pointer</span>
-<span class="go">5 = 5</span>
-<span class="go">-2147483647 = - max int</span>
-<span class="go">char a = &#39;a&#39;</span>
-<span class="go">hex ff = ff</span>
-<span class="go">hex 00 = 00</span>
-<span class="go">signed -3 = unsigned 4294967293 = hex fffffffd</span>
-<span class="go">0 message(s)</span>
-<span class="go">0 message(s) with \%</span>
-<span class="go">justif: &quot;left      &quot;</span>
-<span class="go">justif: &quot;     right&quot;</span>
-<span class="go"> 3: 0003 zero padded</span>
-<span class="go"> 3: 3    left justif.</span>
-<span class="go"> 3:    3 right justif.</span>
-<span class="go">-3: -003 zero padded</span>
-</pre></div>
-</div>
-<p>Let’s check the result with PC program printf-stdarg-1.c output as follows,</p>
-<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">1-160-136-173:input Jonathan$ </span>clang printf-stdarg-1.c
-<span class="go">printf-stdarg-1.c:58:19: warning: incomplete format specifier [-Wformat]</span>
-<span class="go">  printf(&quot;%d %s(s)%&quot;, 0, &quot;message&quot;);</span>
-<span class="go">                  ^</span>
-<span class="go">1 warning generated.</span>
-<span class="gp">1-160-136-173:input Jonathan$ </span>./a.out
-<span class="go">Hello world!</span>
-<span class="go">printf test</span>
-<span class="gp gp-VirtualEnv">(null)</span> <span class="go">is null pointer</span>
-<span class="go">5 = 5</span>
-<span class="go">-2147483647 = - max int</span>
-<span class="go">char a = &#39;a&#39;</span>
-<span class="go">hex ff = ff</span>
-<span class="go">hex 00 = 00</span>
-<span class="go">signed -3 = unsigned 4294967293 = hex fffffffd</span>
-<span class="go">0 message(s)</span>
-<span class="go">0 message(s) with \%</span>
-<span class="go">justif: &quot;left      &quot;</span>
-<span class="go">justif: &quot;     right&quot;</span>
-<span class="go"> 3: 0003 zero padded</span>
-<span class="go"> 3: 3    left justif.</span>
-<span class="go"> 3:    3 right justif.</span>
-<span class="go">-3: -003 zero padded</span>
-<span class="go">-3: -3   left justif.</span>
-<span class="go">-3:   -3 right justif.</span>
-</pre></div>
-</div>
-<p>They are same. You can verify the slt instructions is work fine too by change
-variable cpu from cpu032I to cpu032II as follows,</p>
-<p class="rubric">exlbt/input/Makefile.printf-stdarg-2</p>
-<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">1-160-136-173:verilog Jonathan$ </span><span class="nb">pwd</span>
-<span class="go">/Users/Jonathan/Download/lbdex/verilog</span>
-<span class="gp">1-160-136-173:verilog Jonathan$ </span><span class="nb">cd</span> ../../exlbt/input
-<span class="gp">1-160-136-173:input Jonathan$ </span><span class="nb">pwd</span>
-<span class="go">/Users/Jonathan/Download/exlbt/input</span>
-<span class="gp">1-160-136-173:input Jonathan$ </span>bash Makefile.printf-stdarg-2 cpu032II be
-<span class="go">...</span>
-<span class="gp">1-160-136-173:input Jonathan$ </span><span class="nb">cd</span> ../lbdex/verilog/
-<span class="gp">1-160-136-173:verilog Jonathan$ </span>./cpu0IIs
-</pre></div>
-</div>
-<p>The verilog machine cpu0IIs include all instructions of cpu032I and add
-slt, beq, …, instructions.
-Run Makefile.printf-stdarg-2 with cpu=cpu032II will generate slt, beq and bne
-instructions instead of cmp, jeq, … instructions.</p>
 <p>With the printf() of GPL source code, we can program more test code with it
 to verify the previous llvm Cpu0 backend generated program. The following code
 is for this purpose.</p>
@@ -1771,6 +1656,37 @@ void int_sim() {
 #include &quot;ch9_2_tailcall.cpp&quot;
 #include &quot;ch9_3_detect_exception.cpp&quot;
 
+void test_printf() {
+  char ptr[] = &quot;Hello world!&quot;;
+  char *np = 0;
+  int i = 5;
+  unsigned int bs = sizeof(int)*8;
+  int mi;
+  char buf[80];
+
+  mi = (1 &lt;&lt; (bs-1)) + 1;
+  printf(&quot;%s\n&quot;, ptr);
+  printf(&quot;printf test\n&quot;);
+  printf(&quot;%s is null pointer\n&quot;, np);
+  printf(&quot;%d = 5\n&quot;, i);
+  printf(&quot;%d = - max int\n&quot;, mi);
+  printf(&quot;char %c = &#39;a&#39;\n&quot;, &#39;a&#39;);
+  printf(&quot;hex %x = ff\n&quot;, 0xff);
+  printf(&quot;hex %02x = 00\n&quot;, 0);
+  printf(&quot;signed %d = unsigned %u = hex %x\n&quot;, -3, -3, -3);
+  printf(&quot;%d %s(s)&quot;, 0, &quot;message&quot;);
+  printf(&quot;\n&quot;);
+  printf(&quot;%d %s(s) with %%\n&quot;, 0, &quot;message&quot;);
+  sprintf(buf, &quot;justif: \&quot;%-10s\&quot;\n&quot;, &quot;left&quot;); printf(&quot;%s&quot;, buf);
+  sprintf(buf, &quot;justif: \&quot;%10s\&quot;\n&quot;, &quot;right&quot;); printf(&quot;%s&quot;, buf);
+  sprintf(buf, &quot; 3: %04d zero padded\n&quot;, 3); printf(&quot;%s&quot;, buf);
+  sprintf(buf, &quot; 3: %-4d left justif.\n&quot;, 3); printf(&quot;%s&quot;, buf);
+  sprintf(buf, &quot; 3: %4d right justif.\n&quot;, 3); printf(&quot;%s&quot;, buf);
+  sprintf(buf, &quot;-3: %04d zero padded\n&quot;, -3); printf(&quot;%s&quot;, buf);
+  sprintf(buf, &quot;-3: %-4d left justif.\n&quot;, -3); printf(&quot;%s&quot;, buf);
+  sprintf(buf, &quot;-3: %4d right justif.\n&quot;, -3); printf(&quot;%s&quot;, buf);
+}
+
 void verify_test_ctrl2()
 {
   int a = -1;
@@ -1811,6 +1727,7 @@ int test_staticlink()
 #ifdef __CPU0EL__
   printf(&quot;__CPU0EL__\n&quot;);
 #endif
+  test_printf();
   a = test_add_overflow();
   a = test_sub_overflow();
   a = test_global();  // gI = 100
@@ -1932,12 +1849,10 @@ int test_staticlink()
 </pre></div>
 </div>
 <p class="rubric">exlbt/input/Makefile.slinker</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span># CPU and endian passed from command line, such as 
-#   &quot;make -f Makefile.slinker CPU=cpu032I ENDIAN=le&quot;
-
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>
 SRCS := start.cpp debug.cpp printf-stdarg-def.c printf-stdarg.c ch_slinker.cpp \
 	lib_cpu0.ll
-INC_DIRS := $(SRC_DIR) ../../lbdex/input
+INC_DIRS := $(SRC_DIR) $(LBDEX_DIR)/input
 LIBBUILTINS_DIR :=
 LIBS :=
 
@@ -1948,14 +1863,13 @@ include Common.mk
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span>#!/usr/bin/env bash
 
 # for example:
-# bash make.sh cpu032I be Makefile.newlib
-# bash make.sh cpu032II be Makefile.builtins
-# bash make.sh cpu032I le Makefile.slinker
-# bash make.sh cpu032II be Makefile.float
-# bash make.sh cpu032II be Makefile.printf-stdarg-2
-# bash make.sh cpu032II be Makefile.ch13_1
-# bash make.sh cpu032I le Makefile.sanitizer-printf
+# bash make.sh cpu032I eb Makefile.newlib
+# bash make.sh cpu032II eb Makefile.builtins
+# bash make.sh cpu032I el Makefile.slinker
+# bash make.sh cpu032II eb Makefile.float
+# bash make.sh cpu032II el Makefile.ch13_1
 
+LBDEX_DIR=$HOME/git/lbd/lbdex
 NEWLIB_DIR=$HOME/git/newlib-cygwin
 
 ARG_NUM=$#
@@ -1963,28 +1877,30 @@ CPU=$1
 ENDIAN=$2
 MKFILE=$3
 
+BUILD_DIR=build-$CPU-$ENDIAN
+
 build_newlib() {
   pushd $NEWLIB_DIR
-  rm -rf build
-  mkdir build
+  rm -rf $BUILD_DIR
+  mkdir $BUILD_DIR
   cd build
   CC=$TOOLDIR/clang \
-  CFLAGS=&quot;-target cpu0$ENDIAN-unknown-linux-gnu -mcpu=$CPU -static -fintegrated-as -Wno-error=implicit-function-declaration&quot; \
-  AS=&quot;$TOOLDIR/clang -static -fintegrated-as -c&quot; AR=&quot;$TOOLDIR/llvm-ar&quot; RANLIB=&quot;$TOOLDIR/llvm-ranlib&quot; \
-  READELF=&quot;$TOOLDIR/llvm-readelf&quot; ../newlib/configure --host=cpu0
+  CFLAGS=&quot;-target cpu0$ENDIAN-unknown-linux-gnu -mcpu=$CPU -static \
+          -fintegrated-as -Wno-error=implicit-function-declaration&quot; \
+          AS=&quot;$TOOLDIR/clang -static -fintegrated-as -c&quot; \
+          AR=&quot;$TOOLDIR/llvm-ar&quot; RANLIB=&quot;$TOOLDIR/llvm-ranlib&quot; \
+          READELF=&quot;$TOOLDIR/llvm-readelf&quot; ../newlib/configure --host=cpu0
   make
   popd
 }
 
 prologue() {
-  LBDEXDIR=../../lbdex
-
   if [ $ARG_NUM == 0 ]; then
     echo &quot;useage: bash $sh_name cpu_type ENDIAN&quot;
     echo &quot;  cpu_type: cpu032I or cpu032II&quot;
     echo &quot;  ENDIAN: be (big ENDIAN, default) or le (little ENDIAN)&quot;
     echo &quot;for example:&quot;
-    echo &quot;  bash build-slinker.sh cpu032I be&quot;
+    echo &quot;  bash build-slinker.sh cpu032I eb&quot;
     exit 1;
   fi
   if [ $CPU != cpu032I ] &amp;&amp; [ $CPU != cpu032II ]; then
@@ -2000,23 +1916,18 @@ prologue() {
   CLANG=~/llvm/test/build/bin/clang
 
   echo &quot;CPU =&quot; &quot;${CPU}&quot;
+  echo &quot;ENDIAN =&quot; &quot;${ENDIAN}&quot;
 
-  if [ &quot;$ENDIAN&quot; != &quot;&quot; ] &amp;&amp; [ $ENDIAN != le ] &amp;&amp; [ $ENDIAN != be ]; then
+  if [ $ENDIAN != eb ] &amp;&amp; [ $ENDIAN != el ]; then
     echo &quot;2nd argument is be (big ENDIAN, default) or le (little ENDIAN)&quot;
     exit 1
   fi
-  if [ &quot;$ENDIAN&quot; == &quot;&quot; ] || [ $ENDIAN == be ]; then
-    ENDIAN=
-  else
-    ENDIAN=el
-  fi
-  echo &quot;ENDIAN =&quot; &quot;${ENDIAN}&quot;
 
-  bash clean.sh
   if [ $MKFILE == &quot;Makefile.newlib&quot; ] || [ $MKFILE == &quot;Makefile.builtins&quot; ]; then
     echo &quot;build_newlib&quot;
-    build_newlib;
+#    build_newlib;
   fi
+  rm $BUILD_DIR/a.out
 }
 
 isLittleEndian() {
@@ -2032,17 +1943,17 @@ isLittleEndian() {
 }
 
 elf2hex() {
-  ${TOOLDIR}/elf2hex -le=${le} a.out &gt; ${LBDEXDIR}/verilog/cpu0.hex
+  ${TOOLDIR}/elf2hex -le=${le} $BUILD_DIR/a.out &gt; ${LBDEX_DIR}/verilog/cpu0.hex
   if [ ${le} == &quot;true&quot; ] ; then
-    echo &quot;1   /* 0: big ENDIAN, 1: little ENDIAN */&quot; &gt; ${LBDEXDIR}/verilog/cpu0.config
+    echo &quot;1   /* 0: big ENDIAN, 1: little ENDIAN */&quot; &gt; ${LBDEX_DIR}/verilog/cpu0.config
   else
-    echo &quot;0   /* 0: big ENDIAN, 1: little ENDIAN */&quot; &gt; ${LBDEXDIR}/verilog/cpu0.config
+    echo &quot;0   /* 0: big ENDIAN, 1: little ENDIAN */&quot; &gt; ${LBDEX_DIR}/verilog/cpu0.config
   fi
-  cat ${LBDEXDIR}/verilog/cpu0.config
+  cat ${LBDEX_DIR}/verilog/cpu0.config
 }
 
 epilogue() {
-  ENDIAN=`${TOOLDIR}/llvm-readobj -h a.out|grep &quot;DataEncoding&quot;|awk &#39;{print $2}&#39;`
+  ENDIAN=`${TOOLDIR}/llvm-readobj -h $BUILD_DIR/a.out|grep &quot;DataEncoding&quot;|awk &#39;{print $2}&#39;`
   isLittleEndian;
   elf2hex;
 }
@@ -2056,9 +1967,7 @@ fi
 
 prologue;
 
-make -f $FILE CPU=${CPU} ENDIAN=${ENDIAN} NEWLIB_DIR=${NEWLIB_DIR}
-
-cp ./build/a.out .
+make -f $FILE CPU=${CPU} ENDIAN=${ENDIAN} LBDEX_DIR=${LBDEX_DIR} NEWLIB_DIR=${NEWLIB_DIR}
 
 epilogue;
 
@@ -2104,6 +2013,26 @@ epilogue;
 <span class="go">31</span>
 <span class="go">49</span>
 <span class="go">test_nolld(): PASS</span>
+<span class="go">__CPU0EL__</span>
+<span class="go">Hello world!</span>
+<span class="go">printf test</span>
+<span class="gp gp-VirtualEnv">(null)</span> <span class="go">is null pointer</span>
+<span class="go">5 = 5</span>
+<span class="go">-2147483647 = - max int</span>
+<span class="go">char a = &#39;a&#39;</span>
+<span class="go">hex ff = ff</span>
+<span class="go">hex 00 = 00</span>
+<span class="go">signed -3 = unsigned 4294967293 = hex fffffffd</span>
+<span class="go">0 message(s)</span>
+<span class="go">0 message(s) with %</span>
+<span class="go">justif: &quot;left      &quot;</span>
+<span class="go">justif: &quot;     right&quot;</span>
+<span class="go"> 3: 0003 zero padded</span>
+<span class="go"> 3: 3    left justif.</span>
+<span class="go"> 3:    3 right justif.</span>
+<span class="go">-3: -003 zero padded</span>
+<span class="go">-3: -3   left justif.</span>
+<span class="go">-3:   -3 right justif.</span>
 <span class="go">global variable gI = 100, PASS</span>
 <span class="go">test_ctrl2(): a = 1, b = 0, c = 1, d = 0, PASS</span>
 <span class="go">test_phinode(3, 1) = 3, PASS</span>
@@ -2130,6 +2059,35 @@ epilogue;
 <span class="go">Harware interrupt 1</span>
 <span class="go">...</span>
 <span class="go">RET to PC &lt; 0, finished!</span>
+</pre></div>
+</div>
+<p>Above test includes the printf format verification.
+Let’s check the result with PC program printf-stdarg-1.c output as follows,</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">1-160-136-173:input Jonathan$ </span>clang printf-stdarg-1.c
+<span class="go">printf-stdarg-1.c:58:19: warning: incomplete format specifier [-Wformat]</span>
+<span class="go">  printf(&quot;%d %s(s)%&quot;, 0, &quot;message&quot;);</span>
+<span class="go">                  ^</span>
+<span class="go">1 warning generated.</span>
+<span class="gp">1-160-136-173:input Jonathan$ </span>./a.out
+<span class="go">Hello world!</span>
+<span class="go">printf test</span>
+<span class="gp gp-VirtualEnv">(null)</span> <span class="go">is null pointer</span>
+<span class="go">5 = 5</span>
+<span class="go">-2147483647 = - max int</span>
+<span class="go">char a = &#39;a&#39;</span>
+<span class="go">hex ff = ff</span>
+<span class="go">hex 00 = 00</span>
+<span class="go">signed -3 = unsigned 4294967293 = hex fffffffd</span>
+<span class="go">0 message(s)</span>
+<span class="go">0 message(s) with \%</span>
+<span class="go">justif: &quot;left      &quot;</span>
+<span class="go">justif: &quot;     right&quot;</span>
+<span class="go"> 3: 0003 zero padded</span>
+<span class="go"> 3: 3    left justif.</span>
+<span class="go"> 3:    3 right justif.</span>
+<span class="go">-3: -003 zero padded</span>
+<span class="go">-3: -3   left justif.</span>
+<span class="go">-3:   -3 right justif.</span>
 </pre></div>
 </div>
 <p>As above, by taking the open source code advantage, Cpu0 got the more stable

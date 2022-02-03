@@ -22,6 +22,23 @@ empty include-files in exlbt/include.
   
 .. graphviz:: ../Fig/lib/lib.gv
 
+.. table:: lldb dependences
+
+  ==============  ========================== 
+  functions       depend on
+  ==============  ==========================
+  scanf           newlib/libc
+  printf          sanitizter_printf.c of compiler-rt
+  ==============  ==========================
+
+.. table:: sanitizer_printf.c of compiler-rt dependences
+
+  ====================  ========================== 
+  functions             depend on
+  ====================  ==========================
+  sanitizter_printf.c   builtins of compiler-rt
+  ====================  ==========================
+
 
 C Library (Newlib)
 ------------------
@@ -85,7 +102,8 @@ compier-rt/lib/builtins/int_math.h [#builtins-int_math]_ .
 
 - These dependent functions from has bee ported from newlib/libm.
 
-- Except builtins, the other three, sanitizer runtimes, profile and BlocksRuntime, are not needed for my embedded Cpu0.
+- Except builtins, the other three, sanitizer runtimes, profile and BlocksRuntime, 
+  are not needed for my embedded Cpu0.
 
 The libgcc's Integer plus Soft float library  [#lib-gcc]_ [#int-lib]_ 
 [#sw-float-lib]_ are equal to functions of compiler-rt's builtins.
@@ -161,26 +179,9 @@ in compiler-rt/lib/builtins.
 .. rubric:: exlbt/input/sanitizer_printf.cpp
 .. literalinclude:: ../exlbt/input/sanitizer_printf.cpp
 
-.. rubric:: exlbt/input/ch_hello.c
-.. literalinclude:: ../exlbt/input/ch_hello.c
 
-.. rubric:: exlbt/input/Makefile.sanitizer-printf
-.. literalinclude:: ../exlbt/input/Makefile.sanitizer-printf
-
-
-.. code-block:: console
-
-  cschen@cschendeiMac input %  bash make.sh cpu032I le Makefile.sanitizer-printf
-
-  cschen@cschendeiMac verilog % ./cpu0Is
-  ...
-  Hello world!
-  a: 100000007FFFFFFF, 100000007fffffff, 1152921506754330623
-  b: 10000000, 268435456
-  total cpu cycles = 1266990             
-  RET to PC < 0, finished!
-
-
+Above two sanitizer_*.* files are ported from compiler-rt and I add code to
+support left-justify for number-printf and right-justify for string-printf.
 The following ch_float.cpp test the float lib.
 
 .. rubric:: lbt/exlbt/compiler-rt-12.x/builtins/Makefile
@@ -196,7 +197,7 @@ The following ch_float.cpp test the float lib.
 
 .. code-block:: console
 
-  chungshu@ChungShudeMacBook-Air input % bash make.sh cpu032II be Makefile.float
+  chungshu@ChungShudeMacBook-Air input % bash make.sh cpu032II eb Makefile.float
   ...
   endian =  BigEndian
   ISR address:00020614
@@ -205,6 +206,29 @@ The following ch_float.cpp test the float lib.
   chungshu@ChungShudeMacBook-Air verilog % iverilog -o cpu0IIs cpu0IIs.v 
   chungshu@ChungShudeMacBook-Air verilog % ./cpu0IIs
   ...
+
+  a: 100000007FFFFFFF, 100000007fffffff, 1152921506754330623
+  b: 10000000, 268435456
+  b: 10000000, 268435456
+  Hello world!
+  printf test
+  <null> is null pointer
+  5 = 5
+  -2147483647 = - max int
+  char a = 'a'
+  hex ff = ff
+  hex 00 = 00
+  signed -3 = unsigned 4294967293 = hex fffffffd
+  0 message(s)
+  0 message(s) with %
+  justif: "left      "
+  justif: "     right"
+   3: 0003 zero padded
+   3: 3    left justif.
+   3:    3 right justif.
+  -3: -003 zero padded
+  -3: -3   left justif.
+  -3:   -3 right justif.
   test_longlong_shift1() = 289
   test_longlong_shift2() = 22
   test_shift_left<long long>(0x12, 4LL) = 288
@@ -237,7 +261,7 @@ Run as follows,
 
 .. code-block:: console
 
-  chungshu@ChungShudeMacBook-Air input % bash make.sh cpu032II be Makefile.builtins
+  chungshu@ChungShudeMacBook-Air input % bash make.sh cpu032II eb Makefile.builtins
   ...
   chungshu@ChungShudeMacBook-Air verilog % ./cpu0IIs
   ...
