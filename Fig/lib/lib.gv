@@ -2,7 +2,7 @@
 digraph G {
   rankdir=LR;
 
-  node [shape="",style=filled,fillcolor=lightyellow]; lib [label="lib (libm/SoftFloat)"];
+  node [shape="",style=filled,fillcolor=lightyellow]; lib [label="lib (libm/soft-float/\nscanf/printf)"];
   node [shape="",style=solid,color=black];
   "User program" -> "clang/llc" [ label = "c/c++" ];
   lib -> "clang/llc" [ label = "c" ];

@@ -21,22 +21,24 @@ OBJS := $(SRCS:%=$(BUILD_DIR)/%.o)
 # As an example, ./build/hello.cpp.o turns into ./build/hello.cpp.d
 DEPS := $(OBJS:.o=.d)
 
-# Add a prefix to INC_DIRS. So moduleA would become -ImoduleA. GCC understands this -I flag
+# Add a prefix to INC_DIRS. So moduleA would become -ImoduleA. GCC understands 
+# this -I flag
 INC_FLAGS := $(addprefix -I,$(INC_DIRS))
 
 # The -MMD and -MP flags together generate Makefiles for us!
 # These files will have .d instead of .o as the output.
 # fintegrated-as: for asm code in C/C++
 CPPFLAGS := -MMD -MP -target cpu0$(ENDIAN)-unknown-linux-gnu -static \
-  -fintegrated-as $(INC_FLAGS) -march=cpu0$(ENDIAN) -mcpu=$(CPU) -mllvm \
-  -has-lld=true -DHAS_COMPLEX
+            -fintegrated-as $(INC_FLAGS) -march=cpu0$(ENDIAN) -mcpu=$(CPU) \
+            -mllvm -has-lld=true -DHAS_COMPLEX
 
-LLFLAGS := -march=cpu0$(ENDIAN) -mcpu=$(CPU) -relocation-model=static \
+LLFLAGS := -mcpu=$(CPU) -relocation-model=static \
   -filetype=obj -has-lld=true
 
 CFLAGS := -target cpu0$(ENDIAN)-unknown-linux-gnu -static -mcpu=$(CPU) \
           -fintegrated-as -Wno-error=implicit-function-declaration
-CONFIGURE := CC="$(CC)" CFLAGS="$(CFAGS)" AS="$(AS)" RANLIB="$(RANLIB)" READELF="$(READELF)" ../newlib/configure --host=cpu0
+CONFIGURE := CC="$(CC)" CFLAGS="$(CFAGS)" AS="$(AS)" RANLIB="$(RANLIB)" \
+            READELF="$(READELF)" ../newlib/configure --host=cpu0
 
 #FIND_LIBBUILTINS_DIR := $(shell find . -iname $(LIBBUILTINS_DIR))
 
@@ -46,6 +48,9 @@ $(TARGET): $(OBJS) $(LIBS)
 $(LIBS):
 ifdef LIBBUILTINS_DIR
 	$(MAKE) -C $(LIBBUILTINS_DIR) 
+endif
+ifdef NEWLIB_DIR
+	$(MAKE) -C $(NEWLIB_DIR)/$(BUILD_DIR) 
 endif
 
 # Build step for C source

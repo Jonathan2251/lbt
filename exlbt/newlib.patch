@@ -36,10 +36,10 @@ index ca6b46f03..7bbf46f25 100644
          syscall_dir=syscalls
  	default_newlib_io_long_long="yes"
 diff --git a/newlib/libc/include/machine/ieeefp.h b/newlib/libc/include/machine/ieeefp.h
-index 3c1f41e03..5ff57e13a 100644
+index 3c1f41e03..1e79a6b26 100644
 --- a/newlib/libc/include/machine/ieeefp.h
 +++ b/newlib/libc/include/machine/ieeefp.h
-@@ -249,6 +249,18 @@
+@@ -249,6 +249,16 @@
  #define __IEEE_BIG_ENDIAN
  #endif
  
@@ -47,18 +47,16 @@ index 3c1f41e03..5ff57e13a 100644
 +// clang -target cpu0${ENDIAN}-unknown-linux-gnu 
 +// http://beefchunk.com/documentation/lang/c/pre-defined-c/prearch.html 
 +#ifdef __CPU0EL__
-+#undef __IEEE_BIG_ENDIAN
 +#define __IEEE_LITTLE_ENDIAN
 +#endif
 +#ifdef __CPU0EB__
 +#define __IEEE_BIG_ENDIAN
-+#undef __IEEE_LITTLE_ENDIAN
 +#endif
 +
  #ifdef __MMIX__
  #define __IEEE_BIG_ENDIAN
  #endif
-@@ -507,4 +519,3 @@
+@@ -507,4 +517,3 @@
  
  #endif /* not __IEEE_LITTLE_ENDIAN */
  #endif /* not __IEEE_BIG_ENDIAN */

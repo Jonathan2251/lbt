@@ -1,5 +1,3 @@
-# CPU and endian passed from command line, such as 
-#   "make -f Makefile.ch13_1 CPU=cpu032I ENDIAN=el"
 
 SRCS := start.cpp ch13_1.cpp a.cpp lib_cpu0.ll
 INC_DIRS := $(SRC_DIR) $(LBDEX_DIR)/input

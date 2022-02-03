@@ -1,11 +1,11 @@
 #!/usr/bin/env bash
 
 # for example:
-# bash make.sh cpu032I be Makefile.newlib
-# bash make.sh cpu032II be Makefile.builtins
-# bash make.sh cpu032I le Makefile.slinker
-# bash make.sh cpu032II be Makefile.float
-# bash make.sh cpu032II be Makefile.ch13_1
+# bash make.sh cpu032I eb Makefile.newlib
+# bash make.sh cpu032II eb Makefile.builtins
+# bash make.sh cpu032I el Makefile.slinker
+# bash make.sh cpu032II eb Makefile.float
+# bash make.sh cpu032II el Makefile.ch13_1
 
 LBDEX_DIR=$HOME/git/lbd/lbdex
 NEWLIB_DIR=$HOME/git/newlib-cygwin
@@ -15,15 +15,19 @@ CPU=$1
 ENDIAN=$2
 MKFILE=$3
 
+BUILD_DIR=build-$CPU-$ENDIAN
+
 build_newlib() {
   pushd $NEWLIB_DIR
-  rm -rf build
-  mkdir build
+  rm -rf $BUILD_DIR
+  mkdir $BUILD_DIR
   cd build
   CC=$TOOLDIR/clang \
-  CFLAGS="-target cpu0$ENDIAN-unknown-linux-gnu -mcpu=$CPU -static -fintegrated-as -Wno-error=implicit-function-declaration" \
-  AS="$TOOLDIR/clang -static -fintegrated-as -c" AR="$TOOLDIR/llvm-ar" RANLIB="$TOOLDIR/llvm-ranlib" \
-  READELF="$TOOLDIR/llvm-readelf" ../newlib/configure --host=cpu0
+  CFLAGS="-target cpu0$ENDIAN-unknown-linux-gnu -mcpu=$CPU -static \
+          -fintegrated-as -Wno-error=implicit-function-declaration" \
+          AS="$TOOLDIR/clang -static -fintegrated-as -c" \
+          AR="$TOOLDIR/llvm-ar" RANLIB="$TOOLDIR/llvm-ranlib" \
+          READELF="$TOOLDIR/llvm-readelf" ../newlib/configure --host=cpu0
   make
   popd
 }
@@ -34,7 +38,7 @@ prologue() {
     echo "  cpu_type: cpu032I or cpu032II"
     echo "  ENDIAN: be (big ENDIAN, default) or le (little ENDIAN)"
     echo "for example:"
-    echo "  bash build-slinker.sh cpu032I be"
+    echo "  bash build-slinker.sh cpu032I eb"
     exit 1;
   fi
   if [ $CPU != cpu032I ] && [ $CPU != cpu032II ]; then
@@ -50,22 +54,18 @@ prologue() {
   CLANG=~/llvm/test/build/bin/clang
 
   echo "CPU =" "${CPU}"
+  echo "ENDIAN =" "${ENDIAN}"
 
-  if [ "$ENDIAN" != "" ] && [ $ENDIAN != le ] && [ $ENDIAN != be ]; then
+  if [ $ENDIAN != eb ] && [ $ENDIAN != el ]; then
     echo "2nd argument is be (big ENDIAN, default) or le (little ENDIAN)"
     exit 1
   fi
-  if [ "$ENDIAN" == "" ] || [ $ENDIAN == be ]; then
-    ENDIAN=
-  else
-    ENDIAN=el
-  fi
-  echo "ENDIAN =" "${ENDIAN}"
 
   if [ $MKFILE == "Makefile.newlib" ] || [ $MKFILE == "Makefile.builtins" ]; then
     echo "build_newlib"
 #    build_newlib;
   fi
+  rm $BUILD_DIR/a.out
 }
 
 isLittleEndian() {
@@ -81,7 +81,7 @@ isLittleEndian() {
 }
 
 elf2hex() {
-  ${TOOLDIR}/elf2hex -le=${le} a.out > ${LBDEX_DIR}/verilog/cpu0.hex
+  ${TOOLDIR}/elf2hex -le=${le} $BUILD_DIR/a.out > ${LBDEX_DIR}/verilog/cpu0.hex
   if [ ${le} == "true" ] ; then
     echo "1   /* 0: big ENDIAN, 1: little ENDIAN */" > ${LBDEX_DIR}/verilog/cpu0.config
   else
@@ -91,7 +91,7 @@ elf2hex() {
 }
 
 epilogue() {
-  ENDIAN=`${TOOLDIR}/llvm-readobj -h a.out|grep "DataEncoding"|awk '{print $2}'`
+  ENDIAN=`${TOOLDIR}/llvm-readobj -h $BUILD_DIR/a.out|grep "DataEncoding"|awk '{print $2}'`
   isLittleEndian;
   elf2hex;
 }
@@ -106,8 +106,6 @@ fi
 prologue;
 
 make -f $FILE CPU=${CPU} ENDIAN=${ENDIAN} LBDEX_DIR=${LBDEX_DIR} NEWLIB_DIR=${NEWLIB_DIR}
-
-cp ./build-$CPU-$ENDIAN/a.out .
 
 epilogue;
 

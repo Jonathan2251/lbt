@@ -1,5 +1,5 @@
 # CPU and endian passed from command line, such as 
-#   "make -f Makefile.builtins CPU=cpu032II ENDIAN= LBDEX_DIR=${HOME}/git/lbd/lbdex NEWLIB_DIR=${HOME}/git/newlib-cygwin"
+#   "make -f Makefile.builtins CPU=cpu032II ENDIAN=eb \
 
 # start.cpp must be put at beginning
 SRCS :=  start.cpp debug.cpp sanitizer_printf.cpp printf-stdarg-def.c \

@@ -1,3 +1,4 @@
+// Cpu0 ported form Newlib
 /* FR30 system call emulation code
    Copyright (C) 1998, 2010 Free Software Foundation, Inc.
    Contributed by Cygnus Solutions.  */
@@ -5,6 +6,7 @@
 #include <sys/stat.h>
 #include "syscall.h"
 #include "config.h"
+#include "debug.h"
 
 int
 _read (file, ptr, len)
@@ -12,6 +14,7 @@ _read (file, ptr, len)
      char * ptr;
      int    len;
 {
+  for (;;) {}
 /*
   asm ("ldi:8 %0, r0" :: "i" (SYS_read) : "r0");
   asm ("int   #10");
@@ -42,7 +45,6 @@ _write (file, ptr, len)
   asm ("ldi:8 %0, r0" :: "i" (SYS_write) : "r0");
   asm ("int   #10");
 */
-  for (;;) {}
   char *p = (char*)IOADDR;
   *p = *ptr;
   return 0;

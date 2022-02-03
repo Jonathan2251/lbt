@@ -20,7 +20,7 @@ void show_result(const char *fn, int res) {
   else if (res == -1)
     printf("%s: SKIPPED!\n", fn);
   else {
-    printf("FIXME!");
+    printf("FIXME!\n");
     abort();
   }
 }
@@ -39,6 +39,13 @@ int main() {
 
   res = test();
   show_result("test()", res);
+
+  char cmd[256];
+  printf("input: \n"); // \n: send data from buffer to device
+
+  // scanf of libc calling _read() of syscalls.cpp and hanging on it.
+  // Now, with s
+  scanf("%s", cmd);
 
   return 0;
 }

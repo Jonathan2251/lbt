@@ -36,13 +36,13 @@ build_cpu0() {
 build_newlib() {
   pushd $NEWLIB_DIR
   CPU=cpu032I
-  ENDIAN=
+  ENDIAN=eb
   build_cpu0;
   CPU=cpu032I
   ENDIAN=el
   build_cpu0;
   CPU=cpu032II
-  ENDIAN=
+  ENDIAN=eb
   build_cpu0;
   CPU=cpu032II
   ENDIAN=el

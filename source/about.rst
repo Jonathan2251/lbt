@@ -38,7 +38,11 @@ https://github.com/Jonathan2251/lbt/blob/master/README.md
 Revision history
 ----------------
 
-Version 12.0.6, not released yet.
+Version 12.0.7, not released yet.
+
+Version 12.0.6, Released February 3, 2022.
+
+  scanf and printf.
 
 Version 12.0.5, Released February 1, 2022.
 
@@ -182,7 +186,7 @@ Backend independent optimaization.
 
 :ref:`sec-lib`:
 
-Software floating point library and standard C library supporting. Under working.
+Software floating point library and standard C library supporting.
 
 
 
