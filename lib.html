@@ -862,6 +862,17 @@ extern &quot;C&quot; int printf(const char *format, ...) {
   prints(buffer);
   return 0;
 }
+
+extern &quot;C&quot; int san_printf(const char *format, ...) {
+  int length = 1000;
+  char buffer[1000];
+  va_list args;
+  va_start(args, format);
+  int needed_length = __sanitizer::VSNPrintf(buffer, length, format, args);
+  va_end(args);
+  prints(buffer);
+  return 0;
+}
 </pre></div>
 </div>
 <p>Above two sanitizer_*.* files are ported from compiler-rt and I add code to
@@ -1240,7 +1251,7 @@ int main() {
 <p class="rubric">exlbt/input/Makefile.float</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span>
 SRCS := start.cpp debug.cpp sanitizer_printf.cpp printf-stdarg-def.c \
-        cpu0-builtins.cpp ch_float.cpp lib_cpu0.ll
+        cpu0-builtins.cpp ch_float.cpp lib_cpu0.c
 LIBBUILTINS_DIR := ../compiler-rt/builtins
 INC_DIRS := ../ $(NEWLIB_DIR)/newlib/libc/include $(LBDEX_DIR)/input
 LIBS := $(LIBBUILTINS_DIR)/build-$(CPU)-$(ENDIAN)/libbuiltins.a
@@ -1934,7 +1945,7 @@ int main() {
 #   &quot;make -f Makefile.builtins CPU=cpu032II ENDIAN=eb \
 
 # start.cpp must be put at beginning
-SRCS :=  start.cpp debug.cpp sanitizer_printf.cpp printf-stdarg-def.c \
+SRCS :=  start.cpp debug.cpp syscalls.c sanitizer_printf.cpp printf-stdarg-def.c \
   compiler-rt-test/builtins/Unit/absvdi2_test.c \
   compiler-rt-test/builtins/Unit/absvsi2_test.c \
   compiler-rt-test/builtins/Unit/absvti2_test.c \
@@ -2064,13 +2075,16 @@ SRCS :=  start.cpp debug.cpp sanitizer_printf.cpp printf-stdarg-def.c \
   compiler-rt-test/builtins/Unit/unorddf2vfp_test.c \
   compiler-rt-test/builtins/Unit/unordsf2vfp_test.c \
   compiler-rt-test/builtins/Unit/unordtf2_test.c \
-  cpu0-builtins.cpp ch_builtins.cpp lib_cpu0.ll
+  cpu0-builtins.cpp ch_builtins.cpp lib_cpu0.c
 
-INC_DIRS := ./ $(LBDEX_DIR)/input $(NEWLIB_DIR)/newlib/libc/include \
-            $(HOME)/llvm/llvm-project/compiler-rt/lib/builtins
+INC_DIRS := ./ $(LBDEX_DIR)/input \
+            $(HOME)/llvm/llvm-project/compiler-rt/lib/builtins \
+            $(NEWLIB_DIR)/newlib/libc/include \
+            $(NEWLIB_DIR)/libgloss 
 LIBBUILTINS_DIR := ../compiler-rt/builtins
 LIBS := $(LIBBUILTINS_DIR)/build-$(CPU)-$(ENDIAN)/libbuiltins.a \
-        $(NEWLIB_DIR)/build-$(CPU)-$(ENDIAN)/libm.a $(NEWLIB_DIR)/build-$(CPU)-$(ENDIAN)/libc.a
+        $(NEWLIB_DIR)/build-$(CPU)-$(ENDIAN)/libm.a \
+        $(NEWLIB_DIR)/build-$(CPU)-$(ENDIAN)/libc.a
 
 include Common.mk
 </pre></div>

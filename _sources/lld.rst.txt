@@ -142,9 +142,8 @@ GPL2 license. GPL2 is more restricted than LLVM license.
 .. literalinclude:: ../exlbt/input/start.cpp
     :start-after: /// start
 
-.. rubric:: exlbt/input/lib_cpu0.ll
-.. literalinclude:: ../exlbt/input/lib_cpu0.ll
-    :start-after: /// start
+.. rubric:: exlbt/input/lib_cpu0.c
+.. literalinclude:: ../exlbt/input/lib_cpu0.c
 
 .. rubric:: exlbt/input/Common.mk
 .. literalinclude:: ../exlbt/input/Common.mk

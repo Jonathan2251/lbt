@@ -1372,75 +1372,21 @@ int main(void)
 
 </pre></div>
 </div>
-<p class="rubric">exlbt/input/lib_cpu0.ll</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="p">;</span> <span class="n">The</span> <span class="nd">@_start</span><span class="p">()</span> <span class="n">exist</span> <span class="n">to</span> <span class="n">prevent</span> <span class="n">lld</span> <span class="n">linker</span> <span class="n">error</span><span class="o">.</span>
-<span class="p">;</span> <span class="n">Real</span> <span class="n">entry</span> <span class="p">(</span><span class="n">first</span> <span class="n">instruction</span><span class="p">)</span> <span class="ow">is</span> <span class="kn">from</span> <span class="nn">cpu0BootAtomContent</span> <span class="n">of</span> 
-<span class="p">;</span> <span class="n">Cpu0RelocationPass</span><span class="o">.</span><span class="n">cpp</span> <span class="n">jump</span> <span class="n">to</span> <span class="n">asm</span><span class="p">(</span><span class="s2">&quot;start:&quot;</span><span class="p">)</span> <span class="n">of</span> <span class="n">start</span><span class="o">.</span><span class="n">cpp</span><span class="o">.</span>
-<span class="n">define</span> <span class="n">void</span> <span class="nd">@_start</span><span class="p">()</span> <span class="n">nounwind</span> <span class="p">{</span>
-<span class="n">entry</span><span class="p">:</span>
-  <span class="n">ret</span> <span class="n">void</span>
-<span class="p">}</span>
+<p class="rubric">exlbt/input/lib_cpu0.c</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="o">//</span> <span class="n">This</span> <span class="n">file</span> <span class="n">provides</span> <span class="n">function</span> <span class="n">symbols</span> <span class="n">used</span> <span class="k">for</span> <span class="n">c</span><span class="o">++</span> <span class="ow">in</span> <span class="n">lld</span>
 
-<span class="n">define</span> <span class="n">void</span> <span class="nd">@__start</span><span class="p">()</span> <span class="n">nounwind</span> <span class="p">{</span>
-<span class="n">entry</span><span class="p">:</span>
-  <span class="n">ret</span> <span class="n">void</span>
-<span class="p">}</span>
-
-<span class="n">define</span> <span class="n">void</span> <span class="nd">@__stack_chk_fail</span><span class="p">()</span> <span class="n">nounwind</span> <span class="p">{</span>
-<span class="n">entry</span><span class="p">:</span>
-  <span class="n">ret</span> <span class="n">void</span>
-<span class="p">}</span>
-
-<span class="n">define</span> <span class="n">void</span> <span class="nd">@__stack_chk_guard</span><span class="p">()</span> <span class="n">nounwind</span> <span class="p">{</span>
-<span class="n">entry</span><span class="p">:</span>
-  <span class="n">ret</span> <span class="n">void</span>
-<span class="p">}</span>
-
-<span class="n">define</span> <span class="n">void</span> <span class="nd">@_ZdlPv</span><span class="p">()</span> <span class="n">nounwind</span> <span class="p">{</span>
-<span class="n">entry</span><span class="p">:</span>
-  <span class="n">ret</span> <span class="n">void</span>
-<span class="p">}</span>
-
-<span class="n">define</span> <span class="n">void</span> <span class="nd">@__dso_handle</span><span class="p">()</span> <span class="n">nounwind</span> <span class="p">{</span>
-<span class="n">entry</span><span class="p">:</span>
-  <span class="n">ret</span> <span class="n">void</span>
-<span class="p">}</span>
-
-<span class="n">define</span> <span class="n">void</span> <span class="nd">@_ZNSt8ios_base4InitC1Ev</span><span class="p">()</span> <span class="n">nounwind</span> <span class="p">{</span>
-<span class="n">entry</span><span class="p">:</span>
-  <span class="n">ret</span> <span class="n">void</span>
-<span class="p">}</span>
-
-<span class="n">define</span> <span class="n">void</span> <span class="nd">@__cxa_atexit</span><span class="p">()</span> <span class="n">nounwind</span> <span class="p">{</span>
-<span class="n">entry</span><span class="p">:</span>
-  <span class="n">ret</span> <span class="n">void</span>
-<span class="p">}</span>
-
-<span class="n">define</span> <span class="n">void</span> <span class="nd">@_ZTVN10__cxxabiv120__si_class_type_infoE</span><span class="p">()</span> <span class="n">nounwind</span> <span class="p">{</span>
-<span class="n">entry</span><span class="p">:</span>
-  <span class="n">ret</span> <span class="n">void</span>
-<span class="p">}</span>
-
-<span class="n">define</span> <span class="n">void</span> <span class="nd">@_ZTVN10__cxxabiv117__class_type_infoE</span><span class="p">()</span> <span class="n">nounwind</span> <span class="p">{</span>
-<span class="n">entry</span><span class="p">:</span>
-  <span class="n">ret</span> <span class="n">void</span>
-<span class="p">}</span>
-
-<span class="n">define</span> <span class="n">void</span> <span class="nd">@_Znwm</span><span class="p">()</span> <span class="n">nounwind</span> <span class="p">{</span>
-<span class="n">entry</span><span class="p">:</span>
-  <span class="n">ret</span> <span class="n">void</span>
-<span class="p">}</span>
-
-<span class="n">define</span> <span class="n">void</span> <span class="nd">@__cxa_pure_virtual</span><span class="p">()</span> <span class="n">nounwind</span> <span class="p">{</span>
-<span class="n">entry</span><span class="p">:</span>
-  <span class="n">ret</span> <span class="n">void</span>
-<span class="p">}</span>
-
-<span class="n">define</span> <span class="n">void</span> <span class="nd">@_ZNSt8ios_base4InitD1Ev</span><span class="p">()</span> <span class="n">nounwind</span> <span class="p">{</span>
-<span class="n">entry</span><span class="p">:</span>
-  <span class="n">ret</span> <span class="n">void</span>
-<span class="p">}</span>
-
+<span class="n">void</span> <span class="n">_start</span><span class="p">()</span> <span class="p">{}</span>
+<span class="n">void</span> <span class="n">__stack_chk_fail</span><span class="p">()</span> <span class="p">{}</span>
+<span class="n">void</span> <span class="n">__stack_chk_guard</span><span class="p">()</span> <span class="p">{}</span>
+<span class="n">void</span> <span class="n">_ZdlPv</span><span class="p">()</span> <span class="p">{}</span>
+<span class="n">void</span> <span class="n">__dso_handle</span><span class="p">()</span> <span class="p">{}</span>
+<span class="n">void</span> <span class="n">_ZNSt8ios_base4InitC1Ev</span><span class="p">()</span> <span class="p">{}</span>
+<span class="n">void</span> <span class="n">__cxa_atexit</span><span class="p">()</span> <span class="p">{}</span>
+<span class="n">void</span> <span class="n">_ZTVN10__cxxabiv120__si_class_type_infoE</span><span class="p">()</span> <span class="p">{}</span>
+<span class="n">void</span> <span class="n">_ZTVN10__cxxabiv117__class_type_infoE</span><span class="p">()</span> <span class="p">{}</span>
+<span class="n">void</span> <span class="n">_Znwm</span><span class="p">()</span> <span class="p">{}</span>
+<span class="n">void</span> <span class="n">__cxa_pure_virtual</span><span class="p">()</span> <span class="p">{}</span>
+<span class="n">void</span> <span class="n">ZNSt8ios_base4InitD1Ev</span><span class="p">()</span> <span class="p">{}</span>
 </pre></div>
 </div>
 <p class="rubric">exlbt/input/Common.mk</p>
@@ -1508,9 +1454,6 @@ $(BUILD_DIR)/%.c.o: %.c
 $(BUILD_DIR)/%.cpp.o: %.cpp
 	mkdir -p $(dir $@)
 	$(CC) $(CPPFLAGS) $(CXXFLAGS) -c $&lt; -o $@
-
-$(BUILD_DIR)/lib_cpu0.ll.o: lib_cpu0.ll
-	$(LLC) $(LLFLAGS) $&lt; -o $@
 
 .PHONY: clean
 clean: 
@@ -1851,7 +1794,7 @@ int test_staticlink()
 <p class="rubric">exlbt/input/Makefile.slinker</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span>
 SRCS := start.cpp debug.cpp printf-stdarg-def.c printf-stdarg.c ch_slinker.cpp \
-	lib_cpu0.ll
+	lib_cpu0.c
 INC_DIRS := $(SRC_DIR) $(LBDEX_DIR)/input
 LIBBUILTINS_DIR :=
 LIBS :=
