@@ -1,12 +1,12 @@
 # start.cpp must be put at beginning
-SRCS :=  start.cpp debug.cpp syscalls.c sanitizer_printf.cpp printf-stdarg-def.c \
-         cpu0-builtins.cpp ch_newlib.cpp lib_cpu0.ll
-INC_DIRS := ./ $(LBDEX_DIR)/input $(NEWLIB_DIR)/newlib/libc/include \
-            $(NEWLIB_DIR)/libgloss \
-            $(HOME)/llvm/llvm-project/compiler-rt/lib/builtins
+SRCS :=  start.cpp debug.cpp syscalls.c printf-stdarg-def.c \
+         cpu0-builtins.cpp ch_newlib.cpp lib_cpu0.c
+INC_DIRS := ./ $(LBDEX_DIR)/input \
+            $(HOME)/llvm/llvm-project/compiler-rt/lib/builtins \
+            $(NEWLIB_DIR)/newlib/libc/include \
+            $(NEWLIB_DIR)/libgloss
 LIBBUILTINS_DIR := ../compiler-rt/builtins
 LIBS := $(LIBBUILTINS_DIR)/build-$(CPU)-$(ENDIAN)/libbuiltins.a \
-        $(NEWLIB_DIR)/build-$(CPU)-$(ENDIAN)/libm.a \
         $(NEWLIB_DIR)/build-$(CPU)-$(ENDIAN)/libg.a \
         $(NEWLIB_DIR)/build-$(CPU)-$(ENDIAN)/libc.a
 

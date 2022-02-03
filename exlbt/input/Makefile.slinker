@@ -1,6 +1,6 @@
 
 SRCS := start.cpp debug.cpp printf-stdarg-def.c printf-stdarg.c ch_slinker.cpp \
-	lib_cpu0.ll
+	lib_cpu0.c
 INC_DIRS := $(SRC_DIR) $(LBDEX_DIR)/input
 LIBBUILTINS_DIR :=
 LIBS :=

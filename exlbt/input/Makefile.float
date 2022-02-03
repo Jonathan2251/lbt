@@ -1,6 +1,6 @@
 
 SRCS := start.cpp debug.cpp sanitizer_printf.cpp printf-stdarg-def.c \
-        cpu0-builtins.cpp ch_float.cpp lib_cpu0.ll
+        cpu0-builtins.cpp ch_float.cpp lib_cpu0.c
 LIBBUILTINS_DIR := ../compiler-rt/builtins
 INC_DIRS := ../ $(NEWLIB_DIR)/newlib/libc/include $(LBDEX_DIR)/input
 LIBS := $(LIBBUILTINS_DIR)/build-$(CPU)-$(ENDIAN)/libbuiltins.a

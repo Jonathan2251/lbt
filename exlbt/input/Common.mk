@@ -63,9 +63,6 @@ $(BUILD_DIR)/%.cpp.o: %.cpp
 	mkdir -p $(dir $@)
 	$(CC) $(CPPFLAGS) $(CXXFLAGS) -c $< -o $@
 
-$(BUILD_DIR)/lib_cpu0.ll.o: lib_cpu0.ll
-	$(LLC) $(LLFLAGS) $< -o $@
-
 .PHONY: clean
 clean: 
 	rm -rf $(BUILD_DIR)

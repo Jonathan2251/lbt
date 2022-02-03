@@ -1,5 +1,5 @@
 
-SRCS := start.cpp ch13_1.cpp a.cpp lib_cpu0.ll
+SRCS := start.cpp ch13_1.cpp a.cpp lib_cpu0.c
 INC_DIRS := $(SRC_DIR) $(LBDEX_DIR)/input
 LIBBUILTINS_DIR :=
 LIBS :=

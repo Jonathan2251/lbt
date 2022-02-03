@@ -14,7 +14,7 @@ AS := $(TOOLDIR)/llvm-as
 LD := $(TOOLDIR)/ld.lld
 
 SRCS := start.cpp debug.cpp printf-stdarg-def.c printf-stdarg.c \
-  ch_slinker.cpp lib_cpu0.ll
+  ch_slinker.cpp lib_cpu0.c
 
 # String substitution for every C/C++ file.
 # As an example, hello.cpp turns into ./build/hello.cpp.o
@@ -49,9 +49,6 @@ $(BUILD_DIR)/%.cpp.o: %.cpp
 	mkdir -p $(dir $@)
 	$(CC) $(CPPFLAGS) $(CXXFLAGS) -c $< -o $@
 	$(LLC) $(LLFLAGS) $@ -o $@
-
-$(BUILD_DIR)/lib_cpu0.ll.o: lib_cpu0.ll
-	$(LLC) $(LLFLAGS) $< -o $@
 
 .PHONY: clean
 clean:

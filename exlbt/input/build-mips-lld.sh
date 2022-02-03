@@ -16,7 +16,10 @@ ${CLANG} -target mips-unknown-linux-gnu -c printf-stdarg-def.c -emit-llvm \
 -o printf-stdarg-def.bc
 ${CLANG} -target mips-unknown-linux-gnu -c printf-stdarg.c -emit-llvm \
 -o printf-stdarg.bc
-${CLANG} -target mips-unknown-linux-gnu -c ch_hello.c -emit-llvm -DTEST_RUN -o ch_hello.bc
+${CLANG} -target mips-unknown-linux-gnu -c ch_hello.c -emit-llvm -DTEST_RUN \
+-o ch_hello.bc
+${CLANG} -target mips-unknown-linux-gnu -c lib_cpu0.c -emit-llvm -DTEST_RUN \
+-o lib_cpu0.bc
 ${TOOLDIR}/llc -march=mips${endian} -relocation-model=static -filetype=obj \
 printf-stdarg-def.bc -o printf-stdarg-def.o
 ${TOOLDIR}/llc -march=mips${endian} -relocation-model=static -filetype=obj \

@@ -2,7 +2,7 @@
 #   "make -f Makefile.builtins CPU=cpu032II ENDIAN=eb \
 
 # start.cpp must be put at beginning
-SRCS :=  start.cpp debug.cpp sanitizer_printf.cpp printf-stdarg-def.c \
+SRCS :=  start.cpp debug.cpp syscalls.c sanitizer_printf.cpp printf-stdarg-def.c \
   compiler-rt-test/builtins/Unit/absvdi2_test.c \
   compiler-rt-test/builtins/Unit/absvsi2_test.c \
   compiler-rt-test/builtins/Unit/absvti2_test.c \
@@ -132,12 +132,15 @@ SRCS :=  start.cpp debug.cpp sanitizer_printf.cpp printf-stdarg-def.c \
   compiler-rt-test/builtins/Unit/unorddf2vfp_test.c \
   compiler-rt-test/builtins/Unit/unordsf2vfp_test.c \
   compiler-rt-test/builtins/Unit/unordtf2_test.c \
-  cpu0-builtins.cpp ch_builtins.cpp lib_cpu0.ll
+  cpu0-builtins.cpp ch_builtins.cpp lib_cpu0.c
 
-INC_DIRS := ./ $(LBDEX_DIR)/input $(NEWLIB_DIR)/newlib/libc/include \
-            $(HOME)/llvm/llvm-project/compiler-rt/lib/builtins
+INC_DIRS := ./ $(LBDEX_DIR)/input \
+            $(HOME)/llvm/llvm-project/compiler-rt/lib/builtins \
+            $(NEWLIB_DIR)/newlib/libc/include \
+            $(NEWLIB_DIR)/libgloss 
 LIBBUILTINS_DIR := ../compiler-rt/builtins
 LIBS := $(LIBBUILTINS_DIR)/build-$(CPU)-$(ENDIAN)/libbuiltins.a \
-        $(NEWLIB_DIR)/build-$(CPU)-$(ENDIAN)/libm.a $(NEWLIB_DIR)/build-$(CPU)-$(ENDIAN)/libc.a
+        $(NEWLIB_DIR)/build-$(CPU)-$(ENDIAN)/libm.a \
+        $(NEWLIB_DIR)/build-$(CPU)-$(ENDIAN)/libc.a
 
 include Common.mk

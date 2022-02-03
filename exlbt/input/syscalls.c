@@ -8,13 +8,28 @@
 #include "config.h"
 #include "debug.h"
 
+static int my_prints(const char *string)
+{
+  int pc = 0, padchar = ' ';
+
+  for ( ; *string ; ++string) {
+    putchar (*string);
+    ++pc;
+  }
+
+  return pc;
+}
+
+// lldb write to file, and the following code read from file and write to file-a,
+// finally verilog read from file-a via $readmmh("file-a", m) or $scanf.
 int
 _read (file, ptr, len)
      int    file;
      char * ptr;
      int    len;
 {
-  for (;;) {}
+  my_prints("_read\n"); 
+//  for (;;) {}
 /*
   asm ("ldi:8 %0, r0" :: "i" (SYS_read) : "r0");
   asm ("int   #10");
@@ -28,6 +43,7 @@ _lseek (file, ptr, dir)
      int ptr;
      int dir;
 {
+  my_prints("_leek\n"); 
 /*
   asm ("ldi:8 %0, r0" :: "i" (SYS_lseek) : "r0");
   asm ("int   #10");
@@ -41,6 +57,8 @@ _write (file, ptr, len)
      char * ptr;
      int    len;
 {
+  my_prints("_write\n"); 
+//  for (;;) {}
 /*
   asm ("ldi:8 %0, r0" :: "i" (SYS_write) : "r0");
   asm ("int   #10");
@@ -55,6 +73,7 @@ _open (path, flags)
      const char * path;
      int flags;
 {
+  my_prints("_open\n"); 
 /*
   asm ("ldi:8  %0, r0" :: "i" (SYS_open) : "r0");
   asm ("int    #10");
@@ -88,6 +107,7 @@ caddr_t
 _sbrk (incr)
      int incr;
 {
+  my_prints("_sbrk\n"); 
   extern char   end asm ("_end");	/* Defined by the linker */
   extern int    __stack;                /* Defined by linker script.  */
   static char * heap_end;
@@ -114,6 +134,7 @@ _fstat (file, st)
      int file;
      struct stat * st;
 {
+  my_prints("_fstat\n"); 
   st->st_mode = S_IFCHR;
   return 0;
 }
@@ -121,6 +142,7 @@ _fstat (file, st)
 int
 _unlink ()
 {
+  my_prints("_unlink\n"); 
   return -1;
 }
 
@@ -128,18 +150,21 @@ int
 _isatty (fd)
      int fd;
 {
+  my_prints("_isatty\n"); 
   return 0;
 }
 
 int
 _raise ()
 {
+  my_prints("_raise\n"); 
   return 0;
 }
 
 int
 _times ()
 {
+  my_prints("_times\n"); 
   return 0;
 }
 
@@ -148,11 +173,13 @@ _kill (pid, sig)
      int pid;
      int sig;
 {
+  my_prints("_kill\n"); 
   return 0;
 }
 
 int
 _getpid (void)
 {
+  my_prints("_getpid\n"); 
   return 0;
 }

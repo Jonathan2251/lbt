@@ -1,3 +1,5 @@
+// This file provides function symbols used for c++ in lld
+
 void _start() {}
 void __stack_chk_fail() {}
 void __stack_chk_guard() {}

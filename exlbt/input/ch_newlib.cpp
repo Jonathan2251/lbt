@@ -25,6 +25,9 @@ void show_result(const char *fn, int res) {
   }
 }
 
+// Currently status of my porting newlib:
+// 1. newlib's printf output nothing.
+// 2. scanf trigger _fstat() of syscalls.c and hanging there. 
 int main() {
   int res = 0;
 
