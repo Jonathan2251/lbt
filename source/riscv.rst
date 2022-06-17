@@ -1,7 +1,7 @@
 .. _sec-riscv:
 
-RISCV
-=====
+Appendix A: RISCV
+=================
 
 .. contents::
    :local:
