@@ -25,7 +25,8 @@ Table of Contents
    opt
    lib
    lldb
-   
+   riscv
+
 
 Resources
 ----------
