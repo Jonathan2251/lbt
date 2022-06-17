@@ -46,7 +46,9 @@ build_gnu_toolchain() {
   pushd $GNU_SRC_DIR
   git clone https://github.com/riscv/riscv-gnu-toolchain
   cd riscv-gnu-toolchain
-  git checkout -b rvv-intrinsic origin/rvv-intrinsic
+#  Looks branch change from original/rvv-intrinsic to origin/__archive__
+#  git checkout -b rvv-intrinsic origin/rvv-intrinsic
+# commit 409b951ba6621f2f115aebddfb15ce2dd78ec24f of master branch is work
   mkdir build_newlib
   cd build_newlib
   ../configure --prefix=$GNU_NEWLIB_INSTALL_DIR --with-multilib-generator="rv32i-ilp32--;rv32imafd-ilp32--;rv64ima-lp64--"

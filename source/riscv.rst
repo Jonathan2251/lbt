@@ -40,6 +40,10 @@ Install according https://gitlab.com/qemu-project/qemu as follows,
   $ pwd
   $ $HOME/riscv/git
   $ git clone https://gitlab.com/qemu-project/qemu.git
+  $ cd qemu
+  $ git log
+  commit a28498b1f9591e12dcbfdf06dc8f54e15926760e
+  ...
   $ mkdir build
   $ cd build
   $ ../configure
@@ -51,8 +55,8 @@ Then it can compile and run qemu for baremetal as follows,
 
   $ pwd
   $ $HOME/lbt/exlbt/riscv
-  $ $HOME/riscv/riscv_newlib/bin/clang hello.c -o hello_newlib
-  $ $HOME/riscv/riscv/git/qemu/build/qemu-riscv64 hello_newlib
+  $ $HOME/riscv/riscv_newlib/bin/clang -march=rv64g hello.c -o hello_newlib
+  $ $HOME/riscv/git/qemu/build/qemu-riscv64 hello_newlib
   HelloWorld!
 
   $ $HOME/riscv/riscv_newlib/bin/riscv64-unknown-elf-gcc -c hello_world.s
@@ -65,7 +69,7 @@ Linux as follows,
 .. code-block:: console
 
   $ $HOME/riscv/riscv_linux/bin/clang -march=rv64g hello.c -o hello_linux -static
-  $ $HOME/riscv/riscv/git/qemu/build/qemu-riscv64 hello_linux
+  $ $HOME/riscv/git/qemu/build/qemu-riscv64 hello_linux
   HelloWorld!
 
 
@@ -78,11 +82,17 @@ http://learning.gem5.org/book/part1/building.html#requirements-for-gem5
 
 http://learning.gem5.org/book/part1/example_configs.html
 
+After install all dependencies, get gem5 and build RISCV as follows,
 
 .. code-block:: console
 
   $ pwd
-  $ $HOME/riscv/git/gem5
+  $ $HOME/riscv/git
+  $ git clone https://gem5.googlesource.com/public/gem5
+  $ cd gem5
+  $ git log
+  commit e4fae58da6c044b6efec62392ff99f343ce67947
+  ...
   $HOME/riscv/git/gem5$ /usr/bin/env python3 $(which scons) ./build/RISCV/gem5.debug -j4
   ...
   $ pwd
@@ -96,13 +106,13 @@ Check cycles as follows,
 
 .. code-block:: console
 
-  /local/git$ vi m5out/stats.txt
+  $HOME/lbt/exlbt/riscv$ vi m5out/stats.txt
   simSeconds                                   0.000001                       # Number of seconds simulated (Second)
   simTicks                                      1229000                       # Number of ticks simulated (Tick)
   ...
 
   $HOME/lbt/exlbt/riscv$ $HOME/riscv/git/gem5/build/RISCV/gem5.debug /local/git/gem5/configs/example/se.py --cmd=./hello_linux
   ...
-  $HOME/lbt/exlbt/riscv$ build/RISCV/base/loader/image_file_data.cc:111: panic: panic condition fd < 0 occurred: Failed to open file /lib/ld-linux-riscv64-lp64d.so.1.
+  HelloWorld!
   ...
 
