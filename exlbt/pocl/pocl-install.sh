@@ -8,6 +8,7 @@ POCL_PARENT_DIR=$HOME/riscv/git
 LLVM_VERSION=13
 
 install_dependences() {
+  echo "LLVM_VERSION: $LLVM_VERSION"
   sudo apt-get install -y build-essential ocl-icd-libopencl1 cmake git pkg-config libclang-${LLVM_VERSION}-dev clang llvm-${LLVM_VERSION} make ninja-build ocl-icd-libopencl1 ocl-icd-dev ocl-icd-opencl-dev libhwloc-dev zlib1g zlib1g-dev clinfo dialog apt-utils libxml2-dev libclang-cpp${LLVM_VERSION}-dev libclang-cpp${LLVM_VERSION} llvm-${LLVM_VERSION}-dev
 }
 
