@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # Set POCL_PARENT_DIR for the parent folder of pocl git hub checkout to.
-POCL_PARENT_DIR=$HOME/riscv/git
+POCL_PARENT_DIR=$HOME/git
 
 # After "sudo make install", pocl installed in /usr/local/share/pocl, /usr/local/lib/libpocl.so, /usr/local/lib/pocl and /usr/local/bin/poclcc
 
