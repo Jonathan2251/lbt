@@ -7,6 +7,10 @@ export POCL_PARENT_DIR=$HOME/git
 # Ubuntu 18.04 only can use LLVM_VERSION 13. 14 is too new and dependence packages of Ubuntu 18.04.
 LLVM_VERSION=13
 
+
+# Todo:
+# Trace test_clCreateKernel.c and test_enqueue_kernel_from_binary.c for running an OpenCL example.
+
 install_dependences() {
   echo "LLVM_VERSION: $LLVM_VERSION"
   sudo apt-get install -y build-essential ocl-icd-libopencl1 cmake git pkg-config libclang-${LLVM_VERSION}-dev clang llvm-${LLVM_VERSION} make ninja-build ocl-icd-libopencl1 ocl-icd-dev ocl-icd-opencl-dev libhwloc-dev zlib1g zlib1g-dev clinfo dialog apt-utils libxml2-dev libclang-cpp${LLVM_VERSION}-dev libclang-cpp${LLVM_VERSION} llvm-${LLVM_VERSION}-dev
