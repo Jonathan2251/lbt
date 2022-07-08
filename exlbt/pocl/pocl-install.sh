@@ -35,7 +35,10 @@ build_pocl() {
   pushd $POCL_PARENT_DIR/pocl
   mkdir build
   cd build
+# Todo: make sure pocl using clang and clang++ as default. Or it using /usr/bin/cc?
   cmake -DLLVM_CONFIG=/usr/lib/llvm-13/bin/llvm-config ..
+# Have verified the following using clang compiler
+  #cmake -DLLVM_CONFIG=/usr/lib/llvm-13/bin/llvm-config -DCMAKE_C_COMPILER=/usr/lib/llvm-13/bin/clang -DCMAKE_CXX_COMPILER=/usr/lib/llvm-13/bin/clang++ ..
   make
   sudo make install
   popd
