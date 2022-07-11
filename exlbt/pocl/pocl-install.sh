@@ -2,9 +2,11 @@
 # Set POCL_PARENT_DIR for the parent folder of pocl git hub checkout to.
 export POCL_PARENT_DIR=$HOME/git
 
-# After "sudo make install", pocl installed in /usr/local/share/pocl, /usr/local/lib/libpocl.so, /usr/local/lib/pocl and /usr/local/bin/poclcc
+# After "sudo make install", pocl installed in /usr/local/share/pocl, 
+# /usr/local/lib/libpocl.so, /usr/local/lib/pocl and /usr/local/bin/poclcc.
 
-# Ubuntu 18.04 only can use LLVM_VERSION 13. 14 is too new and dependence packages of Ubuntu 18.04.
+# Ubuntu 18.04 only can use LLVM_VERSION 13. 14 is too new for the dependent 
+# packages of Ubuntu 18.04.
 LLVM_VERSION=13
 
 
@@ -39,16 +41,23 @@ build_pocl() {
   pushd $POCL_PARENT_DIR/pocl
   mkdir build
   cd build
-# Todo: make sure pocl using clang and clang++ as default. Or it using /usr/bin/cc?
-  cmake -DLLVM_CONFIG=/usr/lib/llvm-13/bin/llvm-config ..
+# The default uses /usr/bin/cc in ubuntu 18.04
+  #cmake -DLLVM_CONFIG=/usr/lib/llvm-13/bin/llvm-config ..
 # Have verified the following using clang compiler
-  #cmake -DLLVM_CONFIG=/usr/lib/llvm-13/bin/llvm-config \
+  cmake -DLLVM_CONFIG=/usr/lib/llvm-13/bin/llvm-config \
   -DCMAKE_C_COMPILER=/usr/lib/llvm-13/bin/clang \
   -DCMAKE_CXX_COMPILER=/usr/lib/llvm-13/bin/clang++ ..
   make
   sudo make install
   popd
 }
+
+# Verify tests/runtime/test_clCreateKernel.c using clang rather than cc as follows,
+# jonathanchen@hz-compiler1:~/git/pocl/build$ touch ../tests/runtime/test_clCreateKernel.c
+# jonathanchen@hz-compiler1:~/git/pocl/build$ make VERBOSE=1 |grep test_clCreateKernel.c
+# [ 95%] Building C object tests/runtime/CMakeFiles/test_clCreateKernel.dir/test_clCreateKernel.c.o
+# cd /home/jonathanchen/git/pocl/build/tests/runtime && /usr/lib/llvm-13/bin/clang ...
+# -c /home/jonathanchen/git/pocl/tests/runtime/test_clCreateKernel.c
 
 # http://portablecl.org/docs/html/development.html
 check_pocl() {
@@ -57,8 +66,8 @@ check_pocl() {
   popd
 }
 
-install_dependences;
-get_pocl;
-check;
+#install_dependences;
+#get_pocl;
+#check;
 build_pocl;
 check_pocl;
