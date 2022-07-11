@@ -42,9 +42,10 @@ build_pocl() {
   mkdir build
   cd build
 # The default uses /usr/bin/cc in ubuntu 18.04
-  #cmake -DLLVM_CONFIG=/usr/lib/llvm-13/bin/llvm-config ..
+  #cmake -WITH_DLLVM_CONFIG=/usr/lib/llvm-13/bin/llvm-config ..
 # Have verified the following using clang compiler
-  cmake -DLLVM_CONFIG=/usr/lib/llvm-13/bin/llvm-config \
+  cmake -DWITH_LLVM_CONFIG=/usr/lib/llvm-13/bin/llvm-config \
+  -DENABLE_ICD=OFF \
   -DCMAKE_C_COMPILER=/usr/lib/llvm-13/bin/clang \
   -DCMAKE_CXX_COMPILER=/usr/lib/llvm-13/bin/clang++ ..
   make
@@ -70,4 +71,4 @@ check_pocl() {
 #get_pocl;
 #check;
 build_pocl;
-check_pocl;
+#check_pocl;
