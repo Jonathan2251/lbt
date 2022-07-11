@@ -10,6 +10,9 @@ export POCL_PARENT_DIR=$HOME/git
 LLVM_VERSION=13
 
 
+#LLVM_PATH=/usr/lib/llvm-13/bin
+LLVM_PATH=$HOME/llvm/13/llvm-project/build//bin
+
 # Todo:
 # Trace test_clCreateKernel.c and test_enqueue_kernel_from_binary.c for running an OpenCL example.
 
@@ -44,10 +47,10 @@ build_pocl() {
 # The default uses /usr/bin/cc in ubuntu 18.04
   #cmake -WITH_DLLVM_CONFIG=/usr/lib/llvm-13/bin/llvm-config ..
 # Have verified the following using clang compiler
-  cmake -DWITH_LLVM_CONFIG=/usr/lib/llvm-13/bin/llvm-config \
+  cmake -DWITH_LLVM_CONFIG=${LLVM_PATH}/llvm-config \
   -DENABLE_ICD=OFF \
-  -DCMAKE_C_COMPILER=/usr/lib/llvm-13/bin/clang \
-  -DCMAKE_CXX_COMPILER=/usr/lib/llvm-13/bin/clang++ ..
+  -DCMAKE_C_COMPILER=${LLVM_PATH}/clang \
+  -DCMAKE_CXX_COMPILER=${LLVM_PATH}/clang++ ..
   make
   sudo make install
   popd
