@@ -13,7 +13,11 @@ LLVM_VERSION=13
 
 install_dependences() {
   echo "LLVM_VERSION: $LLVM_VERSION"
-  sudo apt-get install -y build-essential ocl-icd-libopencl1 cmake git pkg-config libclang-${LLVM_VERSION}-dev clang llvm-${LLVM_VERSION} make ninja-build ocl-icd-libopencl1 ocl-icd-dev ocl-icd-opencl-dev libhwloc-dev zlib1g zlib1g-dev clinfo dialog apt-utils libxml2-dev libclang-cpp${LLVM_VERSION}-dev libclang-cpp${LLVM_VERSION} llvm-${LLVM_VERSION}-dev
+  sudo apt-get install -y build-essential ocl-icd-libopencl1 cmake git pkg-config \
+  libclang-${LLVM_VERSION}-dev clang llvm-${LLVM_VERSION} make ninja-build \
+  ocl-icd-libopencl1 ocl-icd-dev ocl-icd-opencl-dev libhwloc-dev zlib1g \
+  zlib1g-dev clinfo dialog apt-utils libxml2-dev libclang-cpp${LLVM_VERSION}-dev \
+  libclang-cpp${LLVM_VERSION} llvm-${LLVM_VERSION}-dev
 }
 
 get_pocl() {
@@ -38,7 +42,9 @@ build_pocl() {
 # Todo: make sure pocl using clang and clang++ as default. Or it using /usr/bin/cc?
   cmake -DLLVM_CONFIG=/usr/lib/llvm-13/bin/llvm-config ..
 # Have verified the following using clang compiler
-  #cmake -DLLVM_CONFIG=/usr/lib/llvm-13/bin/llvm-config -DCMAKE_C_COMPILER=/usr/lib/llvm-13/bin/clang -DCMAKE_CXX_COMPILER=/usr/lib/llvm-13/bin/clang++ ..
+  #cmake -DLLVM_CONFIG=/usr/lib/llvm-13/bin/llvm-config \
+  -DCMAKE_C_COMPILER=/usr/lib/llvm-13/bin/clang \
+  -DCMAKE_CXX_COMPILER=/usr/lib/llvm-13/bin/clang++ ..
   make
   sudo make install
   popd
