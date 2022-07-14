@@ -8,10 +8,14 @@ export POCL_PARENT_DIR=$HOME/git
 # Ubuntu 18.04 only can use LLVM_VERSION 13. 14 is too new for the dependent 
 # packages of Ubuntu 18.04.
 LLVM_VERSION=13
+LLVM_PATH=/usr/lib/llvm-13/bin
+#Not work for the following
+#LLVM_PATH=$HOME/llvm/13/llvm-project/build/bin
 
-
-#LLVM_PATH=/usr/lib/llvm-13/bin
-LLVM_PATH=$HOME/llvm/13/llvm-project/build//bin
+# Ubuntu 22.04 only can use LLVM_VERSION 14. 13 has no /usr/lib/llvm-13/clang 
+# after install_dependences().
+#LLVM_VERSION=14
+#LLVM_PATH=/usr/lib/llvm-14/bin
 
 # Todo:
 # Trace test_clCreateKernel.c and test_enqueue_kernel_from_binary.c for running an OpenCL example.
@@ -19,7 +23,7 @@ LLVM_PATH=$HOME/llvm/13/llvm-project/build//bin
 install_dependences() {
   echo "LLVM_VERSION: $LLVM_VERSION"
   sudo apt-get install -y build-essential ocl-icd-libopencl1 cmake git pkg-config \
-  libclang-${LLVM_VERSION}-dev clang llvm-${LLVM_VERSION} make ninja-build \
+  libclang-${LLVM_VERSION}-dev clang-${LLVM_VERSION} llvm-${LLVM_VERSION} make ninja-build \
   ocl-icd-libopencl1 ocl-icd-dev ocl-icd-opencl-dev libhwloc-dev zlib1g \
   zlib1g-dev clinfo dialog apt-utils libxml2-dev libclang-cpp${LLVM_VERSION}-dev \
   libclang-cpp${LLVM_VERSION} llvm-${LLVM_VERSION}-dev
@@ -45,7 +49,7 @@ build_pocl() {
   mkdir build
   cd build
 # The default uses /usr/bin/cc in ubuntu 18.04
-  #cmake -WITH_DLLVM_CONFIG=/usr/lib/llvm-13/bin/llvm-config ..
+#  cmake -WITH_DLLVM_CONFIG=${LLVM_PATH}/llvm-config ..
 # Have verified the following using clang compiler
   cmake -DWITH_LLVM_CONFIG=${LLVM_PATH}/llvm-config \
   -DENABLE_ICD=OFF \
@@ -70,8 +74,8 @@ check_pocl() {
   popd
 }
 
-#install_dependences;
+install_dependences;
 #get_pocl;
 #check;
 build_pocl;
-#check_pocl;
+check_pocl;
