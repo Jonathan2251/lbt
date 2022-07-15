@@ -30,6 +30,9 @@ void show_result(const char *fn, int res) {
 // 2. scanf trigger _fstat() of syscalls.c and hanging there. 
 int main() {
   int res = 0;
+  char cmd[256];
+
+//  setbuf (stdout, NULL);
 
 // pre-defined compiler macro (from llc -march=cpu0${ENDIAN} or
 // clang -target cpu0${ENDIAN}-unknown-linux-gnu
@@ -39,16 +42,21 @@ int main() {
 #ifdef __CPU0EL__
   printf("__CPU0EL__\n");
 #endif
+  fflush(stdout);
+//  FILE * fp;
 
-  res = test();
-  show_result("test()", res);
+//  fscanf(stdin, "%s", cmd);
 
-  char cmd[256];
-  printf("input: \n"); // \n: send data from buffer to device
+//  fp = fopen("ch_new.cpp", "r");
+
+//  res = test();
+//  show_result("test()", res);
+
+//  printf("input: \n"); // \n: send data from buffer to device
 
   // scanf of libc calling _read() of syscalls.cpp and hanging on it.
   // Now, with s
-  scanf("%s", cmd);
+//  fscanf(fp, "%s", cmd);
 
   return 0;
 }

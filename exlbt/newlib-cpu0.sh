@@ -20,6 +20,7 @@ install_newlib() {
   cp $CURR_DIR/newlib.patch .
   git apply newlib.patch
   cp -rf $CURR_DIR/newlib-cygwin/newlib/libc/machine/cpu0 newlib/libc/machine/. 
+  cp -rf $CURR_DIR/newlib-cygwin/libgloss/cpu0 libgloss/. 
   popd
 }
 

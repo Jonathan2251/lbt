@@ -75,7 +75,7 @@ check_pocl() {
 }
 
 install_dependences;
-#get_pocl;
-#check;
+get_pocl;
+check;
 build_pocl;
 check_pocl;
