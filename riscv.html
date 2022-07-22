@@ -1,0 +1,256 @@
+
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
+    <title>Appendix A: RISCV &#8212; Tutorial: Creating an LLVM Toolchain for the Cpu0 Architecture</title>
+    <link rel="stylesheet" type="text/css" href="_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="_static/haiku.css" />
+    <link rel="stylesheet" type="text/css" href="_static/graphviz.css" />
+    <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
+    <script src="_static/jquery.js"></script>
+    <script src="_static/underscore.js"></script>
+    <script src="_static/doctools.js"></script>
+    <link rel="author" title="About these documents" href="about.html" />
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="prev" title="LLDB" href="lldb.html" /> 
+  </head><body>
+      <div class="header" role="banner"><h1 class="heading"><a href="index.html">
+          <span>Tutorial: Creating an LLVM Toolchain for the Cpu0 Architecture</span></a></h1>
+        <h2 class="heading"><span>Appendix A: RISCV</span></h2>
+      </div>
+      <div class="topnav" role="navigation" aria-label="top navigation">
+      
+        <p>
+        «&#160;&#160;<a href="lldb.html">LLDB</a>
+        &#160;&#160;::&#160;&#160;
+        <a class="uplink" href="index.html">Contents</a>
+        </p>
+
+      </div>
+      <div class="content" role="main">
+        
+        
+  <section id="appendix-a-riscv">
+<span id="sec-riscv"></span><h1>Appendix A: RISCV<a class="headerlink" href="#appendix-a-riscv" title="Permalink to this headline">¶</a></h1>
+<div class="contents local topic" id="contents">
+<ul class="simple">
+<li><p><a class="reference internal" href="#risc-compiler-toolchain-installatation" id="id1">RISC compiler toolchain installatation</a></p></li>
+<li><p><a class="reference internal" href="#qemu-simulator" id="id2">Qemu simulator</a></p></li>
+<li><p><a class="reference internal" href="#gem5-simulator" id="id3">Gem5 simulator</a></p></li>
+</ul>
+</div>
+<p>This chapter shows the RISC toolchain installatation including gnu, llvm and
+simulators on Linux.</p>
+<section id="risc-compiler-toolchain-installatation">
+<h2><a class="toc-backref" href="#id1">RISC compiler toolchain installatation</a><a class="headerlink" href="#risc-compiler-toolchain-installatation" title="Permalink to this headline">¶</a></h2>
+<p>First, install the depended packages according
+<a class="reference external" href="https://github.com/riscv-collab/riscv-gnu-toolchain#readme">https://github.com/riscv-collab/riscv-gnu-toolchain#readme</a>.
+Next, create your $HOME/riscv and $HOME/riscv/git. Then run the following bash
+script.</p>
+<p class="rubric">exlbt/riscv/riscv-toolchain-setup.sh</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>#!/usr/bin/env bash
+
+GNU_SRC_DIR=$HOME/riscv/git
+LLVM_SRC_DIR=$HOME/riscv/git
+GNU_NEWLIB_INSTALL_DIR=$HOME/riscv/riscv_newlib
+LLVM_NEWLIB_BUILD_DIR=$LLVM_SRC_DIR/llvm-project/build_riscv_newlib
+
+GNU_LINUX_INSTALL_DIR=$HOME/riscv/riscv_linux
+LLVM_LINUX_BUILD_DIR=$LLVM_SRC_DIR/llvm-project/build_riscv_linux
+
+
+get_llvm() {
+  pushd $LLVM_SRC_DIR
+  git clone https://github.com/llvm/llvm-project.git
+  cd llvm-project
+  git checkout -b 13.x origin/release/13.x
+  mkdir build_riscv_newlib
+  mkdir build_riscv_linux
+  popd
+}
+
+check() {
+  if [ ! -d &quot;$GNU_SRC_DIR&quot; ]; then
+    echo &quot;GNU_SRC_DIR: $GNU_SRC_DIR not exist&quot;
+    exit 1
+  fi
+  if [ -d &quot;$GNU_NEWLIB_INSTALL_DIR&quot; ]; then
+    echo &quot;GNU_NEWLIB_INSTALL_DIR: $GNU_NEWLIB_INSTALL_DIR exist. Remove it before running.&quot;
+    exit 1
+  fi
+  if [ -d &quot;$GNU_LINUX_INSTALL_DIR&quot; ]; then
+    echo &quot;GNU_LINUX_INSTALL_DIR: $GNU_LINUX_INSTALL_DIR exist. Remove it before running.&quot;
+    exit 1
+  fi
+  if [ ! -d &quot;$LLVM_NEWLIB_BUILD_DIR&quot; ]; then
+    echo &quot;LLVM_NEWLIB_BUILD_DIR: $LLVM_NEWLIB_BUILD_DIR not exist. Create it before running.&quot;
+    exit 1
+  fi
+  if [ ! -d &quot;$LLVM_LINUX_BUILD_DIR&quot; ]; then
+    echo &quot;LLVM_LINUX_BUILD_DIR: $LLVM_LINUX_BUILD_DIR not exist. Create it before running.&quot;
+    exit 1
+  fi
+}
+
+build_gnu_toolchain() {
+  pushd $GNU_SRC_DIR
+  git clone https://github.com/riscv/riscv-gnu-toolchain
+  cd riscv-gnu-toolchain
+#  Looks branch change from original/rvv-intrinsic to origin/__archive__
+#  git checkout -b rvv-intrinsic origin/rvv-intrinsic
+# commit 409b951ba6621f2f115aebddfb15ce2dd78ec24f of master branch is work
+  mkdir build_newlib
+  cd build_newlib
+  ../configure --prefix=$GNU_NEWLIB_INSTALL_DIR \
+  --with-multilib-generator=&quot;rv32i-ilp32--;rv32imafd-ilp32--;rv64ima-lp64--&quot;
+  make
+
+  cd ..
+  mkdir build_linux
+  cd build_linux
+  ../configure --prefix=$GNU_LINUX_INSTALL_DIR
+  make linux
+  popd
+}
+
+# DEFAULT_SYSROOT: 
+#   https://stackoverflow.com/questions/66357013/compile-clang-with-alternative-sysroot
+# LLVM_DEFAULT_TARGET_TRIPLE:  
+#   https://clang.llvm.org/docs/CrossCompilation.html#general-cross-compilation-options-in-clang
+# Use &quot;clang --sysroot&quot; if did not &quot;cmake -DDEFAULT_SYSROOT&quot;
+# $GNU_NEWLIB_INSTALL_DIR/clang --gcc-toolchain=$GNU_NEWLIB_INSTALL_DIR \
+#   --sysroot=$GNU_NEWLIB_INSTALL_DIR/sysroot/ --static test.c
+build_llvm_toolchain() {
+  pushd $LLVM_NEWLIB_BUILD_DIR
+  cmake -G &quot;Ninja&quot; -DCMAKE_BUILD_TYPE=Debug -DLLVM_TARGETS_TO_BUILD=&quot;RISCV&quot; \
+  -DLLVM_ENABLE_PROJECTS=&quot;clang;lld&quot;  \
+  -DLLVM_BINUTILS_INCDIR=$GNU_SRC_DIR/riscv-gnu-toolchain/riscv-binutils/include \
+  -DCMAKE_INSTALL_PREFIX=$GNU_NEWLIB_INSTALL_DIR -DLLVM_PARALLEL_COMPILE_JOBS=4 \
+  -DLLVM_PARALLEL_LINK_JOBS=1 -DLLVM_DEFAULT_TARGET_TRIPLE=riscv64-unknown-elf \
+  -DDEFAULT_SYSROOT=$GNU_NEWLIB_INSTALL_DIR/riscv64-unknown-elf \
+  -DLLVM_INSTALL_UTILS=ON ../llvm
+  ninja
+  ninja install
+  popd
+  pushd $LLVM_LINUX_BUILD_DIR
+  cmake -G &quot;Ninja&quot; -DCMAKE_BUILD_TYPE=Debug -DLLVM_TARGETS_TO_BUILD=&quot;RISCV&quot; \
+  -DLLVM_ENABLE_PROJECTS=&quot;clang;lld&quot;  \
+  -DLLVM_BINUTILS_INCDIR=$GNU_SRC_DIR/riscv-gnu-toolchain/riscv-binutils/include \
+  -DCMAKE_INSTALL_PREFIX=$GNU_LINUX_INSTALL_DIR -DLLVM_PARALLEL_COMPILE_JOBS=4 \
+  -DLLVM_PARALLEL_LINK_JOBS=1 -DLLVM_DEFAULT_TARGET_TRIPLE=riscv64-unknown-linux-gnu \
+  -DDEFAULT_SYSROOT=$GNU_LINUX_INSTALL_DIR/sysroot -DLLVM_INSTALL_UTILS=ON ../llvm
+  ninja
+  ninja install
+  popd
+}
+
+get_llvm;
+check;
+build_gnu_toolchain;
+build_llvm_toolchain;
+</pre></div>
+</div>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span><span class="nb">pwd</span>
+<span class="gp">$ </span><span class="nv">$HOME</span>/riscv/git
+<span class="gp">$ </span>bash riscv-toolchain-setup.sh
+</pre></div>
+</div>
+<p>RISCV toolchain includes both baremetal(Newlib) and Linux platform support.</p>
+</section>
+<section id="qemu-simulator">
+<h2><a class="toc-backref" href="#id2">Qemu simulator</a><a class="headerlink" href="#qemu-simulator" title="Permalink to this headline">¶</a></h2>
+<p>Install according <a class="reference external" href="https://gitlab.com/qemu-project/qemu">https://gitlab.com/qemu-project/qemu</a> as follows,</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span><span class="nb">pwd</span>
+<span class="gp">$ </span><span class="nv">$HOME</span>/riscv/git
+<span class="gp">$ </span>git clone https://gitlab.com/qemu-project/qemu.git
+<span class="gp">$ </span><span class="nb">cd</span> qemu
+<span class="gp">$ </span>git log
+<span class="go">commit a28498b1f9591e12dcbfdf06dc8f54e15926760e</span>
+<span class="go">...</span>
+<span class="gp">$ </span>mkdir build
+<span class="gp">$ </span><span class="nb">cd</span> build
+<span class="gp">$ </span>../configure
+<span class="gp">$ </span>make
+</pre></div>
+</div>
+<p>Then it can compile and run qemu for baremetal as follows,</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span><span class="nb">pwd</span>
+<span class="gp">$ </span><span class="nv">$HOME</span>/lbt/exlbt/riscv
+<span class="gp">$ </span><span class="nv">$HOME</span>/riscv/riscv_newlib/bin/clang -march<span class="o">=</span>rv64g hello.c -o hello_newlib
+<span class="gp">$ </span><span class="nv">$HOME</span>/riscv/git/qemu/build/qemu-riscv64 hello_newlib
+<span class="go">HelloWorld!</span>
+
+<span class="gp">$ </span><span class="nv">$HOME</span>/riscv/riscv_newlib/bin/riscv64-unknown-elf-gcc -c hello_world.s
+<span class="gp">$ </span><span class="nv">$HOME</span>/riscv/riscv_newlib/bin/riscv64-unknown-elf-ld hello_world.o -o hello_world
+<span class="gp">$ </span><span class="nv">$HOME</span>/riscv/git/qemu/build/qemu-riscv64 hello_world
+<span class="go">Hello World</span>
+</pre></div>
+</div>
+<p>Linux as follows,</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span><span class="nv">$HOME</span>/riscv/riscv_linux/bin/clang -march<span class="o">=</span>rv64g hello.c -o hello_linux -static
+<span class="gp">$ </span><span class="nv">$HOME</span>/riscv/git/qemu/build/qemu-riscv64 hello_linux
+<span class="go">HelloWorld!</span>
+</pre></div>
+</div>
+</section>
+<section id="gem5-simulator">
+<h2><a class="toc-backref" href="#id3">Gem5 simulator</a><a class="headerlink" href="#gem5-simulator" title="Permalink to this headline">¶</a></h2>
+<p>Build Gem5 according the following,</p>
+<p><a class="reference external" href="http://learning.gem5.org/book/part1/building.html#requirements-for-gem5">http://learning.gem5.org/book/part1/building.html#requirements-for-gem5</a></p>
+<p><a class="reference external" href="http://learning.gem5.org/book/part1/example_configs.html">http://learning.gem5.org/book/part1/example_configs.html</a></p>
+<p>After install all dependencies, get gem5 and build RISCV as follows,</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span><span class="nb">pwd</span>
+<span class="gp">$ </span><span class="nv">$HOME</span>/riscv/git
+<span class="gp">$ </span>git clone https://gem5.googlesource.com/public/gem5
+<span class="gp">$ </span><span class="nb">cd</span> gem5
+<span class="gp">$ </span>git log
+<span class="go">commit e4fae58da6c044b6efec62392ff99f343ce67947</span>
+<span class="go">...</span>
+<span class="gp">$</span>HOME/riscv/git/gem5$ /usr/bin/env python3 <span class="k">$(</span>which scons<span class="k">)</span> ./build/RISCV/gem5.debug -j4
+<span class="go">...</span>
+<span class="gp">$ </span><span class="nb">pwd</span>
+<span class="gp">$ </span><span class="nv">$HOME</span>/lbt/exlbt/riscv
+<span class="gp">$</span>HOME/lbt/exlbt/riscv$ <span class="nv">$HOME</span>/riscv/git/gem5/build/RISCV/gem5.debug <span class="nv">$HOME</span>/riscv/git/gem5/configs/example/se.py --cmd<span class="o">=</span>./hello_newlib
+<span class="go">**** REAL SIMULATION ****</span>
+<span class="go">build/RISCV/sim/simulate.cc:107: info: Entering event queue @ 0.  Starting simulation...</span>
+<span class="go">HelloWorld!</span>
+</pre></div>
+</div>
+<p>Check cycles as follows,</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$</span>HOME/lbt/exlbt/riscv$ vi m5out/stats.txt
+<span class="go">simSeconds                                   0.000001                       # Number of seconds simulated (Second)</span>
+<span class="go">simTicks                                      1229000                       # Number of ticks simulated (Tick)</span>
+<span class="go">...</span>
+
+<span class="gp">$</span>HOME/lbt/exlbt/riscv$ <span class="nv">$HOME</span>/riscv/git/gem5/build/RISCV/gem5.debug /local/git/gem5/configs/example/se.py --cmd<span class="o">=</span>./hello_linux
+<span class="go">...</span>
+<span class="go">HelloWorld!</span>
+<span class="go">...</span>
+</pre></div>
+</div>
+</section>
+</section>
+
+
+      </div>
+      <div class="bottomnav" role="navigation" aria-label="bottom navigation">
+      
+        <p>
+        «&#160;&#160;<a href="lldb.html">LLDB</a>
+        &#160;&#160;::&#160;&#160;
+        <a class="uplink" href="index.html">Contents</a>
+        </p>
+
+      </div>
+
+    <div class="footer" role="contentinfo">
+        &#169; Copyright 2016, Chen Chung-Shu.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 4.4.0.
+    </div>
+  </body>
+</html>
