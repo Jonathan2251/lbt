@@ -1,15 +1,30 @@
 #!/usr/bin/env bash
 
-GNU_SRC_DIR=$HOME/riscv/git
-LLVM_SRC_DIR=$HOME/riscv/git
-GNU_NEWLIB_INSTALL_DIR=$HOME/riscv/riscv_newlib
-LLVM_NEWLIB_BUILD_DIR=$LLVM_SRC_DIR/llvm-project/build_riscv_newlib
+# Verified on ubuntu 18.04
+# mkdir riscv/git, riscv/riscv_newlib, riscv_linux befor running this bash script
+export GNU_SRC_DIR=$HOME/riscv/git
+export LLVM_SRC_DIR=$HOME/riscv/git
 
-GNU_LINUX_INSTALL_DIR=$HOME/riscv/riscv_linux
-LLVM_LINUX_BUILD_DIR=$LLVM_SRC_DIR/llvm-project/build_riscv_linux
+export GNU_NEWLIB_INSTALL_DIR=$HOME/riscv/riscv_newlib
+export LLVM_NEWLIB_BUILD_DIR=$LLVM_SRC_DIR/llvm-project/build_riscv_newlib
 
+export GNU_LINUX_INSTALL_DIR=$HOME/riscv/riscv_linux
+export LLVM_LINUX_BUILD_DIR=$LLVM_SRC_DIR/llvm-project/build_riscv_linux
+
+riscv_gnu_toolchain_prerequisites() {
+  sudo apt-get install autoconf automake autotools-dev curl python3 libmpc-dev \
+  libmpfr-dev libgmp-dev gawk build-essential bison flex texinfo gperf libtool \
+  patchutils bc zlib1g-dev libexpat-dev
+  if [ ! -f "/usr/bin/python" ]; then
+    sudo ln -s /usr/bin/python3 /usr/bin/python
+  fi
+}
 
 get_llvm() {
+  if [ ! -d "$GNU_SRC_DIR" ]; then
+    echo "GNU_SRC_DIR: $GNU_SRC_DIR not exist"
+    exit 1
+  fi
   pushd $LLVM_SRC_DIR
   git clone https://github.com/llvm/llvm-project.git
   cd llvm-project
@@ -94,6 +109,7 @@ build_llvm_toolchain() {
   popd
 }
 
+riscv_gnu_toolchain_prerequisites;
 get_llvm;
 check;
 build_gnu_toolchain;
