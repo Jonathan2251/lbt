@@ -88,6 +88,8 @@ After install all dependencies, get gem5 and build RISCV as follows,
 
   $ pwd
   $ $HOME/riscv/git
+  $ sudo apt install -y libglib2.0-dev
+  $ sudo apt install -y libpixman-1-dev
   $ git clone https://gem5.googlesource.com/public/gem5
   $ cd gem5
   $ git log
