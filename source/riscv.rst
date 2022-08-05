@@ -93,7 +93,7 @@ After install all dependencies, get gem5 and build RISCV as follows,
   $ git clone https://gem5.googlesource.com/public/gem5
   $ cd gem5
   $ git log
-  commit e4fae58da6c044b6efec62392ff99f343ce67947
+  commit 846dcf0ba4eff824c295f06550b8673ff3f31314
   ...
   $HOME/riscv/git/gem5$ /usr/bin/env python3 $(which scons) ./build/RISCV/gem5.debug -j4
   ...
