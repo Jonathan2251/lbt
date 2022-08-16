@@ -63,7 +63,7 @@ build_gnu_toolchain() {
   cd riscv-gnu-toolchain
 #  Looks branch change from original/rvv-intrinsic to origin/__archive__
 #  git checkout -b rvv-intrinsic origin/rvv-intrinsic
-# commit 409b951ba6621f2f115aebddfb15ce2dd78ec24f of master branch is work
+# commit 409b951ba6621f2f115aebddfb15ce2dd78ec24f of master branch is work for vadd.vv of vadd1.c
   mkdir build_newlib
   cd build_newlib
   ../configure --prefix=$GNU_NEWLIB_INSTALL_DIR \
