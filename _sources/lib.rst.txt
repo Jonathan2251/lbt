@@ -66,6 +66,7 @@ Cpu0.
 
 The libm.a depends on variable errno of libc only defined in sys/errno.h.
 
+- libgloss is BSP [#libgloss-bsp]_
 
 Compiler-rt
 -------------
@@ -388,6 +389,8 @@ Run as follows,
 .. [#newlib] https://sourceware.org/newlib/
 
 .. [#newlib-libm] https://sourceware.org/newlib/libm.html
+
+.. [#libgloss-bsp] https://www.embecosm.com/appnotes/ean9/html/ch03s01.html
 
 .. [#compiler-rt] http://compiler-rt.llvm.org/
 

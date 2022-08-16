@@ -25,7 +25,7 @@ script.
 .. code-block:: console
 
   $ pwd
-  $ $HOME/riscv/git
+  $ $HOME/lbt/exlbt
   $ bash riscv-toolchain-setup.sh
 
 RISCV toolchain includes both baremetal(Newlib) and Linux platform support.
@@ -80,7 +80,21 @@ Build Gem5 according the following,
 
 http://learning.gem5.org/book/part1/building.html#requirements-for-gem5
 
-http://learning.gem5.org/book/part1/example_configs.html
+If you don't have python3.x-config on Ubuntu 18.04 as follows,
+
+.. code-block:: console
+
+  $ ls /usr/bin/python*
+  ... /usr/bin/python2.7-config
+
+Then do install by pip3 as follows [#install-python3-config]_,
+
+.. code-block:: console
+
+  $ sudo apt install python3-pip
+  $ pip3 install scons
+  $ ls /usr/bin/python*
+  ... /usr/bin/python3-config
 
 After install all dependencies, get gem5 and build RISCV as follows,
 
@@ -88,16 +102,19 @@ After install all dependencies, get gem5 and build RISCV as follows,
 
   $ pwd
   $ $HOME/riscv/git
+  $ sudo apt install -y libglib2.0-dev
+  $ sudo apt install -y libpixman-1-dev
   $ git clone https://gem5.googlesource.com/public/gem5
   $ cd gem5
   $ git log
-  commit e4fae58da6c044b6efec62392ff99f343ce67947
+  commit 846dcf0ba4eff824c295f06550b8673ff3f31314
   ...
   $HOME/riscv/git/gem5$ /usr/bin/env python3 $(which scons) ./build/RISCV/gem5.debug -j4
   ...
   $ pwd
   $ $HOME/lbt/exlbt/riscv
-  $HOME/lbt/exlbt/riscv$ $HOME/riscv/git/gem5/build/RISCV/gem5.debug $HOME/riscv/git/gem5/configs/example/se.py --cmd=./hello_newlib
+  $HOME/lbt/exlbt/riscv$ $HOME/riscv/git/gem5/build/RISCV/gem5.debug \
+  $HOME/riscv/git/gem5/configs/example/se.py --cmd=./hello_newlib
   **** REAL SIMULATION ****
   build/RISCV/sim/simulate.cc:107: info: Entering event queue @ 0.  Starting simulation...
   HelloWorld!
@@ -111,8 +128,74 @@ Check cycles as follows,
   simTicks                                      1229000                       # Number of ticks simulated (Tick)
   ...
 
-  $HOME/lbt/exlbt/riscv$ $HOME/riscv/git/gem5/build/RISCV/gem5.debug /local/git/gem5/configs/example/se.py --cmd=./hello_linux
+  $HOME/lbt/exlbt/riscv$ $HOME/riscv/git/gem5/build/RISCV/gem5.debug \
+  /local/git/gem5/configs/example/se.py --cmd=./hello_linux
   ...
   HelloWorld!
   ...
 
+The config of gem5 reference here.
+http://learning.gem5.org/book/part1/example_configs.html
+
+
+RVV
+----
+
+Clang/llvm provide RVV (RISC-V Vectors) written in C rather than inline-asm. 
+Though it notices as clang option: -target-feature +experimental-v, this way in 
+C is more friendly and easy to remember for users than in inline-asm form. 
+Builtin is C function and friendly either. RVV can be written and run as follows,
+
+.. rubric:: exlbt/riscv/vadd1.c
+.. literalinclude:: ../exlbt/riscv/vadd1.c
+
+.. code-block:: console
+
+  $ pwd
+  $ $HOME/lbt/exlbt/riscv
+  $ $HOME/riscv/riscv_newlib/bin/clang vadd1.c -menable-experimental-extensions \
+    -march=rv64gcv0p10 -O0 -mllvm --riscv-v-vector-bits-min=256
+  $ $HOME/riscv/git/qemu/build/qemu-riscv64 -cpu rv64,v=true a.out
+  vector version is not specified, use the default value v1.0
+  1 11 11 11 11 11 11 11 11 1 
+
+  $ $HOME/riscv/riscv_newlib/bin/clang vadd1.c -menable-experimental-extensions \
+    -march=rv64gcv0p10 -O0 -mllvm --riscv-v-vector-bits-min=256 -static
+  $ $HOME/riscv/git/qemu/build/qemu-riscv64 -cpu rv64,v=true a.out
+  vector version is not specified, use the default value v1.0
+  1 11 11 11 11 11 11 11 11 1 
+  $ $HOME/riscv/riscv_newlib/bin/riscv64-unknown-elf-objdump -d a.out|grep vadd.vv
+   106fc:	03ae0d57          	vadd.vv	v26,v26,v28
+
+Clang/llvm provide builtin and intrinsic functions to implement RVV (RISC-V 
+Vectors) 
+
+.. rubric:: ~/riscv/git/llvm-project/clang/include/clang/Basic/riscv_vector.td
+.. code-block:: c++
+
+  #define vsetvl_e8mf8(avl) __builtin_rvv_vsetvli((size_t)(avl), 0, 5)
+  ...
+  defm vmadd  : RVVIntTerBuiltinSet;
+  ...
+  defm vfdiv  : RVVFloatingBinBuiltinSet;
+
+.. rubric:: ~/riscv/git/llvm-project/llvm/include/llvm/IR/IntrinsicsRISCV.td
+.. code-block:: c++
+
+   def int_riscv_vsetvli   : Intrinsic<...
+   ...
+   defm vmadd : RISCVTernaryAAXA;
+   ...
+   defm vfdiv : RISCVBinaryAAX;
+
+Refer to clang/llvm test cases in the following folders.
+
+.. code-block:: console
+
+  $ ~/riscv/git/llvm-project/clang/test/CodeGen/RISCV/rvv-intrinsics$ ls
+  $ ... vfdiv.c ... vfmadd.c
+
+  $ ~/riscv/git/llvm-project/llvm/test/CodeGen/RISCV/rvv$ ls
+  $ ... vfdiv-rv64.ll ... vfmadd-rv64.ll ...
+
+.. [#install-python3-config] https://www.anycodings.com/questions/gem5-build-fails-with-embedded-python-library-36-or-newer-required-found-2717

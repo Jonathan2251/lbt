@@ -39,15 +39,16 @@
 <span id="sec-riscv"></span><h1>Appendix A: RISCV<a class="headerlink" href="#appendix-a-riscv" title="Permalink to this headline">¶</a></h1>
 <div class="contents local topic" id="contents">
 <ul class="simple">
-<li><p><a class="reference internal" href="#risc-compiler-toolchain-installatation" id="id1">RISC compiler toolchain installatation</a></p></li>
-<li><p><a class="reference internal" href="#qemu-simulator" id="id2">Qemu simulator</a></p></li>
-<li><p><a class="reference internal" href="#gem5-simulator" id="id3">Gem5 simulator</a></p></li>
+<li><p><a class="reference internal" href="#risc-compiler-toolchain-installatation" id="id2">RISC compiler toolchain installatation</a></p></li>
+<li><p><a class="reference internal" href="#qemu-simulator" id="id3">Qemu simulator</a></p></li>
+<li><p><a class="reference internal" href="#gem5-simulator" id="id4">Gem5 simulator</a></p></li>
+<li><p><a class="reference internal" href="#rvv" id="id5">RVV</a></p></li>
 </ul>
 </div>
 <p>This chapter shows the RISC toolchain installatation including gnu, llvm and
 simulators on Linux.</p>
 <section id="risc-compiler-toolchain-installatation">
-<h2><a class="toc-backref" href="#id1">RISC compiler toolchain installatation</a><a class="headerlink" href="#risc-compiler-toolchain-installatation" title="Permalink to this headline">¶</a></h2>
+<h2><a class="toc-backref" href="#id2">RISC compiler toolchain installatation</a><a class="headerlink" href="#risc-compiler-toolchain-installatation" title="Permalink to this headline">¶</a></h2>
 <p>First, install the depended packages according
 <a class="reference external" href="https://github.com/riscv-collab/riscv-gnu-toolchain#readme">https://github.com/riscv-collab/riscv-gnu-toolchain#readme</a>.
 Next, create your $HOME/riscv and $HOME/riscv/git. Then run the following bash
@@ -55,16 +56,31 @@ script.</p>
 <p class="rubric">exlbt/riscv/riscv-toolchain-setup.sh</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span>#!/usr/bin/env bash
 
-GNU_SRC_DIR=$HOME/riscv/git
-LLVM_SRC_DIR=$HOME/riscv/git
-GNU_NEWLIB_INSTALL_DIR=$HOME/riscv/riscv_newlib
-LLVM_NEWLIB_BUILD_DIR=$LLVM_SRC_DIR/llvm-project/build_riscv_newlib
+# Verified on ubuntu 18.04
+# mkdir riscv/git, riscv/riscv_newlib, riscv_linux befor running this bash script
+export GNU_SRC_DIR=$HOME/riscv/git
+export LLVM_SRC_DIR=$HOME/riscv/git
 
-GNU_LINUX_INSTALL_DIR=$HOME/riscv/riscv_linux
-LLVM_LINUX_BUILD_DIR=$LLVM_SRC_DIR/llvm-project/build_riscv_linux
+export GNU_NEWLIB_INSTALL_DIR=$HOME/riscv/riscv_newlib
+export LLVM_NEWLIB_BUILD_DIR=$LLVM_SRC_DIR/llvm-project/build_riscv_newlib
 
+export GNU_LINUX_INSTALL_DIR=$HOME/riscv/riscv_linux
+export LLVM_LINUX_BUILD_DIR=$LLVM_SRC_DIR/llvm-project/build_riscv_linux
+
+riscv_gnu_toolchain_prerequisites() {
+  sudo apt-get install autoconf automake autotools-dev curl python3 libmpc-dev \
+  libmpfr-dev libgmp-dev gawk build-essential bison flex texinfo gperf libtool \
+  patchutils bc zlib1g-dev libexpat-dev
+  if [ ! -f &quot;/usr/bin/python&quot; ]; then
+    sudo ln -s /usr/bin/python3 /usr/bin/python
+  fi
+}
 
 get_llvm() {
+  if [ ! -d &quot;$GNU_SRC_DIR&quot; ]; then
+    echo &quot;GNU_SRC_DIR: $GNU_SRC_DIR not exist&quot;
+    exit 1
+  fi
   pushd $LLVM_SRC_DIR
   git clone https://github.com/llvm/llvm-project.git
   cd llvm-project
@@ -103,7 +119,7 @@ build_gnu_toolchain() {
   cd riscv-gnu-toolchain
 #  Looks branch change from original/rvv-intrinsic to origin/__archive__
 #  git checkout -b rvv-intrinsic origin/rvv-intrinsic
-# commit 409b951ba6621f2f115aebddfb15ce2dd78ec24f of master branch is work
+# commit 409b951ba6621f2f115aebddfb15ce2dd78ec24f of master branch is work for vadd.vv of vadd1.c
   mkdir build_newlib
   cd build_newlib
   ../configure --prefix=$GNU_NEWLIB_INSTALL_DIR \
@@ -149,6 +165,7 @@ build_llvm_toolchain() {
   popd
 }
 
+riscv_gnu_toolchain_prerequisites;
 get_llvm;
 check;
 build_gnu_toolchain;
@@ -156,14 +173,14 @@ build_llvm_toolchain;
 </pre></div>
 </div>
 <div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span><span class="nb">pwd</span>
-<span class="gp">$ </span><span class="nv">$HOME</span>/riscv/git
+<span class="gp">$ </span><span class="nv">$HOME</span>/lbt/exlbt
 <span class="gp">$ </span>bash riscv-toolchain-setup.sh
 </pre></div>
 </div>
 <p>RISCV toolchain includes both baremetal(Newlib) and Linux platform support.</p>
 </section>
 <section id="qemu-simulator">
-<h2><a class="toc-backref" href="#id2">Qemu simulator</a><a class="headerlink" href="#qemu-simulator" title="Permalink to this headline">¶</a></h2>
+<h2><a class="toc-backref" href="#id3">Qemu simulator</a><a class="headerlink" href="#qemu-simulator" title="Permalink to this headline">¶</a></h2>
 <p>Install according <a class="reference external" href="https://gitlab.com/qemu-project/qemu">https://gitlab.com/qemu-project/qemu</a> as follows,</p>
 <div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span><span class="nb">pwd</span>
 <span class="gp">$ </span><span class="nv">$HOME</span>/riscv/git
@@ -199,23 +216,37 @@ build_llvm_toolchain;
 </div>
 </section>
 <section id="gem5-simulator">
-<h2><a class="toc-backref" href="#id3">Gem5 simulator</a><a class="headerlink" href="#gem5-simulator" title="Permalink to this headline">¶</a></h2>
+<h2><a class="toc-backref" href="#id4">Gem5 simulator</a><a class="headerlink" href="#gem5-simulator" title="Permalink to this headline">¶</a></h2>
 <p>Build Gem5 according the following,</p>
 <p><a class="reference external" href="http://learning.gem5.org/book/part1/building.html#requirements-for-gem5">http://learning.gem5.org/book/part1/building.html#requirements-for-gem5</a></p>
-<p><a class="reference external" href="http://learning.gem5.org/book/part1/example_configs.html">http://learning.gem5.org/book/part1/example_configs.html</a></p>
+<p>If you don’t have python3.x-config on Ubuntu 18.04 as follows,</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>ls /usr/bin/python*
+<span class="go">... /usr/bin/python2.7-config</span>
+</pre></div>
+</div>
+<p>Then do install by pip3 as follows <a class="footnote-reference brackets" href="#install-python3-config" id="id1">1</a>,</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>sudo apt install python3-pip
+<span class="gp">$ </span>pip3 install scons
+<span class="gp">$ </span>ls /usr/bin/python*
+<span class="go">... /usr/bin/python3-config</span>
+</pre></div>
+</div>
 <p>After install all dependencies, get gem5 and build RISCV as follows,</p>
 <div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span><span class="nb">pwd</span>
 <span class="gp">$ </span><span class="nv">$HOME</span>/riscv/git
+<span class="gp">$ </span>sudo apt install -y libglib2.0-dev
+<span class="gp">$ </span>sudo apt install -y libpixman-1-dev
 <span class="gp">$ </span>git clone https://gem5.googlesource.com/public/gem5
 <span class="gp">$ </span><span class="nb">cd</span> gem5
 <span class="gp">$ </span>git log
-<span class="go">commit e4fae58da6c044b6efec62392ff99f343ce67947</span>
+<span class="go">commit 846dcf0ba4eff824c295f06550b8673ff3f31314</span>
 <span class="go">...</span>
 <span class="gp">$</span>HOME/riscv/git/gem5$ /usr/bin/env python3 <span class="k">$(</span>which scons<span class="k">)</span> ./build/RISCV/gem5.debug -j4
 <span class="go">...</span>
 <span class="gp">$ </span><span class="nb">pwd</span>
 <span class="gp">$ </span><span class="nv">$HOME</span>/lbt/exlbt/riscv
-<span class="gp">$</span>HOME/lbt/exlbt/riscv$ <span class="nv">$HOME</span>/riscv/git/gem5/build/RISCV/gem5.debug <span class="nv">$HOME</span>/riscv/git/gem5/configs/example/se.py --cmd<span class="o">=</span>./hello_newlib
+<span class="gp">$</span>HOME/lbt/exlbt/riscv$ <span class="nv">$HOME</span>/riscv/git/gem5/build/RISCV/gem5.debug <span class="se">\</span>
+<span class="gp">$</span>HOME/riscv/git/gem5/configs/example/se.py --cmd<span class="o">=</span>./hello_newlib
 <span class="go">**** REAL SIMULATION ****</span>
 <span class="go">build/RISCV/sim/simulate.cc:107: info: Entering event queue @ 0.  Starting simulation...</span>
 <span class="go">HelloWorld!</span>
@@ -227,12 +258,105 @@ build_llvm_toolchain;
 <span class="go">simTicks                                      1229000                       # Number of ticks simulated (Tick)</span>
 <span class="go">...</span>
 
-<span class="gp">$</span>HOME/lbt/exlbt/riscv$ <span class="nv">$HOME</span>/riscv/git/gem5/build/RISCV/gem5.debug /local/git/gem5/configs/example/se.py --cmd<span class="o">=</span>./hello_linux
+<span class="gp">$</span>HOME/lbt/exlbt/riscv$ <span class="nv">$HOME</span>/riscv/git/gem5/build/RISCV/gem5.debug <span class="se">\</span>
+/local/git/gem5/configs/example/se.py --cmd<span class="o">=</span>./hello_linux
 <span class="go">...</span>
 <span class="go">HelloWorld!</span>
 <span class="go">...</span>
 </pre></div>
 </div>
+<p>The config of gem5 reference here.
+<a class="reference external" href="http://learning.gem5.org/book/part1/example_configs.html">http://learning.gem5.org/book/part1/example_configs.html</a></p>
+</section>
+<section id="rvv">
+<h2><a class="toc-backref" href="#id5">RVV</a><a class="headerlink" href="#rvv" title="Permalink to this headline">¶</a></h2>
+<p>Clang/llvm provide RVV (RISC-V Vectors) written in C rather than inline-asm.
+Though it notices as clang option: -target-feature +experimental-v, this way in
+C is more friendly and easy to remember for users than in inline-asm form.
+Builtin is C function and friendly either. RVV can be written and run as follows,</p>
+<p class="rubric">exlbt/riscv/vadd1.c</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="o">//</span> <span class="o">~/</span><span class="n">riscv</span><span class="o">/</span><span class="n">riscv_newlib</span><span class="o">/</span><span class="nb">bin</span><span class="o">/</span><span class="n">clang</span><span class="o">++</span> <span class="n">vadd1</span><span class="o">.</span><span class="n">c</span> <span class="o">-</span><span class="n">menable</span><span class="o">-</span><span class="n">experimental</span><span class="o">-</span><span class="n">extensions</span> <span class="o">-</span><span class="n">march</span><span class="o">=</span><span class="n">rv64gcv0p10</span> <span class="o">-</span><span class="n">O0</span> <span class="o">-</span><span class="n">mllvm</span> <span class="o">--</span><span class="n">riscv</span><span class="o">-</span><span class="n">v</span><span class="o">-</span><span class="n">vector</span><span class="o">-</span><span class="n">bits</span><span class="o">-</span><span class="nb">min</span><span class="o">=</span><span class="mi">256</span> <span class="o">-</span><span class="n">v</span>
+<span class="o">//</span> <span class="o">~/</span><span class="n">riscv</span><span class="o">/</span><span class="n">git</span><span class="o">/</span><span class="n">qemu</span><span class="o">/</span><span class="n">build</span><span class="o">/</span><span class="n">qemu</span><span class="o">-</span><span class="n">riscv64</span> <span class="o">-</span><span class="n">cpu</span> <span class="n">rv64</span><span class="p">,</span><span class="n">v</span><span class="o">=</span><span class="n">true</span> <span class="n">a</span><span class="o">.</span><span class="n">out</span>
+<span class="o">//</span> <span class="n">ref</span><span class="o">.</span> <span class="n">https</span><span class="p">:</span><span class="o">//</span><span class="n">pages</span><span class="o">.</span><span class="n">dogdog</span><span class="o">.</span><span class="n">run</span><span class="o">/</span><span class="n">toolchain</span><span class="o">/</span><span class="n">riscv_vector_extension</span><span class="o">.</span><span class="n">html</span>
+
+<span class="c1">#include &lt;riscv_vector.h&gt;</span>
+<span class="c1">#include &lt;stdio.h&gt;</span>
+
+<span class="n">void</span> <span class="n">vec_add_rvv</span><span class="p">(</span><span class="nb">int</span> <span class="o">*</span><span class="n">a</span><span class="p">,</span> <span class="nb">int</span> <span class="o">*</span><span class="n">b</span><span class="p">,</span> <span class="nb">int</span> <span class="o">*</span><span class="n">c</span><span class="p">,</span> <span class="n">size_t</span> <span class="n">n</span><span class="p">)</span> <span class="p">{</span>
+    <span class="n">size_t</span> <span class="n">vl</span><span class="p">;</span>
+    <span class="n">vint32m2_t</span> <span class="n">va</span><span class="p">,</span> <span class="n">vb</span><span class="p">,</span> <span class="n">vc</span><span class="p">;</span>
+    <span class="k">for</span> <span class="p">(;</span> <span class="n">vl</span> <span class="o">=</span> <span class="n">vsetvl_e32m2</span><span class="p">(</span><span class="n">n</span><span class="p">);</span> <span class="n">n</span> <span class="o">-=</span> <span class="n">vl</span><span class="p">)</span> <span class="p">{</span>
+        <span class="n">vb</span> <span class="o">=</span> <span class="n">vle32_v_i32m2</span><span class="p">(</span><span class="n">b</span><span class="p">,</span> <span class="n">vl</span><span class="p">);</span>
+        <span class="n">vc</span> <span class="o">=</span> <span class="n">vle32_v_i32m2</span><span class="p">(</span><span class="n">c</span><span class="p">,</span> <span class="n">vl</span><span class="p">);</span>
+        <span class="n">va</span> <span class="o">=</span> <span class="n">vadd_vv_i32m2</span><span class="p">(</span><span class="n">vb</span><span class="p">,</span> <span class="n">vc</span><span class="p">,</span> <span class="n">vl</span><span class="p">);</span>
+        <span class="n">vse32_v_i32m2</span><span class="p">(</span><span class="n">a</span><span class="p">,</span> <span class="n">va</span><span class="p">,</span> <span class="n">vl</span><span class="p">);</span>
+        <span class="n">a</span> <span class="o">+=</span> <span class="n">vl</span><span class="p">;</span>
+        <span class="n">b</span> <span class="o">+=</span> <span class="n">vl</span><span class="p">;</span>
+        <span class="n">c</span> <span class="o">+=</span> <span class="n">vl</span><span class="p">;</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+
+<span class="nb">int</span> <span class="n">x</span><span class="p">[</span><span class="mi">10</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">4</span><span class="p">,</span> <span class="mi">5</span><span class="p">,</span> <span class="mi">6</span><span class="p">,</span> <span class="mi">7</span><span class="p">,</span> <span class="mi">8</span><span class="p">,</span> <span class="mi">9</span><span class="p">,</span> <span class="mi">0</span><span class="p">};</span>
+<span class="nb">int</span> <span class="n">y</span><span class="p">[</span><span class="mi">10</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span><span class="mi">0</span><span class="p">,</span> <span class="mi">9</span><span class="p">,</span> <span class="mi">8</span><span class="p">,</span> <span class="mi">7</span><span class="p">,</span> <span class="mi">6</span><span class="p">,</span> <span class="mi">5</span><span class="p">,</span> <span class="mi">4</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">1</span><span class="p">};</span>
+<span class="nb">int</span> <span class="n">z</span><span class="p">[</span><span class="mi">10</span><span class="p">];</span>
+
+<span class="nb">int</span> <span class="n">main</span><span class="p">()</span> <span class="p">{</span>
+    <span class="nb">int</span> <span class="n">i</span><span class="p">;</span>
+    <span class="n">vec_add_rvv</span><span class="p">(</span><span class="n">z</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="mi">10</span><span class="p">);</span>
+    <span class="k">for</span> <span class="p">(</span><span class="n">i</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="mi">10</span><span class="p">;</span> <span class="n">i</span><span class="o">++</span><span class="p">)</span> <span class="n">printf</span><span class="p">(</span><span class="s2">&quot;</span><span class="si">%d</span><span class="s2"> &quot;</span><span class="p">,</span> <span class="n">z</span><span class="p">[</span><span class="n">i</span><span class="p">]);</span>
+    <span class="n">printf</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">);</span>
+    <span class="k">return</span> <span class="mi">0</span><span class="p">;</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span><span class="nb">pwd</span>
+<span class="gp">$ </span><span class="nv">$HOME</span>/lbt/exlbt/riscv
+<span class="gp">$ </span><span class="nv">$HOME</span>/riscv/riscv_newlib/bin/clang vadd1.c -menable-experimental-extensions <span class="se">\</span>
+  -march<span class="o">=</span>rv64gcv0p10 -O0 -mllvm --riscv-v-vector-bits-min<span class="o">=</span><span class="m">256</span>
+<span class="gp">$ </span><span class="nv">$HOME</span>/riscv/git/qemu/build/qemu-riscv64 -cpu rv64,v<span class="o">=</span><span class="nb">true</span> a.out
+<span class="go">vector version is not specified, use the default value v1.0</span>
+<span class="go">1 11 11 11 11 11 11 11 11 1</span>
+
+<span class="gp">$ </span><span class="nv">$HOME</span>/riscv/riscv_newlib/bin/clang vadd1.c -menable-experimental-extensions <span class="se">\</span>
+  -march<span class="o">=</span>rv64gcv0p10 -O0 -mllvm --riscv-v-vector-bits-min<span class="o">=</span><span class="m">256</span> -static
+<span class="gp">$ </span><span class="nv">$HOME</span>/riscv/git/qemu/build/qemu-riscv64 -cpu rv64,v<span class="o">=</span><span class="nb">true</span> a.out
+<span class="go">vector version is not specified, use the default value v1.0</span>
+<span class="go">1 11 11 11 11 11 11 11 11 1</span>
+<span class="gp">$ </span><span class="nv">$HOME</span>/riscv/riscv_newlib/bin/riscv64-unknown-elf-objdump -d a.out<span class="p">|</span>grep vadd.vv
+<span class="go"> 106fc:       03ae0d57                vadd.vv v26,v26,v28</span>
+</pre></div>
+</div>
+<p>Clang/llvm provide builtin and intrinsic functions to implement RVV (RISC-V
+Vectors)</p>
+<p class="rubric">~/riscv/git/llvm-project/clang/include/clang/Basic/riscv_vector.td</p>
+<div class="highlight-c++ notranslate"><div class="highlight"><pre><span></span><span class="cp">#define vsetvl_e8mf8(avl) __builtin_rvv_vsetvli((size_t)(avl), 0, 5)</span>
+<span class="p">...</span><span class="w"></span>
+<span class="n">defm</span><span class="w"> </span><span class="n">vmadd</span><span class="w">  </span><span class="o">:</span><span class="w"> </span><span class="n">RVVIntTerBuiltinSet</span><span class="p">;</span><span class="w"></span>
+<span class="p">...</span><span class="w"></span>
+<span class="n">defm</span><span class="w"> </span><span class="n">vfdiv</span><span class="w">  </span><span class="o">:</span><span class="w"> </span><span class="n">RVVFloatingBinBuiltinSet</span><span class="p">;</span><span class="w"></span>
+</pre></div>
+</div>
+<p class="rubric">~/riscv/git/llvm-project/llvm/include/llvm/IR/IntrinsicsRISCV.td</p>
+<div class="highlight-c++ notranslate"><div class="highlight"><pre><span></span><span class="n">def</span><span class="w"> </span><span class="n">int_riscv_vsetvli</span><span class="w">   </span><span class="o">:</span><span class="w"> </span><span class="n">Intrinsic</span><span class="o">&lt;</span><span class="p">...</span><span class="w"></span>
+<span class="p">...</span><span class="w"></span>
+<span class="n">defm</span><span class="w"> </span><span class="n">vmadd</span><span class="w"> </span><span class="o">:</span><span class="w"> </span><span class="n">RISCVTernaryAAXA</span><span class="p">;</span><span class="w"></span>
+<span class="p">...</span><span class="w"></span>
+<span class="n">defm</span><span class="w"> </span><span class="n">vfdiv</span><span class="w"> </span><span class="o">:</span><span class="w"> </span><span class="n">RISCVBinaryAAX</span><span class="p">;</span><span class="w"></span>
+</pre></div>
+</div>
+<p>Refer to clang/llvm test cases in the following folders.</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>~/riscv/git/llvm-project/clang/test/CodeGen/RISCV/rvv-intrinsics$ ls
+<span class="gp">$ </span>... vfdiv.c ... vfmadd.c
+
+<span class="gp">$ </span>~/riscv/git/llvm-project/llvm/test/CodeGen/RISCV/rvv$ ls
+<span class="gp">$ </span>... vfdiv-rv64.ll ... vfmadd-rv64.ll ...
+</pre></div>
+</div>
+<dl class="footnote brackets">
+<dt class="label" id="install-python3-config"><span class="brackets"><a class="fn-backref" href="#id1">1</a></span></dt>
+<dd><p><a class="reference external" href="https://www.anycodings.com/questions/gem5-build-fails-with-embedded-python-library-36-or-newer-required-found-2717">https://www.anycodings.com/questions/gem5-build-fails-with-embedded-python-library-36-or-newer-required-found-2717</a></p>
+</dd>
+</dl>
 </section>
 </section>
 
