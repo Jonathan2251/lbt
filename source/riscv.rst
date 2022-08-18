@@ -143,21 +143,28 @@ RVV
 
 Clang/llvm provide RVV (RISC-V Vectors) written in C rather than inline-asm. 
 Though it notices as clang option: -target-feature +experimental-v, this way in 
-C is more friendly and easy to remember for users than in inline-asm form. 
+C is shorter, more user-friendly and easy to remember for users than in 
+inline-asm form. 
 Builtin is C function and friendly either. RVV can be written and run as follows,
 
-.. rubric:: exlbt/riscv/vadd1.c
-.. literalinclude:: ../exlbt/riscv/vadd1.c
+.. rubric:: exlbt/riscv/vadd2.c
+.. literalinclude:: ../exlbt/riscv/vadd2.c
 
 .. code-block:: console
 
   $ pwd
   $ $HOME/lbt/exlbt/riscv
-  $ $HOME/riscv/riscv_newlib/bin/clang vadd1.c -menable-experimental-extensions \
+  $ $HOME/riscv/riscv_newlib/bin/clang vadd2.c -menable-experimental-extensions \
     -march=rv64gcv0p10 -O0 -mllvm --riscv-v-vector-bits-min=256
   $ $HOME/riscv/git/qemu/build/qemu-riscv64 -cpu rv64,v=true a.out
   vector version is not specified, use the default value v1.0
-  1 11 11 11 11 11 11 11 11 1 
+  array_size(a):4096
+
+  a[]: 0 2 4 6 8 10 12 14 16 18 ...
+  The results of vadd:	PASS
+
+  a[]: 0 4 8 12 16 20 24 28 32 36 ...
+  The results of vadd_asm:	PASS
 
   $ $HOME/riscv/riscv_newlib/bin/clang vadd1.c -menable-experimental-extensions \
     -march=rv64gcv0p10 -O0 -mllvm --riscv-v-vector-bits-min=256 -static
