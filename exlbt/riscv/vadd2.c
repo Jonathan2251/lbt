@@ -1,5 +1,6 @@
 // pass: 
-// ~/riscv/riscv_newlib/bin/clang++ vadd2.c  -menable-experimental-extensions -march=rv64gcv0p10 -O0 -mllvm --riscv-v-vector-bits-min=256 -v
+/* ~/riscv/riscv_newlib/bin/clang++ vadd2.c -menable-experimental-extensions \
+ -march=rv64gcv0p10 -O0 -mllvm --riscv-v-vector-bits-min=256 -v */
 // ~/riscv/git/qemu/build/qemu-riscv64 -cpu rv64,v=true a.out
 // ref. https://jia.je/software/2022/01/25/rvv-1.0-toolchain/
 //      https://pages.dogdog.run/toolchain/riscv_vector_extension.html

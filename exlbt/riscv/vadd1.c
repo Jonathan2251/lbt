@@ -1,4 +1,5 @@
-// ~/riscv/riscv_newlib/bin/clang++ vadd1.c -menable-experimental-extensions -march=rv64gcv0p10 -O0 -mllvm --riscv-v-vector-bits-min=256 -v
+/* ~/riscv/riscv_newlib/bin/clang++ vadd1.c -menable-experimental-extensions \
+ -march=rv64gcv0p10 -O0 -mllvm --riscv-v-vector-bits-min=256 -v */
 // ~/riscv/git/qemu/build/qemu-riscv64 -cpu rv64,v=true a.out
 // ~/riscv/riscv_newlib/bin/riscv64-unknown-elf-objdump -d a.out|grep vadd
 // ref. https://pages.dogdog.run/toolchain/riscv_vector_extension.html
@@ -39,10 +40,14 @@ void vOp(uint32_t *a, const uint32_t *b, const uint32_t *c, size_t n, int Vector
 }
 
 uint32_t a[4096];
+//uint32_t a[48];
 //uint8_t m[512];
 
 int main(void) {
+  size_t vl = vsetvl_e32m8(array_size(a));
+  printf("vl: %lu\n", vl);
   printf("array_size(a):%lu\n", array_size(a));
+
   // init source
   for (size_t i = 0; i < array_size(a); ++i)
     a[i] = i;
@@ -51,9 +56,9 @@ int main(void) {
 
   printf("\na[]: ");
   for (size_t i = 0; i < array_size(a); ++i) {
-    if (i < 10)
+    if (i < 64)
       printf("%d ", a[i]);
-    else if (i == 11)
+    else if (i == 64)
       printf("...");
     assert(a[i] == i * 2);
   }
@@ -63,9 +68,9 @@ int main(void) {
 
   printf("\na[]: ");
   for (size_t i = 0; i < array_size(a); ++i) {
-    if (i < 10)
+    if (i < 64)
       printf("%d ", a[i]);
-    else if (i == 11)
+    else if (i == 64)
       printf("...");
     assert(a[i] == (i*2)*(i*2));
   }
