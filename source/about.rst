@@ -38,7 +38,11 @@ https://github.com/Jonathan2251/lbt/blob/master/README.md
 Revision history
 ----------------
 
-Version 12.0.7, not released yet.
+Version 12.0.8, not released yet.
+
+Version 12.0.7, Release August 16, 2022.
+
+  Appendix A: RISCV
 
 Version 12.0.6, Released February 3, 2022.
 
