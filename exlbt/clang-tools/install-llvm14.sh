@@ -17,18 +17,19 @@ get_llvm14() {
 }
 
 build_llvm14_toolchain() {
-  pushd $LLVM_SRC_DIR
-  if [ ! -d "$LLVM_SRC_DIR/build" ]; then
+  pushd $LLVM_SRC_DIR/llvm-project
+  if [ -d "$LLVM_SRC_DIR/llvm-project/build" ]; then
     echo "$LLVM_SRC_DIR/build exist already. Please remove it before run this bash"
     exit 1
   fi
+  mkdir build
+  cd build
   cmake -DCMAKE_BUILD_TYPE=Debug -DLLVM_ENABLE_PROJECTS="clang;clang-tools-extra" \
   -DLLVM_PARALLEL_COMPILE_JOBS=4 -DLLVM_PARALLEL_LINK_JOBS=1 -G "Ninja" ../llvm \
   -DCLANG_BUILD_EXAMPLES=ON
   ninja
-  ninja install
   popd
 }
 
-get_llvm;
+#get_llvm14;
 build_llvm14_toolchain;

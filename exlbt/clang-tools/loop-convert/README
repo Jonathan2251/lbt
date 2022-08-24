@@ -1,14 +1,13 @@
 Work on llvm f28c006a5895fc0e329fe15fead81e37457cb1d1 of 14.x
 
 install:
-  /git/lbt/exlbt/clang-tools$ cp -rf loop-convert ~/llvm/14.x/llvm-project/clang-tools-extra/.
+  ~/git/lbt/exlbt/clang-tools$ cp -rf loop-convert ~/llvm/14.x/llvm-project/clang-tools-extra/.
   echo 'add_subdirectory(loop-convert)' >> ~/llvm/14.x/llvm-project/clang-tools-extra/CMakeLists.txt
 
 build:
   ~/llvm/14.x/llvm-project/build$ ninja
 run:
-  cd ~/llvm/14.x/llvm-project/clang-tools-extra/loop-convert
-  ~/llvm/14.x/llvm-project/clang-tools-extra/loop-convert$ ~/llvm/14.x/llvm-project/build/bin/loop-convert test.cpp --
+  ~/git/lbt/exlbt/clang-tools$ ~/llvm/14.x/llvm-project/build/bin/loop-convert loop-test.cpp --
   ForStmt 0x55a5ed752688
   |-DeclStmt 0x55a5ed7524d8
   | `-VarDecl 0x55a5ed752450  used i 'int' cinit
