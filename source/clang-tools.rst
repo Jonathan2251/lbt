@@ -25,7 +25,7 @@ Install llvm-14.x with clang tools
 clang-query
 -----------
 
-  References [#narrowing-matchers]_ [#ASTMatchers]_.
+  References [#ASTMatchers]_ [#ASTMatchersRef]_ [#narrowing-matchers]_.
 
 .. code-block:: console
 
@@ -99,6 +99,9 @@ clang-query
         ^~~~~~~
   4 matches.
 
-.. [#narrowing-matchers] https://clang.llvm.org/docs/LibASTMatchersReference.html#narrowing-matchers
 
 .. [#ASTMatchers] https://clang.llvm.org/docs/LibASTMatchersTutorial.html
+
+.. [#ASTMatchersRef] https://clang.llvm.org/docs/LibASTMatchersReference.html
+
+.. [#narrowing-matchers] https://clang.llvm.org/docs/LibASTMatchersReference.html#narrowing-matchers

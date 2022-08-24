@@ -113,8 +113,10 @@ uint32_t gV3[33] = {
 int main() {
   UVec32 A(gV1,array_size(gV1)), B(gV2,array_size(gV2)), C(gV3,array_size(gV3));
   uint32_t alpha = (uint32_t)2;
+  C = 3*C;
   A = alpha*B + C;
-  //A = alpha*B;
+  uint32_t a = 0; uint32_t b = 2; uint32_t c = 3;
+  a = alpha*b + c;
   printf("B: "); B.Print();
   printf("C: "); C.Print();
   printf("A: "); A.Print();
