@@ -6,6 +6,8 @@
 // ~/llvm/14.x/llvm-project/build/bin/clang++ vector-dsl.cpp -emit-llvm -S -Xclang -ast-dump
 // ~/llvm/14.x/llvm-project/build/bin/clang-query vector-dsl.cpp --
 // clang-query> m cxxOperatorCallExpr()
+// clang-query> m callExpr(binaryOperation(hasOperatorName("="),hasLHS(expr(hasType(cxxRecordDecl(hasName("UVec32")))).bind("lhs")),hasRHS(expr().bind("rhs"))))
+// clang-query> m callExpr(binaryOperation(hasOperatorName("="),hasLHS(expr().bind("lhs")),hasRHS(expr().bind("rhs"))))
 
 // Ref. https://clang.llvm.org/docs/LibASTMatchersReference.html#narrowing-matchers
 
