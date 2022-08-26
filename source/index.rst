@@ -26,6 +26,7 @@ Table of Contents
    lib
    lldb
    riscv
+   clang-tools
 
 
 Resources

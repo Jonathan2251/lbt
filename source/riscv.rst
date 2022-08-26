@@ -25,7 +25,7 @@ script.
 .. code-block:: console
 
   $ pwd
-  $ $HOME/lbt/exlbt
+  $ $HOME/lbt/exlbt/riscv
   $ bash riscv-toolchain-setup.sh
 
 RISCV toolchain includes both baremetal(Newlib) and Linux platform support.
