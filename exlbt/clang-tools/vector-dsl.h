@@ -14,8 +14,10 @@ public:
   uint32_t *data;
   UVec32(uint32_t *A, size_t aSize);
   UVec32& Mul(const uint32_t Scalar);
+  UVec32& Mul(const UVec32 &arg);
   UVec32& operator*(const uint32_t Scalar);
-  UVec32& operator+(const UVec32 &B);
+  UVec32& operator*(const UVec32 &arg);
+  UVec32& operator+(const UVec32 &arg);
   void Print();
 };
 

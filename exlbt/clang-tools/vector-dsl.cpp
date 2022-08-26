@@ -1,22 +1,79 @@
-/* ~/riscv/riscv_newlib/bin/clang++ vector-dsl.cpp -menable-experimental-extensions \
--march=rv64gcv0p10 -O0 -mllvm --riscv-v-vector-bits-min=256 -v */
-// ~/riscv/git/qemu/build/qemu-riscv64 -cpu rv64,v=true a.out
-// ~/riscv/riscv_newlib/bin/riscv64-unknown-elf-objdump -d a.out|grep vmul
+/* 
+~/riscv/riscv_newlib/bin/clang++ vector-dsl.cpp -menable-experimental-extensions \
+-march=rv64gcv0p10 -O0 -mllvm --riscv-v-vector-bits-min=256 -DUSE_RVV -v 
+~/riscv/git/qemu/build/qemu-riscv64 -cpu rv64,v=true a.out
+~/riscv/riscv_newlib/bin/riscv64-unknown-elf-objdump -d a.out|grep vmul
 
-// ~/llvm/14.x/llvm-project/build/bin/clang++ vector-dsl.cpp -emit-llvm -S -Xclang -ast-dump
-// ~/llvm/14.x/llvm-project/build/bin/clang-query vector-dsl.cpp --
-// clang-query> m cxxOperatorCallExpr()
-// clang-query> m callExpr(binaryOperation(hasOperatorName("="),hasLHS(expr(hasType(cxxRecordDecl(hasName("UVec32")))).bind("lhs")),hasRHS(expr().bind("rhs"))))
-// clang-query> m callExpr(binaryOperation(hasOperatorName("="),hasLHS(expr().bind("lhs")),hasRHS(expr().bind("rhs"))))
+The following work for #undef USE_RVV
+~/llvm/14.x/llvm-project/build/bin/clang++ vector-dsl.cpp -emit-llvm -S -Xclang -ast-dump
 
-// Ref. https://clang.llvm.org/docs/LibASTMatchersReference.html#narrowing-matchers
+~/llvm/14.x/llvm-project/build/bin/clang-query vector-dsl.cpp --
+clang-query> set traversal IgnoreUnlessSpelledInSource
+clang-query> m cxxOperatorCallExpr(binaryOperation(hasOperatorName("="),hasLHS(expr(hasType(cxxRecordDecl(hasName("UVec32")))).bind("lhs")),hasRHS(expr(cxxOperatorCallExpr(binaryOperation(hasOperatorName("+"),hasLHS(expr(cxxOperatorCallExpr(binaryOperation(hasOperatorName("*"),hasLHS(expr().bind("lhs2")),hasRHS(expr().bind("rhs2"))))).bind("lhs1")),hasRHS(expr().bind("rhs1"))))).bind("rhs"))))
+
+Match #1:
+
+/home/cschen/git/lbt/exlbt/clang-tools/vector-dsl.cpp:154:3: note: "lhs" binds here
+  A = alpha*B + C;
+  ^
+/home/cschen/git/lbt/exlbt/clang-tools/vector-dsl.cpp:154:7: note: "lhs1" binds here
+  A = alpha*B + C;
+      ^~~~~~~
+/home/cschen/git/lbt/exlbt/clang-tools/vector-dsl.cpp:154:7: note: "lhs2" binds here
+  A = alpha*B + C;
+      ^~~~~
+/home/cschen/git/lbt/exlbt/clang-tools/vector-dsl.cpp:154:7: note: "rhs" binds here
+  A = alpha*B + C;
+      ^~~~~~~~~~~
+/home/cschen/git/lbt/exlbt/clang-tools/vector-dsl.cpp:154:17: note: "rhs1" binds here
+  A = alpha*B + C;
+                ^
+/home/cschen/git/lbt/exlbt/clang-tools/vector-dsl.cpp:154:13: note: "rhs2" binds here
+  A = alpha*B + C;
+            ^
+/home/cschen/git/lbt/exlbt/clang-tools/vector-dsl.cpp:154:3: note: "root" binds here
+  A = alpha*B + C;
+  ^~~~~~~~~~~~~~~
+1 match.
+
+
+More:
+clang-query> m cxxOperatorCallExpr(binaryOperation(hasOperatorName("="),hasLHS(expr(hasType(cxxRecordDecl(hasName("UVec32")))).bind("lhs")),hasRHS(expr(cxxOperatorCallExpr(binaryOperation(hasOperatorName("+"),hasLHS(expr().bind("lhs1")),hasRHS(expr().bind("rhs1"))))).bind("rhs"))))
+... 
+Match #2:
+
+/home/cschen/git/lbt/exlbt/clang-tools/vector-dsl.cpp:154:3: note: "lhs" binds here
+  A = alpha*B + C;
+  ^
+/home/cschen/git/lbt/exlbt/clang-tools/vector-dsl.cpp:154:7: note: "lhs1" binds here
+  A = alpha*B + C;
+      ^~~~~~~
+/home/cschen/git/lbt/exlbt/clang-tools/vector-dsl.cpp:154:7: note: "rhs" binds here
+  A = alpha*B + C;
+      ^~~~~~~~~~~
+/home/cschen/git/lbt/exlbt/clang-tools/vector-dsl.cpp:154:17: note: "rhs1" binds here
+  A = alpha*B + C;
+                ^
+/home/cschen/git/lbt/exlbt/clang-tools/vector-dsl.cpp:154:3: note: "root" binds here
+  A = alpha*B + C;
+  ^~~~~~~~~~~~~~~
+
+clang-query> m cxxOperatorCallExpr(binaryOperation(hasOperatorName("*"),hasLHS(expr().bind("lhs2")),hasRHS(expr().bind("rhs2"))))
+...
+Match #4:
+
+/home/cschen/git/lbt/exlbt/clang-tools/vector-dsl.cpp:154:7: note: "lhs2" binds here
+  A = alpha*B + C;
+      ^~~~~
+...
+
+Ref. https://clang.llvm.org/docs/LibASTMatchersReference.html#narrowing-matchers
+*/
 
 #include "vector-dsl.h"
 #include <assert.h>
 #include <stddef.h>
 #include <stdio.h>
-
-//#define USE_RVV
 
 #ifdef USE_RVV
 #include <riscv_vector.h>
@@ -58,8 +115,39 @@ UVec32& UVec32::Mul(const uint32_t Scalar) {
   return res;
 }
 
+UVec32& UVec32::Mul(const UVec32 &arg) {
+  static UVec32 res(t, size);
+  size_t n = size;
+  uint32_t *a = res.data;
+  uint32_t *b = data;
+  uint32_t *c = arg.data;
+  assert(size == arg.size);
+#ifdef USE_RVV
+  while (n > 0) {
+    size_t vl = vsetvl_e32m8(n);
+    vuint32m8_t vb = vle32_v_u32m8(b, vl);
+    vuint32m8_t vc = vle32_v_u32m8(c, vl);
+    vuint32m8_t va = vmul(vb, vc, vl);
+    vse32(a, va, vl);
+    a += vl;
+    b += vl;
+    c += vl;
+    n -= vl;
+  }
+#else
+  for (int i=0; i < size; i++) {
+    a[i] = b[i]*c[i];
+  }
+#endif
+  return res;
+}
+
 UVec32& UVec32::operator*(const uint32_t Scalar) {
   return Mul(Scalar);
+} 
+
+UVec32& UVec32::operator*(const UVec32 &arg) {
+  return Mul(arg);
 } 
 
 UVec32& UVec32::operator+(const UVec32 &arg) {
@@ -115,7 +203,9 @@ uint32_t gV3[33] = {
 int main() {
   UVec32 A(gV1,array_size(gV1)), B(gV2,array_size(gV2)), C(gV3,array_size(gV3));
   uint32_t alpha = (uint32_t)2;
-  C = 3*C;
+  A = B + C;
+  A = B * C;
+  A = alpha*B;
   A = alpha*B + C;
   uint32_t a = 0; uint32_t b = 2; uint32_t c = 3;
   a = alpha*b + c;
