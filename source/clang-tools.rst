@@ -31,9 +31,12 @@ reference ~/riscv/riscv_newlib/lib/clang/13.0.1/include/riscv_vector.h.
 .. rubric:: exlbt/clang-tools/vecotor-dsl.cpp
 .. literalinclude:: ../exlbt/clang-tools/vector-dsl.cpp
 
+- References [#check-command]_ .
 
 .. [#ASTMatchers] https://clang.llvm.org/docs/LibASTMatchersTutorial.html
 
 .. [#ASTMatchersRef] https://clang.llvm.org/docs/LibASTMatchersReference.html
 
 .. [#narrowing-matchers] https://clang.llvm.org/docs/LibASTMatchersReference.html#narrowing-matchers
+
+.. [#check-command] https://www.youtube.com/watch?v=-iOtb6luK1Q
