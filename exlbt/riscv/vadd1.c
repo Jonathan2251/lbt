@@ -6,6 +6,14 @@
 
 // ~/Andes/riscv/riscv_newlib/bin/clang++ vadd1.c -menable-experimental-extensions  -march=rv64gcv0p10 -menable-experimental-extensions -O0 -v
 
+// pass: 
+// ~/Andes/riscv/riscv_newlib/bin/clang++ vadd1.c -march=rv64imfv0p10zfh0p1 -menable-experimental-extensions -mabi=lp64d -O0 -v
+// ~/riscv/riscv_newlib/bin/clang++ vadd1.c -march=rv64imfv0p10zfh0p1 -menable-experimental-extensions -mabi=lp64d -O0 -v
+// ~/riscv/riscv_newlib/bin/llvm-readelf -h a.out
+// Flags:                             0x5, RVC, double-float ABI
+//
+// fail: ~/Andes/riscv/riscv_newlib/bin/clang++ vadd1.c -march=rv64imfv0p10zfh0p1 -menable-experimental-extensions –mabi=lp64f -O0 -v
+
 #include <assert.h>
 #include <stddef.h>
 #include <stdint.h>

@@ -66,8 +66,10 @@ build_gnu_toolchain() {
 # commit 409b951ba6621f2f115aebddfb15ce2dd78ec24f of master branch is work for vadd.vv of vadd1.c
   mkdir build_newlib
   cd build_newlib
+# NX27V is 32-64 bits configurable and has HW float point
   ../configure --prefix=$GNU_NEWLIB_INSTALL_DIR \
-  --with-multilib-generator="rv32i-ilp32--;rv32imafd-ilp32--;rv64ima-lp64--"
+  --with-multilib-generator="rv32imafd-lp32--;rv64imafd-lp64--"
+#  --with-multilib-generator="rv32i-ilp32--;rv32imafd-ilp32--;rv64ima-lp64--"
   make
 
   cd ..
