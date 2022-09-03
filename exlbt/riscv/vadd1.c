@@ -1,16 +1,29 @@
 /* ~/riscv/riscv_newlib/bin/clang++ vadd1.c -menable-experimental-extensions \
  -march=rv64gcv0p10 -O0 -mllvm --riscv-v-vector-bits-min=256 -v */
+// ~/riscv/riscv_newlib/bin/llvm-readelf -h a.out
+// Flags:                             0x5, RVC, double-float ABI
 // ~/riscv/git/qemu/build/qemu-riscv64 -cpu rv64,v=true a.out
+// 
 // ~/riscv/riscv_newlib/bin/riscv64-unknown-elf-objdump -d a.out|grep vadd
 // ref. https://pages.dogdog.run/toolchain/riscv_vector_extension.html
 
 // ~/Andes/riscv/riscv_newlib/bin/clang++ vadd1.c -menable-experimental-extensions  -march=rv64gcv0p10 -menable-experimental-extensions -O0 -v
 
 // pass: 
-// ~/Andes/riscv/riscv_newlib/bin/clang++ vadd1.c -march=rv64imfv0p10zfh0p1 -menable-experimental-extensions -mabi=lp64d -O0 -v
-// ~/riscv/riscv_newlib/bin/clang++ vadd1.c -march=rv64imfv0p10zfh0p1 -menable-experimental-extensions -mabi=lp64d -O0 -v
+// ~/riscv/riscv_newlib/bin/clang++ vadd1.c -menable-experimental-extensions -march=rv64gcv0p10 -O0 -mabi=lp64d -v
 // ~/riscv/riscv_newlib/bin/llvm-readelf -h a.out
 // Flags:                             0x5, RVC, double-float ABI
+
+// No -mabi=lp64d 
+// ~/riscv/riscv_newlib/bin/clang++ vadd1.c -march=rv64imfv0p10zfh0p1 -menable-experimental-extensions -mabi=lp64d -O0 -v
+// Hard-float 'd' ABI can't be used for a target that doesn't support the D instruction set extension (ignoring target-abi)
+
+// fail:
+// ~/Andes/riscv/riscv_newlib/bin/clang++ vadd1.c -march=rv64imfv0p10zfh0p1 -menable-experimental-extensions -mabi=lp64f -O0 -v
+// ~/riscv/riscv_newlib/bin/clang++ vadd1.c -march=rv64imfv0p10zfh0p1 -menable-experimental-extensions -mabi=lp64f -O0 -v
+// riscv64-unknown-elf-ld: ... can't link single-float modules with double-float modules
+// ~/riscv/riscv_newlib/bin/clang++ vadd1.c -menable-experimental-extensions -march=rv64gcv0p10 -O0 -mabi=lp64f -v
+// riscv64-unknown-elf-ld: ... can't link single-float modules with double-float modules
 //
 // fail: ~/Andes/riscv/riscv_newlib/bin/clang++ vadd1.c -march=rv64imfv0p10zfh0p1 -menable-experimental-extensions –mabi=lp64f -O0 -v
 
