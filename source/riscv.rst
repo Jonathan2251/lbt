@@ -11,6 +11,27 @@ This chapter shows the RISC toolchain installatation including gnu, llvm and
 simulators on Linux.
 
 
+ISA
+---
+
+.. _riscv-f1:
+.. figure:: ../Fig/riscv/riscv-isa.png
+  :scale: 50 %
+  :align: center
+
+  RISCV ISA
+
+.. _riscv-f2:
+.. figure:: ../Fig/riscv/isa-desc.png
+  :scale: 50 %
+  :align: center
+
+  RISCV ISA Description
+
+
+As above figure, RISC has 32/64/128 bit and I (integer) is the Base part and the 
+others are optional [#ISA]_ [#RISCV-wiki]_ [#RRE]_.
+
 RISC compiler toolchain installatation
 --------------------------------------
 
@@ -29,6 +50,34 @@ script.
   $ bash riscv-toolchain-setup.sh
 
 RISCV toolchain includes both baremetal(Newlib) and Linux platform support.
+
+.. code-block:: console
+
+  $ pwd
+  $ $HOME/lbt/exlbt/riscv
+  $ bash riscv-toolchain-setup.sh
+
+.. code-block:: console
+
+  $ ls ~/riscv/riscv_newlib 
+  bin			include			lib			libexec			riscv64-unknown-elf	share
+
+.. _riscv-f3:
+.. figure:: ../Fig/riscv/linux-sysroot.png
+  :scale: 50 %
+  :align: center
+
+  RISCV ISA Description
+
+The linux sysroot as figure above and compare it with the installed dirctory.
+
+.. code-block:: console
+
+  $ ls /local/riscv_linux/sysroot/
+  etc  lib  lib64  sbin  usr  var
+  $ ls /local/riscv_linux/sysroot/usr
+  bin  include  lib  libexec  sbin  share
+
 
 Qemu simulator
 --------------
@@ -204,5 +253,12 @@ Refer to clang/llvm test cases in the following folders.
 
   $ ~/riscv/git/llvm-project/llvm/test/CodeGen/RISCV/rvv$ ls
   $ ... vfdiv-rv64.ll ... vfmadd-rv64.ll ...
+
+
+.. [#ISA] https://riscv.org/technical/specifications/
+
+.. [#RISCV-wiki] https://en.wikipedia.org/wiki/RISC-V
+
+.. [#RRE] https://wiki.riscv.org/display/HOME/Recently+Ratified+Extensions
 
 .. [#install-python3-config] https://www.anycodings.com/questions/gem5-build-fails-with-embedded-python-library-36-or-newer-required-found-2717
