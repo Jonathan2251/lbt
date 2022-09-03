@@ -30,7 +30,9 @@ ISA
 
 
 As above figure, RISC has 32/64/128 bit and I (integer) is the Base part and the 
-others are optional [#ISA]_ [#RISCV-wiki]_ [#RRE]_.
+others are optional. G=IMAFD, general extensions (i.e., IMAFD)  [#ISA]_ 
+[#RISCV-wiki]_ [#RRE]_.
+
 
 RISC compiler toolchain installatation
 --------------------------------------
@@ -222,6 +224,12 @@ Builtin is C function and friendly either. RVV can be written and run as follows
   1 11 11 11 11 11 11 11 11 1 
   $ $HOME/riscv/riscv_newlib/bin/riscv64-unknown-elf-objdump -d a.out|grep vadd.vv
    106fc:	03ae0d57          	vadd.vv	v26,v26,v28
+
+For rv64imfv0p10zfh0p1,
+
+- v0p10: vector version 0.10.
+
+- zfh0p1: "Zfh" 0.1 version [#RRE]_.
 
 Clang/llvm provide builtin and intrinsic functions to implement RVV (RISC-V 
 Vectors) 

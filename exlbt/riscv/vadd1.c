@@ -1,5 +1,7 @@
 /* ~/riscv/riscv_newlib/bin/clang++ vadd1.c -menable-experimental-extensions \
  -march=rv64gcv0p10 -O0 -mllvm --riscv-v-vector-bits-min=256 -v */
+// v0p10: vector version 0.10
+
 // ~/riscv/riscv_newlib/bin/llvm-readelf -h a.out
 // Flags:                             0x5, RVC, double-float ABI
 // ~/riscv/git/qemu/build/qemu-riscv64 -cpu rv64,v=true a.out
@@ -17,6 +19,8 @@
 // No -mabi=lp64d 
 // ~/riscv/riscv_newlib/bin/clang++ vadd1.c -march=rv64imfv0p10zfh0p1 -menable-experimental-extensions -mabi=lp64d -O0 -v
 // Hard-float 'd' ABI can't be used for a target that doesn't support the D instruction set extension (ignoring target-abi)
+// zfh0p1: "Zfh" 0.1 version. "Zfh" and "Zfhmin" Standard Extensions for Half-Precision Floating-Point
+// https://wiki.riscv.org/display/HOME/Recently+Ratified+Extensions
 
 // fail:
 // ~/Andes/riscv/riscv_newlib/bin/clang++ vadd1.c -march=rv64imfv0p10zfh0p1 -menable-experimental-extensions -mabi=lp64f -O0 -v
