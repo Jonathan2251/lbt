@@ -68,7 +68,7 @@ build_gnu_toolchain() {
   cd build_newlib
 # NX27V is 32-64 bits configurable and has HW float point
   ../configure --prefix=$GNU_NEWLIB_INSTALL_DIR \
-  --with-multilib-generator="rv32imafd-lp32--;rv64imafd-lp64--"
+  --with-arch=rv64gc --with-abi=lp64d
 #  --with-multilib-generator="rv32i-ilp32--;rv32imafd-ilp32--;rv64ima-lp64--"
   make
 
