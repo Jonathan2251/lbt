@@ -188,6 +188,53 @@ Check cycles as follows,
 The config of gem5 reference here.
 http://learning.gem5.org/book/part1/example_configs.html
 
+RISCV Calling Convention [#calling-conv]_
+-------------------------------------------
+
+The rv32: register size 32-bit. The rv64 register size 64-bit.
+
+In RV64, 32-bit types, such as int, are stored in integer registers as proper 
+sign extensions of their 32-bit values; that is, bits 63..31 are all equal. 
+
+Two kinds of ABI, ilp32 and lp64, -mabi=ilp32, ilp32f, ilp32d, lp64, lp64f, 
+lp64d. The ways of pass float arguments on integer/single-float/double-float.
+
+.. table:: ABI, caller passing integer/float/double arguments [#calling-conv-1]_ [#calling-conv-2]_
+
+  ==============  ==============  =============
+  name            float           double
+  ==============  ==============  =============
+  ilp32/lp64      a registers     a registers
+  ilp32f/lp64f    fa registers    a regsiters
+  ilp32d/lp64d    fa registers    fa registers
+  ==============  ==============  =============
+
+
+ilp32 and lp64 are Soft-Float Calling Convention.
+Soft-Float Calling Convention: Floating-point arguments are passed and returned 
+**in integer registers**, using the rules for integer arguments of the same size.
+
+- -mabi=ABI-string
+
+  Specify integer and floating-point calling convention. ABI-string contains 
+  two parts: the size of integer types and the registers used for floating-point 
+  types. For example ‘-march=rv64ifd -mabi=lp64d’ means that ‘long’ and pointers 
+  are 64-bit (implicitly defining ‘int’ to be 32-bit), and that floating-point 
+  values up to 64 bits wide are passed in F registers. Contrast this with 
+  ‘-march=rv64ifd -mabi=lp64f’, which still allows the compiler to generate code 
+  that uses the F and D extensions but only allows floating-point values up to 32 
+  bits long to be passed in registers; or ‘-march=rv64ifd -mabi=lp64’, in which 
+  no floating-point arguments will be passed in registers.
+
+  The default for this argument is system dependent, users who want a specific 
+  calling convention should specify one explicitly. The valid calling conventions 
+  are: ‘ilp32’, ‘ilp32f’, ‘ilp32d’, ‘lp64’, ‘lp64f’, and ‘lp64d’. Some calling 
+  conventions are impossible to implement on some ISAs: for example, 
+  ‘-march=rv32if -mabi=ilp32d’ is invalid because the ABI requires 64-bit values 
+  be passed in F registers, but F registers are only 32 bits wide. There is also 
+  the ‘ilp32e’ ABI that can only be used with the ‘rv32e’ architecture. This ABI 
+  is not well specified at present, and is subject to change [#gnu-riscv-options]_.
+
 
 RVV
 ----
@@ -225,11 +272,13 @@ Builtin is C function and friendly either. RVV can be written and run as follows
   $ $HOME/riscv/riscv_newlib/bin/riscv64-unknown-elf-objdump -d a.out|grep vadd.vv
    106fc:	03ae0d57          	vadd.vv	v26,v26,v28
 
-For rv64imfv0p10zfh0p1,
+For -march=rv64imfv0p10zfh0p1,
 
 - v0p10: vector version 0.10.
 
 - zfh0p1: "Zfh" 0.1 version [#RRE]_.
+
+For -mabi, as the section above.
 
 Clang/llvm provide builtin and intrinsic functions to implement RVV (RISC-V 
 Vectors) 
@@ -268,5 +317,13 @@ Refer to clang/llvm test cases in the following folders.
 .. [#RISCV-wiki] https://en.wikipedia.org/wiki/RISC-V
 
 .. [#RRE] https://wiki.riscv.org/display/HOME/Recently+Ratified+Extensions
+
+.. [#calling-conv] https://riscv.org/wp-content/uploads/2015/01/riscv-calling.pdf
+
+.. [#calling-conv-1] https://blog.csdn.net/zoomdy/article/details/79353313
+
+.. [#calling-conv-2] https://wiki.gentoo.org/wiki/RISC-V_ABIs
+
+.. [#gnu-riscv-options] https://gcc.gnu.org/onlinedocs/gcc/RISC-V-Options.html
 
 .. [#install-python3-config] https://www.anycodings.com/questions/gem5-build-fails-with-embedded-python-library-36-or-newer-required-found-2717
