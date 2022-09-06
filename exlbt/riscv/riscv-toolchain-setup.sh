@@ -80,10 +80,15 @@ build_gnu_toolchain() {
   popd
 }
 
+# LLVM_BINUTILS_INCDIR:
+#   For lld. https://llvm.org/docs/GoldPlugin.html
 # DEFAULT_SYSROOT: 
 #   https://stackoverflow.com/questions/66357013/compile-clang-with-alternative-sysroot
 # LLVM_DEFAULT_TARGET_TRIPLE:  
 #   https://clang.llvm.org/docs/CrossCompilation.html#general-cross-compilation-options-in-clang
+# LLVM_INSTALL_UTILS:BOOL
+#   If enabled, utility binaries like FileCheck and not will be installed to CMAKE_INSTALL_PREFIX.
+#   https://llvm.org/docs/CMake.html
 # Use "clang --sysroot" if did not "cmake -DDEFAULT_SYSROOT"
 # $GNU_NEWLIB_INSTALL_DIR/clang --gcc-toolchain=$GNU_NEWLIB_INSTALL_DIR \
 #   --sysroot=$GNU_NEWLIB_INSTALL_DIR/sysroot/ --static test.c
