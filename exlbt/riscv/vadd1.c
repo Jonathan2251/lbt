@@ -9,7 +9,7 @@
 // ~/riscv/riscv_newlib/bin/riscv64-unknown-elf-objdump -d a.out|grep vadd
 // ref. https://pages.dogdog.run/toolchain/riscv_vector_extension.html
 
-// ~/Andes/riscv/riscv_newlib/bin/clang++ vadd1.c -menable-experimental-extensions  -march=rv64gcv0p10 -menable-experimental-extensions -O0 -v
+// ~/Andes/riscv/riscv_newlib/bin/clang++ vadd1.c -menable-experimental-extensions -march=rv64gcv0p10 -O0 -mabi=lp64d -v
 
 // pass: 
 // ~/riscv/riscv_newlib/bin/clang++ vadd1.c -menable-experimental-extensions -march=rv64gcv0p10 -O0 -mabi=lp64d -v
