@@ -1,10 +1,10 @@
 
 <!DOCTYPE html>
 
-<html>
+<html lang="en">
   <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
 
     <title>Optimization &#8212; Tutorial: Creating an LLVM Toolchain for the Cpu0 Architecture</title>
     <link rel="stylesheet" type="text/css" href="_static/pygments.css" />
@@ -13,6 +13,7 @@
     <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
     <script src="_static/jquery.js"></script>
     <script src="_static/underscore.js"></script>
+    <script src="_static/_sphinx_javascript_frameworks_compat.js"></script>
     <script src="_static/doctools.js"></script>
     <link rel="author" title="About these documents" href="about.html" />
     <link rel="index" title="Index" href="genindex.html" />
@@ -39,8 +40,8 @@
         
         
   <section id="optimization">
-<span id="sec-opt"></span><h1>Optimization<a class="headerlink" href="#optimization" title="Permalink to this headline">¶</a></h1>
-<div class="contents local topic" id="contents">
+<span id="sec-opt"></span><h1>Optimization<a class="headerlink" href="#optimization" title="Permalink to this heading">¶</a></h1>
+<nav class="contents local" id="contents">
 <ul class="simple">
 <li><p><a class="reference internal" href="#llvm-ir-optimization" id="id6">LLVM IR optimization</a></p></li>
 <li><p><a class="reference internal" href="#project" id="id7">Project</a></p>
@@ -49,10 +50,10 @@
 </ul>
 </li>
 </ul>
-</div>
+</nav>
 <p>This chapter introduce llvm optimization.</p>
 <section id="llvm-ir-optimization">
-<h2><a class="toc-backref" href="#id6">LLVM IR optimization</a><a class="headerlink" href="#llvm-ir-optimization" title="Permalink to this headline">¶</a></h2>
+<h2><a class="toc-backref" href="#id6" role="doc-backlink">LLVM IR optimization</a><a class="headerlink" href="#llvm-ir-optimization" title="Permalink to this heading">¶</a></h2>
 <p>The llvm-link provide optimizaton in IR level which can apply in different
 programs developed by more than one language. Of course, it can apply in
 the same language which support seperate compile.</p>
@@ -68,9 +69,9 @@ But since many languages like C/C++ support separate compilation, it meaning
 there is no chance to do inter-procedure optimization if the functions come from
 different source files.
 To solve this problem, llvm provide <strong>llvm-link</strong> to link all *.bc into a single
-IR file, and through <strong>opt</strong> to finish the inter-procedure optimation <a class="footnote-reference brackets" href="#id4" id="id1">1</a>.
+IR file, and through <strong>opt</strong> to finish the inter-procedure optimation <a class="footnote-reference brackets" href="#id4" id="id1" role="doc-noteref"><span class="fn-bracket">[</span>1<span class="fn-bracket">]</span></a>.
 Beyond the DAG local optimization mentioned in Chapter 2, there are global
-optimization based on inter-procedure analysis <a class="footnote-reference brackets" href="#dragonbooks-9" id="id2">2</a>.
+optimization based on inter-procedure analysis <a class="footnote-reference brackets" href="#dragonbooks-9" id="id2" role="doc-noteref"><span class="fn-bracket">[</span>2<span class="fn-bracket">]</span></a>.
 The following steps and examples show this optimization solution in llvm.</p>
 <p class="rubric">exlbt/input/optimizen/1.cpp</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="nb">int</span> <span class="n">callee</span><span class="p">(</span><span class="n">const</span> <span class="nb">int</span> <span class="o">*</span><span class="n">a</span><span class="p">)</span> <span class="p">{</span>
@@ -248,28 +249,29 @@ re-compile. Compare to the seperate compile for each *.c file, it only need to
 re-compile the corresponding *.o file only.</p>
 </section>
 <section id="project">
-<h2><a class="toc-backref" href="#id7">Project</a><a class="headerlink" href="#project" title="Permalink to this headline">¶</a></h2>
+<h2><a class="toc-backref" href="#id7" role="doc-backlink">Project</a><a class="headerlink" href="#project" title="Permalink to this heading">¶</a></h2>
 <section id="llvm-vpo">
-<h3><a class="toc-backref" href="#id8">LLVM-VPO</a><a class="headerlink" href="#llvm-vpo" title="Permalink to this headline">¶</a></h3>
+<h3><a class="toc-backref" href="#id8" role="doc-backlink">LLVM-VPO</a><a class="headerlink" href="#llvm-vpo" title="Permalink to this heading">¶</a></h3>
 <p>Friend Gang-Ryung Uh replace LLC compiler by llvm on Very Portable Optimizer
 (VPO) compiler toolchain. VPO performs optimizations on a single intermediate
 representation called Register Transfer Lists (RTLs). In other word, the system
 generate RTLs from llvm IR and it do further optimization on RTLs.</p>
 <p>The LLVM-VPO is illustrated at his home page. Click <strong>“6. LLVM-VPO Compiler
 Development - 2012 Google Faculty Research Award”</strong> at this home page
-<a class="footnote-reference brackets" href="#gang-ryung" id="id3">3</a> will get the information.</p>
-<dl class="footnote brackets">
-<dt class="label" id="id4"><span class="brackets"><a class="fn-backref" href="#id1">1</a></span></dt>
-<dd><p><a class="reference external" href="http://www.cs.cmu.edu/afs/cs/academic/class/15745-s12/public/lectures/L3-LLVM-Part1.pdf">http://www.cs.cmu.edu/afs/cs/academic/class/15745-s12/public/lectures/L3-LLVM-Part1.pdf</a></p>
-</dd>
-<dt class="label" id="dragonbooks-9"><span class="brackets"><a class="fn-backref" href="#id2">2</a></span></dt>
-<dd><p>Refer chapter 9 of book Compilers: Principles,
+<a class="footnote-reference brackets" href="#gang-ryung" id="id3" role="doc-noteref"><span class="fn-bracket">[</span>3<span class="fn-bracket">]</span></a> will get the information.</p>
+<aside class="footnote brackets" id="id4" role="note">
+<span class="label"><span class="fn-bracket">[</span><a role="doc-backlink" href="#id1">1</a><span class="fn-bracket">]</span></span>
+<p><a class="reference external" href="http://www.cs.cmu.edu/afs/cs/academic/class/15745-s12/public/lectures/L3-LLVM-Part1.pdf">http://www.cs.cmu.edu/afs/cs/academic/class/15745-s12/public/lectures/L3-LLVM-Part1.pdf</a></p>
+</aside>
+<aside class="footnote brackets" id="dragonbooks-9" role="note">
+<span class="label"><span class="fn-bracket">[</span><a role="doc-backlink" href="#id2">2</a><span class="fn-bracket">]</span></span>
+<p>Refer chapter 9 of book Compilers: Principles,
 Techniques, and Tools (2nd Edition)</p>
-</dd>
-<dt class="label" id="gang-ryung"><span class="brackets"><a class="fn-backref" href="#id3">3</a></span></dt>
-<dd><p><a class="reference external" href="http://cs.boisestate.edu/~uh/">http://cs.boisestate.edu/~uh/</a></p>
-</dd>
-</dl>
+</aside>
+<aside class="footnote brackets" id="gang-ryung" role="note">
+<span class="label"><span class="fn-bracket">[</span><a role="doc-backlink" href="#id3">3</a><span class="fn-bracket">]</span></span>
+<p><a class="reference external" href="http://cs.boisestate.edu/~uh/">http://cs.boisestate.edu/~uh/</a></p>
+</aside>
 </section>
 </section>
 </section>
@@ -290,7 +292,7 @@ Techniques, and Tools (2nd Edition)</p>
 
     <div class="footer" role="contentinfo">
         &#169; Copyright 2016, Chen Chung-Shu.
-      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 4.4.0.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 5.0.2.
     </div>
   </body>
 </html>

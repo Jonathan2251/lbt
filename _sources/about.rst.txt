@@ -38,7 +38,12 @@ https://github.com/Jonathan2251/lbt/blob/master/README.md
 Revision history
 ----------------
 
-Version 12.0.8, not released yet.
+Version 12.0.9, not released yet.
+
+Version 12.0.8, Release September 8, 2022.
+
+  Appendix A: add sections ISA and RISCV Calling Convention.
+  Add Appendix B: Clang-tools.
 
 Version 12.0.7, Release August 16, 2022.
 

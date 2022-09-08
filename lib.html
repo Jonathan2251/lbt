@@ -1,10 +1,10 @@
 
 <!DOCTYPE html>
 
-<html>
+<html lang="en">
   <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
 
     <title>Library &#8212; Tutorial: Creating an LLVM Toolchain for the Cpu0 Architecture</title>
     <link rel="stylesheet" type="text/css" href="_static/pygments.css" />
@@ -13,6 +13,7 @@
     <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
     <script src="_static/jquery.js"></script>
     <script src="_static/underscore.js"></script>
+    <script src="_static/_sphinx_javascript_frameworks_compat.js"></script>
     <script src="_static/doctools.js"></script>
     <link rel="author" title="About these documents" href="about.html" />
     <link rel="index" title="Index" href="genindex.html" />
@@ -39,14 +40,14 @@
         
         
   <section id="library">
-<span id="sec-lib"></span><h1>Library<a class="headerlink" href="#library" title="Permalink to this headline">¶</a></h1>
-<div class="contents local topic" id="contents">
+<span id="sec-lib"></span><h1>Library<a class="headerlink" href="#library" title="Permalink to this heading">¶</a></h1>
+<nav class="contents local" id="contents">
 <ul class="simple">
 <li><p><a class="reference internal" href="#c-library-newlib" id="id17">C Library (Newlib)</a></p></li>
 <li><p><a class="reference internal" href="#compiler-rt" id="id18">Compiler-rt</a></p></li>
 <li><p><a class="reference internal" href="#software-float-point-support" id="id19">Software Float Point Support</a></p></li>
 </ul>
-</div>
+</nav>
 <p>Since Cpu0 has not hardware float point instructions, it needs soft float point
 library to finish the floating point operation. LLVM compiler-rt project include
 software floating point library implementation <a class="reference internal" href="#lib-empty"><span class="std std-numref">Fig. 6</span></a> , so we choose it as the
@@ -71,10 +72,6 @@ digraph G {
 }" class="graphviz" /></div>
 <table class="docutils align-default" id="id14">
 <caption><span class="caption-number">Table 2 </span><span class="caption-text">lldb dependences</span><a class="headerlink" href="#id14" title="Permalink to this table">¶</a></caption>
-<colgroup>
-<col style="width: 29%" />
-<col style="width: 71%" />
-</colgroup>
 <thead>
 <tr class="row-odd"><th class="head"><p>functions</p></th>
 <th class="head"><p>depend on</p></th>
@@ -91,10 +88,6 @@ digraph G {
 </table>
 <table class="docutils align-default" id="id15">
 <caption><span class="caption-number">Table 3 </span><span class="caption-text">sanitizer_printf.c of compiler-rt dependences</span><a class="headerlink" href="#id15" title="Permalink to this table">¶</a></caption>
-<colgroup>
-<col style="width: 43%" />
-<col style="width: 57%" />
-</colgroup>
 <thead>
 <tr class="row-odd"><th class="head"><p>functions</p></th>
 <th class="head"><p>depend on</p></th>
@@ -107,11 +100,11 @@ digraph G {
 </tbody>
 </table>
 <section id="c-library-newlib">
-<h2><a class="toc-backref" href="#id17">C Library (Newlib)</a><a class="headerlink" href="#c-library-newlib" title="Permalink to this headline">¶</a></h2>
+<h2><a class="toc-backref" href="#id17" role="doc-backlink">C Library (Newlib)</a><a class="headerlink" href="#c-library-newlib" title="Permalink to this heading">¶</a></h2>
 <p>Newlib is a C library for bare metal platform.
 Two libraries in newlib are libc and libm. Libc is for functions of
 IO, file and string supported while libm is for mathematical functions.
-Web of newlib is here <a class="footnote-reference brackets" href="#newlib" id="id1">1</a> and newlib/libm here <a class="footnote-reference brackets" href="#newlib-libm" id="id2">2</a> .
+Web of newlib is here <a class="footnote-reference brackets" href="#newlib" id="id1" role="doc-noteref"><span class="fn-bracket">[</span>1<span class="fn-bracket">]</span></a> and newlib/libm here <a class="footnote-reference brackets" href="#newlib-libm" id="id2" role="doc-noteref"><span class="fn-bracket">[</span>2<span class="fn-bracket">]</span></a> .
 Since the next section compiler-rt/builtins depends on libm, please running
 the following bash script is for installing and building newlib for
 Cpu0.</p>
@@ -334,24 +327,20 @@ $BB1:
 </div>
 <p>The libm.a depends on variable errno of libc only defined in sys/errno.h.</p>
 <ul class="simple">
-<li><p>libgloss is BSP <a class="footnote-reference brackets" href="#libgloss-bsp" id="id3">3</a></p></li>
+<li><p>libgloss is BSP <a class="footnote-reference brackets" href="#libgloss-bsp" id="id3" role="doc-noteref"><span class="fn-bracket">[</span>3<span class="fn-bracket">]</span></a></p></li>
 </ul>
 </section>
 <section id="compiler-rt">
-<h2><a class="toc-backref" href="#id18">Compiler-rt</a><a class="headerlink" href="#compiler-rt" title="Permalink to this headline">¶</a></h2>
-<p>Compiler-rt is a project with runtime libraries implentation <a class="footnote-reference brackets" href="#id12" id="id4">4</a> .
+<h2><a class="toc-backref" href="#id18" role="doc-backlink">Compiler-rt</a><a class="headerlink" href="#compiler-rt" title="Permalink to this heading">¶</a></h2>
+<p>Compiler-rt is a project with runtime libraries implentation <a class="footnote-reference brackets" href="#id12" id="id4" role="doc-noteref"><span class="fn-bracket">[</span>4<span class="fn-bracket">]</span></a> .
 Compiler-rt/lib/builtins provides functions for basic operations such as +, -,
 *, /, … on type of float or double and for conversion between float and
 integer, or on type of over 32-bit. The compiler-rt/lib/builtins/README.txt
-<a class="footnote-reference brackets" href="#builtins-readme" id="id5">5</a> includes the dependent functions the whole builtins called.
+<a class="footnote-reference brackets" href="#builtins-readme" id="id5" role="doc-noteref"><span class="fn-bracket">[</span>5<span class="fn-bracket">]</span></a> includes the dependent functions the whole builtins called.
 The dependent functions is a small part of libm listed in
-compier-rt/lib/builtins/int_math.h <a class="footnote-reference brackets" href="#builtins-int-math" id="id6">6</a> .</p>
+compier-rt/lib/builtins/int_math.h <a class="footnote-reference brackets" href="#builtins-int-math" id="id6" role="doc-noteref"><span class="fn-bracket">[</span>6<span class="fn-bracket">]</span></a> .</p>
 <table class="docutils align-default" id="id16">
 <caption><span class="caption-number">Table 4 </span><span class="caption-text">compiler-rt builtins dependences on newlib/libm (open source libc for bare metal)</span><a class="headerlink" href="#id16" title="Permalink to this table">¶</a></caption>
-<colgroup>
-<col style="width: 29%" />
-<col style="width: 71%" />
-</colgroup>
 <thead>
 <tr class="row-odd"><th class="head"><p>library</p></th>
 <th class="head"><p>functions</p></th>
@@ -387,8 +376,8 @@ lbt/exlbt/input/sanitizer_printf.cpp.</p></li>
 <li><p>Except builtins, the other three, sanitizer runtimes, profile and BlocksRuntime,
 are not needed for my embedded Cpu0.</p></li>
 </ul>
-<p>The libgcc’s Integer plus Soft float library  <a class="footnote-reference brackets" href="#lib-gcc" id="id7">7</a> <a class="footnote-reference brackets" href="#int-lib" id="id8">8</a>
-<a class="footnote-reference brackets" href="#sw-float-lib" id="id9">9</a> are equal to functions of compiler-rt’s builtins.</p>
+<p>The libgcc’s Integer plus Soft float library  <a class="footnote-reference brackets" href="#lib-gcc" id="id7" role="doc-noteref"><span class="fn-bracket">[</span>7<span class="fn-bracket">]</span></a> <a class="footnote-reference brackets" href="#int-lib" id="id8" role="doc-noteref"><span class="fn-bracket">[</span>8<span class="fn-bracket">]</span></a>
+<a class="footnote-reference brackets" href="#sw-float-lib" id="id9" role="doc-noteref"><span class="fn-bracket">[</span>9<span class="fn-bracket">]</span></a> are equal to functions of compiler-rt’s builtins.</p>
 <p>Though the ‘rt’ means RunTime libaraies, in builtins library,
 most of these functions
 written in target-independent C form and can be compiled and static-linked
@@ -431,8 +420,8 @@ as a function call for float-add instruction.</p>
 <p>For some brar-metal or embedded application, the C code doesn’t need the
 file and high-level IO in libc.
 Libm provides a lots of functions to support software floating point beyond
-basic operations <a class="footnote-reference brackets" href="#math" id="id10">10</a> .
-Libc provides file, high-level IO functions and basic float functions <a class="footnote-reference brackets" href="#clib" id="id11">11</a> .</p>
+basic operations <a class="footnote-reference brackets" href="#math" id="id10" role="doc-noteref"><span class="fn-bracket">[</span>10<span class="fn-bracket">]</span></a> .
+Libc provides file, high-level IO functions and basic float functions <a class="footnote-reference brackets" href="#clib" id="id11" role="doc-noteref"><span class="fn-bracket">[</span>11<span class="fn-bracket">]</span></a> .</p>
 <p>Cpu0 hires Compiler-rt/lib/builtins and
 compiler-rt/lib/sanitizer_common/sanitizer_printf.cpp at this point.
 The compiler-rt/lib/builtins is a
@@ -441,7 +430,7 @@ implements compiler-rt-12.x/cpu0/abort.c only at this point for supporting
 this feature.</p>
 </section>
 <section id="software-float-point-support">
-<h2><a class="toc-backref" href="#id19">Software Float Point Support</a><a class="headerlink" href="#software-float-point-support" title="Permalink to this headline">¶</a></h2>
+<h2><a class="toc-backref" href="#id19" role="doc-backlink">Software Float Point Support</a><a class="headerlink" href="#software-float-point-support" title="Permalink to this heading">¶</a></h2>
 <p>The following sanitizer_printf.cpp extended from compiler-rt can support
 printf(“%lld”). It’s implementation calling some floating lib functions
 in compiler-rt/lib/builtins.</p>
@@ -2218,41 +2207,50 @@ include Common.mk
 <span class="go">RET to PC &lt; 0, finished!</span>
 </pre></div>
 </div>
-<dl class="footnote brackets">
-<dt class="label" id="newlib"><span class="brackets"><a class="fn-backref" href="#id1">1</a></span></dt>
-<dd><p><a class="reference external" href="https://sourceware.org/newlib/">https://sourceware.org/newlib/</a></p>
-</dd>
-<dt class="label" id="newlib-libm"><span class="brackets"><a class="fn-backref" href="#id2">2</a></span></dt>
-<dd><p><a class="reference external" href="https://sourceware.org/newlib/libm.html">https://sourceware.org/newlib/libm.html</a></p>
-</dd>
-<dt class="label" id="libgloss-bsp"><span class="brackets"><a class="fn-backref" href="#id3">3</a></span></dt>
-<dd><p><a class="reference external" href="https://www.embecosm.com/appnotes/ean9/html/ch03s01.html">https://www.embecosm.com/appnotes/ean9/html/ch03s01.html</a></p>
-</dd>
-<dt class="label" id="id12"><span class="brackets"><a class="fn-backref" href="#id4">4</a></span></dt>
-<dd><p><a class="reference external" href="http://compiler-rt.llvm.org/">http://compiler-rt.llvm.org/</a></p>
-</dd>
-<dt class="label" id="builtins-readme"><span class="brackets"><a class="fn-backref" href="#id5">5</a></span></dt>
-<dd><p><a class="reference external" href="https://github.com/llvm-mirror/compiler-rt/blob/master/lib/builtins/README.txt">https://github.com/llvm-mirror/compiler-rt/blob/master/lib/builtins/README.txt</a></p>
-</dd>
-<dt class="label" id="builtins-int-math"><span class="brackets"><a class="fn-backref" href="#id6">6</a></span></dt>
-<dd><p><a class="reference external" href="https://github.com/microsoft/compiler-rt/blob/master/lib/builtins/int_math.h">https://github.com/microsoft/compiler-rt/blob/master/lib/builtins/int_math.h</a></p>
-</dd>
-<dt class="label" id="lib-gcc"><span class="brackets"><a class="fn-backref" href="#id7">7</a></span></dt>
-<dd><p><a class="reference external" href="https://gcc.gnu.org/onlinedocs/gccint/Libgcc.html">https://gcc.gnu.org/onlinedocs/gccint/Libgcc.html</a></p>
-</dd>
-<dt class="label" id="int-lib"><span class="brackets"><a class="fn-backref" href="#id8">8</a></span></dt>
-<dd><p><a class="reference external" href="https://gcc.gnu.org/onlinedocs/gccint/Integer-library-routines.html#Integer-library-routines">https://gcc.gnu.org/onlinedocs/gccint/Integer-library-routines.html#Integer-library-routines</a></p>
-</dd>
-<dt class="label" id="sw-float-lib"><span class="brackets"><a class="fn-backref" href="#id9">9</a></span></dt>
-<dd><p><a class="reference external" href="https://gcc.gnu.org/onlinedocs/gccint/Soft-float-library-routines.html#Soft-float-library-routines">https://gcc.gnu.org/onlinedocs/gccint/Soft-float-library-routines.html#Soft-float-library-routines</a></p>
-</dd>
-<dt class="label" id="math"><span class="brackets"><a class="fn-backref" href="#id10">10</a></span></dt>
-<dd><p><a class="reference external" href="https://www.programiz.com/c-programming/library-function/math.h">https://www.programiz.com/c-programming/library-function/math.h</a></p>
-</dd>
-<dt class="label" id="clib"><span class="brackets"><a class="fn-backref" href="#id11">11</a></span></dt>
-<dd><p><a class="reference external" href="https://www.cplusplus.com/reference/clibrary">https://www.cplusplus.com/reference/clibrary</a></p>
-</dd>
-</dl>
+<aside class="footnote brackets" id="newlib" role="note">
+<span class="label"><span class="fn-bracket">[</span><a role="doc-backlink" href="#id1">1</a><span class="fn-bracket">]</span></span>
+<p><a class="reference external" href="https://sourceware.org/newlib/">https://sourceware.org/newlib/</a></p>
+</aside>
+<aside class="footnote brackets" id="newlib-libm" role="note">
+<span class="label"><span class="fn-bracket">[</span><a role="doc-backlink" href="#id2">2</a><span class="fn-bracket">]</span></span>
+<p><a class="reference external" href="https://sourceware.org/newlib/libm.html">https://sourceware.org/newlib/libm.html</a></p>
+</aside>
+<aside class="footnote brackets" id="libgloss-bsp" role="note">
+<span class="label"><span class="fn-bracket">[</span><a role="doc-backlink" href="#id3">3</a><span class="fn-bracket">]</span></span>
+<p><a class="reference external" href="https://www.embecosm.com/appnotes/ean9/html/ch03s01.html">https://www.embecosm.com/appnotes/ean9/html/ch03s01.html</a></p>
+</aside>
+<aside class="footnote brackets" id="id12" role="note">
+<span class="label"><span class="fn-bracket">[</span><a role="doc-backlink" href="#id4">4</a><span class="fn-bracket">]</span></span>
+<p><a class="reference external" href="http://compiler-rt.llvm.org/">http://compiler-rt.llvm.org/</a></p>
+</aside>
+<aside class="footnote brackets" id="builtins-readme" role="note">
+<span class="label"><span class="fn-bracket">[</span><a role="doc-backlink" href="#id5">5</a><span class="fn-bracket">]</span></span>
+<p><a class="reference external" href="https://github.com/llvm-mirror/compiler-rt/blob/master/lib/builtins/README.txt">https://github.com/llvm-mirror/compiler-rt/blob/master/lib/builtins/README.txt</a></p>
+</aside>
+<aside class="footnote brackets" id="builtins-int-math" role="note">
+<span class="label"><span class="fn-bracket">[</span><a role="doc-backlink" href="#id6">6</a><span class="fn-bracket">]</span></span>
+<p><a class="reference external" href="https://github.com/microsoft/compiler-rt/blob/master/lib/builtins/int_math.h">https://github.com/microsoft/compiler-rt/blob/master/lib/builtins/int_math.h</a></p>
+</aside>
+<aside class="footnote brackets" id="lib-gcc" role="note">
+<span class="label"><span class="fn-bracket">[</span><a role="doc-backlink" href="#id7">7</a><span class="fn-bracket">]</span></span>
+<p><a class="reference external" href="https://gcc.gnu.org/onlinedocs/gccint/Libgcc.html">https://gcc.gnu.org/onlinedocs/gccint/Libgcc.html</a></p>
+</aside>
+<aside class="footnote brackets" id="int-lib" role="note">
+<span class="label"><span class="fn-bracket">[</span><a role="doc-backlink" href="#id8">8</a><span class="fn-bracket">]</span></span>
+<p><a class="reference external" href="https://gcc.gnu.org/onlinedocs/gccint/Integer-library-routines.html#Integer-library-routines">https://gcc.gnu.org/onlinedocs/gccint/Integer-library-routines.html#Integer-library-routines</a></p>
+</aside>
+<aside class="footnote brackets" id="sw-float-lib" role="note">
+<span class="label"><span class="fn-bracket">[</span><a role="doc-backlink" href="#id9">9</a><span class="fn-bracket">]</span></span>
+<p><a class="reference external" href="https://gcc.gnu.org/onlinedocs/gccint/Soft-float-library-routines.html#Soft-float-library-routines">https://gcc.gnu.org/onlinedocs/gccint/Soft-float-library-routines.html#Soft-float-library-routines</a></p>
+</aside>
+<aside class="footnote brackets" id="math" role="note">
+<span class="label"><span class="fn-bracket">[</span><a role="doc-backlink" href="#id10">10</a><span class="fn-bracket">]</span></span>
+<p><a class="reference external" href="https://www.programiz.com/c-programming/library-function/math.h">https://www.programiz.com/c-programming/library-function/math.h</a></p>
+</aside>
+<aside class="footnote brackets" id="clib" role="note">
+<span class="label"><span class="fn-bracket">[</span><a role="doc-backlink" href="#id11">11</a><span class="fn-bracket">]</span></span>
+<p><a class="reference external" href="https://www.cplusplus.com/reference/clibrary">https://www.cplusplus.com/reference/clibrary</a></p>
+</aside>
 </section>
 </section>
 
@@ -2272,7 +2270,7 @@ include Common.mk
 
     <div class="footer" role="contentinfo">
         &#169; Copyright 2016, Chen Chung-Shu.
-      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 4.4.0.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 5.0.2.
     </div>
   </body>
 </html>

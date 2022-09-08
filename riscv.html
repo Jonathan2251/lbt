@@ -1,10 +1,10 @@
 
 <!DOCTYPE html>
 
-<html>
+<html lang="en">
   <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
 
     <title>Appendix A: RISCV &#8212; Tutorial: Creating an LLVM Toolchain for the Cpu0 Architecture</title>
     <link rel="stylesheet" type="text/css" href="_static/pygments.css" />
@@ -13,10 +13,12 @@
     <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
     <script src="_static/jquery.js"></script>
     <script src="_static/underscore.js"></script>
+    <script src="_static/_sphinx_javascript_frameworks_compat.js"></script>
     <script src="_static/doctools.js"></script>
     <link rel="author" title="About these documents" href="about.html" />
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Appendix B: Clang-tools" href="clang-tools.html" />
     <link rel="prev" title="LLDB" href="lldb.html" /> 
   </head><body>
       <div class="header" role="banner"><h1 class="heading"><a href="index.html">
@@ -29,6 +31,8 @@
         «&#160;&#160;<a href="lldb.html">LLDB</a>
         &#160;&#160;::&#160;&#160;
         <a class="uplink" href="index.html">Contents</a>
+        &#160;&#160;::&#160;&#160;
+        <a href="clang-tools.html">Appendix B: Clang-tools</a>&#160;&#160;»
         </p>
 
       </div>
@@ -36,19 +40,39 @@
         
         
   <section id="appendix-a-riscv">
-<span id="sec-riscv"></span><h1>Appendix A: RISCV<a class="headerlink" href="#appendix-a-riscv" title="Permalink to this headline">¶</a></h1>
-<div class="contents local topic" id="contents">
+<span id="sec-riscv"></span><h1>Appendix A: RISCV<a class="headerlink" href="#appendix-a-riscv" title="Permalink to this heading">¶</a></h1>
+<nav class="contents local" id="contents">
 <ul class="simple">
-<li><p><a class="reference internal" href="#risc-compiler-toolchain-installatation" id="id2">RISC compiler toolchain installatation</a></p></li>
-<li><p><a class="reference internal" href="#qemu-simulator" id="id3">Qemu simulator</a></p></li>
-<li><p><a class="reference internal" href="#gem5-simulator" id="id4">Gem5 simulator</a></p></li>
-<li><p><a class="reference internal" href="#rvv" id="id5">RVV</a></p></li>
+<li><p><a class="reference internal" href="#isa" id="id15">ISA</a></p></li>
+<li><p><a class="reference internal" href="#risc-compiler-toolchain-installatation" id="id16">RISC compiler toolchain installatation</a></p></li>
+<li><p><a class="reference internal" href="#qemu-simulator" id="id17">Qemu simulator</a></p></li>
+<li><p><a class="reference internal" href="#gem5-simulator" id="id18">Gem5 simulator</a></p></li>
+<li><p><a class="reference internal" href="#riscv-calling-convention" id="id19">RISCV Calling Convention </a></p></li>
+<li><p><a class="reference internal" href="#rvv" id="id20">RVV</a></p></li>
 </ul>
-</div>
+</nav>
 <p>This chapter shows the RISC toolchain installatation including gnu, llvm and
 simulators on Linux.</p>
+<section id="isa">
+<h2><a class="toc-backref" href="#id15" role="doc-backlink">ISA</a><a class="headerlink" href="#isa" title="Permalink to this heading">¶</a></h2>
+<figure class="align-center" id="id11">
+<span id="riscv-f1"></span><a class="reference internal image-reference" href="_images/riscv-isa.png"><img alt="_images/riscv-isa.png" src="_images/riscv-isa.png" style="width: 272.0px; height: 360.0px;" /></a>
+<figcaption>
+<p><span class="caption-number">Fig. 7 </span><span class="caption-text">RISCV ISA</span><a class="headerlink" href="#id11" title="Permalink to this image">¶</a></p>
+</figcaption>
+</figure>
+<figure class="align-center" id="id12">
+<span id="riscv-f2"></span><a class="reference internal image-reference" href="_images/isa-desc.png"><img alt="_images/isa-desc.png" src="_images/isa-desc.png" style="width: 673.0px; height: 575.0px;" /></a>
+<figcaption>
+<p><span class="caption-number">Fig. 8 </span><span class="caption-text">RISCV ISA Description</span><a class="headerlink" href="#id12" title="Permalink to this image">¶</a></p>
+</figcaption>
+</figure>
+<p>As above figure, RISC has 32/64/128 bit and I (integer) is the Base part and the
+others are optional. G=IMAFD, general extensions (i.e., IMAFD)  <a class="footnote-reference brackets" href="#id10" id="id1" role="doc-noteref"><span class="fn-bracket">[</span>1<span class="fn-bracket">]</span></a>
+<a class="footnote-reference brackets" href="#riscv-wiki" id="id2" role="doc-noteref"><span class="fn-bracket">[</span>2<span class="fn-bracket">]</span></a> <a class="footnote-reference brackets" href="#rre" id="id3" role="doc-noteref"><span class="fn-bracket">[</span>3<span class="fn-bracket">]</span></a>.</p>
+</section>
 <section id="risc-compiler-toolchain-installatation">
-<h2><a class="toc-backref" href="#id2">RISC compiler toolchain installatation</a><a class="headerlink" href="#risc-compiler-toolchain-installatation" title="Permalink to this headline">¶</a></h2>
+<h2><a class="toc-backref" href="#id16" role="doc-backlink">RISC compiler toolchain installatation</a><a class="headerlink" href="#risc-compiler-toolchain-installatation" title="Permalink to this heading">¶</a></h2>
 <p>First, install the depended packages according
 <a class="reference external" href="https://github.com/riscv-collab/riscv-gnu-toolchain#readme">https://github.com/riscv-collab/riscv-gnu-toolchain#readme</a>.
 Next, create your $HOME/riscv and $HOME/riscv/git. Then run the following bash
@@ -122,8 +146,10 @@ build_gnu_toolchain() {
 # commit 409b951ba6621f2f115aebddfb15ce2dd78ec24f of master branch is work for vadd.vv of vadd1.c
   mkdir build_newlib
   cd build_newlib
+# NX27V is 32-64 bits configurable and has HW float point
   ../configure --prefix=$GNU_NEWLIB_INSTALL_DIR \
-  --with-multilib-generator=&quot;rv32i-ilp32--;rv32imafd-ilp32--;rv64ima-lp64--&quot;
+  --with-arch=rv64gc --with-abi=lp64d
+#  --with-multilib-generator=&quot;rv32i-ilp32--;rv32imafd-ilp32--;rv64ima-lp64--&quot;
   make
 
   cd ..
@@ -134,10 +160,15 @@ build_gnu_toolchain() {
   popd
 }
 
+# LLVM_BINUTILS_INCDIR:
+#   For lld. https://llvm.org/docs/GoldPlugin.html
 # DEFAULT_SYSROOT: 
 #   https://stackoverflow.com/questions/66357013/compile-clang-with-alternative-sysroot
 # LLVM_DEFAULT_TARGET_TRIPLE:  
 #   https://clang.llvm.org/docs/CrossCompilation.html#general-cross-compilation-options-in-clang
+# LLVM_INSTALL_UTILS:BOOL
+#   If enabled, utility binaries like FileCheck and not will be installed to CMAKE_INSTALL_PREFIX.
+#   https://llvm.org/docs/CMake.html
 # Use &quot;clang --sysroot&quot; if did not &quot;cmake -DDEFAULT_SYSROOT&quot;
 # $GNU_NEWLIB_INSTALL_DIR/clang --gcc-toolchain=$GNU_NEWLIB_INSTALL_DIR \
 #   --sysroot=$GNU_NEWLIB_INSTALL_DIR/sysroot/ --static test.c
@@ -173,14 +204,36 @@ build_llvm_toolchain;
 </pre></div>
 </div>
 <div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span><span class="nb">pwd</span>
-<span class="gp">$ </span><span class="nv">$HOME</span>/lbt/exlbt
+<span class="gp">$ </span><span class="nv">$HOME</span>/lbt/exlbt/riscv
 <span class="gp">$ </span>bash riscv-toolchain-setup.sh
 </pre></div>
 </div>
 <p>RISCV toolchain includes both baremetal(Newlib) and Linux platform support.</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span><span class="nb">pwd</span>
+<span class="gp">$ </span><span class="nv">$HOME</span>/lbt/exlbt/riscv
+<span class="gp">$ </span>bash riscv-toolchain-setup.sh
+</pre></div>
+</div>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>ls ~/riscv/riscv_newlib
+<span class="go">bin                   include                 lib                     libexec                 riscv64-unknown-elf     share</span>
+</pre></div>
+</div>
+<figure class="align-center" id="id13">
+<span id="riscv-f3"></span><a class="reference internal image-reference" href="_images/linux-sysroot.png"><img alt="_images/linux-sysroot.png" src="_images/linux-sysroot.png" style="width: 434.0px; height: 538.0px;" /></a>
+<figcaption>
+<p><span class="caption-number">Fig. 9 </span><span class="caption-text">RISCV ISA Description</span><a class="headerlink" href="#id13" title="Permalink to this image">¶</a></p>
+</figcaption>
+</figure>
+<p>The linux sysroot as figure above and compare it with the installed dirctory.</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>ls /local/riscv_linux/sysroot/
+<span class="go">etc  lib  lib64  sbin  usr  var</span>
+<span class="gp">$ </span>ls /local/riscv_linux/sysroot/usr
+<span class="go">bin  include  lib  libexec  sbin  share</span>
+</pre></div>
+</div>
 </section>
 <section id="qemu-simulator">
-<h2><a class="toc-backref" href="#id3">Qemu simulator</a><a class="headerlink" href="#qemu-simulator" title="Permalink to this headline">¶</a></h2>
+<h2><a class="toc-backref" href="#id17" role="doc-backlink">Qemu simulator</a><a class="headerlink" href="#qemu-simulator" title="Permalink to this heading">¶</a></h2>
 <p>Install according <a class="reference external" href="https://gitlab.com/qemu-project/qemu">https://gitlab.com/qemu-project/qemu</a> as follows,</p>
 <div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span><span class="nb">pwd</span>
 <span class="gp">$ </span><span class="nv">$HOME</span>/riscv/git
@@ -216,7 +269,7 @@ build_llvm_toolchain;
 </div>
 </section>
 <section id="gem5-simulator">
-<h2><a class="toc-backref" href="#id4">Gem5 simulator</a><a class="headerlink" href="#gem5-simulator" title="Permalink to this headline">¶</a></h2>
+<h2><a class="toc-backref" href="#id18" role="doc-backlink">Gem5 simulator</a><a class="headerlink" href="#gem5-simulator" title="Permalink to this heading">¶</a></h2>
 <p>Build Gem5 according the following,</p>
 <p><a class="reference external" href="http://learning.gem5.org/book/part1/building.html#requirements-for-gem5">http://learning.gem5.org/book/part1/building.html#requirements-for-gem5</a></p>
 <p>If you don’t have python3.x-config on Ubuntu 18.04 as follows,</p>
@@ -224,7 +277,7 @@ build_llvm_toolchain;
 <span class="go">... /usr/bin/python2.7-config</span>
 </pre></div>
 </div>
-<p>Then do install by pip3 as follows <a class="footnote-reference brackets" href="#install-python3-config" id="id1">1</a>,</p>
+<p>Then do install by pip3 as follows <a class="footnote-reference brackets" href="#install-python3-config" id="id4" role="doc-noteref"><span class="fn-bracket">[</span>8<span class="fn-bracket">]</span></a>,</p>
 <div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>sudo apt install python3-pip
 <span class="gp">$ </span>pip3 install scons
 <span class="gp">$ </span>ls /usr/bin/python*
@@ -268,54 +321,179 @@ build_llvm_toolchain;
 <p>The config of gem5 reference here.
 <a class="reference external" href="http://learning.gem5.org/book/part1/example_configs.html">http://learning.gem5.org/book/part1/example_configs.html</a></p>
 </section>
+<section id="riscv-calling-convention">
+<h2><a class="toc-backref" href="#id19" role="doc-backlink">RISCV Calling Convention <a class="footnote-reference brackets" href="#calling-conv" id="id5" role="doc-noteref"><span class="fn-bracket">[</span>4<span class="fn-bracket">]</span></a></a><a class="headerlink" href="#riscv-calling-convention" title="Permalink to this heading">¶</a></h2>
+<p>The rv32: register size 32-bit. The rv64 register size 64-bit.</p>
+<p>In RV64, 32-bit types, such as int, are stored in integer registers as proper
+sign extensions of their 32-bit values; that is, bits 63..31 are all equal.</p>
+<p>Two kinds of ABI, ilp32 and lp64, -mabi=ilp32, ilp32f, ilp32d, lp64, lp64f,
+lp64d. The ways of pass float arguments on integer/single-float/double-float.</p>
+<table class="docutils align-default" id="id14">
+<caption><span class="caption-number">Table 5 </span><span class="caption-text">ABI, caller passing integer/float/double arguments <a class="footnote-reference brackets" href="#calling-conv-1" id="id6" role="doc-noteref"><span class="fn-bracket">[</span>5<span class="fn-bracket">]</span></a> <a class="footnote-reference brackets" href="#calling-conv-2" id="id7" role="doc-noteref"><span class="fn-bracket">[</span>6<span class="fn-bracket">]</span></a></span><a class="headerlink" href="#id14" title="Permalink to this table">¶</a></caption>
+<thead>
+<tr class="row-odd"><th class="head"><p>name</p></th>
+<th class="head"><p>float</p></th>
+<th class="head"><p>double</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>ilp32/lp64</p></td>
+<td><p>a registers</p></td>
+<td><p>a registers</p></td>
+</tr>
+<tr class="row-odd"><td><p>ilp32f/lp64f</p></td>
+<td><p>fa registers</p></td>
+<td><p>a regsiters</p></td>
+</tr>
+<tr class="row-even"><td><p>ilp32d/lp64d</p></td>
+<td><p>fa registers</p></td>
+<td><p>fa registers</p></td>
+</tr>
+</tbody>
+</table>
+<p>ilp32 and lp64 are Soft-Float Calling Convention.
+Soft-Float Calling Convention: Floating-point arguments are passed and returned
+<strong>in integer registers</strong>, using the rules for integer arguments of the same size.</p>
+<ul>
+<li><p>-mabi=ABI-string</p>
+<p>Specify integer and floating-point calling convention. ABI-string contains
+two parts: the size of integer types and the registers used for floating-point
+types. For example ‘-march=rv64ifd -mabi=lp64d’ means that ‘long’ and pointers
+are 64-bit (implicitly defining ‘int’ to be 32-bit), and that floating-point
+values up to 64 bits wide are passed in F registers. Contrast this with
+‘-march=rv64ifd -mabi=lp64f’, which still allows the compiler to generate code
+that uses the F and D extensions but only allows floating-point values up to 32
+bits long to be passed in registers; or ‘-march=rv64ifd -mabi=lp64’, in which
+no floating-point arguments will be passed in registers.</p>
+<p>The default for this argument is system dependent, users who want a specific
+calling convention should specify one explicitly. The valid calling conventions
+are: ‘ilp32’, ‘ilp32f’, ‘ilp32d’, ‘lp64’, ‘lp64f’, and ‘lp64d’. Some calling
+conventions are impossible to implement on some ISAs: for example,
+‘-march=rv32if -mabi=ilp32d’ is invalid because the ABI requires 64-bit values
+be passed in F registers, but F registers are only 32 bits wide. There is also
+the ‘ilp32e’ ABI that can only be used with the ‘rv32e’ architecture. This ABI
+is not well specified at present, and is subject to change <a class="footnote-reference brackets" href="#gnu-riscv-options" id="id8" role="doc-noteref"><span class="fn-bracket">[</span>7<span class="fn-bracket">]</span></a>.</p>
+</li>
+</ul>
+</section>
 <section id="rvv">
-<h2><a class="toc-backref" href="#id5">RVV</a><a class="headerlink" href="#rvv" title="Permalink to this headline">¶</a></h2>
+<h2><a class="toc-backref" href="#id20" role="doc-backlink">RVV</a><a class="headerlink" href="#rvv" title="Permalink to this heading">¶</a></h2>
 <p>Clang/llvm provide RVV (RISC-V Vectors) written in C rather than inline-asm.
 Though it notices as clang option: -target-feature +experimental-v, this way in
-C is more friendly and easy to remember for users than in inline-asm form.
+C is shorter, more user-friendly and easy to remember for users than in
+inline-asm form.
 Builtin is C function and friendly either. RVV can be written and run as follows,</p>
-<p class="rubric">exlbt/riscv/vadd1.c</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="o">//</span> <span class="o">~/</span><span class="n">riscv</span><span class="o">/</span><span class="n">riscv_newlib</span><span class="o">/</span><span class="nb">bin</span><span class="o">/</span><span class="n">clang</span><span class="o">++</span> <span class="n">vadd1</span><span class="o">.</span><span class="n">c</span> <span class="o">-</span><span class="n">menable</span><span class="o">-</span><span class="n">experimental</span><span class="o">-</span><span class="n">extensions</span> <span class="o">-</span><span class="n">march</span><span class="o">=</span><span class="n">rv64gcv0p10</span> <span class="o">-</span><span class="n">O0</span> <span class="o">-</span><span class="n">mllvm</span> <span class="o">--</span><span class="n">riscv</span><span class="o">-</span><span class="n">v</span><span class="o">-</span><span class="n">vector</span><span class="o">-</span><span class="n">bits</span><span class="o">-</span><span class="nb">min</span><span class="o">=</span><span class="mi">256</span> <span class="o">-</span><span class="n">v</span>
+<p class="rubric">exlbt/riscv/vadd2.c</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="o">//</span> <span class="k">pass</span><span class="p">:</span> 
+<span class="o">/*</span> <span class="o">~/</span><span class="n">riscv</span><span class="o">/</span><span class="n">riscv_newlib</span><span class="o">/</span><span class="nb">bin</span><span class="o">/</span><span class="n">clang</span><span class="o">++</span> <span class="n">vadd2</span><span class="o">.</span><span class="n">c</span> <span class="o">-</span><span class="n">menable</span><span class="o">-</span><span class="n">experimental</span><span class="o">-</span><span class="n">extensions</span> \
+ <span class="o">-</span><span class="n">march</span><span class="o">=</span><span class="n">rv64gcv0p10</span> <span class="o">-</span><span class="n">O0</span> <span class="o">-</span><span class="n">mllvm</span> <span class="o">--</span><span class="n">riscv</span><span class="o">-</span><span class="n">v</span><span class="o">-</span><span class="n">vector</span><span class="o">-</span><span class="n">bits</span><span class="o">-</span><span class="nb">min</span><span class="o">=</span><span class="mi">256</span> <span class="o">-</span><span class="n">v</span> <span class="o">*/</span>
 <span class="o">//</span> <span class="o">~/</span><span class="n">riscv</span><span class="o">/</span><span class="n">git</span><span class="o">/</span><span class="n">qemu</span><span class="o">/</span><span class="n">build</span><span class="o">/</span><span class="n">qemu</span><span class="o">-</span><span class="n">riscv64</span> <span class="o">-</span><span class="n">cpu</span> <span class="n">rv64</span><span class="p">,</span><span class="n">v</span><span class="o">=</span><span class="n">true</span> <span class="n">a</span><span class="o">.</span><span class="n">out</span>
-<span class="o">//</span> <span class="n">ref</span><span class="o">.</span> <span class="n">https</span><span class="p">:</span><span class="o">//</span><span class="n">pages</span><span class="o">.</span><span class="n">dogdog</span><span class="o">.</span><span class="n">run</span><span class="o">/</span><span class="n">toolchain</span><span class="o">/</span><span class="n">riscv_vector_extension</span><span class="o">.</span><span class="n">html</span>
+<span class="o">//</span> <span class="n">ref</span><span class="o">.</span> <span class="n">https</span><span class="p">:</span><span class="o">//</span><span class="n">jia</span><span class="o">.</span><span class="n">je</span><span class="o">/</span><span class="n">software</span><span class="o">/</span><span class="mi">2022</span><span class="o">/</span><span class="mi">01</span><span class="o">/</span><span class="mi">25</span><span class="o">/</span><span class="n">rvv</span><span class="o">-</span><span class="mf">1.0</span><span class="o">-</span><span class="n">toolchain</span><span class="o">/</span>
+<span class="o">//</span>      <span class="n">https</span><span class="p">:</span><span class="o">//</span><span class="n">pages</span><span class="o">.</span><span class="n">dogdog</span><span class="o">.</span><span class="n">run</span><span class="o">/</span><span class="n">toolchain</span><span class="o">/</span><span class="n">riscv_vector_extension</span><span class="o">.</span><span class="n">html</span>
 
-<span class="c1">#include &lt;riscv_vector.h&gt;</span>
+<span class="c1">#include &lt;assert.h&gt;</span>
+<span class="c1">#include &lt;stddef.h&gt;</span>
+<span class="c1">#include &lt;stdint.h&gt;</span>
 <span class="c1">#include &lt;stdio.h&gt;</span>
+<span class="c1">#include &lt;riscv_vector.h&gt;</span>
 
-<span class="n">void</span> <span class="n">vec_add_rvv</span><span class="p">(</span><span class="nb">int</span> <span class="o">*</span><span class="n">a</span><span class="p">,</span> <span class="nb">int</span> <span class="o">*</span><span class="n">b</span><span class="p">,</span> <span class="nb">int</span> <span class="o">*</span><span class="n">c</span><span class="p">,</span> <span class="n">size_t</span> <span class="n">n</span><span class="p">)</span> <span class="p">{</span>
+<span class="c1">#define array_size(a) (sizeof(a) / sizeof((a)[0]))</span>
+
+<span class="o">//</span> <span class="n">Vector</span><span class="o">-</span><span class="n">vector</span> <span class="n">add</span>
+<span class="n">void</span> <span class="n">vadd</span><span class="p">(</span><span class="n">uint32_t</span> <span class="o">*</span><span class="n">a</span><span class="p">,</span> <span class="n">const</span> <span class="n">uint32_t</span> <span class="o">*</span><span class="n">b</span><span class="p">,</span> <span class="n">const</span> <span class="n">uint32_t</span> <span class="o">*</span><span class="n">c</span><span class="p">,</span> <span class="n">size_t</span> <span class="n">n</span><span class="p">)</span> <span class="p">{</span>
+  <span class="k">while</span> <span class="p">(</span><span class="n">n</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">)</span> <span class="p">{</span>
+    <span class="n">size_t</span> <span class="n">vl</span> <span class="o">=</span> <span class="n">vsetvl_e32m8</span><span class="p">(</span><span class="n">n</span><span class="p">);</span>
+    <span class="n">vuint32m8_t</span> <span class="n">vb</span> <span class="o">=</span> <span class="n">vle32_v_u32m8</span><span class="p">(</span><span class="n">b</span><span class="p">,</span> <span class="n">vl</span><span class="p">);</span>
+<span class="o">//</span> <span class="n">generate</span><span class="p">:</span>
+<span class="o">//</span>   <span class="n">vsetvli</span> <span class="n">zero</span><span class="p">,</span> <span class="n">a0</span><span class="p">,</span> <span class="n">e32</span><span class="p">,</span> <span class="n">m8</span><span class="p">,</span> <span class="n">ta</span><span class="p">,</span> <span class="n">mu</span>
+<span class="o">//</span>   <span class="n">vadd</span><span class="o">.</span><span class="n">vv</span> <span class="n">v8</span><span class="p">,</span> <span class="n">v8</span><span class="p">,</span> <span class="n">v16</span>
+    <span class="n">vuint32m8_t</span> <span class="n">vc</span> <span class="o">=</span> <span class="n">vle32_v_u32m8</span><span class="p">(</span><span class="n">c</span><span class="p">,</span> <span class="n">vl</span><span class="p">);</span>
+    <span class="n">vuint32m8_t</span> <span class="n">va</span> <span class="o">=</span> <span class="n">vadd</span><span class="p">(</span><span class="n">vb</span><span class="p">,</span> <span class="n">vc</span><span class="p">,</span> <span class="n">vl</span><span class="p">);</span>
+    <span class="n">vse32</span><span class="p">(</span><span class="n">a</span><span class="p">,</span> <span class="n">va</span><span class="p">,</span> <span class="n">vl</span><span class="p">);</span>
+    <span class="n">a</span> <span class="o">+=</span> <span class="n">vl</span><span class="p">;</span>
+    <span class="n">b</span> <span class="o">+=</span> <span class="n">vl</span><span class="p">;</span>
+    <span class="n">c</span> <span class="o">+=</span> <span class="n">vl</span><span class="p">;</span>
+    <span class="n">n</span> <span class="o">-=</span> <span class="n">vl</span><span class="p">;</span>
+  <span class="p">}</span>
+<span class="p">}</span>
+
+<span class="o">//</span> <span class="n">Vector</span><span class="o">-</span><span class="n">vector</span> <span class="n">add</span> <span class="p">(</span><span class="n">inline</span> <span class="n">assembly</span><span class="p">)</span>
+<span class="n">void</span> <span class="n">vadd_asm</span><span class="p">(</span><span class="n">uint32_t</span> <span class="o">*</span><span class="n">a</span><span class="p">,</span> <span class="n">const</span> <span class="n">uint32_t</span> <span class="o">*</span><span class="n">b</span><span class="p">,</span> <span class="n">const</span> <span class="n">uint32_t</span> <span class="o">*</span><span class="n">c</span><span class="p">,</span> <span class="n">size_t</span> <span class="n">n</span><span class="p">)</span> <span class="p">{</span>
+  <span class="k">while</span> <span class="p">(</span><span class="n">n</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">)</span> <span class="p">{</span>
     <span class="n">size_t</span> <span class="n">vl</span><span class="p">;</span>
-    <span class="n">vint32m2_t</span> <span class="n">va</span><span class="p">,</span> <span class="n">vb</span><span class="p">,</span> <span class="n">vc</span><span class="p">;</span>
-    <span class="k">for</span> <span class="p">(;</span> <span class="n">vl</span> <span class="o">=</span> <span class="n">vsetvl_e32m2</span><span class="p">(</span><span class="n">n</span><span class="p">);</span> <span class="n">n</span> <span class="o">-=</span> <span class="n">vl</span><span class="p">)</span> <span class="p">{</span>
-        <span class="n">vb</span> <span class="o">=</span> <span class="n">vle32_v_i32m2</span><span class="p">(</span><span class="n">b</span><span class="p">,</span> <span class="n">vl</span><span class="p">);</span>
-        <span class="n">vc</span> <span class="o">=</span> <span class="n">vle32_v_i32m2</span><span class="p">(</span><span class="n">c</span><span class="p">,</span> <span class="n">vl</span><span class="p">);</span>
-        <span class="n">va</span> <span class="o">=</span> <span class="n">vadd_vv_i32m2</span><span class="p">(</span><span class="n">vb</span><span class="p">,</span> <span class="n">vc</span><span class="p">,</span> <span class="n">vl</span><span class="p">);</span>
-        <span class="n">vse32_v_i32m2</span><span class="p">(</span><span class="n">a</span><span class="p">,</span> <span class="n">va</span><span class="p">,</span> <span class="n">vl</span><span class="p">);</span>
-        <span class="n">a</span> <span class="o">+=</span> <span class="n">vl</span><span class="p">;</span>
-        <span class="n">b</span> <span class="o">+=</span> <span class="n">vl</span><span class="p">;</span>
-        <span class="n">c</span> <span class="o">+=</span> <span class="n">vl</span><span class="p">;</span>
-    <span class="p">}</span>
+    <span class="n">vuint32m8_t</span> <span class="n">va</span><span class="p">,</span> <span class="n">vb</span><span class="p">,</span> <span class="n">vc</span><span class="p">;</span>
+    <span class="o">//</span><span class="n">Fail</span><span class="p">:</span> <span class="n">__asm__</span> <span class="n">__volatile__</span> <span class="p">(</span> <span class="s2">&quot;vsetvli %[vl], %[512], e32, m8&quot;</span> <span class="p">:</span> <span class="p">[</span><span class="n">vl</span><span class="p">]</span> <span class="s2">&quot;=r&quot;</span><span class="p">(</span><span class="n">vl</span><span class="p">)</span> <span class="p">:</span> <span class="p">[</span><span class="mi">512</span><span class="p">]</span> <span class="s2">&quot;r&quot;</span><span class="p">(</span><span class="mi">512</span><span class="p">)</span> <span class="p">);</span>
+    <span class="n">vl</span> <span class="o">=</span> <span class="n">vsetvl_e32m8</span><span class="p">(</span><span class="n">n</span><span class="p">);</span>
+<span class="c1">#if (__clang_major__ &gt; 10)</span>
+    <span class="n">__asm__</span> <span class="n">__volatile__</span> <span class="p">(</span> <span class="s2">&quot;vle32.v %[vb], (%[b])&quot;</span> <span class="p">:</span> <span class="p">[</span><span class="n">vb</span><span class="p">]</span> <span class="s2">&quot;=vr&quot;</span><span class="p">(</span><span class="n">vb</span><span class="p">)</span> <span class="p">:</span> <span class="p">[</span><span class="n">b</span><span class="p">]</span> <span class="s2">&quot;r&quot;</span><span class="p">(</span><span class="n">b</span><span class="p">)</span> <span class="p">:</span> <span class="s2">&quot;memory&quot;</span> <span class="p">);</span>
+    <span class="n">__asm__</span> <span class="n">__volatile__</span> <span class="p">(</span> <span class="s2">&quot;vle32.v %[vc], (%[c])&quot;</span> <span class="p">:</span> <span class="p">[</span><span class="n">vc</span><span class="p">]</span> <span class="s2">&quot;=vr&quot;</span><span class="p">(</span><span class="n">vc</span><span class="p">)</span> <span class="p">:</span> <span class="p">[</span><span class="n">c</span><span class="p">]</span> <span class="s2">&quot;r&quot;</span><span class="p">(</span><span class="n">c</span><span class="p">)</span> <span class="p">:</span> <span class="s2">&quot;memory&quot;</span> <span class="p">);</span>
+    <span class="n">__asm__</span> <span class="n">__volatile__</span> <span class="p">(</span> <span class="s2">&quot;vadd.vv %[va], %[vb], %[vc]&quot;</span> <span class="p">:</span> <span class="p">[</span><span class="n">va</span><span class="p">]</span> <span class="s2">&quot;=vr&quot;</span><span class="p">(</span><span class="n">va</span><span class="p">)</span> <span class="p">:</span> <span class="p">[</span><span class="n">vb</span><span class="p">]</span> <span class="s2">&quot;vr&quot;</span><span class="p">(</span><span class="n">vb</span><span class="p">),</span> <span class="p">[</span><span class="n">vc</span><span class="p">]</span> <span class="s2">&quot;vr&quot;</span><span class="p">(</span><span class="n">vc</span><span class="p">)</span> <span class="p">);</span>
+    <span class="n">__asm__</span> <span class="n">__volatile__</span> <span class="p">(</span> <span class="s2">&quot;vse32.v %[va], (%[a])&quot;</span> <span class="p">:</span> <span class="p">[</span><span class="n">va</span><span class="p">]</span> <span class="s2">&quot;=vr&quot;</span><span class="p">(</span><span class="n">va</span><span class="p">)</span> <span class="p">:</span> <span class="p">[</span><span class="n">a</span><span class="p">]</span> <span class="s2">&quot;r&quot;</span><span class="p">(</span><span class="n">a</span><span class="p">)</span> <span class="p">:</span> <span class="s2">&quot;memory&quot;</span> <span class="p">);</span>
+<span class="c1">#else</span>
+    <span class="n">__asm__</span> <span class="n">__volatile__</span> <span class="p">(</span> <span class="s2">&quot;vle32.v %[vb], (%[b])&quot;</span> <span class="p">:</span> <span class="p">[</span><span class="n">vb</span><span class="p">]</span> <span class="s2">&quot;=v8&quot;</span><span class="p">(</span><span class="n">vb</span><span class="p">)</span> <span class="p">:</span> <span class="p">[</span><span class="n">b</span><span class="p">]</span> <span class="s2">&quot;r&quot;</span><span class="p">(</span><span class="n">b</span><span class="p">)</span> <span class="p">:</span> <span class="s2">&quot;memory&quot;</span> <span class="p">);</span>
+    <span class="n">__asm__</span> <span class="n">__volatile__</span> <span class="p">(</span> <span class="s2">&quot;vle32.v %[vc], (%[c])&quot;</span> <span class="p">:</span> <span class="p">[</span><span class="n">vc</span><span class="p">]</span> <span class="s2">&quot;=v8&quot;</span><span class="p">(</span><span class="n">vc</span><span class="p">)</span> <span class="p">:</span> <span class="p">[</span><span class="n">c</span><span class="p">]</span> <span class="s2">&quot;r&quot;</span><span class="p">(</span><span class="n">c</span><span class="p">)</span> <span class="p">:</span> <span class="s2">&quot;memory&quot;</span> <span class="p">);</span>
+    <span class="n">__asm__</span> <span class="n">__volatile__</span> <span class="p">(</span> <span class="s2">&quot;vadd.vv %[va], %[vb], %[vc]&quot;</span> <span class="p">:</span> <span class="p">[</span><span class="n">va</span><span class="p">]</span> <span class="s2">&quot;=v8&quot;</span><span class="p">(</span><span class="n">va</span><span class="p">)</span> <span class="p">:</span> <span class="p">[</span><span class="n">vb</span><span class="p">]</span> <span class="s2">&quot;v8&quot;</span><span class="p">(</span><span class="n">vb</span><span class="p">),</span> <span class="p">[</span><span class="n">vc</span><span class="p">]</span> <span class="s2">&quot;v8&quot;</span><span class="p">(</span><span class="n">vc</span><span class="p">)</span> <span class="p">);</span>
+    <span class="n">__asm__</span> <span class="n">__volatile__</span> <span class="p">(</span> <span class="s2">&quot;vse32.v %[va], (%[a])&quot;</span> <span class="p">:</span> <span class="p">[</span><span class="n">va</span><span class="p">]</span> <span class="s2">&quot;=v8&quot;</span><span class="p">(</span><span class="n">va</span><span class="p">)</span> <span class="p">:</span> <span class="p">[</span><span class="n">a</span><span class="p">]</span> <span class="s2">&quot;r&quot;</span><span class="p">(</span><span class="n">a</span><span class="p">)</span> <span class="p">:</span> <span class="s2">&quot;memory&quot;</span> <span class="p">);</span>
+<span class="c1">#endif</span>
+
+    <span class="n">a</span> <span class="o">+=</span> <span class="n">vl</span><span class="p">;</span>
+    <span class="n">b</span> <span class="o">+=</span> <span class="n">vl</span><span class="p">;</span>
+    <span class="n">c</span> <span class="o">+=</span> <span class="n">vl</span><span class="p">;</span>
+    <span class="n">n</span> <span class="o">-=</span> <span class="n">vl</span><span class="p">;</span>
+  <span class="p">}</span>
 <span class="p">}</span>
 
-<span class="nb">int</span> <span class="n">x</span><span class="p">[</span><span class="mi">10</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">4</span><span class="p">,</span> <span class="mi">5</span><span class="p">,</span> <span class="mi">6</span><span class="p">,</span> <span class="mi">7</span><span class="p">,</span> <span class="mi">8</span><span class="p">,</span> <span class="mi">9</span><span class="p">,</span> <span class="mi">0</span><span class="p">};</span>
-<span class="nb">int</span> <span class="n">y</span><span class="p">[</span><span class="mi">10</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span><span class="mi">0</span><span class="p">,</span> <span class="mi">9</span><span class="p">,</span> <span class="mi">8</span><span class="p">,</span> <span class="mi">7</span><span class="p">,</span> <span class="mi">6</span><span class="p">,</span> <span class="mi">5</span><span class="p">,</span> <span class="mi">4</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">1</span><span class="p">};</span>
-<span class="nb">int</span> <span class="n">z</span><span class="p">[</span><span class="mi">10</span><span class="p">];</span>
+<span class="n">uint32_t</span> <span class="n">a</span><span class="p">[</span><span class="mi">4096</span><span class="p">];</span>
+<span class="n">uint8_t</span> <span class="n">m</span><span class="p">[</span><span class="mi">512</span><span class="p">];</span>
 
-<span class="nb">int</span> <span class="n">main</span><span class="p">()</span> <span class="p">{</span>
-    <span class="nb">int</span> <span class="n">i</span><span class="p">;</span>
-    <span class="n">vec_add_rvv</span><span class="p">(</span><span class="n">z</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="mi">10</span><span class="p">);</span>
-    <span class="k">for</span> <span class="p">(</span><span class="n">i</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="mi">10</span><span class="p">;</span> <span class="n">i</span><span class="o">++</span><span class="p">)</span> <span class="n">printf</span><span class="p">(</span><span class="s2">&quot;</span><span class="si">%d</span><span class="s2"> &quot;</span><span class="p">,</span> <span class="n">z</span><span class="p">[</span><span class="n">i</span><span class="p">]);</span>
-    <span class="n">printf</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">);</span>
-    <span class="k">return</span> <span class="mi">0</span><span class="p">;</span>
+<span class="nb">int</span> <span class="n">main</span><span class="p">(</span><span class="n">void</span><span class="p">)</span> <span class="p">{</span>
+  <span class="n">printf</span><span class="p">(</span><span class="s2">&quot;array_size(a):</span><span class="si">%lu</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">array_size</span><span class="p">(</span><span class="n">a</span><span class="p">));</span>
+  <span class="o">//</span> <span class="n">init</span> <span class="n">source</span>
+  <span class="k">for</span> <span class="p">(</span><span class="n">size_t</span> <span class="n">i</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="n">array_size</span><span class="p">(</span><span class="n">a</span><span class="p">);</span> <span class="o">++</span><span class="n">i</span><span class="p">)</span>
+    <span class="n">a</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">i</span><span class="p">;</span>
+
+  <span class="n">vadd</span><span class="p">(</span><span class="n">a</span><span class="p">,</span> <span class="n">a</span><span class="p">,</span> <span class="n">a</span><span class="p">,</span> <span class="n">array_size</span><span class="p">(</span><span class="n">a</span><span class="p">));</span>
+
+  <span class="n">printf</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">a[]: &quot;</span><span class="p">);</span>
+  <span class="k">for</span> <span class="p">(</span><span class="n">size_t</span> <span class="n">i</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="n">array_size</span><span class="p">(</span><span class="n">a</span><span class="p">);</span> <span class="o">++</span><span class="n">i</span><span class="p">)</span> <span class="p">{</span>
+    <span class="k">if</span> <span class="p">(</span><span class="n">i</span> <span class="o">&lt;</span> <span class="mi">10</span><span class="p">)</span>
+      <span class="n">printf</span><span class="p">(</span><span class="s2">&quot;</span><span class="si">%d</span><span class="s2"> &quot;</span><span class="p">,</span> <span class="n">a</span><span class="p">[</span><span class="n">i</span><span class="p">]);</span>
+    <span class="k">else</span> <span class="k">if</span> <span class="p">(</span><span class="n">i</span> <span class="o">==</span> <span class="mi">11</span><span class="p">)</span>
+      <span class="n">printf</span><span class="p">(</span><span class="s2">&quot;...&quot;</span><span class="p">);</span>
+    <span class="k">assert</span><span class="p">(</span><span class="n">a</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">==</span> <span class="n">i</span> <span class="o">*</span> <span class="mi">2</span><span class="p">);</span>
+  <span class="p">}</span>
+  <span class="n">printf</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">The results of vadd:</span><span class="se">\t</span><span class="s2">PASS</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">);</span>
+
+  <span class="n">vadd_asm</span><span class="p">(</span><span class="n">a</span><span class="p">,</span> <span class="n">a</span><span class="p">,</span> <span class="n">a</span><span class="p">,</span> <span class="n">array_size</span><span class="p">(</span><span class="n">a</span><span class="p">));</span>
+
+  <span class="n">printf</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">a[]: &quot;</span><span class="p">);</span>
+  <span class="k">for</span> <span class="p">(</span><span class="n">size_t</span> <span class="n">i</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="n">array_size</span><span class="p">(</span><span class="n">a</span><span class="p">);</span> <span class="o">++</span><span class="n">i</span><span class="p">)</span> <span class="p">{</span>
+    <span class="k">if</span> <span class="p">(</span><span class="n">i</span> <span class="o">&lt;</span> <span class="mi">10</span><span class="p">)</span>
+      <span class="n">printf</span><span class="p">(</span><span class="s2">&quot;</span><span class="si">%d</span><span class="s2"> &quot;</span><span class="p">,</span> <span class="n">a</span><span class="p">[</span><span class="n">i</span><span class="p">]);</span>
+    <span class="k">else</span> <span class="k">if</span> <span class="p">(</span><span class="n">i</span> <span class="o">==</span> <span class="mi">11</span><span class="p">)</span>
+      <span class="n">printf</span><span class="p">(</span><span class="s2">&quot;...&quot;</span><span class="p">);</span>
+    <span class="k">assert</span><span class="p">(</span><span class="n">a</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">==</span> <span class="n">i</span> <span class="o">*</span> <span class="mi">4</span><span class="p">);</span>
+  <span class="p">}</span>
+  <span class="n">printf</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">The results of vadd_asm:</span><span class="se">\t</span><span class="s2">PASS</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">);</span>
+
+  <span class="k">return</span> <span class="mi">0</span><span class="p">;</span>
 <span class="p">}</span>
+
 </pre></div>
 </div>
 <div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span><span class="nb">pwd</span>
 <span class="gp">$ </span><span class="nv">$HOME</span>/lbt/exlbt/riscv
-<span class="gp">$ </span><span class="nv">$HOME</span>/riscv/riscv_newlib/bin/clang vadd1.c -menable-experimental-extensions <span class="se">\</span>
+<span class="gp">$ </span><span class="nv">$HOME</span>/riscv/riscv_newlib/bin/clang vadd2.c -menable-experimental-extensions <span class="se">\</span>
   -march<span class="o">=</span>rv64gcv0p10 -O0 -mllvm --riscv-v-vector-bits-min<span class="o">=</span><span class="m">256</span>
 <span class="gp">$ </span><span class="nv">$HOME</span>/riscv/git/qemu/build/qemu-riscv64 -cpu rv64,v<span class="o">=</span><span class="nb">true</span> a.out
 <span class="go">vector version is not specified, use the default value v1.0</span>
-<span class="go">1 11 11 11 11 11 11 11 11 1</span>
+<span class="go">array_size(a):4096</span>
+
+<span class="go">a[]: 0 2 4 6 8 10 12 14 16 18 ...</span>
+<span class="go">The results of vadd:  PASS</span>
+
+<span class="go">a[]: 0 4 8 12 16 20 24 28 32 36 ...</span>
+<span class="go">The results of vadd_asm:      PASS</span>
 
 <span class="gp">$ </span><span class="nv">$HOME</span>/riscv/riscv_newlib/bin/clang vadd1.c -menable-experimental-extensions <span class="se">\</span>
   -march<span class="o">=</span>rv64gcv0p10 -O0 -mllvm --riscv-v-vector-bits-min<span class="o">=</span><span class="m">256</span> -static
@@ -326,6 +504,12 @@ Builtin is C function and friendly either. RVV can be written and run as follows
 <span class="go"> 106fc:       03ae0d57                vadd.vv v26,v26,v28</span>
 </pre></div>
 </div>
+<p>For -march=rv64imfv0p10zfh0p1,</p>
+<ul class="simple">
+<li><p>v0p10: vector version 0.10.</p></li>
+<li><p>zfh0p1: “Zfh” 0.1 version <a class="footnote-reference brackets" href="#rre" id="id9" role="doc-noteref"><span class="fn-bracket">[</span>3<span class="fn-bracket">]</span></a>.</p></li>
+</ul>
+<p>For -mabi, as the section above.</p>
 <p>Clang/llvm provide builtin and intrinsic functions to implement RVV (RISC-V
 Vectors)</p>
 <p class="rubric">~/riscv/git/llvm-project/clang/include/clang/Basic/riscv_vector.td</p>
@@ -352,11 +536,39 @@ Vectors)</p>
 <span class="gp">$ </span>... vfdiv-rv64.ll ... vfmadd-rv64.ll ...
 </pre></div>
 </div>
-<dl class="footnote brackets">
-<dt class="label" id="install-python3-config"><span class="brackets"><a class="fn-backref" href="#id1">1</a></span></dt>
-<dd><p><a class="reference external" href="https://www.anycodings.com/questions/gem5-build-fails-with-embedded-python-library-36-or-newer-required-found-2717">https://www.anycodings.com/questions/gem5-build-fails-with-embedded-python-library-36-or-newer-required-found-2717</a></p>
-</dd>
-</dl>
+<aside class="footnote brackets" id="id10" role="note">
+<span class="label"><span class="fn-bracket">[</span><a role="doc-backlink" href="#id1">1</a><span class="fn-bracket">]</span></span>
+<p><a class="reference external" href="https://riscv.org/technical/specifications/">https://riscv.org/technical/specifications/</a></p>
+</aside>
+<aside class="footnote brackets" id="riscv-wiki" role="note">
+<span class="label"><span class="fn-bracket">[</span><a role="doc-backlink" href="#id2">2</a><span class="fn-bracket">]</span></span>
+<p><a class="reference external" href="https://en.wikipedia.org/wiki/RISC-V">https://en.wikipedia.org/wiki/RISC-V</a></p>
+</aside>
+<aside class="footnote brackets" id="rre" role="note">
+<span class="label"><span class="fn-bracket">[</span>3<span class="fn-bracket">]</span></span>
+<span class="backrefs">(<a role="doc-backlink" href="#id3">1</a>,<a role="doc-backlink" href="#id9">2</a>)</span>
+<p><a class="reference external" href="https://wiki.riscv.org/display/HOME/Recently+Ratified+Extensions">https://wiki.riscv.org/display/HOME/Recently+Ratified+Extensions</a></p>
+</aside>
+<aside class="footnote brackets" id="calling-conv" role="note">
+<span class="label"><span class="fn-bracket">[</span><a role="doc-backlink" href="#id5">4</a><span class="fn-bracket">]</span></span>
+<p><a class="reference external" href="https://riscv.org/wp-content/uploads/2015/01/riscv-calling.pdf">https://riscv.org/wp-content/uploads/2015/01/riscv-calling.pdf</a></p>
+</aside>
+<aside class="footnote brackets" id="calling-conv-1" role="note">
+<span class="label"><span class="fn-bracket">[</span><a role="doc-backlink" href="#id6">5</a><span class="fn-bracket">]</span></span>
+<p><a class="reference external" href="https://blog.csdn.net/zoomdy/article/details/79353313">https://blog.csdn.net/zoomdy/article/details/79353313</a></p>
+</aside>
+<aside class="footnote brackets" id="calling-conv-2" role="note">
+<span class="label"><span class="fn-bracket">[</span><a role="doc-backlink" href="#id7">6</a><span class="fn-bracket">]</span></span>
+<p><a class="reference external" href="https://wiki.gentoo.org/wiki/RISC-V_ABIs">https://wiki.gentoo.org/wiki/RISC-V_ABIs</a></p>
+</aside>
+<aside class="footnote brackets" id="gnu-riscv-options" role="note">
+<span class="label"><span class="fn-bracket">[</span><a role="doc-backlink" href="#id8">7</a><span class="fn-bracket">]</span></span>
+<p><a class="reference external" href="https://gcc.gnu.org/onlinedocs/gcc/RISC-V-Options.html">https://gcc.gnu.org/onlinedocs/gcc/RISC-V-Options.html</a></p>
+</aside>
+<aside class="footnote brackets" id="install-python3-config" role="note">
+<span class="label"><span class="fn-bracket">[</span><a role="doc-backlink" href="#id4">8</a><span class="fn-bracket">]</span></span>
+<p><a class="reference external" href="https://www.anycodings.com/questions/gem5-build-fails-with-embedded-python-library-36-or-newer-required-found-2717">https://www.anycodings.com/questions/gem5-build-fails-with-embedded-python-library-36-or-newer-required-found-2717</a></p>
+</aside>
 </section>
 </section>
 
@@ -368,13 +580,15 @@ Vectors)</p>
         «&#160;&#160;<a href="lldb.html">LLDB</a>
         &#160;&#160;::&#160;&#160;
         <a class="uplink" href="index.html">Contents</a>
+        &#160;&#160;::&#160;&#160;
+        <a href="clang-tools.html">Appendix B: Clang-tools</a>&#160;&#160;»
         </p>
 
       </div>
 
     <div class="footer" role="contentinfo">
         &#169; Copyright 2016, Chen Chung-Shu.
-      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 4.4.0.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 5.0.2.
     </div>
   </body>
 </html>
