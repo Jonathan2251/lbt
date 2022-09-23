@@ -9,7 +9,7 @@ TARGET := $(BUILD_DIR)/$(TARGET_EXEC)
 SRC_DIR := ./
 
 TOOLDIR := ~/llvm/test/build/bin
-CC := ~/llvm/release/build/bin/clang
+CC := ~/llvm/debug/build/bin/clang
 LLC := $(TOOLDIR)/llc
 AS := $(TOOLDIR)/llvm-as
 LD := $(TOOLDIR)/ld.lld

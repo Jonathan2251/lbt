@@ -1,6 +1,6 @@
 # Thanks .c .cb Vranish (https://spin.a.cmi.cbject..cm/2016/08/26/makefile-c-p.cjects/)
 
-# CPU and endian passed from command line, such as "make CPU=cpu032II endian="
+# CPU and endian passed from command line, such as "make CPU=cpu032I endian=el"
 #CPU := cpu032II
 #endian :=
 
@@ -10,7 +10,7 @@ TARGET := $(BUILD_DIR)/$(TARGET_LIB)
 SRC_DIR := ./builtins
 
 TOOLDIR := ~/llvm/test/build/bin
-CC := ~/llvm/release/build/bin/clang
+CC := ~/llvm/debug/build/bin/clang
 LLC := $(TOOLDIR)/llc
 AR := $(TOOLDIR)/llvm-ar
 

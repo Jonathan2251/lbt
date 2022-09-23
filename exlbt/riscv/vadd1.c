@@ -15,6 +15,7 @@
 // ~/riscv/riscv_newlib/bin/clang++ vadd1.c -menable-experimental-extensions -march=rv64gcv0p10 -O0 -mabi=lp64d -v
 // ~/riscv/riscv_newlib/bin/llvm-readelf -h a.out
 // Flags:                             0x5, RVC, double-float ABI
+// ~/riscv/14.x/riscv_newlib/bin/clang++ vadd1.c -menable-experimental-extensions -march=rv64gcv1p0 -O0 -mabi=lp64d -v
 
 // No -mabi=lp64d 
 // ~/riscv/riscv_newlib/bin/clang++ vadd1.c -march=rv64imfv0p10zfh0p1 -menable-experimental-extensions -mabi=lp64d -O0 -v

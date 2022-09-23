@@ -181,7 +181,7 @@ is for this purpose.
 
   1-160-136-173:input Jonathan$ pwd
   /Users/Jonathan/Downloads/exlbt/input
-  114-37-148-111:input Jonathan$ bash make.sh cpu032I le Makefile.slinker
+  114-37-148-111:input Jonathan$ bash make.sh cpu032I el Makefile.slinker
   ...
   endian =  LittleEndian
   ISR address:00020780

@@ -1,3 +1,7 @@
+/*
+~/riscv/git/llvm-project/build_riscv_newlib/bin/clang++ --gcc-toolchain=$HOME/riscv/riscv_newlib test.cpp -march=rv64g -O0 -mabi=lp64d -v
+~/riscv/git/llvm-project/build_riscv_linux/bin/clang++ --gcc-toolchain=$HOME/riscv/riscv_linux --sysroot=$HOME/riscv/riscv_linux/sysroot/ --static test.cpp -march=rv64g -O0 -mabi=lp64d -v
+*/
 
 #include <iostream>
 

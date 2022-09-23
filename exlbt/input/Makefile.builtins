@@ -1,5 +1,6 @@
 # CPU and endian passed from command line, such as 
-#   "make -f Makefile.builtins CPU=cpu032II ENDIAN=eb \
+#   "make -f Makefile.builtins CPU=cpu032II ENDIAN=eb or
+#   "make -f Makefile.builtins CPU=cpu032I ENDIAN=el
 
 # start.cpp must be put at beginning
 SRCS :=  start.cpp debug.cpp syscalls.c sanitizer_printf.cpp printf-stdarg-def.c \

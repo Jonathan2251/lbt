@@ -2,7 +2,7 @@
 
 # for example:
 # bash make.sh cpu032I eb Makefile.newlib
-# bash make.sh cpu032II eb Makefile.builtins
+# bash make.sh cpu032I eb Makefile.builtins
 # bash make.sh cpu032I el Makefile.slinker
 # bash make.sh cpu032II eb Makefile.float
 # bash make.sh cpu032II el Makefile.ch13_1
@@ -71,9 +71,9 @@ prologue() {
 isLittleEndian() {
   echo "ENDIAN = " "$ENDIAN"
   if [ "$ENDIAN" == "LittleEndian" ] ; then
-    le="true"
+    LE="true"
   elif [ "$ENDIAN" == "BigEndian" ] ; then
-    le="false"
+    LE="false"
   else
     echo "!ENDIAN unknown"
     exit 1
@@ -81,8 +81,8 @@ isLittleEndian() {
 }
 
 elf2hex() {
-  ${TOOLDIR}/elf2hex -le=${le} $BUILD_DIR/a.out > ${LBDEX_DIR}/verilog/cpu0.hex
-  if [ ${le} == "true" ] ; then
+  ${TOOLDIR}/elf2hex -le=$LE $BUILD_DIR/a.out > ${LBDEX_DIR}/verilog/cpu0.hex
+  if [ $LE == "true" ] ; then
     echo "1   /* 0: big ENDIAN, 1: little ENDIAN */" > ${LBDEX_DIR}/verilog/cpu0.config
   else
     echo "0   /* 0: big ENDIAN, 1: little ENDIAN */" > ${LBDEX_DIR}/verilog/cpu0.config
