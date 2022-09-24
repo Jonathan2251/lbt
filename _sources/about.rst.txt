@@ -38,7 +38,11 @@ https://github.com/Jonathan2251/lbt/blob/master/README.md
 Revision history
 ----------------
 
-Version 12.0.9, not released yet.
+Version 12.0.10, not released yet.
+
+Version 12.0.9, Release September 24, 2022.
+
+  GDB section and refine Makefile bash
 
 Version 12.0.8, Release September 8, 2022.
 

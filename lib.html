@@ -4,7 +4,7 @@
 <html lang="en">
   <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.19: https://docutils.sourceforge.io/" />
 
     <title>Library &#8212; Tutorial: Creating an LLVM Toolchain for the Cpu0 Architecture</title>
     <link rel="stylesheet" type="text/css" href="_static/pygments.css" />
@@ -325,7 +325,7 @@ $BB1:
 <div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">cschen@cschendeiMac exlbt % </span>bash newlib-cpu0.sh
 </pre></div>
 </div>
-<p>The libm.a depends on variable errno of libc only defined in sys/errno.h.</p>
+<p>The libm.a depends on variable errno of libc defined in sys/errno.h.</p>
 <ul class="simple">
 <li><p>libgloss is BSP <a class="footnote-reference brackets" href="#libgloss-bsp" id="id3" role="doc-noteref"><span class="fn-bracket">[</span>3<span class="fn-bracket">]</span></a></p></li>
 </ul>
@@ -336,7 +336,8 @@ $BB1:
 Compiler-rt/lib/builtins provides functions for basic operations such as +, -,
 *, /, … on type of float or double and for conversion between float and
 integer, or on type of over 32-bit. The compiler-rt/lib/builtins/README.txt
-<a class="footnote-reference brackets" href="#builtins-readme" id="id5" role="doc-noteref"><span class="fn-bracket">[</span>5<span class="fn-bracket">]</span></a> includes the dependent functions the whole builtins called.
+<a class="footnote-reference brackets" href="#builtins-readme" id="id5" role="doc-noteref"><span class="fn-bracket">[</span>5<span class="fn-bracket">]</span></a> includes the dependent functions that the whole builtins
+called.
 The dependent functions is a small part of libm listed in
 compier-rt/lib/builtins/int_math.h <a class="footnote-reference brackets" href="#builtins-int-math" id="id6" role="doc-noteref"><span class="fn-bracket">[</span>6<span class="fn-bracket">]</span></a> .</p>
 <table class="docutils align-default" id="id16">
@@ -1935,7 +1936,8 @@ int main() {
 </div>
 <p class="rubric">exlbt/input/Makefile.builtins</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span># CPU and endian passed from command line, such as 
-#   &quot;make -f Makefile.builtins CPU=cpu032II ENDIAN=eb \
+#   &quot;make -f Makefile.builtins CPU=cpu032II ENDIAN=eb or
+#   &quot;make -f Makefile.builtins CPU=cpu032I ENDIAN=el
 
 # start.cpp must be put at beginning
 SRCS :=  start.cpp debug.cpp syscalls.c sanitizer_printf.cpp printf-stdarg-def.c \
@@ -2207,6 +2209,7 @@ include Common.mk
 <span class="go">RET to PC &lt; 0, finished!</span>
 </pre></div>
 </div>
+<aside class="footnote-list brackets">
 <aside class="footnote brackets" id="newlib" role="note">
 <span class="label"><span class="fn-bracket">[</span><a role="doc-backlink" href="#id1">1</a><span class="fn-bracket">]</span></span>
 <p><a class="reference external" href="https://sourceware.org/newlib/">https://sourceware.org/newlib/</a></p>
@@ -2251,6 +2254,7 @@ include Common.mk
 <span class="label"><span class="fn-bracket">[</span><a role="doc-backlink" href="#id11">11</a><span class="fn-bracket">]</span></span>
 <p><a class="reference external" href="https://www.cplusplus.com/reference/clibrary">https://www.cplusplus.com/reference/clibrary</a></p>
 </aside>
+</aside>
 </section>
 </section>
 
@@ -2270,7 +2274,7 @@ include Common.mk
 
     <div class="footer" role="contentinfo">
         &#169; Copyright 2016, Chen Chung-Shu.
-      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 5.0.2.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 5.1.1.
     </div>
   </body>
 </html>

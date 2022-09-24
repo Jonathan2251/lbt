@@ -64,7 +64,7 @@ Cpu0.
 
   cschen@cschendeiMac exlbt % bash newlib-cpu0.sh
 
-The libm.a depends on variable errno of libc only defined in sys/errno.h.
+The libm.a depends on variable errno of libc defined in sys/errno.h.
 
 - libgloss is BSP [#libgloss-bsp]_
 
@@ -75,7 +75,8 @@ Compiler-rt is a project with runtime libraries implentation [#compiler-rt]_ .
 Compiler-rt/lib/builtins provides functions for basic operations such as +, -, 
 \*, /, ... on type of float or double and for conversion between float and 
 integer, or on type of over 32-bit. The compiler-rt/lib/builtins/README.txt 
-[#builtins-README]_ includes the dependent functions the whole builtins called.
+[#builtins-README]_ includes the dependent functions that the whole builtins 
+called.
 The dependent functions is a small part of libm listed in 
 compier-rt/lib/builtins/int_math.h [#builtins-int_math]_ .
 

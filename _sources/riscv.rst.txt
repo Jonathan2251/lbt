@@ -108,7 +108,7 @@ Then it can compile and run qemu for baremetal as follows,
   $ $HOME/lbt/exlbt/riscv
   $ $HOME/riscv/riscv_newlib/bin/clang -march=rv64g hello.c -o hello_newlib
   $ $HOME/riscv/git/qemu/build/qemu-riscv64 hello_newlib
-  HelloWorld!
+  hello world!
 
   $ $HOME/riscv/riscv_newlib/bin/riscv64-unknown-elf-gcc -c hello_world.s
   $ $HOME/riscv/riscv_newlib/bin/riscv64-unknown-elf-ld hello_world.o -o hello_world
@@ -121,7 +121,7 @@ Linux as follows,
 
   $ $HOME/riscv/riscv_linux/bin/clang -march=rv64g hello.c -o hello_linux -static
   $ $HOME/riscv/git/qemu/build/qemu-riscv64 hello_linux
-  HelloWorld!
+  hello world!
 
 
 Gem5 simulator
@@ -168,7 +168,7 @@ After install all dependencies, get gem5 and build RISCV as follows,
   $HOME/riscv/git/gem5/configs/example/se.py --cmd=./hello_newlib
   **** REAL SIMULATION ****
   build/RISCV/sim/simulate.cc:107: info: Entering event queue @ 0.  Starting simulation...
-  HelloWorld!
+  hello world!
 
 Check cycles as follows,
 
@@ -182,11 +182,81 @@ Check cycles as follows,
   $HOME/lbt/exlbt/riscv$ $HOME/riscv/git/gem5/build/RISCV/gem5.debug \
   /local/git/gem5/configs/example/se.py --cmd=./hello_linux
   ...
-  HelloWorld!
+  hello world!
   ...
 
 The config of gem5 reference here.
 http://learning.gem5.org/book/part1/example_configs.html
+
+
+GDB
+---
+
+LLVM 13.x fails on "clang -g" for rvv C/C++ file while LLVM 14.x is work. Run 
+qemu on terminal A with gdb on terminal B [#riscv-qemu-gdb]_ as follows,
+
+.. code-block:: console
+
+  // terminal A:
+  $ pwd
+  $ $HOME/lbt/exlbt/riscv
+  $ ~/riscv/14.x/riscv_newlib/bin/clang vadd1.c -menable-experimental-extensions -march=rv64gcv1p0 -O0 -g -mabi=lp64d -o a.out  -v
+  $ ~/riscv/git/qemu/build/qemu-riscv64 -cpu rv64,v=true -g 1234 a.out 
+  vector version is not specified, use the default value v1.0
+
+  // terminal B:
+  $ pwd
+  $ $HOME/lbt/exlbt/riscv
+  $ ~/riscv/14.x/riscv_newlib/bin/riscv64-unknown-elf-gdb a.out
+  ...
+  Reading symbols from a.out...
+  (gdb) target remote :1234
+  Remote debugging using :1234
+  0x0000000000010150 in _start ()
+  (gdb) b vadd1.c:95
+  Breakpoint 1 at 0x10536: file vadd1.c, line 95.
+  (gdb) c
+  Continuing.
+  Breakpoint 1, main () at vadd1.c:95
+  95	  vOp(a, a, a, array_size(a), VMUL);
+  (gdb) p a[1]
+  $1 = 2
+
+  // terminal A:
+  ...
+  vl: 32
+  array_size(a):4096
+  
+  a[]: 0 2 4 6 8 10 12 14 16 18 20 22 24 26 28 30 32 34 36 38 40 42 44 46 48 50 
+  52 54 56 58 60 62 64 66 68 70 72 74 76 78 80 82 84 86 88 90 92 94 96 98 100 
+  102 104 106 108 110 112 114 116 118 120 122 124 126 ...
+  The results of VADD:	PASS
+
+  // terminal B:
+  $ ...
+  (gdb) c
+
+  // terminal A:
+  ...
+  a[]: 0 4 16 36 64 100 144 196 256 324 400 484 576 676 784 900 1024 1156 1296 
+  1444 1600 1764 1936 2116 2304 2500 2704 2916 3136 3364 3600 3844 4096 4356 
+  4624 4900 5184 5476 5776 6084 6400 6724 7056 7396 7744 8100 8464 8836 9216 
+  9604 10000 10404 10816 11236 11664 12100 12544 12996 13456 13924 14400 14884 
+  15376 15876 ...
+  The results of VMUL:	PASS
+  $ 
+
+Since rvv v1.0 is accepted and v0.10 is draft for release version v1.0, above 
+-march change from rv64gv0p10 of llvm 13.x to rv64gcv1p0 llvm 14.x 
+[#rvv-0p10-1p0]_.
+
+Beside GDB runs in the same host environment as your program. When you need more 
+flexibility--for example, running GDB on a physically separate host, or 
+controlling a standalone system over a serial port or a realtime system over a 
+TCP/IP connection [#gdb-target]_. To use a TCP connection, use an argument of the 
+form host:port. Above "target remote :1234", means host and target run on the same
+host listening port 1234 [#gdb-tcpip]_.
+
 
 RISCV Calling Convention [#calling-conv]_
 -------------------------------------------
@@ -312,11 +382,25 @@ Refer to clang/llvm test cases in the following folders.
   $ ... vfdiv-rv64.ll ... vfmadd-rv64.ll ...
 
 
+Atomic instructions
+-------------------
+
+RISCV atomic instructions [#atomic-isa]_.
+
+
 .. [#ISA] https://riscv.org/technical/specifications/
 
 .. [#RISCV-wiki] https://en.wikipedia.org/wiki/RISC-V
 
 .. [#RRE] https://wiki.riscv.org/display/HOME/Recently+Ratified+Extensions
+
+.. [#riscv-qemu-gdb] https://danielmangum.com/posts/risc-v-bytes-qemu-gdb/
+
+.. [#rvv-0p10-1p0] https://github.com/riscv/riscv-v-spec/releases
+
+.. [#gdb-target] https://ftp.gnu.org/old-gnu/Manuals/gdb/html_chapter/gdb_15.html#SEC125
+
+.. [#gdb-tcpip] https://ftp.gnu.org/old-gnu/Manuals/gdb/html_chapter/gdb_15.html#SEC133
 
 .. [#calling-conv] https://riscv.org/wp-content/uploads/2015/01/riscv-calling.pdf
 
@@ -327,3 +411,5 @@ Refer to clang/llvm test cases in the following folders.
 .. [#gnu-riscv-options] https://gcc.gnu.org/onlinedocs/gcc/RISC-V-Options.html
 
 .. [#install-python3-config] https://www.anycodings.com/questions/gem5-build-fails-with-embedded-python-library-36-or-newer-required-found-2717
+
+.. [#atomic-isa] Chapter 8 of Volume 1, Unprivileged Spec v. 20191213 https://five-embeddev.com/riscv-isa-manual/latest/a.html
