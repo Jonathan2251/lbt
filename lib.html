@@ -4,7 +4,7 @@
 <html lang="en">
   <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.19: https://docutils.sourceforge.io/" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
 
     <title>Library &#8212; Tutorial: Creating an LLVM Toolchain for the Cpu0 Architecture</title>
     <link rel="stylesheet" type="text/css" href="_static/pygments.css" />
@@ -43,9 +43,9 @@
 <span id="sec-lib"></span><h1>Library<a class="headerlink" href="#library" title="Permalink to this heading">¶</a></h1>
 <nav class="contents local" id="contents">
 <ul class="simple">
-<li><p><a class="reference internal" href="#c-library-newlib" id="id17">C Library (Newlib)</a></p></li>
-<li><p><a class="reference internal" href="#compiler-rt" id="id18">Compiler-rt</a></p></li>
-<li><p><a class="reference internal" href="#software-float-point-support" id="id19">Software Float Point Support</a></p></li>
+<li><p><a class="reference internal" href="#c-library-newlib" id="id24">C Library (Newlib)</a></p></li>
+<li><p><a class="reference internal" href="#compiler-rt-s-builtins" id="id25">Compiler-rt’s builtins</a></p></li>
+<li><p><a class="reference internal" href="#software-float-point-support" id="id26">Software Float Point Support</a></p></li>
 </ul>
 </nav>
 <p>Since Cpu0 has not hardware float point instructions, it needs soft float point
@@ -54,10 +54,10 @@ software floating point library implementation <a class="reference internal" hre
 implementation.</p>
 <p>Since compiler-rt uses unix/linux rootfs structure, we fill the gap by add few
 empty include-files in exlbt/include.</p>
-<figure class="align-default" id="id13">
+<figure class="align-default" id="id20">
 <span id="lib-empty"></span><img alt="_images/empty.png" src="_images/empty.png" />
 <figcaption>
-<p><span class="caption-number">Fig. 6 </span><span class="caption-text">compiler-rt/lib/builtins’ software float library</span><a class="headerlink" href="#id13" title="Permalink to this image">¶</a></p>
+<p><span class="caption-number">Fig. 6 </span><span class="caption-text">compiler-rt/lib/builtins’ software float library</span><a class="headerlink" href="#id20" title="Permalink to this image">¶</a></p>
 </figcaption>
 </figure>
 <div class="graphviz"><img src="_images/graphviz-27ca1dabd6b60df91c84b556090fa1e8f64984d7.png" alt="// dot -Tpng lib.gv -o lib.png
@@ -70,8 +70,8 @@ digraph G {
   lib -&gt; &quot;clang/llc&quot; [ label = &quot;c&quot; ];
   &quot;clang/llc&quot; -&gt; lld [ label = &quot;obj&quot; ];
 }" class="graphviz" /></div>
-<table class="docutils align-default" id="id14">
-<caption><span class="caption-number">Table 2 </span><span class="caption-text">lldb dependences</span><a class="headerlink" href="#id14" title="Permalink to this table">¶</a></caption>
+<table class="docutils align-default" id="id21">
+<caption><span class="caption-number">Table 2 </span><span class="caption-text">lldb dependences</span><a class="headerlink" href="#id21" title="Permalink to this table">¶</a></caption>
 <thead>
 <tr class="row-odd"><th class="head"><p>functions</p></th>
 <th class="head"><p>depend on</p></th>
@@ -86,8 +86,8 @@ digraph G {
 </tr>
 </tbody>
 </table>
-<table class="docutils align-default" id="id15">
-<caption><span class="caption-number">Table 3 </span><span class="caption-text">sanitizer_printf.c of compiler-rt dependences</span><a class="headerlink" href="#id15" title="Permalink to this table">¶</a></caption>
+<table class="docutils align-default" id="id22">
+<caption><span class="caption-number">Table 3 </span><span class="caption-text">sanitizer_printf.c of compiler-rt dependences</span><a class="headerlink" href="#id22" title="Permalink to this table">¶</a></caption>
 <thead>
 <tr class="row-odd"><th class="head"><p>functions</p></th>
 <th class="head"><p>depend on</p></th>
@@ -100,7 +100,7 @@ digraph G {
 </tbody>
 </table>
 <section id="c-library-newlib">
-<h2><a class="toc-backref" href="#id17" role="doc-backlink">C Library (Newlib)</a><a class="headerlink" href="#c-library-newlib" title="Permalink to this heading">¶</a></h2>
+<h2><a class="toc-backref" href="#id24" role="doc-backlink">C Library (Newlib)</a><a class="headerlink" href="#c-library-newlib" title="Permalink to this heading">¶</a></h2>
 <p>Newlib is a C library for bare metal platform.
 Two libraries in newlib are libc and libm. Libc is for functions of
 IO, file and string supported while libm is for mathematical functions.
@@ -162,7 +162,7 @@ build_newlib() {
   popd
 }
 
-#install_newlib;
+install_newlib;
 build_newlib;
 </pre></div>
 </div>
@@ -330,9 +330,9 @@ $BB1:
 <li><p>libgloss is BSP <a class="footnote-reference brackets" href="#libgloss-bsp" id="id3" role="doc-noteref"><span class="fn-bracket">[</span>3<span class="fn-bracket">]</span></a></p></li>
 </ul>
 </section>
-<section id="compiler-rt">
-<h2><a class="toc-backref" href="#id18" role="doc-backlink">Compiler-rt</a><a class="headerlink" href="#compiler-rt" title="Permalink to this heading">¶</a></h2>
-<p>Compiler-rt is a project with runtime libraries implentation <a class="footnote-reference brackets" href="#id12" id="id4" role="doc-noteref"><span class="fn-bracket">[</span>4<span class="fn-bracket">]</span></a> .
+<section id="compiler-rt-s-builtins">
+<h2><a class="toc-backref" href="#id25" role="doc-backlink">Compiler-rt’s builtins</a><a class="headerlink" href="#compiler-rt-s-builtins" title="Permalink to this heading">¶</a></h2>
+<p>Compiler-rt is a project with runtime libraries implentation <a class="footnote-reference brackets" href="#compiler-rt" id="id4" role="doc-noteref"><span class="fn-bracket">[</span>4<span class="fn-bracket">]</span></a> .
 Compiler-rt/lib/builtins provides functions for basic operations such as +, -,
 *, /, … on type of float or double and for conversion between float and
 integer, or on type of over 32-bit. The compiler-rt/lib/builtins/README.txt
@@ -340,8 +340,8 @@ integer, or on type of over 32-bit. The compiler-rt/lib/builtins/README.txt
 called.
 The dependent functions is a small part of libm listed in
 compier-rt/lib/builtins/int_math.h <a class="footnote-reference brackets" href="#builtins-int-math" id="id6" role="doc-noteref"><span class="fn-bracket">[</span>6<span class="fn-bracket">]</span></a> .</p>
-<table class="docutils align-default" id="id16">
-<caption><span class="caption-number">Table 4 </span><span class="caption-text">compiler-rt builtins dependences on newlib/libm (open source libc for bare metal)</span><a class="headerlink" href="#id16" title="Permalink to this table">¶</a></caption>
+<table class="docutils align-default" id="id23">
+<caption><span class="caption-number">Table 4 </span><span class="caption-text">compiler-rt builtins dependences on newlib/libm (open source libc for bare metal)</span><a class="headerlink" href="#id23" title="Permalink to this table">¶</a></caption>
 <thead>
 <tr class="row-odd"><th class="head"><p>library</p></th>
 <th class="head"><p>functions</p></th>
@@ -429,9 +429,59 @@ The compiler-rt/lib/builtins is a
 target-independent C form of software float library implementation. Cpu0
 implements compiler-rt-12.x/cpu0/abort.c only at this point for supporting
 this feature.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p><strong>Why these libm functions called builtins in compiler-rt/lib/builtins?</strong></p>
+<p>Though these compiler-rt builtins functions are written in C. The CPU can
+provide float type instructions or high level instructions to compile these
+libm function calls into specific HW instructions to speed up.</p>
+</div>
+<p>In order to speed up these libm functions, many CPU provide float instructions
+for them. Of course, for the implemenation, clang compiles these float type’s
+operation in C into llvm ir, then Mips backends compiles them into their
+HW instructions. For example:</p>
+<ul class="simple">
+<li><p>float a, b, c; a=b*c; -&gt; (clang) -&gt; %add = fmul float %0, %1 <a class="footnote-reference brackets" href="#llvm-fmul" id="id12" role="doc-noteref"><span class="fn-bracket">[</span>13<span class="fn-bracket">]</span></a></p></li>
+</ul>
+<p>Mips backend compiles <cite>fmul</cite> into HW instructions as follows,</p>
+<ul class="simple">
+<li><p>%add = fmul float %0, %1 -&gt; (llvm-mips) -&gt; mul.s <a class="footnote-reference brackets" href="#llvm-fmul" id="id13" role="doc-noteref"><span class="fn-bracket">[</span>13<span class="fn-bracket">]</span></a> <a class="footnote-reference brackets" href="#mips-fmadd1-ll" id="id14" role="doc-noteref"><span class="fn-bracket">[</span>12<span class="fn-bracket">]</span></a></p></li>
+</ul>
+<p>Cpu0 backend compiles <cite>fmul</cite> into libm function call fmul as follows,</p>
+<ul class="simple">
+<li><p>%add = fmul float %0, %1 -&gt; (llvm-mips) -&gt; jsub fmul <a class="footnote-reference brackets" href="#llvm-fmul" id="id15" role="doc-noteref"><span class="fn-bracket">[</span>13<span class="fn-bracket">]</span></a></p></li>
+</ul>
+<p>For high level of math functions, clang compiles these float type’s
+operation in C into llvm intrinsic functions, then the llvm backends of these
+CPU compile them into their HW instructions. For example, clang compiles pow()
+into &#64;llvm.pow.f32 as follows,</p>
+<ul class="simple">
+<li><p>%pow = call float &#64;llvm.pow.f32(float %x, float %y) <a class="footnote-reference brackets" href="#clang-pow" id="id16" role="doc-noteref"><span class="fn-bracket">[</span>14<span class="fn-bracket">]</span></a></p></li>
+</ul>
+<p>AMDGPU compiles &#64;llvm.pow.f32 into a few instructions as follows:</p>
+<ul class="simple">
+<li><p>%pow = call float &#64;llvm.pow.f32(float %x, float %y) (llvm-AMDGPU) -&gt; … + v_exp_f32_e32 v0, v0 + … <a class="footnote-reference brackets" href="#clang-pow" id="id17" role="doc-noteref"><span class="fn-bracket">[</span>14<span class="fn-bracket">]</span></a></p></li>
+</ul>
+<p>Mips compiles &#64;llvm.pow.f32 into a few instructions as follows:</p>
+<ul class="simple">
+<li><p>%pow = call float &#64;llvm.pow.f32(float %x, float %y) (llvm-AMDGPU) -&gt; jal powf <a class="footnote-reference brackets" href="#clang-pow" id="id18" role="doc-noteref"><span class="fn-bracket">[</span>14<span class="fn-bracket">]</span></a></p></li>
+</ul>
+<p>Clang treats these libm functions as builtin and compiles them into llvm ir or
+intrinsic, then different backends can choose to compile them into specific
+instructions or call builtin functions in libm. The following is Clang’s
+comment <a class="footnote-reference brackets" href="#clang-builtin-comment" id="id19" role="doc-noteref"><span class="fn-bracket">[</span>15<span class="fn-bracket">]</span></a>.</p>
+<div class="highlight-c++ notranslate"><div class="highlight"><pre><span></span><span class="n">RValue</span><span class="w"> </span><span class="n">CodeGenFunction</span><span class="o">::</span><span class="n">EmitBuiltinExpr</span><span class="p">(...)</span><span class="w"></span>
+<span class="w">  </span><span class="p">...</span><span class="w"></span>
+<span class="w">  </span><span class="c1">// There are LLVM math intrinsics/instructions corresponding to math library</span>
+<span class="w">  </span><span class="c1">// functions except the LLVM op will never set errno while the math library</span>
+<span class="w">  </span><span class="c1">// might. Also, math builtins have the same semantics as their math library</span>
+<span class="w">  </span><span class="c1">// twins. Thus, we can transform math library and builtin calls to their</span>
+<span class="w">  </span><span class="c1">// LLVM counterparts if the call is marked &#39;const&#39; (known to never set errno).</span>
+</pre></div>
+</div>
 </section>
 <section id="software-float-point-support">
-<h2><a class="toc-backref" href="#id19" role="doc-backlink">Software Float Point Support</a><a class="headerlink" href="#software-float-point-support" title="Permalink to this heading">¶</a></h2>
+<h2><a class="toc-backref" href="#id26" role="doc-backlink">Software Float Point Support</a><a class="headerlink" href="#software-float-point-support" title="Permalink to this heading">¶</a></h2>
 <p>The following sanitizer_printf.cpp extended from compiler-rt can support
 printf(“%lld”). It’s implementation calling some floating lib functions
 in compiler-rt/lib/builtins.</p>
@@ -2209,7 +2259,6 @@ include Common.mk
 <span class="go">RET to PC &lt; 0, finished!</span>
 </pre></div>
 </div>
-<aside class="footnote-list brackets">
 <aside class="footnote brackets" id="newlib" role="note">
 <span class="label"><span class="fn-bracket">[</span><a role="doc-backlink" href="#id1">1</a><span class="fn-bracket">]</span></span>
 <p><a class="reference external" href="https://sourceware.org/newlib/">https://sourceware.org/newlib/</a></p>
@@ -2222,7 +2271,7 @@ include Common.mk
 <span class="label"><span class="fn-bracket">[</span><a role="doc-backlink" href="#id3">3</a><span class="fn-bracket">]</span></span>
 <p><a class="reference external" href="https://www.embecosm.com/appnotes/ean9/html/ch03s01.html">https://www.embecosm.com/appnotes/ean9/html/ch03s01.html</a></p>
 </aside>
-<aside class="footnote brackets" id="id12" role="note">
+<aside class="footnote brackets" id="compiler-rt" role="note">
 <span class="label"><span class="fn-bracket">[</span><a role="doc-backlink" href="#id4">4</a><span class="fn-bracket">]</span></span>
 <p><a class="reference external" href="http://compiler-rt.llvm.org/">http://compiler-rt.llvm.org/</a></p>
 </aside>
@@ -2254,6 +2303,23 @@ include Common.mk
 <span class="label"><span class="fn-bracket">[</span><a role="doc-backlink" href="#id11">11</a><span class="fn-bracket">]</span></span>
 <p><a class="reference external" href="https://www.cplusplus.com/reference/clibrary">https://www.cplusplus.com/reference/clibrary</a></p>
 </aside>
+<aside class="footnote brackets" id="mips-fmadd1-ll" role="note">
+<span class="label"><span class="fn-bracket">[</span><a role="doc-backlink" href="#id14">12</a><span class="fn-bracket">]</span></span>
+<p><a class="reference external" href="https://github.com/llvm/llvm-project/blob/main/llvm/test/CodeGen/Mips/fmadd1.ll">https://github.com/llvm/llvm-project/blob/main/llvm/test/CodeGen/Mips/fmadd1.ll</a></p>
+</aside>
+<aside class="footnote brackets" id="llvm-fmul" role="note">
+<span class="label"><span class="fn-bracket">[</span>13<span class="fn-bracket">]</span></span>
+<span class="backrefs">(<a role="doc-backlink" href="#id12">1</a>,<a role="doc-backlink" href="#id13">2</a>,<a role="doc-backlink" href="#id15">3</a>)</span>
+<p>Reference <a class="reference external" href="https://github.com/Jonathan2251/lbd/tree/master/lbdex/input/ch7_1_fmul.c">https://github.com/Jonathan2251/lbd/tree/master/lbdex/input/ch7_1_fmul.c</a></p>
+</aside>
+<aside class="footnote brackets" id="clang-pow" role="note">
+<span class="label"><span class="fn-bracket">[</span>14<span class="fn-bracket">]</span></span>
+<span class="backrefs">(<a role="doc-backlink" href="#id16">1</a>,<a role="doc-backlink" href="#id17">2</a>,<a role="doc-backlink" href="#id18">3</a>)</span>
+<p>Reference <a class="reference external" href="https://github.com/Jonathan2251/lbt/tree/master/exlbt/input/test_pow.c">https://github.com/Jonathan2251/lbt/tree/master/exlbt/input/test_pow.c</a></p>
+</aside>
+<aside class="footnote brackets" id="clang-builtin-comment" role="note">
+<span class="label"><span class="fn-bracket">[</span><a role="doc-backlink" href="#id19">15</a><span class="fn-bracket">]</span></span>
+<p><a class="reference external" href="https://github.com/llvm/llvm-project/blob/main/clang/lib/CodeGen/CGBuiltin.cpp">https://github.com/llvm/llvm-project/blob/main/clang/lib/CodeGen/CGBuiltin.cpp</a></p>
 </aside>
 </section>
 </section>
@@ -2274,7 +2340,7 @@ include Common.mk
 
     <div class="footer" role="contentinfo">
         &#169; Copyright 2016, Chen Chung-Shu.
-      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 5.1.1.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 5.0.2.
     </div>
   </body>
 </html>

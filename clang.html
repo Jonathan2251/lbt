@@ -4,7 +4,7 @@
 <html lang="en">
   <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.19: https://docutils.sourceforge.io/" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
 
     <title>Clang &#8212; Tutorial: Creating an LLVM Toolchain for the Cpu0 Architecture</title>
     <link rel="stylesheet" type="text/css" href="_static/pygments.css" />
@@ -43,45 +43,13 @@
 <span id="sec-clang"></span><h1>Clang<a class="headerlink" href="#clang" title="Permalink to this heading">¶</a></h1>
 <nav class="contents local" id="contents">
 <ul class="simple">
-<li><p><a class="reference internal" href="#cpu0-target" id="id1">Cpu0 target</a></p></li>
+<li><p><a class="reference internal" href="#cpu0-target" id="id3">Cpu0 target</a></p></li>
+<li><p><a class="reference internal" href="#builtin-functions" id="id4">Builtin functions</a></p></li>
 </ul>
 </nav>
 <p>This chapter add Cpu0 target to frontend clang.</p>
 <section id="cpu0-target">
-<h2><a class="toc-backref" href="#id1" role="doc-backlink">Cpu0 target</a><a class="headerlink" href="#cpu0-target" title="Permalink to this heading">¶</a></h2>
-<p class="rubric">exlbt/clang/include/clang/Basic/TargetBuiltins.h</p>
-<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="go">  /// CPU0 builtins</span>
-<span class="go">  namespace Cpu0 {</span>
-<span class="go">    enum {</span>
-<span class="go">        LastTIBuiltin = clang::Builtin::FirstTSBuiltin-1,</span>
-<span class="gp">#</span>define BUILTIN<span class="o">(</span>ID, TYPE, ATTRS<span class="o">)</span> BI##ID,
-<span class="gp">#</span>include <span class="s2">&quot;clang/Basic/BuiltinsCpu0.def&quot;</span>
-<span class="go">        LastTSBuiltin</span>
-<span class="go">    };</span>
-<span class="go">  }</span>
-</pre></div>
-</div>
-<p class="rubric">exlbt/clang/include/clang/Basic/BuiltinsCpu0.def</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="o">//===--</span> <span class="n">BuiltinsCpu0</span><span class="o">.</span><span class="k">def</span> <span class="o">-</span> <span class="n">Cpu0</span> <span class="n">Builtin</span> <span class="n">function</span> <span class="n">database</span> <span class="o">--------*-</span> <span class="n">C</span><span class="o">++</span> <span class="o">-*-==//</span>
-<span class="o">//</span>
-<span class="o">//</span> <span class="n">Part</span> <span class="n">of</span> <span class="n">the</span> <span class="n">LLVM</span> <span class="n">Project</span><span class="p">,</span> <span class="n">under</span> <span class="n">the</span> <span class="n">Apache</span> <span class="n">License</span> <span class="n">v2</span><span class="mf">.0</span> <span class="k">with</span> <span class="n">LLVM</span> <span class="n">Exceptions</span><span class="o">.</span>
-<span class="o">//</span> <span class="n">See</span> <span class="n">https</span><span class="p">:</span><span class="o">//</span><span class="n">llvm</span><span class="o">.</span><span class="n">org</span><span class="o">/</span><span class="n">LICENSE</span><span class="o">.</span><span class="n">txt</span> <span class="k">for</span> <span class="n">license</span> <span class="n">information</span><span class="o">.</span>
-<span class="o">//</span> <span class="n">SPDX</span><span class="o">-</span><span class="n">License</span><span class="o">-</span><span class="n">Identifier</span><span class="p">:</span> <span class="n">Apache</span><span class="o">-</span><span class="mf">2.0</span> <span class="n">WITH</span> <span class="n">LLVM</span><span class="o">-</span><span class="n">exception</span>
-<span class="o">//</span>
-<span class="o">//===----------------------------------------------------------------------===//</span>
-<span class="o">//</span>
-<span class="o">//</span> <span class="n">This</span> <span class="n">file</span> <span class="n">defines</span> <span class="n">the</span> <span class="n">CPU0</span><span class="o">-</span><span class="n">specific</span> <span class="n">builtin</span> <span class="n">function</span> <span class="n">database</span><span class="o">.</span> <span class="n">Users</span> <span class="n">of</span>
-<span class="o">//</span> <span class="n">this</span> <span class="n">file</span> <span class="n">must</span> <span class="n">define</span> <span class="n">the</span> <span class="n">BUILTIN</span> <span class="n">macro</span> <span class="n">to</span> <span class="n">make</span> <span class="n">use</span> <span class="n">of</span> <span class="n">this</span> <span class="n">information</span><span class="o">.</span>
-<span class="o">//</span>
-<span class="o">//===----------------------------------------------------------------------===//</span>
-
-<span class="o">//</span> <span class="n">The</span> <span class="nb">format</span> <span class="n">of</span> <span class="n">this</span> <span class="n">database</span> <span class="n">matches</span> <span class="n">clang</span><span class="o">/</span><span class="n">Basic</span><span class="o">/</span><span class="n">Builtins</span><span class="o">.</span><span class="n">def</span><span class="o">.</span>
-
-<span class="n">BUILTIN</span><span class="p">(</span><span class="n">__builtin_cpu0_gcd</span><span class="p">,</span> <span class="s2">&quot;iii&quot;</span><span class="p">,</span> <span class="s2">&quot;n&quot;</span><span class="p">)</span>
-
-<span class="c1">#undef BUILTIN</span>
-</pre></div>
-</div>
+<h2><a class="toc-backref" href="#id3" role="doc-backlink">Cpu0 target</a><a class="headerlink" href="#cpu0-target" title="Permalink to this heading">¶</a></h2>
 <p class="rubric">exlbt/clang/include/clang/lib/Driver/CMakeLists.txt</p>
 <div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="go">ToolChains/Arch/Cpu0.cpp</span>
 </pre></div>
@@ -575,17 +543,71 @@ bool Cpu0TargetInfo::validateTarget(DiagnosticsEngine &amp;Diags) const {
 <div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">chungshu@ChungShudeMacBook-Air input % </span>~/llvm/test/build/bin/clang --help-hidden<span class="p">|</span>grep cpu0
 <span class="go">  -cpu032II               Equivalent to -march=cpu032II</span>
 <span class="go">  -cpu032I                Equivalent to -march=cpu032I</span>
-<span class="gp">chungshu@ChungShudeMacBook-Air CodeGen % </span><span class="nb">pwd</span>
+</pre></div>
+</div>
+</section>
+<section id="builtin-functions">
+<h2><a class="toc-backref" href="#id4" role="doc-backlink">Builtin functions</a><a class="headerlink" href="#builtin-functions" title="Permalink to this heading">¶</a></h2>
+<p>Builtin-function is a function may map to one or more HW instructions for
+speedup. Cpu0 port compiler-rt’s builtins in the section Compiler-rt’s
+builtins of chapter Library <a class="footnote-reference brackets" href="#cpu0-compiler-rt-builtins" id="id1" role="doc-noteref"><span class="fn-bracket">[</span>1<span class="fn-bracket">]</span></a>.
+Built-in kernels are kernels that are specific to a particular device and
+provide a mechanism to allow an application developer to leverage special
+hardware that may be present on the device <a class="footnote-reference brackets" href="#builtin-kernel" id="id2" role="doc-noteref"><span class="fn-bracket">[</span>2<span class="fn-bracket">]</span></a>.</p>
+<p class="rubric">exlbt/clang/include/clang/Basic/TargetBuiltins.h</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="go">  /// CPU0 builtins</span>
+<span class="go">  namespace Cpu0 {</span>
+<span class="go">    enum {</span>
+<span class="go">        LastTIBuiltin = clang::Builtin::FirstTSBuiltin-1,</span>
+<span class="gp">#</span>define BUILTIN<span class="o">(</span>ID, TYPE, ATTRS<span class="o">)</span> BI##ID,
+<span class="gp">#</span>include <span class="s2">&quot;clang/Basic/BuiltinsCpu0.def&quot;</span>
+<span class="go">        LastTSBuiltin</span>
+<span class="go">    };</span>
+<span class="go">  }</span>
+</pre></div>
+</div>
+<p class="rubric">exlbt/clang/include/clang/Basic/BuiltinsCpu0.def</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="o">//===--</span> <span class="n">BuiltinsCpu0</span><span class="o">.</span><span class="k">def</span> <span class="o">-</span> <span class="n">Cpu0</span> <span class="n">Builtin</span> <span class="n">function</span> <span class="n">database</span> <span class="o">--------*-</span> <span class="n">C</span><span class="o">++</span> <span class="o">-*-==//</span>
+<span class="o">//</span>
+<span class="o">//</span> <span class="n">Part</span> <span class="n">of</span> <span class="n">the</span> <span class="n">LLVM</span> <span class="n">Project</span><span class="p">,</span> <span class="n">under</span> <span class="n">the</span> <span class="n">Apache</span> <span class="n">License</span> <span class="n">v2</span><span class="mf">.0</span> <span class="k">with</span> <span class="n">LLVM</span> <span class="n">Exceptions</span><span class="o">.</span>
+<span class="o">//</span> <span class="n">See</span> <span class="n">https</span><span class="p">:</span><span class="o">//</span><span class="n">llvm</span><span class="o">.</span><span class="n">org</span><span class="o">/</span><span class="n">LICENSE</span><span class="o">.</span><span class="n">txt</span> <span class="k">for</span> <span class="n">license</span> <span class="n">information</span><span class="o">.</span>
+<span class="o">//</span> <span class="n">SPDX</span><span class="o">-</span><span class="n">License</span><span class="o">-</span><span class="n">Identifier</span><span class="p">:</span> <span class="n">Apache</span><span class="o">-</span><span class="mf">2.0</span> <span class="n">WITH</span> <span class="n">LLVM</span><span class="o">-</span><span class="n">exception</span>
+<span class="o">//</span>
+<span class="o">//===----------------------------------------------------------------------===//</span>
+<span class="o">//</span>
+<span class="o">//</span> <span class="n">This</span> <span class="n">file</span> <span class="n">defines</span> <span class="n">the</span> <span class="n">CPU0</span><span class="o">-</span><span class="n">specific</span> <span class="n">builtin</span> <span class="n">function</span> <span class="n">database</span><span class="o">.</span> <span class="n">Users</span> <span class="n">of</span>
+<span class="o">//</span> <span class="n">this</span> <span class="n">file</span> <span class="n">must</span> <span class="n">define</span> <span class="n">the</span> <span class="n">BUILTIN</span> <span class="n">macro</span> <span class="n">to</span> <span class="n">make</span> <span class="n">use</span> <span class="n">of</span> <span class="n">this</span> <span class="n">information</span><span class="o">.</span>
+<span class="o">//</span>
+<span class="o">//===----------------------------------------------------------------------===//</span>
+
+<span class="o">//</span> <span class="n">The</span> <span class="nb">format</span> <span class="n">of</span> <span class="n">this</span> <span class="n">database</span> <span class="n">matches</span> <span class="n">clang</span><span class="o">/</span><span class="n">Basic</span><span class="o">/</span><span class="n">Builtins</span><span class="o">.</span><span class="n">def</span><span class="o">.</span>
+
+<span class="o">//</span> <span class="n">Reference</span><span class="p">:</span>
+<span class="o">//</span> <span class="n">https</span><span class="p">:</span><span class="o">//</span><span class="n">github</span><span class="o">.</span><span class="n">com</span><span class="o">/</span><span class="n">Jonathan2251</span><span class="o">/</span><span class="n">lbd</span><span class="o">/</span><span class="n">blob</span><span class="o">/</span><span class="n">master</span><span class="o">/</span><span class="n">lbdex</span><span class="o">/</span><span class="n">llvm</span><span class="o">/</span><span class="n">modify</span><span class="o">/</span><span class="n">llvm</span><span class="o">/</span><span class="n">include</span><span class="o">/</span><span class="n">llvm</span><span class="o">/</span><span class="n">IR</span><span class="o">/</span><span class="n">IntrinsicsCpu0</span><span class="o">.</span><span class="n">td</span>
+<span class="n">BUILTIN</span><span class="p">(</span><span class="n">__builtin_cpu0_gcd</span><span class="p">,</span> <span class="s2">&quot;iii&quot;</span><span class="p">,</span> <span class="s2">&quot;n&quot;</span><span class="p">)</span>
+
+<span class="c1">#undef BUILTIN</span>
+</pre></div>
+</div>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">chungshu@ChungShudeMacBook-Air CodeGen % </span><span class="nb">pwd</span>
 <span class="go">/Users/chungshu/llvm/test/clang/test/CodeGen</span>
 <span class="gp">chungshu@ChungShudeMacBook-Air CodeGen % </span>~/llvm/test/build/bin/llvm-lit builtins-cpu0.c
 <span class="go">..</span>
 <span class="go">-- Testing: 1 tests, 1 workers --</span>
 <span class="go">  PASS: Clang :: CodeGen/builtins-cpu0.c (1 of 1)</span>
 
-<span class="go">Testing Time: 0.12s</span>
+<span class="go">Testing Time: 0.14s</span>
 <span class="go">  Passed: 1</span>
 </pre></div>
 </div>
+<aside class="footnote brackets" id="cpu0-compiler-rt-builtins" role="note">
+<span class="label"><span class="fn-bracket">[</span><a role="doc-backlink" href="#id1">1</a><span class="fn-bracket">]</span></span>
+<p><a class="reference external" href="http://jonathan2251.github.io/lbt/lib.html#compiler-rt-s-builtins">http://jonathan2251.github.io/lbt/lib.html#compiler-rt-s-builtins</a></p>
+</aside>
+<aside class="footnote brackets" id="builtin-kernel" role="note">
+<span class="label"><span class="fn-bracket">[</span><a role="doc-backlink" href="#id2">2</a><span class="fn-bracket">]</span></span>
+<p>Chapter 5.4 of book “Heterogeneous computing with OpenCL2.0, 3rd edition”</p>
+</aside>
 </section>
 </section>
 
@@ -605,7 +627,7 @@ bool Cpu0TargetInfo::validateTarget(DiagnosticsEngine &amp;Diags) const {
 
     <div class="footer" role="contentinfo">
         &#169; Copyright 2016, Chen Chung-Shu.
-      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 5.1.1.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 5.0.2.
     </div>
   </body>
 </html>

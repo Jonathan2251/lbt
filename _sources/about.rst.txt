@@ -38,7 +38,14 @@ https://github.com/Jonathan2251/lbt/blob/master/README.md
 Revision history
 ----------------
 
-Version 12.0.10, not released yet.
+Version 12.0.11, not released yet.
+
+Version 12.0.10, Release November 13, 2022.
+
+  clang.rst:section Builtin functions.
+  lib.rst:section Compiler-rt's builtins.
+  pocl.rst.
+  riscv.rst:table:: RISCV toolchain, sections Mem and Resources.
 
 Version 12.0.9, Release September 24, 2022.
 

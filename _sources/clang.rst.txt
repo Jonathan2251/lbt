@@ -14,23 +14,6 @@ This chapter add Cpu0 target to frontend clang.
 Cpu0 target
 -------------
 
-.. rubric:: exlbt/clang/include/clang/Basic/TargetBuiltins.h
-.. code-block:: console
-
-    /// CPU0 builtins
-    namespace Cpu0 {
-      enum {
-          LastTIBuiltin = clang::Builtin::FirstTSBuiltin-1,
-  #define BUILTIN(ID, TYPE, ATTRS) BI##ID,
-  #include "clang/Basic/BuiltinsCpu0.def"
-          LastTSBuiltin
-      };
-    }
-
-
-.. rubric:: exlbt/clang/include/clang/Basic/BuiltinsCpu0.def
-.. literalinclude:: ../exlbt/clang/include/clang/Basic/BuiltinsCpu0.def
-
 .. rubric:: exlbt/clang/include/clang/lib/Driver/CMakeLists.txt
 .. code-block:: console
 
@@ -107,6 +90,37 @@ Cpu0 target
   chungshu@ChungShudeMacBook-Air input % ~/llvm/test/build/bin/clang --help-hidden|grep cpu0
     -cpu032II               Equivalent to -march=cpu032II
     -cpu032I                Equivalent to -march=cpu032I
+
+
+Builtin functions
+-----------------
+
+Builtin-function is a function may map to one or more HW instructions for 
+speedup. Cpu0 port compiler-rt's builtins in the section Compiler-rt's 
+builtins of chapter Library [#cpu0-compiler-rt-builtins]_. 
+Built-in kernels are kernels that are specific to a particular device and 
+provide a mechanism to allow an application developer to leverage special 
+hardware that may be present on the device [#builtin-kernel]_.
+
+.. rubric:: exlbt/clang/include/clang/Basic/TargetBuiltins.h
+.. code-block:: console
+
+    /// CPU0 builtins
+    namespace Cpu0 {
+      enum {
+          LastTIBuiltin = clang::Builtin::FirstTSBuiltin-1,
+  #define BUILTIN(ID, TYPE, ATTRS) BI##ID,
+  #include "clang/Basic/BuiltinsCpu0.def"
+          LastTSBuiltin
+      };
+    }
+
+
+.. rubric:: exlbt/clang/include/clang/Basic/BuiltinsCpu0.def
+.. literalinclude:: ../exlbt/clang/include/clang/Basic/BuiltinsCpu0.def
+
+.. code-block:: console
+
   chungshu@ChungShudeMacBook-Air CodeGen % pwd
   /Users/chungshu/llvm/test/clang/test/CodeGen
   chungshu@ChungShudeMacBook-Air CodeGen % ~/llvm/test/build/bin/llvm-lit builtins-cpu0.c
@@ -114,5 +128,10 @@ Cpu0 target
   -- Testing: 1 tests, 1 workers --
     PASS: Clang :: CodeGen/builtins-cpu0.c (1 of 1)
 
-  Testing Time: 0.12s
+  Testing Time: 0.14s
     Passed: 1
+
+
+.. [#cpu0-compiler-rt-builtins] http://jonathan2251.github.io/lbt/lib.html#compiler-rt-s-builtins
+
+.. [#builtin-kernel] Chapter 5.4 of book "Heterogeneous computing with OpenCL2.0, 3rd edition"

@@ -4,7 +4,7 @@
 <html lang="en">
   <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.19: https://docutils.sourceforge.io/" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
 
     <title>Appendix A: RISCV &#8212; Tutorial: Creating an LLVM Toolchain for the Cpu0 Architecture</title>
     <link rel="stylesheet" type="text/css" href="_static/pygments.css" />
@@ -43,38 +43,154 @@
 <span id="sec-riscv"></span><h1>Appendix A: RISCV<a class="headerlink" href="#appendix-a-riscv" title="Permalink to this heading">¶</a></h1>
 <nav class="contents local" id="contents">
 <ul class="simple">
-<li><p><a class="reference internal" href="#isa" id="id20">ISA</a></p></li>
-<li><p><a class="reference internal" href="#risc-compiler-toolchain-installatation" id="id21">RISC compiler toolchain installatation</a></p></li>
-<li><p><a class="reference internal" href="#qemu-simulator" id="id22">Qemu simulator</a></p></li>
-<li><p><a class="reference internal" href="#gem5-simulator" id="id23">Gem5 simulator</a></p></li>
-<li><p><a class="reference internal" href="#gdb" id="id24">GDB</a></p></li>
-<li><p><a class="reference internal" href="#riscv-calling-convention" id="id25">RISCV Calling Convention </a></p></li>
-<li><p><a class="reference internal" href="#rvv" id="id26">RVV</a></p></li>
-<li><p><a class="reference internal" href="#atomic-instructions" id="id27">Atomic instructions</a></p></li>
+<li><p><a class="reference internal" href="#isa" id="id33">ISA</a></p></li>
+<li><p><a class="reference internal" href="#mem" id="id34">Mem</a></p></li>
+<li><p><a class="reference internal" href="#risc-compiler-toolchain-installatation" id="id35">RISC compiler toolchain installatation</a></p></li>
+<li><p><a class="reference internal" href="#qemu-simulator" id="id36">Qemu simulator</a></p></li>
+<li><p><a class="reference internal" href="#gem5-simulator" id="id37">Gem5 simulator</a></p></li>
+<li><p><a class="reference internal" href="#gdb" id="id38">GDB</a></p></li>
+<li><p><a class="reference internal" href="#riscv-calling-convention" id="id39">RISCV Calling Convention </a></p></li>
+<li><p><a class="reference internal" href="#rvv" id="id40">RVV</a></p></li>
+<li><p><a class="reference internal" href="#atomic-instructions" id="id41">Atomic instructions</a></p></li>
+<li><p><a class="reference internal" href="#resources" id="id42">Resources</a></p>
+<ul>
+<li><p><a class="reference internal" href="#freebsd" id="id43">FreeBSD</a></p></li>
+<li><p><a class="reference internal" href="#freertos" id="id44">FreeRTOS</a></p></li>
+<li><p><a class="reference internal" href="#zephyr" id="id45">Zephyr</a></p></li>
+<li><p><a class="reference internal" href="#andes" id="id46">Andes</a></p></li>
+</ul>
+</li>
 </ul>
 </nav>
 <p>This chapter shows the RISC toolchain installatation including gnu, llvm and
-simulators on Linux.</p>
+simulators on Linux as figure and table below.</p>
+<div class="graphviz"><img src="_images/graphviz-2718579023d4a37f274b910f0951a470c5094708.png" alt="digraph G {
+
+  rankdir=LR;
+  subgraph cluster_0 {
+    style=filled;
+    color=lightgrey;
+    label = &quot;RISCV toolchain flow&quot;;
+    node [style=filled,color=white]; usercode [label = &quot;user program&quot;];
+    node [style=filled,color=white]; sflib [label = &quot;lib (libm/libc/libstdc++)&quot;];
+    node [style=filled,color=white]; linker [label = &quot;lld or ld&quot;];
+    node [style=filled,color=white]; simulator [label = &quot;qemu or gem5&quot;];
+    node [style=filled,color=white]; clang, llvm, gdb;
+    usercode -&gt; clang;
+    sflib -&gt; clang;
+    clang -&gt; llvm [ label = &quot;IR&quot; ];
+    llvm -&gt; linker [ label = &quot;obj&quot; ];
+    linker -&gt; simulator [ label = &quot;exe&quot; ];
+    linker -&gt; gdb [ label = &quot;exe&quot; ];
+    simulator -&gt; gdb;
+    gdb -&gt; simulator;
+  }
+
+}" class="graphviz" /></div>
+<table class="docutils align-default" id="id28">
+<caption><span class="caption-number">Table 5 </span><span class="caption-text">RISCV toolchain <a class="footnote-reference brackets" href="#toolchain" id="id1" role="doc-noteref"><span class="fn-bracket">[</span>1<span class="fn-bracket">]</span></a></span><a class="headerlink" href="#id28" title="Permalink to this table">¶</a></caption>
+<thead>
+<tr class="row-odd"><th class="head"><p>Component</p></th>
+<th class="head"><p>name</p></th>
+<th class="head"><p>github</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>C/C++ Compiler</p></td>
+<td><p>clang/llvm</p></td>
+<td><p>llvm-project</p></td>
+</tr>
+<tr class="row-odd"><td><p>LLVM Assembler</p></td>
+<td><p>llvm integrated assembler</p></td>
+<td><p>“</p></td>
+</tr>
+<tr class="row-even"><td><p>LLVM Linker</p></td>
+<td><p>ld.lld</p></td>
+<td><p>“</p></td>
+</tr>
+<tr class="row-odd"><td><p>debug tool</p></td>
+<td><p>lldb</p></td>
+<td><p>“</p></td>
+</tr>
+<tr class="row-even"><td><p>Utils</p></td>
+<td><p>llvm-ar, llvm-objdump etc.</p></td>
+<td><p>“</p></td>
+</tr>
+<tr class="row-odd"><td><p>gcc Assembler</p></td>
+<td><p>as</p></td>
+<td><p>riscv-gnu-toolchain</p></td>
+</tr>
+<tr class="row-even"><td><p>gcc Linker</p></td>
+<td><p>ld.bfd ld.gold</p></td>
+<td><p>“</p></td>
+</tr>
+<tr class="row-odd"><td><p>Runtime</p></td>
+<td><p>libgcc</p></td>
+<td><p>“</p></td>
+</tr>
+<tr class="row-even"><td><p>Unwinder</p></td>
+<td><p>libgcc_s</p></td>
+<td><p>“</p></td>
+</tr>
+<tr class="row-odd"><td><p>C library</p></td>
+<td><p>libc</p></td>
+<td><p>“</p></td>
+</tr>
+<tr class="row-even"><td><p>C++ library</p></td>
+<td><p>libsupc++ libstdc++</p></td>
+<td><p>“</p></td>
+</tr>
+<tr class="row-odd"><td><p>debug tool</p></td>
+<td><p>gdb</p></td>
+<td><p>“</p></td>
+</tr>
+<tr class="row-even"><td><p>Utils</p></td>
+<td><p>ar, objdump etc.</p></td>
+<td><p>“</p></td>
+</tr>
+<tr class="row-odd"><td><p>Functional sim</p></td>
+<td><p>qemu</p></td>
+<td><p>qemu</p></td>
+</tr>
+<tr class="row-even"><td><p>Cycle sim</p></td>
+<td><p>gem5</p></td>
+<td><p>gem5</p></td>
+</tr>
+</tbody>
+</table>
 <section id="isa">
-<h2><a class="toc-backref" href="#id20" role="doc-backlink">ISA</a><a class="headerlink" href="#isa" title="Permalink to this heading">¶</a></h2>
-<figure class="align-center" id="id16">
+<h2><a class="toc-backref" href="#id33" role="doc-backlink">ISA</a><a class="headerlink" href="#isa" title="Permalink to this heading">¶</a></h2>
+<figure class="align-center" id="id29">
 <span id="riscv-f1"></span><a class="reference internal image-reference" href="_images/riscv-isa.png"><img alt="_images/riscv-isa.png" src="_images/riscv-isa.png" style="width: 272.0px; height: 360.0px;" /></a>
 <figcaption>
-<p><span class="caption-number">Fig. 7 </span><span class="caption-text">RISCV ISA</span><a class="headerlink" href="#id16" title="Permalink to this image">¶</a></p>
+<p><span class="caption-number">Fig. 7 </span><span class="caption-text">RISCV ISA</span><a class="headerlink" href="#id29" title="Permalink to this image">¶</a></p>
 </figcaption>
 </figure>
-<figure class="align-center" id="id17">
+<figure class="align-center" id="id30">
 <span id="riscv-f2"></span><a class="reference internal image-reference" href="_images/isa-desc.png"><img alt="_images/isa-desc.png" src="_images/isa-desc.png" style="width: 673.0px; height: 575.0px;" /></a>
 <figcaption>
-<p><span class="caption-number">Fig. 8 </span><span class="caption-text">RISCV ISA Description</span><a class="headerlink" href="#id17" title="Permalink to this image">¶</a></p>
+<p><span class="caption-number">Fig. 8 </span><span class="caption-text">RISCV ISA Description</span><a class="headerlink" href="#id30" title="Permalink to this image">¶</a></p>
 </figcaption>
 </figure>
 <p>As above figure, RISC has 32/64/128 bit and I (integer) is the Base part and the
-others are optional. G=IMAFD, general extensions (i.e., IMAFD)  <a class="footnote-reference brackets" href="#id15" id="id1" role="doc-noteref"><span class="fn-bracket">[</span>1<span class="fn-bracket">]</span></a>
-<a class="footnote-reference brackets" href="#riscv-wiki" id="id2" role="doc-noteref"><span class="fn-bracket">[</span>2<span class="fn-bracket">]</span></a> <a class="footnote-reference brackets" href="#rre" id="id3" role="doc-noteref"><span class="fn-bracket">[</span>3<span class="fn-bracket">]</span></a>.</p>
+others are optional. G=IMAFD, general extensions (i.e., IMAFD)  <a class="footnote-reference brackets" href="#id26" id="id2" role="doc-noteref"><span class="fn-bracket">[</span>2<span class="fn-bracket">]</span></a>
+<a class="footnote-reference brackets" href="#riscv-wiki" id="id3" role="doc-noteref"><span class="fn-bracket">[</span>3<span class="fn-bracket">]</span></a> <a class="footnote-reference brackets" href="#rre" id="id4" role="doc-noteref"><span class="fn-bracket">[</span>4<span class="fn-bracket">]</span></a>.</p>
+</section>
+<section id="mem">
+<h2><a class="toc-backref" href="#id34" role="doc-backlink">Mem</a><a class="headerlink" href="#mem" title="Permalink to this heading">¶</a></h2>
+<ul class="simple">
+<li><p>I-cache, D-cache: Size: 4KB to 64KB in Andes N25f</p></li>
+<li><p>ILM, DLM: Size: 4KB to 16MB <a class="footnote-reference brackets" href="#andes-ilm" id="id5" role="doc-noteref"><span class="fn-bracket">[</span>5<span class="fn-bracket">]</span></a></p>
+<ul>
+<li><p>For deterministic and efficient program execution</p></li>
+<li><p>Flexible size selection to fit diversified needs</p></li>
+</ul>
+</li>
+<li><p>DRAM</p></li>
+</ul>
 </section>
 <section id="risc-compiler-toolchain-installatation">
-<h2><a class="toc-backref" href="#id21" role="doc-backlink">RISC compiler toolchain installatation</a><a class="headerlink" href="#risc-compiler-toolchain-installatation" title="Permalink to this heading">¶</a></h2>
+<h2><a class="toc-backref" href="#id35" role="doc-backlink">RISC compiler toolchain installatation</a><a class="headerlink" href="#risc-compiler-toolchain-installatation" title="Permalink to this heading">¶</a></h2>
 <p>First, install the depended packages according
 <a class="reference external" href="https://github.com/riscv-collab/riscv-gnu-toolchain#readme">https://github.com/riscv-collab/riscv-gnu-toolchain#readme</a>.
 Next, create your $HOME/riscv and $HOME/riscv/git. Then run the following bash
@@ -83,9 +199,9 @@ script.</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span>#!/usr/bin/env bash
 
 # Verified on ubuntu 18.04
-# mkdir riscv/git, riscv/riscv_newlib, riscv_linux befor running this bash script
-#export LLVM_VER=14.x
-export LLVM_VER=13.0.0
+# mkdir riscv/git, riscv/riscv_newlib, riscv_linux before running this bash script
+export LLVM_VER=14.x
+#export LLVM_VER=13.0.0
 export GNU_SRC_DIR=$HOME/riscv/git
 export LLVM_SRC_DIR=$HOME/riscv/git/$LLVM_VER
 
@@ -160,6 +276,9 @@ build_gnu_toolchain() {
   popd
 }
 
+# LLVM_OPTIMIZED_TABLEGEN: Builds a release tablegen that gets used during the LLVM build. This can dramatically speed up debug builds.
+# LLVM_INSTALL_TOOLCHAIN_ONLY default is OFF already. Check CmakeCache.txt.
+#   https://llvm.org/docs/BuildingADistribution.html?highlight=llvm_install_toolchain_only#difference-between-install-and-install-distribution
 # LLVM_BINUTILS_INCDIR:
 #   https://stackoverflow.com/questions/45715423/how-to-enable-cfi-in-llvm
 #   For lld. https://llvm.org/docs/GoldPlugin.html
@@ -173,7 +292,7 @@ build_gnu_toolchain() {
 # LLVM_DEFAULT_TARGET_TRIPLE:  
 #   https://clang.llvm.org/docs/CrossCompilation.html#general-cross-compilation-options-in-clang
 # LLVM_INSTALL_UTILS:BOOL
-#   If enabled, utility binaries like FileCheck will be installed to CMAKE_INSTALL_PREFIX. Bellow llvm document is wrong.
+#   If enabled, utility binaries like FileCheck and not will be installed to CMAKE_INSTALL_PREFIX.
 #   https://llvm.org/docs/CMake.html
 # Use &quot;clang --sysroot&quot; if did not &quot;cmake -DDEFAULT_SYSROOT&quot;
 # $LLVM_NEWLIB_BUILD_DIR/bin/clang++ --gcc-toolchain=$GNU_NEWLIB_INSTALL_DIR test.cpp -march=rv64g -O0 -mabi=lp64d -v
@@ -184,6 +303,7 @@ build_llvm_toolchain() {
   pushd $LLVM_NEWLIB_BUILD_DIR
   cmake -G &quot;Ninja&quot; -DCMAKE_BUILD_TYPE=Debug -DLLVM_TARGETS_TO_BUILD=&quot;RISCV&quot; \
   -DLLVM_ENABLE_PROJECTS=&quot;clang;lld&quot;  \
+  -DLLVM_OPTIMIZED_TABLEGEN=On \
   -DCMAKE_INSTALL_PREFIX=$GNU_NEWLIB_INSTALL_DIR -DLLVM_PARALLEL_COMPILE_JOBS=4 \
   -DLLVM_PARALLEL_LINK_JOBS=1 -DLLVM_DEFAULT_TARGET_TRIPLE=riscv64-unknown-elf \
   -DDEFAULT_SYSROOT=$GNU_NEWLIB_INSTALL_DIR/riscv64-unknown-elf \
@@ -196,6 +316,7 @@ build_llvm_toolchain() {
   pushd $LLVM_LINUX_BUILD_DIR
   cmake -G &quot;Ninja&quot; -DCMAKE_BUILD_TYPE=Debug -DLLVM_TARGETS_TO_BUILD=&quot;RISCV&quot; \
   -DLLVM_ENABLE_PROJECTS=&quot;clang;lld&quot;  \
+  -DLLVM_OPTIMIZED_TABLEGEN=On \
   -DCMAKE_INSTALL_PREFIX=$GNU_LINUX_INSTALL_DIR -DLLVM_PARALLEL_COMPILE_JOBS=4 \
   -DLLVM_PARALLEL_LINK_JOBS=1 -DLLVM_DEFAULT_TARGET_TRIPLE=riscv64-unknown-linux-gnu \
   -DDEFAULT_SYSROOT=$GNU_LINUX_INSTALL_DIR/sysroot -DLLVM_INSTALL_UTILS=ON ../llvm
@@ -213,13 +334,13 @@ build_llvm_toolchain;
 </pre></div>
 </div>
 <div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span><span class="nb">pwd</span>
-<span class="gp">$ </span><span class="nv">$HOME</span>/lbt/exlbt/riscv
+<span class="gp">$ </span><span class="nv">$HOME</span>/git/lbt/exlbt/riscv
 <span class="gp">$ </span>bash riscv-toolchain-setup.sh
 </pre></div>
 </div>
 <p>RISCV toolchain includes both baremetal(Newlib) and Linux platform support.</p>
 <div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span><span class="nb">pwd</span>
-<span class="gp">$ </span><span class="nv">$HOME</span>/lbt/exlbt/riscv
+<span class="gp">$ </span><span class="nv">$HOME</span>/git/lbt/exlbt/riscv
 <span class="gp">$ </span>bash riscv-toolchain-setup.sh
 </pre></div>
 </div>
@@ -227,10 +348,10 @@ build_llvm_toolchain;
 <span class="go">bin                   include                 lib                     libexec                 riscv64-unknown-elf     share</span>
 </pre></div>
 </div>
-<figure class="align-center" id="id18">
+<figure class="align-center" id="id31">
 <span id="riscv-f3"></span><a class="reference internal image-reference" href="_images/linux-sysroot.png"><img alt="_images/linux-sysroot.png" src="_images/linux-sysroot.png" style="width: 434.0px; height: 538.0px;" /></a>
 <figcaption>
-<p><span class="caption-number">Fig. 9 </span><span class="caption-text">RISCV ISA Description</span><a class="headerlink" href="#id18" title="Permalink to this image">¶</a></p>
+<p><span class="caption-number">Fig. 9 </span><span class="caption-text">RISCV ISA Description</span><a class="headerlink" href="#id31" title="Permalink to this image">¶</a></p>
 </figcaption>
 </figure>
 <p>The linux sysroot as figure above and compare it with the installed dirctory.</p>
@@ -242,7 +363,7 @@ build_llvm_toolchain;
 </div>
 </section>
 <section id="qemu-simulator">
-<h2><a class="toc-backref" href="#id22" role="doc-backlink">Qemu simulator</a><a class="headerlink" href="#qemu-simulator" title="Permalink to this heading">¶</a></h2>
+<h2><a class="toc-backref" href="#id36" role="doc-backlink">Qemu simulator</a><a class="headerlink" href="#qemu-simulator" title="Permalink to this heading">¶</a></h2>
 <p>Install according <a class="reference external" href="https://gitlab.com/qemu-project/qemu">https://gitlab.com/qemu-project/qemu</a> as follows,</p>
 <div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span><span class="nb">pwd</span>
 <span class="gp">$ </span><span class="nv">$HOME</span>/riscv/git
@@ -259,8 +380,8 @@ build_llvm_toolchain;
 </div>
 <p>Then it can compile and run qemu for baremetal as follows,</p>
 <div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span><span class="nb">pwd</span>
-<span class="gp">$ </span><span class="nv">$HOME</span>/lbt/exlbt/riscv
-<span class="gp">$ </span><span class="nv">$HOME</span>/riscv/riscv_newlib/bin/clang -march<span class="o">=</span>rv64g hello.c -o hello_newlib
+<span class="gp">$ </span><span class="nv">$HOME</span>/git/lbt/exlbt/riscv
+<span class="gp">$ </span><span class="nv">$HOME</span>/riscv/riscv_newlib/bin/clang -march<span class="o">=</span>rv64g hello.c -fuse-ld<span class="o">=</span>lld -mno-relax -g -mabi<span class="o">=</span>lp64d -o hello_newlib
 <span class="gp">$ </span><span class="nv">$HOME</span>/riscv/git/qemu/build/qemu-riscv64 hello_newlib
 <span class="go">hello world!</span>
 
@@ -276,9 +397,36 @@ build_llvm_toolchain;
 <span class="go">hello world!</span>
 </pre></div>
 </div>
+<p>RISCV does need -lm for math.h as follows,</p>
+<p class="rubric">exlbt/riscv/pow.cpp</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>// RISCV does need -lm while X86-64 does not.
+// $ ~/riscv/riscv_newlib/bin/clang++ -menable-experimental-extensions pow.cpp -march=rv64gcv0p10 -O0 -fuse-ld=lld -mno-relax -g -mabi=lp64d -lm  -v
+// $ ~/riscv/git/qemu/build/qemu-riscv64 -cpu rv64,v=true a.out
+
+#include &lt;stdio.h&gt;
+#include &lt;math.h&gt;
+
+double base = 100;
+double power = 2;
+double test_math()
+{
+  double res = 0;
+
+  res = pow(base, power);
+
+  return res;
+}
+
+int main() {
+  double a = test_math();
+  printf(&quot;a = %lf\n&quot;, a);
+  return 0;
+}
+</pre></div>
+</div>
 </section>
 <section id="gem5-simulator">
-<h2><a class="toc-backref" href="#id23" role="doc-backlink">Gem5 simulator</a><a class="headerlink" href="#gem5-simulator" title="Permalink to this heading">¶</a></h2>
+<h2><a class="toc-backref" href="#id37" role="doc-backlink">Gem5 simulator</a><a class="headerlink" href="#gem5-simulator" title="Permalink to this heading">¶</a></h2>
 <p>Build Gem5 according the following,</p>
 <p><a class="reference external" href="http://learning.gem5.org/book/part1/building.html#requirements-for-gem5">http://learning.gem5.org/book/part1/building.html#requirements-for-gem5</a></p>
 <p>If you don’t have python3.x-config on Ubuntu 18.04 as follows,</p>
@@ -286,7 +434,7 @@ build_llvm_toolchain;
 <span class="go">... /usr/bin/python2.7-config</span>
 </pre></div>
 </div>
-<p>Then do install by pip3 as follows <a class="footnote-reference brackets" href="#install-python3-config" id="id4" role="doc-noteref"><span class="fn-bracket">[</span>12<span class="fn-bracket">]</span></a>,</p>
+<p>Then do install by pip3 as follows <a class="footnote-reference brackets" href="#install-python3-config" id="id6" role="doc-noteref"><span class="fn-bracket">[</span>14<span class="fn-bracket">]</span></a>,</p>
 <div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>sudo apt install python3-pip
 <span class="gp">$ </span>pip3 install scons
 <span class="gp">$ </span>ls /usr/bin/python*
@@ -306,8 +454,8 @@ build_llvm_toolchain;
 <span class="gp">$</span>HOME/riscv/git/gem5$ /usr/bin/env python3 <span class="k">$(</span>which scons<span class="k">)</span> ./build/RISCV/gem5.debug -j4
 <span class="go">...</span>
 <span class="gp">$ </span><span class="nb">pwd</span>
-<span class="gp">$ </span><span class="nv">$HOME</span>/lbt/exlbt/riscv
-<span class="gp">$</span>HOME/lbt/exlbt/riscv$ <span class="nv">$HOME</span>/riscv/git/gem5/build/RISCV/gem5.debug <span class="se">\</span>
+<span class="gp">$ </span><span class="nv">$HOME</span>/git/lbt/exlbt/riscv
+<span class="gp">$ </span><span class="nv">$HOME</span>/riscv/git/gem5/build/RISCV/gem5.debug <span class="se">\</span>
 <span class="gp">$</span>HOME/riscv/git/gem5/configs/example/se.py --cmd<span class="o">=</span>./hello_newlib
 <span class="go">**** REAL SIMULATION ****</span>
 <span class="go">build/RISCV/sim/simulate.cc:107: info: Entering event queue @ 0.  Starting simulation...</span>
@@ -315,12 +463,12 @@ build_llvm_toolchain;
 </pre></div>
 </div>
 <p>Check cycles as follows,</p>
-<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$</span>HOME/lbt/exlbt/riscv$ vi m5out/stats.txt
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$</span>HOME/git/lbt/exlbt/riscv$ vi m5out/stats.txt
 <span class="go">simSeconds                                   0.000001                       # Number of seconds simulated (Second)</span>
 <span class="go">simTicks                                      1229000                       # Number of ticks simulated (Tick)</span>
 <span class="go">...</span>
 
-<span class="gp">$</span>HOME/lbt/exlbt/riscv$ <span class="nv">$HOME</span>/riscv/git/gem5/build/RISCV/gem5.debug <span class="se">\</span>
+<span class="gp">$</span>HOME/git/lbt/exlbt/riscv$ <span class="nv">$HOME</span>/riscv/git/gem5/build/RISCV/gem5.debug <span class="se">\</span>
 /local/git/gem5/configs/example/se.py --cmd<span class="o">=</span>./hello_linux
 <span class="go">...</span>
 <span class="go">hello world!</span>
@@ -331,19 +479,37 @@ build_llvm_toolchain;
 <a class="reference external" href="http://learning.gem5.org/book/part1/example_configs.html">http://learning.gem5.org/book/part1/example_configs.html</a></p>
 </section>
 <section id="gdb">
-<h2><a class="toc-backref" href="#id24" role="doc-backlink">GDB</a><a class="headerlink" href="#gdb" title="Permalink to this heading">¶</a></h2>
+<h2><a class="toc-backref" href="#id38" role="doc-backlink">GDB</a><a class="headerlink" href="#gdb" title="Permalink to this heading">¶</a></h2>
+<div class="graphviz"><img src="_images/graphviz-93afdb511fab271935f3a33c1d68621fd0b48c7f.png" alt="digraph G {
+
+  rankdir=LR;
+  subgraph cluster_0 {
+    style=filled;
+    color=lightgrey;
+    label = &quot;GDB flow&quot;;
+    node [style=filled,color=white]; user, gdb;
+    node [style=filled,color=white]; linker [label = &quot;lld or ld&quot;];
+    node [style=filled,color=white]; simulator [label = &quot;qemu &quot;];
+    linker -&gt; simulator [ label = &quot;exe&quot; ];
+    linker -&gt; gdb [ label = &quot;exe&quot; ];
+    user -&gt; gdb [label = &quot;debug command&quot;];
+    gdb -&gt; simulator [label = &quot;debug command(print res, step, ...)&quot;];
+    simulator -&gt; gdb [label = &quot;response(variable-value, ...)&quot;];
+  }
+
+}" class="graphviz" /></div>
 <p>LLVM 13.x fails on “clang -g” for rvv C/C++ file while LLVM 14.x is work. Run
-qemu on terminal A with gdb on terminal B <a class="footnote-reference brackets" href="#riscv-qemu-gdb" id="id5" role="doc-noteref"><span class="fn-bracket">[</span>4<span class="fn-bracket">]</span></a> as follows,</p>
+qemu on terminal A with gdb on terminal B <a class="footnote-reference brackets" href="#riscv-qemu-gdb" id="id7" role="doc-noteref"><span class="fn-bracket">[</span>6<span class="fn-bracket">]</span></a> as follows,</p>
 <div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="go">// terminal A:</span>
 <span class="gp">$ </span><span class="nb">pwd</span>
-<span class="gp">$ </span><span class="nv">$HOME</span>/lbt/exlbt/riscv
+<span class="gp">$ </span><span class="nv">$HOME</span>/git/lbt/exlbt/riscv
 <span class="gp">$ </span>~/riscv/14.x/riscv_newlib/bin/clang vadd1.c -menable-experimental-extensions -march<span class="o">=</span>rv64gcv1p0 -O0 -g -mabi<span class="o">=</span>lp64d -o a.out  -v
 <span class="gp">$ </span>~/riscv/git/qemu/build/qemu-riscv64 -cpu rv64,v<span class="o">=</span><span class="nb">true</span> -g <span class="m">1234</span> a.out
 <span class="go">vector version is not specified, use the default value v1.0</span>
 
 <span class="go">// terminal B:</span>
 <span class="gp">$ </span><span class="nb">pwd</span>
-<span class="gp">$ </span><span class="nv">$HOME</span>/lbt/exlbt/riscv
+<span class="gp">$ </span><span class="nv">$HOME</span>/git/lbt/exlbt/riscv
 <span class="gp">$ </span>~/riscv/14.x/riscv_newlib/bin/riscv64-unknown-elf-gdb a.out
 <span class="go">...</span>
 <span class="go">Reading symbols from a.out...</span>
@@ -386,23 +552,23 @@ qemu on terminal A with gdb on terminal B <a class="footnote-reference brackets"
 </div>
 <p>Since rvv v1.0 is accepted and v0.10 is draft for release version v1.0, above
 -march change from rv64gv0p10 of llvm 13.x to rv64gcv1p0 llvm 14.x
-<a class="footnote-reference brackets" href="#rvv-0p10-1p0" id="id6" role="doc-noteref"><span class="fn-bracket">[</span>5<span class="fn-bracket">]</span></a>.</p>
+<a class="footnote-reference brackets" href="#rvv-0p10-1p0" id="id8" role="doc-noteref"><span class="fn-bracket">[</span>7<span class="fn-bracket">]</span></a>.</p>
 <p>Beside GDB runs in the same host environment as your program. When you need more
 flexibility–for example, running GDB on a physically separate host, or
 controlling a standalone system over a serial port or a realtime system over a
-TCP/IP connection <a class="footnote-reference brackets" href="#gdb-target" id="id7" role="doc-noteref"><span class="fn-bracket">[</span>6<span class="fn-bracket">]</span></a>. To use a TCP connection, use an argument of the
+TCP/IP connection <a class="footnote-reference brackets" href="#gdb-target" id="id9" role="doc-noteref"><span class="fn-bracket">[</span>8<span class="fn-bracket">]</span></a>. To use a TCP connection, use an argument of the
 form host:port. Above “target remote :1234”, means host and target run on the same
-host listening port 1234 <a class="footnote-reference brackets" href="#gdb-tcpip" id="id8" role="doc-noteref"><span class="fn-bracket">[</span>7<span class="fn-bracket">]</span></a>.</p>
+host listening port 1234 <a class="footnote-reference brackets" href="#gdb-tcpip" id="id10" role="doc-noteref"><span class="fn-bracket">[</span>9<span class="fn-bracket">]</span></a>.</p>
 </section>
 <section id="riscv-calling-convention">
-<h2><a class="toc-backref" href="#id25" role="doc-backlink">RISCV Calling Convention <a class="footnote-reference brackets" href="#calling-conv" id="id9" role="doc-noteref"><span class="fn-bracket">[</span>8<span class="fn-bracket">]</span></a></a><a class="headerlink" href="#riscv-calling-convention" title="Permalink to this heading">¶</a></h2>
+<h2><a class="toc-backref" href="#id39" role="doc-backlink">RISCV Calling Convention <a class="footnote-reference brackets" href="#calling-conv" id="id11" role="doc-noteref"><span class="fn-bracket">[</span>10<span class="fn-bracket">]</span></a></a><a class="headerlink" href="#riscv-calling-convention" title="Permalink to this heading">¶</a></h2>
 <p>The rv32: register size 32-bit. The rv64 register size 64-bit.</p>
 <p>In RV64, 32-bit types, such as int, are stored in integer registers as proper
 sign extensions of their 32-bit values; that is, bits 63..31 are all equal.</p>
 <p>Two kinds of ABI, ilp32 and lp64, -mabi=ilp32, ilp32f, ilp32d, lp64, lp64f,
 lp64d. The ways of pass float arguments on integer/single-float/double-float.</p>
-<table class="docutils align-default" id="id19">
-<caption><span class="caption-number">Table 5 </span><span class="caption-text">ABI, caller passing integer/float/double arguments <a class="footnote-reference brackets" href="#calling-conv-1" id="id10" role="doc-noteref"><span class="fn-bracket">[</span>9<span class="fn-bracket">]</span></a> <a class="footnote-reference brackets" href="#calling-conv-2" id="id11" role="doc-noteref"><span class="fn-bracket">[</span>10<span class="fn-bracket">]</span></a></span><a class="headerlink" href="#id19" title="Permalink to this table">¶</a></caption>
+<table class="docutils align-default" id="id32">
+<caption><span class="caption-number">Table 6 </span><span class="caption-text">ABI, caller passing integer/float/double arguments <a class="footnote-reference brackets" href="#calling-conv-1" id="id12" role="doc-noteref"><span class="fn-bracket">[</span>11<span class="fn-bracket">]</span></a> <a class="footnote-reference brackets" href="#calling-conv-2" id="id13" role="doc-noteref"><span class="fn-bracket">[</span>12<span class="fn-bracket">]</span></a></span><a class="headerlink" href="#id32" title="Permalink to this table">¶</a></caption>
 <thead>
 <tr class="row-odd"><th class="head"><p>name</p></th>
 <th class="head"><p>float</p></th>
@@ -445,12 +611,12 @@ conventions are impossible to implement on some ISAs: for example,
 ‘-march=rv32if -mabi=ilp32d’ is invalid because the ABI requires 64-bit values
 be passed in F registers, but F registers are only 32 bits wide. There is also
 the ‘ilp32e’ ABI that can only be used with the ‘rv32e’ architecture. This ABI
-is not well specified at present, and is subject to change <a class="footnote-reference brackets" href="#gnu-riscv-options" id="id12" role="doc-noteref"><span class="fn-bracket">[</span>11<span class="fn-bracket">]</span></a>.</p>
+is not well specified at present, and is subject to change <a class="footnote-reference brackets" href="#gnu-riscv-options" id="id14" role="doc-noteref"><span class="fn-bracket">[</span>13<span class="fn-bracket">]</span></a>.</p>
 </li>
 </ul>
 </section>
 <section id="rvv">
-<h2><a class="toc-backref" href="#id26" role="doc-backlink">RVV</a><a class="headerlink" href="#rvv" title="Permalink to this heading">¶</a></h2>
+<h2><a class="toc-backref" href="#id40" role="doc-backlink">RVV</a><a class="headerlink" href="#rvv" title="Permalink to this heading">¶</a></h2>
 <p>Clang/llvm provide RVV (RISC-V Vectors) written in C rather than inline-asm.
 Though it notices as clang option: -target-feature +experimental-v, this way in
 C is shorter, more user-friendly and easy to remember for users than in
@@ -555,7 +721,7 @@ Builtin is C function and friendly either. RVV can be written and run as follows
 </pre></div>
 </div>
 <div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span><span class="nb">pwd</span>
-<span class="gp">$ </span><span class="nv">$HOME</span>/lbt/exlbt/riscv
+<span class="gp">$ </span><span class="nv">$HOME</span>/git/lbt/exlbt/riscv
 <span class="gp">$ </span><span class="nv">$HOME</span>/riscv/riscv_newlib/bin/clang vadd2.c -menable-experimental-extensions <span class="se">\</span>
   -march<span class="o">=</span>rv64gcv0p10 -O0 -mllvm --riscv-v-vector-bits-min<span class="o">=</span><span class="m">256</span>
 <span class="gp">$ </span><span class="nv">$HOME</span>/riscv/git/qemu/build/qemu-riscv64 -cpu rv64,v<span class="o">=</span><span class="nb">true</span> a.out
@@ -580,7 +746,7 @@ Builtin is C function and friendly either. RVV can be written and run as follows
 <p>For -march=rv64imfv0p10zfh0p1,</p>
 <ul class="simple">
 <li><p>v0p10: vector version 0.10.</p></li>
-<li><p>zfh0p1: “Zfh” 0.1 version <a class="footnote-reference brackets" href="#rre" id="id13" role="doc-noteref"><span class="fn-bracket">[</span>3<span class="fn-bracket">]</span></a>.</p></li>
+<li><p>zfh0p1: “Zfh” 0.1 version <a class="footnote-reference brackets" href="#rre" id="id15" role="doc-noteref"><span class="fn-bracket">[</span>4<span class="fn-bracket">]</span></a>.</p></li>
 </ul>
 <p>For -mabi, as the section above.</p>
 <p>Clang/llvm provide builtin and intrinsic functions to implement RVV (RISC-V
@@ -611,63 +777,126 @@ Vectors)</p>
 </div>
 </section>
 <section id="atomic-instructions">
-<h2><a class="toc-backref" href="#id27" role="doc-backlink">Atomic instructions</a><a class="headerlink" href="#atomic-instructions" title="Permalink to this heading">¶</a></h2>
-<p>RISCV atomic instructions <a class="footnote-reference brackets" href="#atomic-isa" id="id14" role="doc-noteref"><span class="fn-bracket">[</span>13<span class="fn-bracket">]</span></a>.</p>
-<aside class="footnote-list brackets">
-<aside class="footnote brackets" id="id15" role="note">
+<h2><a class="toc-backref" href="#id41" role="doc-backlink">Atomic instructions</a><a class="headerlink" href="#atomic-instructions" title="Permalink to this heading">¶</a></h2>
+<p>RISCV atomic instructions <a class="footnote-reference brackets" href="#atomic-isa" id="id16" role="doc-noteref"><span class="fn-bracket">[</span>15<span class="fn-bracket">]</span></a>.</p>
+</section>
+<section id="resources">
+<h2><a class="toc-backref" href="#id42" role="doc-backlink">Resources</a><a class="headerlink" href="#resources" title="Permalink to this heading">¶</a></h2>
+<section id="freebsd">
+<h3><a class="toc-backref" href="#id43" role="doc-backlink">FreeBSD</a><a class="headerlink" href="#freebsd" title="Permalink to this heading">¶</a></h3>
+<p>FreeBSD RISCV <a class="footnote-reference brackets" href="#freebsd-platforms" id="id17" role="doc-noteref"><span class="fn-bracket">[</span>16<span class="fn-bracket">]</span></a>. FreeBSD <a class="footnote-reference brackets" href="#id27" id="id18" role="doc-noteref"><span class="fn-bracket">[</span>17<span class="fn-bracket">]</span></a>.</p>
+</section>
+<section id="freertos">
+<h3><a class="toc-backref" href="#id44" role="doc-backlink">FreeRTOS</a><a class="headerlink" href="#freertos" title="Permalink to this heading">¶</a></h3>
+<p>Code <a class="footnote-reference brackets" href="#freertos-github-riscv" id="id19" role="doc-noteref"><span class="fn-bracket">[</span>18<span class="fn-bracket">]</span></a>. Documents <a class="footnote-reference brackets" href="#freertos-riscv-doc1" id="id20" role="doc-noteref"><span class="fn-bracket">[</span>19<span class="fn-bracket">]</span></a>.</p>
+</section>
+<section id="zephyr">
+<h3><a class="toc-backref" href="#id45" role="doc-backlink">Zephyr</a><a class="headerlink" href="#zephyr" title="Permalink to this heading">¶</a></h3>
+<p>RISCV Boards <a class="footnote-reference brackets" href="#zephyr-riscv" id="id21" role="doc-noteref"><span class="fn-bracket">[</span>20<span class="fn-bracket">]</span></a>.</p>
+</section>
+<section id="andes">
+<h3><a class="toc-backref" href="#id46" role="doc-backlink">Andes</a><a class="headerlink" href="#andes" title="Permalink to this heading">¶</a></h3>
+<p>Amazon-FreeRTOS <a class="footnote-reference brackets" href="#andes-amazon-freertos" id="id22" role="doc-noteref"><span class="fn-bracket">[</span>21<span class="fn-bracket">]</span></a>, Xilinux has RISCV inside in MicroZed <a class="footnote-reference brackets" href="#microzed" id="id23" role="doc-noteref"><span class="fn-bracket">[</span>22<span class="fn-bracket">]</span></a> and vivado <a class="footnote-reference brackets" href="#vivado-riscv" id="id24" role="doc-noteref"><span class="fn-bracket">[</span>23<span class="fn-bracket">]</span></a>.</p>
+<p>Zephyr <a class="footnote-reference brackets" href="#andes-zephyr" id="id25" role="doc-noteref"><span class="fn-bracket">[</span>24<span class="fn-bracket">]</span></a> .</p>
+<aside class="footnote brackets" id="toolchain" role="note">
 <span class="label"><span class="fn-bracket">[</span><a role="doc-backlink" href="#id1">1</a><span class="fn-bracket">]</span></span>
+<p>Reference “Table 1 Toolchain components” of <a class="reference external" href="http://jonathan2251.github.io/lbt/about.html#outline-of-chapters">http://jonathan2251.github.io/lbt/about.html#outline-of-chapters</a></p>
+</aside>
+<aside class="footnote brackets" id="id26" role="note">
+<span class="label"><span class="fn-bracket">[</span><a role="doc-backlink" href="#id2">2</a><span class="fn-bracket">]</span></span>
 <p><a class="reference external" href="https://riscv.org/technical/specifications/">https://riscv.org/technical/specifications/</a></p>
 </aside>
 <aside class="footnote brackets" id="riscv-wiki" role="note">
-<span class="label"><span class="fn-bracket">[</span><a role="doc-backlink" href="#id2">2</a><span class="fn-bracket">]</span></span>
+<span class="label"><span class="fn-bracket">[</span><a role="doc-backlink" href="#id3">3</a><span class="fn-bracket">]</span></span>
 <p><a class="reference external" href="https://en.wikipedia.org/wiki/RISC-V">https://en.wikipedia.org/wiki/RISC-V</a></p>
 </aside>
 <aside class="footnote brackets" id="rre" role="note">
-<span class="label"><span class="fn-bracket">[</span>3<span class="fn-bracket">]</span></span>
-<span class="backrefs">(<a role="doc-backlink" href="#id3">1</a>,<a role="doc-backlink" href="#id13">2</a>)</span>
+<span class="label"><span class="fn-bracket">[</span>4<span class="fn-bracket">]</span></span>
+<span class="backrefs">(<a role="doc-backlink" href="#id4">1</a>,<a role="doc-backlink" href="#id15">2</a>)</span>
 <p><a class="reference external" href="https://wiki.riscv.org/display/HOME/Recently+Ratified+Extensions">https://wiki.riscv.org/display/HOME/Recently+Ratified+Extensions</a></p>
 </aside>
+<aside class="footnote brackets" id="andes-ilm" role="note">
+<span class="label"><span class="fn-bracket">[</span><a role="doc-backlink" href="#id5">5</a><span class="fn-bracket">]</span></span>
+<p><a class="reference external" href="http://www.andestech.com/en/products-solutions/andescore-processors/riscv-n25f/">http://www.andestech.com/en/products-solutions/andescore-processors/riscv-n25f/</a> ,
+<a class="reference external" href="http://www.andestech.com/en/products-solutions/andestar-architecture/">http://www.andestech.com/en/products-solutions/andestar-architecture/</a></p>
+</aside>
 <aside class="footnote brackets" id="riscv-qemu-gdb" role="note">
-<span class="label"><span class="fn-bracket">[</span><a role="doc-backlink" href="#id5">4</a><span class="fn-bracket">]</span></span>
+<span class="label"><span class="fn-bracket">[</span><a role="doc-backlink" href="#id7">6</a><span class="fn-bracket">]</span></span>
 <p><a class="reference external" href="https://danielmangum.com/posts/risc-v-bytes-qemu-gdb/">https://danielmangum.com/posts/risc-v-bytes-qemu-gdb/</a></p>
 </aside>
 <aside class="footnote brackets" id="rvv-0p10-1p0" role="note">
-<span class="label"><span class="fn-bracket">[</span><a role="doc-backlink" href="#id6">5</a><span class="fn-bracket">]</span></span>
+<span class="label"><span class="fn-bracket">[</span><a role="doc-backlink" href="#id8">7</a><span class="fn-bracket">]</span></span>
 <p><a class="reference external" href="https://github.com/riscv/riscv-v-spec/releases">https://github.com/riscv/riscv-v-spec/releases</a></p>
 </aside>
 <aside class="footnote brackets" id="gdb-target" role="note">
-<span class="label"><span class="fn-bracket">[</span><a role="doc-backlink" href="#id7">6</a><span class="fn-bracket">]</span></span>
+<span class="label"><span class="fn-bracket">[</span><a role="doc-backlink" href="#id9">8</a><span class="fn-bracket">]</span></span>
 <p><a class="reference external" href="https://ftp.gnu.org/old-gnu/Manuals/gdb/html_chapter/gdb_15.html#SEC125">https://ftp.gnu.org/old-gnu/Manuals/gdb/html_chapter/gdb_15.html#SEC125</a></p>
 </aside>
 <aside class="footnote brackets" id="gdb-tcpip" role="note">
-<span class="label"><span class="fn-bracket">[</span><a role="doc-backlink" href="#id8">7</a><span class="fn-bracket">]</span></span>
+<span class="label"><span class="fn-bracket">[</span><a role="doc-backlink" href="#id10">9</a><span class="fn-bracket">]</span></span>
 <p><a class="reference external" href="https://ftp.gnu.org/old-gnu/Manuals/gdb/html_chapter/gdb_15.html#SEC133">https://ftp.gnu.org/old-gnu/Manuals/gdb/html_chapter/gdb_15.html#SEC133</a></p>
 </aside>
 <aside class="footnote brackets" id="calling-conv" role="note">
-<span class="label"><span class="fn-bracket">[</span><a role="doc-backlink" href="#id9">8</a><span class="fn-bracket">]</span></span>
+<span class="label"><span class="fn-bracket">[</span><a role="doc-backlink" href="#id11">10</a><span class="fn-bracket">]</span></span>
 <p><a class="reference external" href="https://riscv.org/wp-content/uploads/2015/01/riscv-calling.pdf">https://riscv.org/wp-content/uploads/2015/01/riscv-calling.pdf</a></p>
 </aside>
 <aside class="footnote brackets" id="calling-conv-1" role="note">
-<span class="label"><span class="fn-bracket">[</span><a role="doc-backlink" href="#id10">9</a><span class="fn-bracket">]</span></span>
+<span class="label"><span class="fn-bracket">[</span><a role="doc-backlink" href="#id12">11</a><span class="fn-bracket">]</span></span>
 <p><a class="reference external" href="https://blog.csdn.net/zoomdy/article/details/79353313">https://blog.csdn.net/zoomdy/article/details/79353313</a></p>
 </aside>
 <aside class="footnote brackets" id="calling-conv-2" role="note">
-<span class="label"><span class="fn-bracket">[</span><a role="doc-backlink" href="#id11">10</a><span class="fn-bracket">]</span></span>
+<span class="label"><span class="fn-bracket">[</span><a role="doc-backlink" href="#id13">12</a><span class="fn-bracket">]</span></span>
 <p><a class="reference external" href="https://wiki.gentoo.org/wiki/RISC-V_ABIs">https://wiki.gentoo.org/wiki/RISC-V_ABIs</a></p>
 </aside>
 <aside class="footnote brackets" id="gnu-riscv-options" role="note">
-<span class="label"><span class="fn-bracket">[</span><a role="doc-backlink" href="#id12">11</a><span class="fn-bracket">]</span></span>
+<span class="label"><span class="fn-bracket">[</span><a role="doc-backlink" href="#id14">13</a><span class="fn-bracket">]</span></span>
 <p><a class="reference external" href="https://gcc.gnu.org/onlinedocs/gcc/RISC-V-Options.html">https://gcc.gnu.org/onlinedocs/gcc/RISC-V-Options.html</a></p>
 </aside>
 <aside class="footnote brackets" id="install-python3-config" role="note">
-<span class="label"><span class="fn-bracket">[</span><a role="doc-backlink" href="#id4">12</a><span class="fn-bracket">]</span></span>
+<span class="label"><span class="fn-bracket">[</span><a role="doc-backlink" href="#id6">14</a><span class="fn-bracket">]</span></span>
 <p><a class="reference external" href="https://www.anycodings.com/questions/gem5-build-fails-with-embedded-python-library-36-or-newer-required-found-2717">https://www.anycodings.com/questions/gem5-build-fails-with-embedded-python-library-36-or-newer-required-found-2717</a></p>
 </aside>
 <aside class="footnote brackets" id="atomic-isa" role="note">
-<span class="label"><span class="fn-bracket">[</span><a role="doc-backlink" href="#id14">13</a><span class="fn-bracket">]</span></span>
+<span class="label"><span class="fn-bracket">[</span><a role="doc-backlink" href="#id16">15</a><span class="fn-bracket">]</span></span>
 <p>Chapter 8 of Volume 1, Unprivileged Spec v. 20191213 <a class="reference external" href="https://five-embeddev.com/riscv-isa-manual/latest/a.html">https://five-embeddev.com/riscv-isa-manual/latest/a.html</a></p>
 </aside>
+<aside class="footnote brackets" id="freebsd-platforms" role="note">
+<span class="label"><span class="fn-bracket">[</span><a role="doc-backlink" href="#id17">16</a><span class="fn-bracket">]</span></span>
+<p><a class="reference external" href="https://www.freebsd.org/platforms/">https://www.freebsd.org/platforms/</a></p>
 </aside>
+<aside class="footnote brackets" id="id27" role="note">
+<span class="label"><span class="fn-bracket">[</span><a role="doc-backlink" href="#id18">17</a><span class="fn-bracket">]</span></span>
+<p><a class="reference external" href="https://github.com/freebsd">https://github.com/freebsd</a></p>
+</aside>
+<aside class="footnote brackets" id="freertos-github-riscv" role="note">
+<span class="label"><span class="fn-bracket">[</span><a role="doc-backlink" href="#id19">18</a><span class="fn-bracket">]</span></span>
+<p>In <a class="reference external" href="https://github.com/FreeRTOS/FreeRTOS/tree/main/FreeRTOS/Demo">https://github.com/FreeRTOS/FreeRTOS/tree/main/FreeRTOS/Demo</a>, directories RISC-V*</p>
+</aside>
+<aside class="footnote brackets" id="freertos-riscv-doc1" role="note">
+<span class="label"><span class="fn-bracket">[</span><a role="doc-backlink" href="#id20">19</a><span class="fn-bracket">]</span></span>
+<p><a class="reference external" href="https://www.freertos.org/Using-FreeRTOS-on-RISC-V.html">https://www.freertos.org/Using-FreeRTOS-on-RISC-V.html</a></p>
+</aside>
+<aside class="footnote brackets" id="zephyr-riscv" role="note">
+<span class="label"><span class="fn-bracket">[</span><a role="doc-backlink" href="#id21">20</a><span class="fn-bracket">]</span></span>
+<p><a class="reference external" href="https://docs.zephyrproject.org/3.1.0/boards/riscv/index.html">https://docs.zephyrproject.org/3.1.0/boards/riscv/index.html</a></p>
+</aside>
+<aside class="footnote brackets" id="andes-amazon-freertos" role="note">
+<span class="label"><span class="fn-bracket">[</span><a role="doc-backlink" href="#id22">21</a><span class="fn-bracket">]</span></span>
+<p><a class="reference external" href="https://github.com/andestech/amazon-freertos">https://github.com/andestech/amazon-freertos</a></p>
+</aside>
+<aside class="footnote brackets" id="microzed" role="note">
+<span class="label"><span class="fn-bracket">[</span><a role="doc-backlink" href="#id23">22</a><span class="fn-bracket">]</span></span>
+<p><a class="reference external" href="https://www.xilinx.com/about/blogs/adaptable-advantage-blog/2021/MicroZed-Chronicles--Bluespec-RISC-V.html">https://www.xilinx.com/about/blogs/adaptable-advantage-blog/2021/MicroZed-Chronicles–Bluespec-RISC-V.html</a></p>
+</aside>
+<aside class="footnote brackets" id="vivado-riscv" role="note">
+<span class="label"><span class="fn-bracket">[</span><a role="doc-backlink" href="#id24">23</a><span class="fn-bracket">]</span></span>
+<p><a class="reference external" href="https://github.com/eugene-tarassov/vivado-risc-v">https://github.com/eugene-tarassov/vivado-risc-v</a></p>
+</aside>
+<aside class="footnote brackets" id="andes-zephyr" role="note">
+<span class="label"><span class="fn-bracket">[</span><a role="doc-backlink" href="#id25">24</a><span class="fn-bracket">]</span></span>
+<p>Andes Zephyr port supports SMP (Symmetric Multi-Processing) and has been verified on Andes RISC-V multicore. <a class="reference external" href="https://www.globenewswire.com/news-release/2021/04/23/2216131/0/en/Andes-Announces-the-New-Upgrade-of-AndeSight-IDE-v5-0-a-comprehensive-software-solution-to-accelerate-RISC-V-AI-and-IoT-developments.html">https://www.globenewswire.com/news-release/2021/04/23/2216131/0/en/Andes-Announces-the-New-Upgrade-of-AndeSight-IDE-v5-0-a-comprehensive-software-solution-to-accelerate-RISC-V-AI-and-IoT-developments.html</a></p>
+</aside>
+</section>
 </section>
 </section>
 
@@ -687,7 +916,7 @@ Vectors)</p>
 
     <div class="footer" role="contentinfo">
         &#169; Copyright 2016, Chen Chung-Shu.
-      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 5.1.1.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 5.0.2.
     </div>
   </body>
 </html>

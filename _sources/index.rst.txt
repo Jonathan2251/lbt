@@ -27,6 +27,7 @@ Table of Contents
    lldb
    riscv
    clang-tools
+   pocl
 
 
 Resources
