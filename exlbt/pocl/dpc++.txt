@@ -1,0 +1,79 @@
+﻿https://intel.github.io/llvm-docs/GetStartedGuide.html
+
+dpc++ book example codes:
+https://github.com/Apress/data-parallel-CPP
+
+oneAPI DPC++ Compiler documentation:
+https://intel.github.io/llvm-docs/
+
+
+https://fabian.paginas.ufsc.br/tools/fpgaemu/
+/local/opt/intel$ wget https://github.com/fabian-l-c/fpgaemu/archive/v1.2.tar.gz
+
+/local/git/sycl_workspace$ vi ~/.profile
+...
+# DPC++ folder
+export DPCPP_HOME=/local/git/sycl_workspace
+export PATH="$DPCPP_HOME/llvm/build/bin:$PATH"
+export LD_LIBRARY_PATH="$DPCPP_HOME/llvm/build/lib:$LD_LIBRARY_PATH"
+
+/local/git/sycl_workspace$ cat /etc/issue
+Ubuntu 18.04.5 LTS \n \l
+
+/local/git/sycl_workspace$ python $DPCPP_HOME/llvm/buildbot/configure.py
+/local/git/sycl_workspace$ python $DPCPP_HOME/llvm/buildbot/compile.py
+/local/git/sycl_workspace$ python $DPCPP_HOME/llvm/buildbot/check.py
+
+Testing Time: 358.38s
+  Skipped          :    64
+  Unsupported      : 22853
+  Passed           : 57014
+  Expectedly Failed:    89
+
+1 warning(s) in tests
+
+jonathanchen@hz-compiler1:/local/git/sycl_workspace$ vi simple-sycl-app.cpp
+jonathanchen@hz-compiler1:/local/git/sycl_workspace$ which clang
+/local/git/sycl_workspace/llvm/build/bin/clang
+jonathanchen@hz-compiler1:/local/git/sycl_workspace$ clang++ -fsycl simple-sycl-app.cpp -o simple-sycl-app.exe
+jonathanchen@hz-compiler1:/local/git/sycl_workspace$ ls -l simple-sycl-app.exe 
+-rwxr-xr-x 1 jonathanchen jonathanchen 217096 Jun  2 08:11 simple-sycl-app.exe
+jonathanchen@hz-compiler1:/local/git/sycl_workspace$ ./simple-sycl-app.exe 
+The results are correct!
+
+
+/local/git/sycl_workspace$ clang++ -fsycl dev-selector.cpp -o dev-selector.exe
+/local/git/sycl_workspace$ ./dev-selector.exe 
+in operator()
+DeviceName: SYCL host device
+DeviceVendor: 
+in operator()
+DeviceName: SYCL host device
+DeviceVendor: 
+in try
+end
+
+/local/git/sycl_workspace$ "/local/git/sycl_workspace/llvm/build/bin/clang-offload-bundler" --list --input=dev-selector.exe --type=o
+sycl-spir64
+
+/local/git/sycl_workspace$ clang++ -fsycl external_rand.cpp 
+jonathanchen@hz-compiler1:/local/git/sycl_workspace$ ./a.out
+terminate called after throwing an instance of 'cl::sycl::runtime_error'
+  what():  No device of requested type available. -1 (CL_DEVICE_NOT_FOUND)
+Aborted (core dumped)
+
+
+
+/local/git/sycl_workspace$ clang++ -cl-std=clc++ test.cl -S
+pass: generate test.s
+
+/local/git/sycl_workspace$ /local/git/sycl_workspace/llvm/build/bin/clang -cc1 -triple spir-unknown-unknown -cl-std=clc++ test.cl -emit-llvm -v
+pass: generate spirv function in test.ll
+
+pass: generate amdgcn on clang and llc
+/local/git/sycl_workspace$ /local/llvm/release/build/bin/clang -cc1 -triple amdgcn-unknown-unknown -cl-std=clc++ test.cl -emit-llvm -v
+/local/git/sycl_workspace$ /local/llvm/release/build/bin/llc -march=amdgcn -verify-machineinstrs test.ll -o -
+
+pass: generate nvptx on clang and llc
+/local/git/sycl_workspace$ /local/llvm/release/build/bin/clang -cc1 -triple nvptx-unknown-unknown -cl-std=clc++ test.cl -emit-llvm -v
+/local/git/sycl_workspace$ /local/llvm/release/build/bin/llc -march=nvptx -verify-machineinstrs test.ll -o -

@@ -51,5 +51,5 @@ build_newlib() {
   popd
 }
 
-#install_newlib;
+install_newlib;
 build_newlib;

@@ -1,0 +1,24 @@
+digraph G {
+  rankdir=LR;
+  subgraph cluster0 {
+    label = "Host(X86)";
+    node [shape=box,style=nofilled,color=black]; X86 [label="CPU"];
+    node [shape=box,style=nofilled,color=black]; HMem [label="MEM"];
+  }
+  subgraph cluster1 {
+    label = "Device(ex, 2-RISCV-Processors)";
+    node [shape=box,style=nofilled,color=black]; RISCV1 [label="CPU"];
+    node [shape=box,style=nofilled,color=black]; DMem1 [label="MEM"];
+    node [shape=box,style=nofilled,color=black]; RISCV2 [label="CPU"];
+    node [shape=box,style=nofilled,color=black]; DMem2 [label="MEM"];
+  }
+
+  HMem -> DMem1 [label="Send(DMA+Net)"];
+  DMem1 -> HMem [label="Receive(DMA+Net)"];
+
+  HMem -> DMem2 [label="Send(DMA+Net)"];
+  DMem2 -> HMem [label="Receive(DMA+Net)"];
+
+  label = "Figure: OpenCL with discrete memory (Device: 2 processor+memory)";
+}
+

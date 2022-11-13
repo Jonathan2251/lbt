@@ -1,0 +1,8 @@
+﻿/local/git/pocl/docker_build$ sudo docker run -it poclimg:latest bash
+
+14不可裝,有dependences如下：
+The following packages have unmet dependencies:
+ libclang-14-dev : Depends: libclang1-14 (= 1:14.0.6~++20220622053019+f28c006a5895-1~exp1~20220622173056.159) but it is not going to be installed
+...
+
+// branch release_3_0 與master 可build過

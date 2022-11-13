@@ -1,4 +1,4 @@
-// clang -I../compiler-rt/builtins -I../../lbdex/input -S ch_float.cpp -emit-llvm
+// clang -I../compiler-rt/builtins -I../../../lbd/lbdex/input -S ch_float.cpp -emit-llvm
 // ~/llvm/test/build/bin/llc -march=cpu0 -mcpu=cpu032II -relocation-model=static -filetype=asm ch_float.ll
 // ~/llvm/test/build/bin/llc -march=cpu0 -mcpu=cpu032II -cpu0-s32-calls=true -relocation-model=static -filetype=asm ch_float.ll
 

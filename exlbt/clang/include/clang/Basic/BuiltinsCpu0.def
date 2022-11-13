@@ -13,6 +13,8 @@
 
 // The format of this database matches clang/Basic/Builtins.def.
 
+// Reference:
+// https://github.com/Jonathan2251/lbd/blob/master/lbdex/llvm/modify/llvm/include/llvm/IR/IntrinsicsCpu0.td
 BUILTIN(__builtin_cpu0_gcd, "iii", "n")
 
 #undef BUILTIN

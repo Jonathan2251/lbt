@@ -1,0 +1,23 @@
+digraph G {
+
+  rankdir=LR;
+  subgraph cluster_0 {
+    style=filled;
+    color=lightgrey;
+    label = "RISCV toolchain flow";
+    node [style=filled,color=white]; usercode [label = "user program"];
+    node [style=filled,color=white]; sflib [label = "lib (libm/libc/libstdc++)"];
+    node [style=filled,color=white]; linker [label = "lld or ld"];
+    node [style=filled,color=white]; simulator [label = "qemu or gem5"];
+    node [style=filled,color=white]; clang, llvm, gdb;
+    usercode -> clang;
+    sflib -> clang;
+    clang -> llvm [ label = "IR" ];
+    llvm -> linker [ label = "obj" ];
+    linker -> simulator [ label = "exe" ];
+    linker -> gdb [ label = "exe" ];
+    simulator -> gdb;
+    gdb -> simulator;
+  }
+
+}

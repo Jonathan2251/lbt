@@ -1,4 +1,8 @@
 #!/usr/bin/env bash
+
+# add apt repo at first time
+# sudo apt-add-repository 'deb https://apt.llvm.org/bionic/   llvm-toolchain-bionic-13 main'
+
 # Set POCL_PARENT_DIR for the parent folder of pocl git hub checkout to.
 export POCL_PARENT_DIR=$HOME/git
 
@@ -7,8 +11,8 @@ export POCL_PARENT_DIR=$HOME/git
 
 # Ubuntu 18.04 only can use LLVM_VERSION 13. 14 is too new for the dependent 
 # packages of Ubuntu 18.04.
-LLVM_VERSION=13
-LLVM_PATH=/usr/lib/llvm-13/bin
+export LLVM_VERSION=13
+export LLVM_PATH=/usr/lib/llvm-13/bin
 #Not work for the following
 #LLVM_PATH=$HOME/llvm/13/llvm-project/build/bin
 
@@ -33,7 +37,7 @@ get_pocl() {
   pushd $POCL_PARENT_DIR
   git clone https://github.com/pocl/pocl
   cd pocl
-  git checkout 4627171d40543091e399989c277faa52fcee0ff8
+#  git checkout 4627171d40543091e399989c277faa52fcee0ff8
   popd
 }
 

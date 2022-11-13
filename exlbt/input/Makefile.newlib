@@ -8,6 +8,7 @@ INC_DIRS := ./ $(LBDEX_DIR)/input \
 LIBBUILTINS_DIR := ../compiler-rt/builtins
 LIBS := $(LIBBUILTINS_DIR)/build-$(CPU)-$(ENDIAN)/libbuiltins.a \
         $(NEWLIB_DIR)/build-$(CPU)-$(ENDIAN)/libg.a \
+        $(NEWLIB_DIR)/build-$(CPU)-$(ENDIAN)/libm.a \
         $(NEWLIB_DIR)/build-$(CPU)-$(ENDIAN)/libc.a
 
 include Common.mk

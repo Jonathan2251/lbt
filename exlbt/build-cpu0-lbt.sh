@@ -16,15 +16,17 @@ if test -d ${LLVM_TEST_DIR}; then
   OS=`uname -s`
   echo "OS =" ${OS}
   pushd ${LLVM_TEST_DIR}
+  rm -rf build
   mkdir build
   cd build
 # clang has better diagnosis in report error message
 # LLVM_DEFAULT_TARGET_TRIPLE=cpu0-unknown-elf: for llvm-config --host-target
   cmake -DCMAKE_BUILD_TYPE=Debug -DCMAKE_CXX_COMPILER=clang++ -DCMAKE_C_COMPILER=clang \
   -DLLVM_TARGETS_TO_BUILD=Cpu0 -DLLVM_ENABLE_PROJECTS="clang;lld" \
+  -DLLVM_OPTIMIZED_TABLEGEN=On \
   -DLLVM_PARALLEL_COMPILE_JOBS=4 -DLLVM_PARALLEL_LINK_JOBS=1 \
   -DLLVM_DEFAULT_TARGET_TRIPLE=cpu0-unknown-linux-gnu -G "Ninja" ../llvm
-  ninja
+  time ninja
   popd
 else
   echo "${LLVM_TEST_DIR} not existed"

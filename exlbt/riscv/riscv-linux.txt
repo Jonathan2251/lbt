@@ -1,0 +1,3 @@
+https://www.cnblogs.com/celesial-dancers/p/16506780.html
+https://www.cnx-software.com/2018/03/16/how-to-run-linux-on-risc-v-with-qemu-emulator/
+https://discourse.ubuntu.com/t/ubuntu-installation-on-a-risc-v-virtual-machine-using-a-server-install-image-and-qemu/27636

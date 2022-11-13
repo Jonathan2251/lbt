@@ -1,17 +1,14 @@
 #!/usr/bin/env bash
 
 # Verified on ubuntu 18.04
-# mkdir riscv/git, riscv/riscv_newlib, riscv_linux before running this bash script
-export LLVM_VER=14.x
-#export LLVM_VER=13.0.0
+# mkdir $GNU_SRC_DIR, $HOME/riscv/$LLVM_VER before running this bash script
+#export LLVM_VER=14.x
+export LLVM_VER=13.0.0
 export GNU_SRC_DIR=$HOME/riscv/git
 export LLVM_SRC_DIR=$HOME/riscv/git/$LLVM_VER
 
 export GNU_NEWLIB_INSTALL_DIR=$HOME/riscv/$LLVM_VER/riscv_newlib
 export LLVM_NEWLIB_BUILD_DIR=$LLVM_SRC_DIR/llvm-project/build_riscv_newlib
-
-export GNU_LINUX_INSTALL_DIR=$HOME/riscv/$LLVM_VER/riscv_linux
-export LLVM_LINUX_BUILD_DIR=$LLVM_SRC_DIR/llvm-project/build_riscv_linux
 
 riscv_gnu_toolchain_prerequisites() {
   sudo apt-get install autoconf automake autotools-dev curl python3 libmpc-dev \
@@ -36,7 +33,8 @@ get_llvm() {
   pushd $LLVM_SRC_DIR
   git clone https://github.com/llvm/llvm-project.git
   cd llvm-project
-  git checkout -b $LLVM_VER origin/release/$LLVM_VER
+  #git checkout -b $LLVM_VER origin/release/$LLVM_VER
+  git checkout tags/llvmorg-13.0.0 -b llvmorg-13.0.0
   popd
 }
 
@@ -47,10 +45,6 @@ check() {
   fi
   if [ -d "$GNU_NEWLIB_INSTALL_DIR" ]; then
     echo "GNU_NEWLIB_INSTALL_DIR: $GNU_NEWLIB_INSTALL_DIR exist. Remove it before running."
-    exit 1
-  fi
-  if [ -d "$GNU_LINUX_INSTALL_DIR" ]; then
-    echo "GNU_LINUX_INSTALL_DIR: $GNU_LINUX_INSTALL_DIR exist. Remove it before running."
     exit 1
   fi
 }
@@ -69,17 +63,11 @@ build_gnu_toolchain() {
   --with-arch=rv64gc --with-abi=lp64d
 #  --with-multilib-generator="rv32i-ilp32--;rv32imafd-ilp32--;rv64ima-lp64--"
   make -j4
-
-  cd ..
-  mkdir build_linux
-  cd build_linux
-  ../configure --prefix=$GNU_LINUX_INSTALL_DIR
-  make linux -j4
   popd
 }
 
 # LLVM_OPTIMIZED_TABLEGEN: Builds a release tablegen that gets used during the LLVM build. This can dramatically speed up debug builds.
-# LLVM_INSTALL_TOOLCHAIN_ONLY default is OFF already. Check CmakeCache.txt.
+# LLVM_INSTALL_TOOLCHAIN_ONLY default is OFF already. Check CmakeCache.txt. Reference the following.
 #   https://llvm.org/docs/BuildingADistribution.html?highlight=llvm_install_toolchain_only#difference-between-install-and-install-distribution
 # LLVM_BINUTILS_INCDIR:
 #   https://stackoverflow.com/questions/45715423/how-to-enable-cfi-in-llvm
@@ -93,9 +81,6 @@ build_gnu_toolchain() {
 #   https://stackoverflow.com/questions/66357013/compile-clang-with-alternative-sysroot
 # LLVM_DEFAULT_TARGET_TRIPLE:  
 #   https://clang.llvm.org/docs/CrossCompilation.html#general-cross-compilation-options-in-clang
-# LLVM_INSTALL_UTILS:BOOL
-#   If enabled, utility binaries like FileCheck and not will be installed to CMAKE_INSTALL_PREFIX.
-#   https://llvm.org/docs/CMake.html
 # Use "clang --sysroot" if did not "cmake -DDEFAULT_SYSROOT"
 # $LLVM_NEWLIB_BUILD_DIR/bin/clang++ --gcc-toolchain=$GNU_NEWLIB_INSTALL_DIR test.cpp -march=rv64g -O0 -mabi=lp64d -v
 # $LLVM_LINUX_BUILD_DIR/bin/clang++ --gcc-toolchain=$GNU_LINUX_INSTALL_DIR --sysroot=$GNU_LINUX_INSTALL_DIR/sysroot/ --static test.cpp -march=rv64g -O0 -mabi=lp64d -v
@@ -104,32 +89,19 @@ build_llvm_toolchain() {
   mkdir $LLVM_NEWLIB_BUILD_DIR
   pushd $LLVM_NEWLIB_BUILD_DIR
   cmake -G "Ninja" -DCMAKE_BUILD_TYPE=Debug -DLLVM_TARGETS_TO_BUILD="RISCV" \
-  -DLLVM_ENABLE_PROJECTS="clang;lld"  \
-  -DLLVM_OPTIMIZED_TABLEGEN=On \
+  -DLLVM_ENABLE_PROJECTS="clang"  \
+  -DLLVM_OPTIMIZED_TABLEGEN=On -DLLVM_INSTALL_TOOLCHAIN_ONLY=Off \
   -DCMAKE_INSTALL_PREFIX=$GNU_NEWLIB_INSTALL_DIR -DLLVM_PARALLEL_COMPILE_JOBS=4 \
   -DLLVM_PARALLEL_LINK_JOBS=1 -DLLVM_DEFAULT_TARGET_TRIPLE=riscv64-unknown-elf \
-  -DDEFAULT_SYSROOT=$GNU_NEWLIB_INSTALL_DIR/riscv64-unknown-elf \
-  -DLLVM_INSTALL_UTILS=ON ../llvm
-  ninja
-  ninja install
-  popd
-  rm -rf $LLVM_LINUX_BUILD_DIR
-  mkdir $LLVM_LINUX_BUILD_DIR
-  pushd $LLVM_LINUX_BUILD_DIR
-  cmake -G "Ninja" -DCMAKE_BUILD_TYPE=Debug -DLLVM_TARGETS_TO_BUILD="RISCV" \
-  -DLLVM_ENABLE_PROJECTS="clang;lld"  \
-  -DLLVM_OPTIMIZED_TABLEGEN=On \
-  -DCMAKE_INSTALL_PREFIX=$GNU_LINUX_INSTALL_DIR -DLLVM_PARALLEL_COMPILE_JOBS=4 \
-  -DLLVM_PARALLEL_LINK_JOBS=1 -DLLVM_DEFAULT_TARGET_TRIPLE=riscv64-unknown-linux-gnu \
-  -DDEFAULT_SYSROOT=$GNU_LINUX_INSTALL_DIR/sysroot -DLLVM_INSTALL_UTILS=ON ../llvm
+  ../llvm
   ninja
   ninja install
   popd
 }
 
-riscv_gnu_toolchain_prerequisites;
-riscv_llvm_prerequisites;
-get_llvm;
-check;
-build_gnu_toolchain;
+#riscv_gnu_toolchain_prerequisites;
+#riscv_llvm_prerequisites;
+#get_llvm;
+#check;
+#build_gnu_toolchain;
 build_llvm_toolchain;

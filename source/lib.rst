@@ -68,8 +68,8 @@ The libm.a depends on variable errno of libc defined in sys/errno.h.
 
 - libgloss is BSP [#libgloss-bsp]_
 
-Compiler-rt
--------------
+Compiler-rt's builtins
+----------------------
 
 Compiler-rt is a project with runtime libraries implentation [#compiler-rt]_ .
 Compiler-rt/lib/builtins provides functions for basic operations such as +, -, 
@@ -151,6 +151,58 @@ The compiler-rt/lib/builtins is a
 target-independent C form of software float library implementation. Cpu0 
 implements compiler-rt-12.x/cpu0/abort.c only at this point for supporting 
 this feature.
+
+.. note:: **Why these libm functions called builtins in compiler-rt/lib/builtins?**
+
+  Though these compiler-rt builtins functions are written in C. The CPU can
+  provide float type instructions or high level instructions to compile these
+  libm function calls into specific HW instructions to speed up.
+
+In order to speed up these libm functions, many CPU provide float instructions
+for them. Of course, for the implemenation, clang compiles these float type's
+operation in C into llvm ir, then Mips backends compiles them into their 
+HW instructions. For example:
+
+- float a, b, c; a=b*c; -> (clang) -> %add = fmul float %0, %1 [#llvm-fmul]_
+
+Mips backend compiles `fmul` into HW instructions as follows,
+
+- %add = fmul float %0, %1 -> (llvm-mips) -> mul.s [#llvm-fmul]_ [#mips-fmadd1.ll]_
+
+Cpu0 backend compiles `fmul` into libm function call fmul as follows,
+
+- %add = fmul float %0, %1 -> (llvm-mips) -> jsub fmul [#llvm-fmul]_
+
+For high level of math functions, clang compiles these float type's
+operation in C into llvm intrinsic functions, then the llvm backends of these
+CPU compile them into their HW instructions. For example, clang compiles pow()
+into @llvm.pow.f32 as follows,
+
+- %pow = call float @llvm.pow.f32(float %x, float %y) [#clang-pow]_
+
+AMDGPU compiles @llvm.pow.f32 into a few instructions as follows:
+
+- %pow = call float @llvm.pow.f32(float %x, float %y) (llvm-AMDGPU) -> ... + v_exp_f32_e32 v0, v0 + ... [#clang-pow]_
+
+Mips compiles @llvm.pow.f32 into a few instructions as follows:
+
+- %pow = call float @llvm.pow.f32(float %x, float %y) (llvm-AMDGPU) -> jal powf [#clang-pow]_
+
+
+Clang treats these libm functions as builtin and compiles them into llvm ir or 
+intrinsic, then different backends can choose to compile them into specific 
+instructions or call builtin functions in libm. The following is Clang's 
+comment [#clang-builtin-comment]_.
+
+.. code-block:: c++
+
+  RValue CodeGenFunction::EmitBuiltinExpr(...)
+    ...
+    // There are LLVM math intrinsics/instructions corresponding to math library 
+    // functions except the LLVM op will never set errno while the math library
+    // might. Also, math builtins have the same semantics as their math library
+    // twins. Thus, we can transform math library and builtin calls to their
+    // LLVM counterparts if the call is marked 'const' (known to never set errno).
 
 
 Software Float Point Support
@@ -408,3 +460,11 @@ Run as follows,
 .. [#math] https://www.programiz.com/c-programming/library-function/math.h
 
 .. [#clib] https://www.cplusplus.com/reference/clibrary
+
+.. [#mips-fmadd1.ll] https://github.com/llvm/llvm-project/blob/main/llvm/test/CodeGen/Mips/fmadd1.ll
+
+.. [#llvm-fmul] Reference https://github.com/Jonathan2251/lbd/tree/master/lbdex/input/ch7_1_fmul.c
+
+.. [#clang-pow] Reference https://github.com/Jonathan2251/lbt/tree/master/exlbt/input/test_pow.c
+
+.. [#clang-builtin-comment] https://github.com/llvm/llvm-project/blob/main/clang/lib/CodeGen/CGBuiltin.cpp

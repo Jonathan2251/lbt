@@ -8,7 +8,33 @@ Appendix A: RISCV
    :depth: 4
 
 This chapter shows the RISC toolchain installatation including gnu, llvm and 
-simulators on Linux.
+simulators on Linux as figure and table below.
+
+.. _toolchain-f1:
+.. graphviz:: ../Fig/riscv/toolchain.gv
+
+
+.. table:: RISCV toolchain [#toolchain]_
+
+  ==============  ==========================  =============
+  Component       name                        github
+  ==============  ==========================  =============
+  C/C++ Compiler  clang/llvm                  llvm-project
+  LLVM Assembler  llvm integrated assembler    "
+  LLVM Linker     ld.lld                       "
+  debug tool      lldb                         "
+  Utils           llvm-ar, llvm-objdump etc.   "
+  gcc Assembler   as                          riscv-gnu-toolchain
+  gcc Linker      ld.bfd ld.gold               "
+  Runtime         libgcc                       "
+  Unwinder        libgcc_s                     "
+  C library       libc                         "
+  C++ library     libsupc++ libstdc++          "
+  debug tool      gdb                          "
+  Utils           ar, objdump etc.             "
+  Functional sim  qemu                        qemu
+  Cycle sim       gem5                        gem5
+  ==============  ==========================  =============
 
 
 ISA
@@ -34,6 +60,18 @@ others are optional. G=IMAFD, general extensions (i.e., IMAFD)  [#ISA]_
 [#RISCV-wiki]_ [#RRE]_.
 
 
+Mem
+---
+
+- I-cache, D-cache: Size: 4KB to 64KB in Andes N25f
+
+- ILM, DLM: Size: 4KB to 16MB [#andes-ilm]_
+
+  - For deterministic and efficient program execution
+  - Flexible size selection to fit diversified needs
+
+- DRAM
+
 RISC compiler toolchain installatation
 --------------------------------------
 
@@ -48,7 +86,7 @@ script.
 .. code-block:: console
 
   $ pwd
-  $ $HOME/lbt/exlbt/riscv
+  $ $HOME/git/lbt/exlbt/riscv
   $ bash riscv-toolchain-setup.sh
 
 RISCV toolchain includes both baremetal(Newlib) and Linux platform support.
@@ -56,7 +94,7 @@ RISCV toolchain includes both baremetal(Newlib) and Linux platform support.
 .. code-block:: console
 
   $ pwd
-  $ $HOME/lbt/exlbt/riscv
+  $ $HOME/git/lbt/exlbt/riscv
   $ bash riscv-toolchain-setup.sh
 
 .. code-block:: console
@@ -105,8 +143,8 @@ Then it can compile and run qemu for baremetal as follows,
 .. code-block:: console
 
   $ pwd
-  $ $HOME/lbt/exlbt/riscv
-  $ $HOME/riscv/riscv_newlib/bin/clang -march=rv64g hello.c -o hello_newlib
+  $ $HOME/git/lbt/exlbt/riscv
+  $ $HOME/riscv/riscv_newlib/bin/clang -march=rv64g hello.c -fuse-ld=lld -mno-relax -g -mabi=lp64d -o hello_newlib
   $ $HOME/riscv/git/qemu/build/qemu-riscv64 hello_newlib
   hello world!
 
@@ -122,6 +160,11 @@ Linux as follows,
   $ $HOME/riscv/riscv_linux/bin/clang -march=rv64g hello.c -o hello_linux -static
   $ $HOME/riscv/git/qemu/build/qemu-riscv64 hello_linux
   hello world!
+
+RISCV does need -lm for math.h as follows,
+
+.. rubric:: exlbt/riscv/pow.cpp
+.. literalinclude:: ../exlbt/riscv/pow.cpp
 
 
 Gem5 simulator
@@ -163,8 +206,8 @@ After install all dependencies, get gem5 and build RISCV as follows,
   $HOME/riscv/git/gem5$ /usr/bin/env python3 $(which scons) ./build/RISCV/gem5.debug -j4
   ...
   $ pwd
-  $ $HOME/lbt/exlbt/riscv
-  $HOME/lbt/exlbt/riscv$ $HOME/riscv/git/gem5/build/RISCV/gem5.debug \
+  $ $HOME/git/lbt/exlbt/riscv
+  $ $HOME/riscv/git/gem5/build/RISCV/gem5.debug \
   $HOME/riscv/git/gem5/configs/example/se.py --cmd=./hello_newlib
   **** REAL SIMULATION ****
   build/RISCV/sim/simulate.cc:107: info: Entering event queue @ 0.  Starting simulation...
@@ -174,12 +217,12 @@ Check cycles as follows,
 
 .. code-block:: console
 
-  $HOME/lbt/exlbt/riscv$ vi m5out/stats.txt
+  $HOME/git/lbt/exlbt/riscv$ vi m5out/stats.txt
   simSeconds                                   0.000001                       # Number of seconds simulated (Second)
   simTicks                                      1229000                       # Number of ticks simulated (Tick)
   ...
 
-  $HOME/lbt/exlbt/riscv$ $HOME/riscv/git/gem5/build/RISCV/gem5.debug \
+  $HOME/git/lbt/exlbt/riscv$ $HOME/riscv/git/gem5/build/RISCV/gem5.debug \
   /local/git/gem5/configs/example/se.py --cmd=./hello_linux
   ...
   hello world!
@@ -192,6 +235,9 @@ http://learning.gem5.org/book/part1/example_configs.html
 GDB
 ---
 
+.. _gdb-f:
+.. graphviz:: ../Fig/riscv/gdb.gv
+
 LLVM 13.x fails on "clang -g" for rvv C/C++ file while LLVM 14.x is work. Run 
 qemu on terminal A with gdb on terminal B [#riscv-qemu-gdb]_ as follows,
 
@@ -199,14 +245,14 @@ qemu on terminal A with gdb on terminal B [#riscv-qemu-gdb]_ as follows,
 
   // terminal A:
   $ pwd
-  $ $HOME/lbt/exlbt/riscv
+  $ $HOME/git/lbt/exlbt/riscv
   $ ~/riscv/14.x/riscv_newlib/bin/clang vadd1.c -menable-experimental-extensions -march=rv64gcv1p0 -O0 -g -mabi=lp64d -o a.out  -v
   $ ~/riscv/git/qemu/build/qemu-riscv64 -cpu rv64,v=true -g 1234 a.out 
   vector version is not specified, use the default value v1.0
 
   // terminal B:
   $ pwd
-  $ $HOME/lbt/exlbt/riscv
+  $ $HOME/git/lbt/exlbt/riscv
   $ ~/riscv/14.x/riscv_newlib/bin/riscv64-unknown-elf-gdb a.out
   ...
   Reading symbols from a.out...
@@ -321,7 +367,7 @@ Builtin is C function and friendly either. RVV can be written and run as follows
 .. code-block:: console
 
   $ pwd
-  $ $HOME/lbt/exlbt/riscv
+  $ $HOME/git/lbt/exlbt/riscv
   $ $HOME/riscv/riscv_newlib/bin/clang vadd2.c -menable-experimental-extensions \
     -march=rv64gcv0p10 -O0 -mllvm --riscv-v-vector-bits-min=256
   $ $HOME/riscv/git/qemu/build/qemu-riscv64 -cpu rv64,v=true a.out
@@ -388,11 +434,42 @@ Atomic instructions
 RISCV atomic instructions [#atomic-isa]_.
 
 
+Resources
+---------
+
+FreeBSD
+~~~~~~~
+
+FreeBSD RISCV [#freebsd-platforms]_. FreeBSD [#freebsd]_.
+
+FreeRTOS
+~~~~~~~~
+
+Code [#freertos-github-riscv]_. Documents [#freertos-riscv-doc1]_.
+
+Zephyr
+~~~~~~
+
+RISCV Boards [#zephyr-riscv]_.
+
+Andes
+~~~~~
+
+Amazon-FreeRTOS [#andes-amazon-freertos]_, Xilinux has RISCV inside in MicroZed [#microzed]_ and vivado [#vivado-riscv]_. 
+
+Zephyr [#andes-zephyr]_ .
+
+
+.. [#toolchain] Reference "Table 1 Toolchain components" of http://jonathan2251.github.io/lbt/about.html#outline-of-chapters
+
 .. [#ISA] https://riscv.org/technical/specifications/
 
 .. [#RISCV-wiki] https://en.wikipedia.org/wiki/RISC-V
 
 .. [#RRE] https://wiki.riscv.org/display/HOME/Recently+Ratified+Extensions
+
+.. [#andes-ilm] http://www.andestech.com/en/products-solutions/andescore-processors/riscv-n25f/ ,
+    http://www.andestech.com/en/products-solutions/andestar-architecture/
 
 .. [#riscv-qemu-gdb] https://danielmangum.com/posts/risc-v-bytes-qemu-gdb/
 
@@ -413,3 +490,21 @@ RISCV atomic instructions [#atomic-isa]_.
 .. [#install-python3-config] https://www.anycodings.com/questions/gem5-build-fails-with-embedded-python-library-36-or-newer-required-found-2717
 
 .. [#atomic-isa] Chapter 8 of Volume 1, Unprivileged Spec v. 20191213 https://five-embeddev.com/riscv-isa-manual/latest/a.html
+
+.. [#freebsd-platforms] https://www.freebsd.org/platforms/
+
+.. [#freebsd] https://github.com/freebsd
+
+.. [#freertos-github-riscv] In https://github.com/FreeRTOS/FreeRTOS/tree/main/FreeRTOS/Demo, directories RISC-V*
+
+.. [#freertos-riscv-doc1] https://www.freertos.org/Using-FreeRTOS-on-RISC-V.html
+
+.. [#zephyr-riscv] https://docs.zephyrproject.org/3.1.0/boards/riscv/index.html
+
+.. [#andes-amazon-freertos] https://github.com/andestech/amazon-freertos
+
+.. [#microzed] https://www.xilinx.com/about/blogs/adaptable-advantage-blog/2021/MicroZed-Chronicles--Bluespec-RISC-V.html
+
+.. [#vivado-riscv] https://github.com/eugene-tarassov/vivado-risc-v
+
+.. [#andes-zephyr] Andes Zephyr port supports SMP (Symmetric Multi-Processing) and has been verified on Andes RISC-V multicore. https://www.globenewswire.com/news-release/2021/04/23/2216131/0/en/Andes-Announces-the-New-Upgrade-of-AndeSight-IDE-v5-0-a-comprehensive-software-solution-to-accelerate-RISC-V-AI-and-IoT-developments.html
