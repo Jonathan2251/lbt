@@ -38,7 +38,14 @@ https://github.com/Jonathan2251/lbt/blob/master/README.md
 Revision history
 ----------------
 
-Version 12.0.11, not released yet.
+Version 12.0.12, not released yet.
+
+Version 12.0.11, Released Feburary 27, 2023.
+
+  riscv.rst: section Linker Command.
+  pocl.rst, riscv.rst: books and document.
+  some example-code on exlbt/riscv/.
+  loop-convert2, Rewriter and PrintFunction in exlbt/clang-tools.
 
 Version 12.0.10, Release November 13, 2022.
 

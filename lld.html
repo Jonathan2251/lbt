@@ -4,17 +4,15 @@
 <html lang="en">
   <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.19: https://docutils.sourceforge.io/" />
 
     <title>Cpu0 ELF linker &#8212; Tutorial: Creating an LLVM Toolchain for the Cpu0 Architecture</title>
     <link rel="stylesheet" type="text/css" href="_static/pygments.css" />
     <link rel="stylesheet" type="text/css" href="_static/haiku.css" />
     <link rel="stylesheet" type="text/css" href="_static/graphviz.css" />
     <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
-    <script src="_static/jquery.js"></script>
-    <script src="_static/underscore.js"></script>
-    <script src="_static/_sphinx_javascript_frameworks_compat.js"></script>
     <script src="_static/doctools.js"></script>
+    <script src="_static/sphinx_highlight.js"></script>
     <link rel="author" title="About these documents" href="about.html" />
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
@@ -1911,6 +1909,7 @@ fi
 
 prologue;
 
+make -f $FILE CPU=${CPU} ENDIAN=${ENDIAN} LBDEX_DIR=${LBDEX_DIR} NEWLIB_DIR=${NEWLIB_DIR} clean
 make -f $FILE CPU=${CPU} ENDIAN=${ENDIAN} LBDEX_DIR=${LBDEX_DIR} NEWLIB_DIR=${NEWLIB_DIR}
 
 epilogue;
@@ -1919,7 +1918,7 @@ epilogue;
 </div>
 <div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">1-160-136-173:input Jonathan$ </span><span class="nb">pwd</span>
 <span class="go">/Users/Jonathan/Downloads/exlbt/input</span>
-<span class="gp">114-37-148-111:input Jonathan$ </span>bash make.sh cpu032I el Makefile.slinker
+<span class="gp">114-37-148-111:input Jonathan$ </span>bash<span class="w"> </span>make.sh<span class="w"> </span>cpu032I<span class="w"> </span>el<span class="w"> </span>Makefile.slinker
 <span class="go">...</span>
 <span class="go">endian =  LittleEndian</span>
 <span class="go">ISR address:00020780</span>
@@ -2007,7 +2006,7 @@ epilogue;
 </div>
 <p>Above test includes the printf format verification.
 Let’s check the result with PC program printf-stdarg-1.c output as follows,</p>
-<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">1-160-136-173:input Jonathan$ </span>clang printf-stdarg-1.c
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">1-160-136-173:input Jonathan$ </span>clang<span class="w"> </span>printf-stdarg-1.c
 <span class="go">printf-stdarg-1.c:58:19: warning: incomplete format specifier [-Wformat]</span>
 <span class="go">  printf(&quot;%d %s(s)%&quot;, 0, &quot;message&quot;);</span>
 <span class="go">                  ^</span>
@@ -2055,15 +2054,15 @@ and lld of Cpu0 backend. However it can be run with llvm 3.7 with the following
 command.</p>
 <div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">1-160-136-173:test Jonathan$ </span><span class="nb">pwd</span>
 <span class="go">/Users/Jonathan/test</span>
-<span class="gp">1-160-136-173:test Jonathan$ </span>git clone https://github.com/Jonathan2251/lbd
-<span class="gp">1-160-136-173:test Jonathan$ </span>git clone https://github.com/Jonathan2251/lbt
-<span class="gp">1-160-136-173:test Jonathan$ </span><span class="nb">cd</span> lbd
+<span class="gp">1-160-136-173:test Jonathan$ </span>git<span class="w"> </span>clone<span class="w"> </span>https://github.com/Jonathan2251/lbd
+<span class="gp">1-160-136-173:test Jonathan$ </span>git<span class="w"> </span>clone<span class="w"> </span>https://github.com/Jonathan2251/lbt
+<span class="gp">1-160-136-173:test Jonathan$ </span><span class="nb">cd</span><span class="w"> </span>lbd
 <span class="gp">1-160-136-173:lbd Jonathan$ </span><span class="nb">pwd</span>
 <span class="go">/Users/Jonathan/test/lbd</span>
-<span class="gp">1-160-136-173:lbd Jonathan$ </span>git checkout release_374
-<span class="gp">1-160-136-173:lbd Jonathan$ </span><span class="nb">cd</span> ../lbt
-<span class="gp">1-160-136-173:test Jonathan$ </span>git checkout release_374
-<span class="gp">1-160-136-173:lbt Jonathan$ </span>make html
+<span class="gp">1-160-136-173:lbd Jonathan$ </span>git<span class="w"> </span>checkout<span class="w"> </span>release_374
+<span class="gp">1-160-136-173:lbd Jonathan$ </span><span class="nb">cd</span><span class="w"> </span>../lbt
+<span class="gp">1-160-136-173:test Jonathan$ </span>git<span class="w"> </span>checkout<span class="w"> </span>release_374
+<span class="gp">1-160-136-173:lbt Jonathan$ </span>make<span class="w"> </span>html
 </pre></div>
 </div>
 <p>Then reading this section in lld.html for it.</p>
@@ -2137,6 +2136,7 @@ Appendix A of lbd book tell you how to install sphinx tool.
 Documentation work will help yourself to re-examine your software and make your
 program better in structure, reliability and more important “Extend your code
 to somewhere you didn’t expect”.</p>
+<aside class="footnote-list brackets">
 <aside class="footnote brackets" id="lldweb" role="note">
 <span class="label"><span class="fn-bracket">[</span><a role="doc-backlink" href="#id1">1</a><span class="fn-bracket">]</span></span>
 <p><a class="reference external" href="http://lld.llvm.org/">http://lld.llvm.org/</a></p>
@@ -2149,6 +2149,8 @@ to somewhere you didn’t expect”.</p>
 <span class="label"><span class="fn-bracket">[</span>3<span class="fn-bracket">]</span></span>
 <p><a class="reference external" href="http://llvm.org/releases/download.html#3.5">http://llvm.org/releases/download.html#3.5</a></p>
 </aside>
+</aside>
+<aside class="footnote-list brackets">
 <aside class="footnote brackets" id="get" role="note">
 <span class="label"><span class="fn-bracket">[</span>4<span class="fn-bracket">]</span></span>
 <p><a class="reference external" href="http://www.cplusplus.com/reference/memory/unique_ptr/get/">http://www.cplusplus.com/reference/memory/unique_ptr/get/</a></p>
@@ -2209,6 +2211,7 @@ to somewhere you didn’t expect”.</p>
 <span class="label"><span class="fn-bracket">[</span><a role="doc-backlink" href="#id14">18</a><span class="fn-bracket">]</span></span>
 <p><a class="reference external" href="http://docutils.sourceforge.net/rst.html">http://docutils.sourceforge.net/rst.html</a></p>
 </aside>
+</aside>
 </section>
 </section>
 </section>
@@ -2229,7 +2232,7 @@ to somewhere you didn’t expect”.</p>
 
     <div class="footer" role="contentinfo">
         &#169; Copyright 2016, Chen Chung-Shu.
-      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 5.0.2.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 6.1.3.
     </div>
   </body>
 </html>

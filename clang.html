@@ -4,17 +4,15 @@
 <html lang="en">
   <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.19: https://docutils.sourceforge.io/" />
 
     <title>Clang &#8212; Tutorial: Creating an LLVM Toolchain for the Cpu0 Architecture</title>
     <link rel="stylesheet" type="text/css" href="_static/pygments.css" />
     <link rel="stylesheet" type="text/css" href="_static/haiku.css" />
     <link rel="stylesheet" type="text/css" href="_static/graphviz.css" />
     <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
-    <script src="_static/jquery.js"></script>
-    <script src="_static/underscore.js"></script>
-    <script src="_static/_sphinx_javascript_frameworks_compat.js"></script>
     <script src="_static/doctools.js"></script>
+    <script src="_static/sphinx_highlight.js"></script>
     <link rel="author" title="About these documents" href="about.html" />
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
@@ -55,7 +53,7 @@
 </pre></div>
 </div>
 <p class="rubric">exlbt/clang/lib/Driver/ToolChains/CommonArgs.cpp</p>
-<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">#</span>include <span class="s2">&quot;Arch/Cpu0.h&quot;</span>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">#</span>include<span class="w"> </span><span class="s2">&quot;Arch/Cpu0.h&quot;</span>
 <span class="go">...</span>
 <span class="go">  case llvm::Triple::cpu0:</span>
 <span class="go">  case llvm::Triple::cpu0el: {</span>
@@ -164,7 +162,7 @@
 </pre></div>
 </div>
 <p class="rubric">exlbt/clang/include/clang/lib/Basic/Targets.cpp</p>
-<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">#</span>include <span class="s2">&quot;Targets/Cpu0.h&quot;</span>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">#</span>include<span class="w"> </span><span class="s2">&quot;Targets/Cpu0.h&quot;</span>
 <span class="go">...</span>
 <span class="go">  case llvm::Triple::cpu0:</span>
 <span class="go">    switch (os) {</span>
@@ -540,7 +538,7 @@ bool Cpu0TargetInfo::validateTarget(DiagnosticsEngine &amp;Diags) const {
 }
 </pre></div>
 </div>
-<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">chungshu@ChungShudeMacBook-Air input % </span>~/llvm/test/build/bin/clang --help-hidden<span class="p">|</span>grep cpu0
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">chungshu@ChungShudeMacBook-Air input % </span>~/llvm/test/build/bin/clang<span class="w"> </span>--help-hidden<span class="p">|</span>grep<span class="w"> </span>cpu0
 <span class="go">  -cpu032II               Equivalent to -march=cpu032II</span>
 <span class="go">  -cpu032I                Equivalent to -march=cpu032I</span>
 </pre></div>
@@ -559,8 +557,8 @@ hardware that may be present on the device <a class="footnote-reference brackets
 <span class="go">  namespace Cpu0 {</span>
 <span class="go">    enum {</span>
 <span class="go">        LastTIBuiltin = clang::Builtin::FirstTSBuiltin-1,</span>
-<span class="gp">#</span>define BUILTIN<span class="o">(</span>ID, TYPE, ATTRS<span class="o">)</span> BI##ID,
-<span class="gp">#</span>include <span class="s2">&quot;clang/Basic/BuiltinsCpu0.def&quot;</span>
+<span class="gp">#</span>define<span class="w"> </span>BUILTIN<span class="o">(</span>ID,<span class="w"> </span>TYPE,<span class="w"> </span>ATTRS<span class="o">)</span><span class="w"> </span>BI##ID,
+<span class="gp">#</span>include<span class="w"> </span><span class="s2">&quot;clang/Basic/BuiltinsCpu0.def&quot;</span>
 <span class="go">        LastTSBuiltin</span>
 <span class="go">    };</span>
 <span class="go">  }</span>
@@ -591,7 +589,7 @@ hardware that may be present on the device <a class="footnote-reference brackets
 </div>
 <div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">chungshu@ChungShudeMacBook-Air CodeGen % </span><span class="nb">pwd</span>
 <span class="go">/Users/chungshu/llvm/test/clang/test/CodeGen</span>
-<span class="gp">chungshu@ChungShudeMacBook-Air CodeGen % </span>~/llvm/test/build/bin/llvm-lit builtins-cpu0.c
+<span class="gp">chungshu@ChungShudeMacBook-Air CodeGen % </span>~/llvm/test/build/bin/llvm-lit<span class="w"> </span>builtins-cpu0.c
 <span class="go">..</span>
 <span class="go">-- Testing: 1 tests, 1 workers --</span>
 <span class="go">  PASS: Clang :: CodeGen/builtins-cpu0.c (1 of 1)</span>
@@ -600,6 +598,7 @@ hardware that may be present on the device <a class="footnote-reference brackets
 <span class="go">  Passed: 1</span>
 </pre></div>
 </div>
+<aside class="footnote-list brackets">
 <aside class="footnote brackets" id="cpu0-compiler-rt-builtins" role="note">
 <span class="label"><span class="fn-bracket">[</span><a role="doc-backlink" href="#id1">1</a><span class="fn-bracket">]</span></span>
 <p><a class="reference external" href="http://jonathan2251.github.io/lbt/lib.html#compiler-rt-s-builtins">http://jonathan2251.github.io/lbt/lib.html#compiler-rt-s-builtins</a></p>
@@ -607,6 +606,7 @@ hardware that may be present on the device <a class="footnote-reference brackets
 <aside class="footnote brackets" id="builtin-kernel" role="note">
 <span class="label"><span class="fn-bracket">[</span><a role="doc-backlink" href="#id2">2</a><span class="fn-bracket">]</span></span>
 <p>Chapter 5.4 of book “Heterogeneous computing with OpenCL2.0, 3rd edition”</p>
+</aside>
 </aside>
 </section>
 </section>
@@ -627,7 +627,7 @@ hardware that may be present on the device <a class="footnote-reference brackets
 
     <div class="footer" role="contentinfo">
         &#169; Copyright 2016, Chen Chung-Shu.
-      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 5.0.2.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 6.1.3.
     </div>
   </body>
 </html>
