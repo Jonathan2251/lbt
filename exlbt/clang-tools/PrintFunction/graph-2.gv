@@ -1,0 +1,18 @@
+// dot -Tpng graph-2.gv -o graph-2.png
+//
+// dot -Tjson graph-2.gv -o graph-2.json
+// ref. https://graphviz.org/docs/outputs/json/
+// online json viewer: https://codebeautify.org/jsonviewer
+digraph G {
+  rankdir=TB;
+
+  0 [label="0 A"];
+  1 [label="1 B"];
+  2 [label="2 C"];
+  3 [label="3 D"];
+
+  0 -> 1;
+  0 -> 2;
+  1 -> 3;
+  2 -> 3;
+}

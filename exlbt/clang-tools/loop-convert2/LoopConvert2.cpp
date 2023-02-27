@@ -13,6 +13,8 @@
 
 #include "clang/Frontend/CompilerInstance.h"
 #include "clang/Rewrite/Core/Rewriter.h"
+#define DEBUG_TYPE "LoopConvert2"
+#include "llvm/Support/Debug.h"
 #include <iostream>
 
 using namespace clang;
@@ -69,7 +71,7 @@ public :
       return;
     llvm::outs() << "Potential array-based loop discovered.\n";
     if (const ForStmt *FS = Result.Nodes.getNodeAs<clang::ForStmt>("forLoop")) {
-      FS->dump();
+      LLVM_DEBUG(FS->dump());
 
       // Display Row and Column for begin and end of ForStmt
       SourceRange SR = FS->getSourceRange();

@@ -27,6 +27,9 @@ OpenCL
 ------
 
 Builtin-function and builtin-kernel reference here [#builtin-function-kernel]_.
+Books [#open-cl-book-heter]_.
+Papers [#ocl-acceler-tf]_ [#ocl-agpvldl]_ [#sycl-aesstgplsmlw]_  [#ocl-acpcco]_ 
+[#dlc-acs]_ in lbt/papers/pocl.
 
 Run OpenCL
 ----------
@@ -195,7 +198,7 @@ RISCV OpenCL
 ------------
 
 In llvm, Mips and Cpu0 can compile .ll file from clang's output for input OpenCL
-while RISCV fail as follows,
+while RISCV fail on both 14.x and 15.x as follows,
 
 .. code-block:: console
 
@@ -205,6 +208,10 @@ while RISCV fail as follows,
   % ~/llvm/debug/build/bin/llc -march=mips test.ll
   % ~/llvm/test/build/bin/llc -march=cpu0 test.ll
   % ~/llvm/14.x/llvm-project/build/bin/llc -mtriple=riscv64 test.ll
+  LLVM ERROR: Unsupported calling convention
+  ...
+  % ~/llvm/15.x/llvm-project/build/bin/clang -cc1 -cl-std=CL2.0 -emit-llvm -triple spir-unknown-unknown test.cl
+  % ~/llvm/15.x/llvm-project/build/bin/llc -mtriple=riscv64 test.ll
   LLVM ERROR: Unsupported calling convention
   ...
 
@@ -219,7 +226,7 @@ while RISCV fail as follows,
 
 
 SYCL
-____
+----
 
 Webs [#sycl]_. An example [#sycl-wiki]_.
 
@@ -241,6 +248,18 @@ Book [#dpcpp-book]_.
 .. [#pocl-doc] http://portablecl.org/docs/html/
 
 .. [#builtin-function-kernel] http://jonathan2251.github.io/lbt/clang.html#builtin-functions
+
+.. [#open-cl-book-heter] https://dahlan.unimal.ac.id/files/ebooks2/2015%203rd%20Heterogeneous%20Computing%20with%20OpenCL%202.0.pdf
+
+.. [#ocl-acceler-tf] https://mlsys.org/Conferences/doc/2018/84.pdf
+
+.. [#ocl-agpvldl] https://www.researchgate.net/publication/350512301_Automatic_Graph_Partitioning_for_Very_Large-scale_Deep_Learning
+
+.. [#sycl-aesstgplsmlw] https://easychair.org/publications/preprint/GjhX
+
+.. [#ocl-acpcco] https://www.researchgate.net/publication/221084751_A_comprehensive_performance_comparison_of_CUDA_and_OpenCL
+
+.. [#dlc-acs] https://arxiv.org/pdf/2002.03794.pdf
 
 .. [#pocl-build] http://portablecl.org/docs/html/install.html#configure-build
 

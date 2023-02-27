@@ -5,9 +5,9 @@
 ~/riscv/riscv_newlib/bin/riscv64-unknown-elf-objdump -d a.out|grep vmul
 
 The following work for #undef USE_RVV
-~/llvm/14.x/llvm-project/build/bin/clang++ vector-dsl.cpp -emit-llvm -S -Xclang -ast-dump
+~/llvm/15.x/llvm-project/build/bin/clang++ vector-dsl.cpp -emit-llvm -S -Xclang -ast-dump
 
-~/llvm/14.x/llvm-project/build/bin/clang-query vector-dsl.cpp --
+~/llvm/15.x/llvm-project/build/bin/clang-query vector-dsl.cpp --
 clang-query> set traversal IgnoreUnlessSpelledInSource
 clang-query> m cxxOperatorCallExpr(binaryOperation(hasOperatorName("="),hasLHS(expr(hasType(cxxRecordDecl(hasName("UVec32")))).bind("lhs")),hasRHS(expr(cxxOperatorCallExpr(binaryOperation(hasOperatorName("+"),hasLHS(expr(cxxOperatorCallExpr(binaryOperation(hasOperatorName("*"),hasLHS(expr().bind("lhs2")),hasRHS(expr().bind("rhs2"))))).bind("lhs1")),hasRHS(expr().bind("rhs1"))))).bind("rhs"))))
 

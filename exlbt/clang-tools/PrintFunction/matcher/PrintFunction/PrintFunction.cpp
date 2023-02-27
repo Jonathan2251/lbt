@@ -1,3 +1,5 @@
+// https://static.linaro.org/connect/yvr18/presentations/yvr18-223.pdf
+
 // Declares clang::SyntaxOnlyAction.
 #include "clang/Frontend/FrontendActions.h"
 #include "clang/Tooling/CommonOptionsParser.h"
@@ -11,6 +13,8 @@
 
 #include "clang/Frontend/CompilerInstance.h"
 #include "clang/Rewrite/Core/Rewriter.h"
+#define DEBUG_TYPE "LoopConvert2"
+#include "llvm/Support/Debug.h"
 #include <iostream>
 
 using namespace clang;
@@ -31,19 +35,10 @@ static cl::extrahelp CommonHelp(CommonOptionsParser::HelpMessage);
 // A help message for this specific tool can be added afterwards.
 static cl::extrahelp MoreHelp("\nMore help text...\n");
 
-StatementMatcher LoopMatcher =
-    forStmt(hasLoopInit(declStmt(
-                hasSingleDecl(varDecl(hasInitializer(integerLiteral(equals(0))))
-                                  .bind("initVarName")))),
-            hasIncrement(unaryOperator(
-                hasOperatorName("++"),
-                hasUnaryOperand(declRefExpr(
-                    to(varDecl(hasType(isInteger())).bind("incVarName")))))),
-            hasCondition(binaryOperator(
-                hasOperatorName("<"),
-                hasLHS(ignoringParenImpCasts(declRefExpr(
-                    to(varDecl(hasType(isInteger())).bind("condVarName"))))),
-                hasRHS(expr(hasType(isInteger())))))).bind("forLoop");
+StatementMatcher MyMatcher =
+            callExpr(callee(functionDecl(hasName("GetFuncAndArgs")))/*.hasArgument(0).bind("node")*//*,
+  argumentCountIs(5)*/
+  ).bind("callFunc");
 
 static bool areSameVariable(const ValueDecl *First, const ValueDecl *Second) {
   return First && Second &&
@@ -51,14 +46,17 @@ static bool areSameVariable(const ValueDecl *First, const ValueDecl *Second) {
 }
 
 
-class LoopPrinter : public MatchFinder::MatchCallback {
+class MyPrinter : public MatchFinder::MatchCallback {
 public :
   virtual void run(const MatchFinder::MatchResult &Result) {
     const ASTContext *Context = Result.Context;
-    const ForStmt *FS = Result.Nodes.getNodeAs<ForStmt>("forLoop");
+    const CallExpr *CE = Result.Nodes.getNodeAs<CallExpr>("callFunc");
     // We do not want to convert header files!
-    if (!FS || !Context->getSourceManager().isWrittenInMainFile(FS->getForLoc()))
+#if 0
+    if (!CE || !Context->getSourceManager().isWrittenInMainFile(CE->getForLoc()))
       return;
+#endif
+#if 0
     const VarDecl *IncVar = Result.Nodes.getNodeAs<VarDecl>("incVarName");
     const VarDecl *CondVar = Result.Nodes.getNodeAs<VarDecl>("condVarName");
     const VarDecl *InitVar = Result.Nodes.getNodeAs<VarDecl>("initVarName");
@@ -66,7 +64,27 @@ public :
     if (!areSameVariable(IncVar, CondVar) || !areSameVariable(IncVar, InitVar))
       return;
     llvm::outs() << "Potential array-based loop discovered.\n";
+#endif
+    if (const CallExpr *CE = Result.Nodes.getNodeAs<clang::CallExpr>("callFunc")) {
+      LLVM_DEBUG(CE->dump());
+
+      // Display Row and Column for begin and end of ForStmt
+      SourceRange SR = CE->getSourceRange();
+      FullSourceLoc FSBeginLoc = Context->getFullLoc(SR.getBegin());
+      assert(FSBeginLoc.isValid());
+      llvm::dbgs() << "CallExpr begin at "
+                   << FSBeginLoc.getSpellingLineNumber() << ":"
+                   << FSBeginLoc.getSpellingColumnNumber() << "\n";
+      FullSourceLoc FSEndLoc = Context->getFullLoc(SR.getEnd());
+      assert(FSEndLoc.isValid());
+      llvm::dbgs() << "CallExpr end at "
+                   << FSEndLoc.getSpellingLineNumber() << ":"
+                   << FSEndLoc.getSpellingColumnNumber() << "\n";
+    }
   }
+
+public:
+  Rewriter *TheRewriter;
 };
 
 int main(int argc, const char **argv) {
@@ -80,10 +98,12 @@ int main(int argc, const char **argv) {
   ClangTool Tool(OptionsParser.getCompilations(),
                  OptionsParser.getSourcePathList());
 
-  LoopPrinter Printer;
+  MyPrinter Printer;
   MatchFinder Finder;
-  Finder.addMatcher(LoopMatcher, &Printer);
+  Finder.addMatcher(MyMatcher, &Printer);
   
+  //Printer.TheRewriter = &MFA->TheRewriter;
+
   std::unique_ptr<FrontendActionFactory> pFAF = newFrontendActionFactory(&Finder);
 
   return Tool.run(pFAF.get());

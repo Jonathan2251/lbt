@@ -1,9 +1,9 @@
 set(LLVM_LINK_COMPONENTS support)
 
-add_clang_executable(loop-convert
-  LoopConvert.cpp
+add_clang_executable(PrintFunction
+  PrintFunction.cpp
   )
-target_link_libraries(loop-convert
+target_link_libraries(PrintFunction
   PRIVATE
   clangAST
   clangASTMatchers

@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
 
 pushd exlbt/input
+bash clean.sh
 echo "bash make.sh cpu032I eb Makefile.slinker"
 bash make.sh cpu032I eb Makefile.slinker
 if [ "$?" != "0" ]; then

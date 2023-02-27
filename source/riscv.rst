@@ -55,7 +55,7 @@ ISA
   RISCV ISA Description
 
 
-As above figure, RISC has 32/64/128 bit and I (integer) is the Base part and the 
+As above :numref:`riscv-f1` and :numref:`riscv-f2`, RISC has 32/64/128 bit and I (integer) is the Base part and the 
 others are optional. G=IMAFD, general extensions (i.e., IMAFD)  [#ISA]_ 
 [#RISCV-wiki]_ [#RRE]_.
 
@@ -89,18 +89,15 @@ script.
   $ $HOME/git/lbt/exlbt/riscv
   $ bash riscv-toolchain-setup.sh
 
+
 RISCV toolchain includes both baremetal(Newlib) and Linux platform support.
 
 .. code-block:: console
 
   $ pwd
   $ $HOME/git/lbt/exlbt/riscv
-  $ bash riscv-toolchain-setup.sh
-
-.. code-block:: console
-
-  $ ls ~/riscv/riscv_newlib 
-  bin			include			lib			libexec			riscv64-unknown-elf	share
+  $ ls $HOME/riscv/riscv_newlib 
+  bin  include  lib  libexec  riscv64-unknown-elf  share
 
 .. _riscv-f3:
 .. figure:: ../Fig/riscv/linux-sysroot.png
@@ -109,14 +106,80 @@ RISCV toolchain includes both baremetal(Newlib) and Linux platform support.
 
   RISCV ISA Description
 
-The linux sysroot as figure above and compare it with the installed dirctory.
+The linux sysroot as :numref:`riscv-f3` above. You can compare it with the following 
+installed dirctory.
 
 .. code-block:: console
 
-  $ ls /local/riscv_linux/sysroot/
+  $ ls $HOME/riscv/riscv_linux/sysroot/
   etc  lib  lib64  sbin  usr  var
-  $ ls /local/riscv_linux/sysroot/usr
+  $ ls $HOME/riscv/riscv_linux/sysroot/usr
   bin  include  lib  libexec  sbin  share
+
+
+Linker Command
+--------------
+
+Different HW platforms have their memory map for their RISCV architecture. As 
+result, their HW may need to initialize $sp, $pc and $gp ... . 
+GNU linker command language [#ld-cl]_ provides user's memory map to their HW.
+
+The crt0.S and riscv64-virt.ld in lbt/exlbt/riscv modified from origin as follows,
+
+.. code-block:: console
+
+  riscv$ pwd
+  ~/git/lbt/exlbt/riscv
+  riscv$ diff exlbt/riscv/crt0.S ~/riscv/git/riscv-gnu-toolchain/newlib/libgloss/riscv/crt0.S
+  22d21
+  <   la sp, __stack_top 
+  riscv$ ~/riscv/14.x/riscv_newlib/bin/riscv64-unknown-elf-ld --verbose &> riscv64-virt-origin.ld
+  riscv$ diff riscv64-virt-origin.ld riscv64-virt.ld
+  1,8d0
+  < GNU ld (GNU Binutils) 2.39
+  <   Supported emulations:
+  <    elf64lriscv
+  <    elf32lriscv
+  <    elf64briscv
+  <    elf32briscv
+  < using internal linker script:
+  < ==================================================
+  16a9,12
+  > MEMORY
+  > {
+  >    RAM (rx)  : ORIGIN = 0x10000, LENGTH = 128M
+  > }
+  22a19
+  >   PROVIDE(__stack_top = ORIGIN(RAM) + LENGTH(RAM));
+  257,259d253
+  < 
+  < 
+  < ==================================================
+  riscv$ ~/riscv/14.x/riscv_newlib/bin/clang hello.c -menable-experimental-extensions \
+  -march=rv64gcv1p0 -O0 -mabi=lp64d -T riscv64-virt.ld -nostartfiles crt0.S -v
+
+If uses RAM (rwx), it has warning and can be removed by `-Wl,--no-warn-rwx-segment`
+in clang option.
+
+Qemu on next section can run program without initialzing $sp in crt0.S. Maybe it
+is that qemu initialize $sp as in the following code.
+
+.. code-block:: console
+
+  qemu$ pwd
+  ~/riscv/git/qemu
+  qemu$ vi linux-user/riscv/cpu_loop.c
+  void target_cpu_copy_regs(CPUArchState *env, struct target_pt_regs *regs)
+  {
+    ...
+    env->gpr[xSP] = regs->sp;
+
+The ELF object file format uses program headers, which are read by the system 
+loader and describe how the program should be loaded into memory. 
+The program headers of an ELF file may be displayed using `llvm-objdump -p` 
+[#ld-ph]_.
+
+The "la sp, __stack_top" is Psuedo instructions in RISCV [#riscv-pseudo-inst]_.
 
 
 Qemu simulator
@@ -144,16 +207,12 @@ Then it can compile and run qemu for baremetal as follows,
 
   $ pwd
   $ $HOME/git/lbt/exlbt/riscv
-  $ $HOME/riscv/riscv_newlib/bin/clang -march=rv64g hello.c -fuse-ld=lld -mno-relax -g -mabi=lp64d -o hello_newlib
+  $ $HOME/riscv/riscv_newlib/bin/clang -march=rv64g hello.c -fuse-ld=lld \
+    -mno-relax -g -mabi=lp64d -o hello_newlib
   $ $HOME/riscv/git/qemu/build/qemu-riscv64 hello_newlib
   hello world!
 
-  $ $HOME/riscv/riscv_newlib/bin/riscv64-unknown-elf-gcc -c hello_world.s
-  $ $HOME/riscv/riscv_newlib/bin/riscv64-unknown-elf-ld hello_world.o -o hello_world
-  $ $HOME/riscv/git/qemu/build/qemu-riscv64 hello_world
-  Hello World
-
-Linux as follows,
+Linux [#riscv-build-linux]_ as follows,
 
 .. code-block:: console
 
@@ -166,12 +225,31 @@ RISCV does need -lm for math.h as follows,
 .. rubric:: exlbt/riscv/pow.cpp
 .. literalinclude:: ../exlbt/riscv/pow.cpp
 
+The asm for hello world in baremetal as follows,
+
+.. code-block:: console
+
+  $ $HOME/riscv/riscv_newlib/bin/riscv64-unknown-elf-gcc -c hello_world.s
+  $ $HOME/riscv/riscv_newlib/bin/riscv64-unknown-elf-ld hello_world.o -o hello_world
+  $ $HOME/riscv/git/qemu/build/qemu-riscv64 hello_world
+  Hello World
+
+The link for asm and C in baremetal as follows,
+
+.. rubric:: exlbt/riscv/caller_hello.c
+.. literalinclude:: ../exlbt/riscv/caller_hello.c
+
+.. rubric:: exlbt/riscv/func_hello_start.s
+.. literalinclude:: ../exlbt/riscv/func_hello_start.s
+
+
 
 Gem5 simulator
 --------------
 
 Build Gem5 according the following,
 
+https://www.gem5.org/documentation/general_docs/building or
 http://learning.gem5.org/book/part1/building.html#requirements-for-gem5
 
 If you don't have python3.x-config on Ubuntu 18.04 as follows,
@@ -218,8 +296,8 @@ Check cycles as follows,
 .. code-block:: console
 
   $HOME/git/lbt/exlbt/riscv$ vi m5out/stats.txt
-  simSeconds                                   0.000001                       # Number of seconds simulated (Second)
-  simTicks                                      1229000                       # Number of ticks simulated (Tick)
+  simSeconds          0.000001       # Number of seconds simulated (Second)
+  simTicks            1229000        # Number of ticks simulated (Tick)
   ...
 
   $HOME/git/lbt/exlbt/riscv$ $HOME/riscv/git/gem5/build/RISCV/gem5.debug \
@@ -246,14 +324,15 @@ qemu on terminal A with gdb on terminal B [#riscv-qemu-gdb]_ as follows,
   // terminal A:
   $ pwd
   $ $HOME/git/lbt/exlbt/riscv
-  $ ~/riscv/14.x/riscv_newlib/bin/clang vadd1.c -menable-experimental-extensions -march=rv64gcv1p0 -O0 -g -mabi=lp64d -o a.out  -v
-  $ ~/riscv/git/qemu/build/qemu-riscv64 -cpu rv64,v=true -g 1234 a.out 
+  $ $HOME/riscv/14.x/riscv_newlib/bin/clang vadd1.c -menable-experimental-extensions \
+    -march=rv64gcv1p0 -O0 -g -mabi=lp64d -o a.out  -v
+  $ $HOME/riscv/git/qemu/build/qemu-riscv64 -cpu rv64,v=true -g 1234 a.out 
   vector version is not specified, use the default value v1.0
 
   // terminal B:
   $ pwd
   $ $HOME/git/lbt/exlbt/riscv
-  $ ~/riscv/14.x/riscv_newlib/bin/riscv64-unknown-elf-gdb a.out
+  $ $HOME/riscv/14.x/riscv_newlib/bin/riscv64-unknown-elf-gdb a.out
   ...
   Reading symbols from a.out...
   (gdb) target remote :1234
@@ -399,7 +478,7 @@ For -mabi, as the section above.
 Clang/llvm provide builtin and intrinsic functions to implement RVV (RISC-V 
 Vectors) 
 
-.. rubric:: ~/riscv/git/llvm-project/clang/include/clang/Basic/riscv_vector.td
+.. rubric:: $HOME/riscv/git/llvm-project/clang/include/clang/Basic/riscv_vector.td
 .. code-block:: c++
 
   #define vsetvl_e8mf8(avl) __builtin_rvv_vsetvli((size_t)(avl), 0, 5)
@@ -408,7 +487,7 @@ Vectors)
   ...
   defm vfdiv  : RVVFloatingBinBuiltinSet;
 
-.. rubric:: ~/riscv/git/llvm-project/llvm/include/llvm/IR/IntrinsicsRISCV.td
+.. rubric:: $HOME/riscv/git/llvm-project/llvm/include/llvm/IR/IntrinsicsRISCV.td
 .. code-block:: c++
 
    def int_riscv_vsetvli   : Intrinsic<...
@@ -421,11 +500,11 @@ Refer to clang/llvm test cases in the following folders.
 
 .. code-block:: console
 
-  $ ~/riscv/git/llvm-project/clang/test/CodeGen/RISCV/rvv-intrinsics$ ls
-  $ ... vfdiv.c ... vfmadd.c
+  $HOME/riscv/git/llvm-project/clang/test/CodeGen/RISCV/rvv-intrinsics$ ls
+  ... vfdiv.c ... vfmadd.c
 
-  $ ~/riscv/git/llvm-project/llvm/test/CodeGen/RISCV/rvv$ ls
-  $ ... vfdiv-rv64.ll ... vfmadd-rv64.ll ...
+  $HOME/riscv/git/llvm-project/llvm/test/CodeGen/RISCV/rvv$ ls
+  ... vfdiv-rv64.ll ... vfmadd-rv64.ll ...
 
 
 Atomic instructions
@@ -445,7 +524,7 @@ FreeBSD RISCV [#freebsd-platforms]_. FreeBSD [#freebsd]_.
 FreeRTOS
 ~~~~~~~~
 
-Code [#freertos-github-riscv]_. Documents [#freertos-riscv-doc1]_.
+Code [#freertos-github-riscv]_ [#freertos-kernel]_. Documents [#freertos-riscv-doc1]_ [#freertos-pdf]_.
 
 Zephyr
 ~~~~~~
@@ -458,6 +537,49 @@ Andes
 Amazon-FreeRTOS [#andes-amazon-freertos]_, Xilinux has RISCV inside in MicroZed [#microzed]_ and vivado [#vivado-riscv]_. 
 
 Zephyr [#andes-zephyr]_ .
+
+
+Websites
+--------
+
+https://twilco.github.io/riscv-from-scratch/2019/04/27/riscv-from-scratch-2.html
+
+https://twilco.github.io
+
+
+To do:
+------
+
+As exlbt/riscv/riscv-toolchain-setup-macos-intel.sh. 
+Currently, this script complete build on both riscv_newlib and riscv_linux.
+However, qemu does not create qemu-riscv64 for baremetal on macos. So cannot
+verify it yet.
+
+
+- How to run qemu-system-riscv64 as baremetal qemu-risv64? Following 
+  https://twilco.github.io/riscv-from-scratch/2019/04/27/riscv-from-scratch-2.html#link-it-up
+  to create crt0.S and riscv64-virt.ld but not work. It fails without changing 
+  crt0.S either.
+
+.. code-block:: console
+
+  // terminal A:
+  riscv % ~/riscv/14.x/riscv_newlib/bin/clang hello.c -menable-experimental-extensions \
+  -march=rv64gcv1p0 -O0 -mabi=lp64d -T riscv64-virt.ld -Wl,--no-warn-rwx-segment -nostartfiles crt0.S -v
+  riscv % ~/riscv/git/qemu/build/qemu-system-riscv64 -machine virt -m 128M -cpu \
+  rv64,v=true -gdb tcp::1234 -kernel a.out
+
+  // terminal B:
+  riscv % ~/riscv/14.x/riscv_newlib/bin/riscv64-unknown-elf-gdb a.out
+  ...
+  Reading symbols from a.out...
+  (gdb) target remote :1234
+  Remote debugging using :1234
+  0x0000000080000408 in ?? ()
+  (gdb) c
+  Continuing.
+
+qemu-system-riscv64 with -nographic fail too.
 
 
 .. [#toolchain] Reference "Table 1 Toolchain components" of http://jonathan2251.github.io/lbt/about.html#outline-of-chapters
@@ -487,6 +609,14 @@ Zephyr [#andes-zephyr]_ .
 
 .. [#gnu-riscv-options] https://gcc.gnu.org/onlinedocs/gcc/RISC-V-Options.html
 
+.. [#ld-cl] https://ftp.gnu.org/old-gnu/Manuals/ld-2.9.1/html_chapter/ld_3.html
+
+.. [#ld-ph] https://ftp.gnu.org/old-gnu/Manuals/ld-2.9.1/html_chapter/ld_3.html#SEC23
+
+.. [#riscv-pseudo-inst] https://github.com/riscv-non-isa/riscv-asm-manual/blob/master/riscv-asm.md#-a-listing-of-standard-risc-v-pseudoinstructions
+
+.. [#riscv-build-linux] https://github.com/riscv-collab/riscv-gnu-toolchain/issues/644
+
 .. [#install-python3-config] https://www.anycodings.com/questions/gem5-build-fails-with-embedded-python-library-36-or-newer-required-found-2717
 
 .. [#atomic-isa] Chapter 8 of Volume 1, Unprivileged Spec v. 20191213 https://five-embeddev.com/riscv-isa-manual/latest/a.html
@@ -497,7 +627,11 @@ Zephyr [#andes-zephyr]_ .
 
 .. [#freertos-github-riscv] In https://github.com/FreeRTOS/FreeRTOS/tree/main/FreeRTOS/Demo, directories RISC-V*
 
+.. [#freertos-kernel] https://github.com/FreeRTOS/FreeRTOS-Kernel.git
+
 .. [#freertos-riscv-doc1] https://www.freertos.org/Using-FreeRTOS-on-RISC-V.html
+
+.. [#freertos-pdf] https://www.freertos.org/fr-content-src/uploads/2018/07/161204_Mastering_the_FreeRTOS_Real_Time_Kernel-A_Hands-On_Tutorial_Guide.pdf
 
 .. [#zephyr-riscv] https://docs.zephyrproject.org/3.1.0/boards/riscv/index.html
 

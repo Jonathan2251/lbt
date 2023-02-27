@@ -5,7 +5,7 @@ https://github.com/Apress/data-parallel-CPP
 
 oneAPI DPC++ Compiler documentation:
 https://intel.github.io/llvm-docs/
-
+https://intel.github.io/llvm-docs/design/CompilerAndRuntimeDesign.html
 
 https://fabian.paginas.ufsc.br/tools/fpgaemu/
 /local/opt/intel$ wget https://github.com/fabian-l-c/fpgaemu/archive/v1.2.tar.gz
