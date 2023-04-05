@@ -55,10 +55,13 @@ ISA
   RISCV ISA Description
 
 
-As above :numref:`riscv-f1` and :numref:`riscv-f2`, RISC has 32/64/128 bit and I (integer) is the Base part and the 
-others are optional. G=IMAFD, general extensions (i.e., IMAFD)  [#ISA]_ 
-[#RISCV-wiki]_ [#RRE]_.
+As above :numref:`riscv-f1` and :numref:`riscv-f2`, RISC has 32/64/128 bit and 
+I (integer) is the Base part and the others are optional. G=IMAFD, general 
+extensions (i.e., IMAFD)  [#ISA]_ [#RISCV-wiki]_ [#RRE]_.
 
+Since RISCV has vector instruction for variable length of data and allowing 
+vendor to encode variable length of instruction set, the little endian is the
+dominate format in market [#endians-format]_.
 
 Mem
 ---
@@ -589,6 +592,8 @@ qemu-system-riscv64 with -nographic fail too.
 .. [#RISCV-wiki] https://en.wikipedia.org/wiki/RISC-V
 
 .. [#RRE] https://wiki.riscv.org/display/HOME/Recently+Ratified+Extensions
+
+.. [#endians-format] https://www.technicalsourcery.net/posts/on-endianness
 
 .. [#andes-ilm] http://www.andestech.com/en/products-solutions/andescore-processors/riscv-n25f/ ,
     http://www.andestech.com/en/products-solutions/andestar-architecture/
