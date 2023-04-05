@@ -4,15 +4,17 @@
 <html lang="en">
   <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.19: https://docutils.sourceforge.io/" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
 
     <title>Appendix C: POCL &#8212; Tutorial: Creating an LLVM Toolchain for the Cpu0 Architecture</title>
     <link rel="stylesheet" type="text/css" href="_static/pygments.css" />
     <link rel="stylesheet" type="text/css" href="_static/haiku.css" />
     <link rel="stylesheet" type="text/css" href="_static/graphviz.css" />
     <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
+    <script src="_static/jquery.js"></script>
+    <script src="_static/underscore.js"></script>
+    <script src="_static/_sphinx_javascript_frameworks_compat.js"></script>
     <script src="_static/doctools.js"></script>
-    <script src="_static/sphinx_highlight.js"></script>
     <link rel="author" title="About these documents" href="about.html" />
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
@@ -281,8 +283,8 @@ check_pocl;
 </pre></div>
 </div>
 <p>Add apt repo on Ubuntu at first time,</p>
-<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>sudo<span class="w"> </span>apt-add-repository<span class="w"> </span><span class="s1">&#39;deb https://apt.llvm.org/bionic/   llvm-toolchain-bionic-13 main&#39;</span>
-<span class="gp">$ </span>grep<span class="w"> </span><span class="s2">&quot;apt.llvm&quot;</span><span class="w"> </span>/etc/apt/sources.list<span class="w"> </span>/etc/apt/sources.list.d/*
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>sudo apt-add-repository <span class="s1">&#39;deb https://apt.llvm.org/bionic/   llvm-toolchain-bionic-13 main&#39;</span>
+<span class="gp">$ </span>grep <span class="s2">&quot;apt.llvm&quot;</span> /etc/apt/sources.list /etc/apt/sources.list.d/*
 <span class="go">/etc/apt/sources.list:deb http://apt.llvm.org/bionic/ llvm-toolchain-bionic-13 main</span>
 <span class="go">/etc/apt/sources.list:# deb-src http://apt.llvm.org/bionic/ llvm-toolchain-bionic-13 main</span>
 <span class="go">/etc/apt/sources.list:deb https://apt.llvm.org/bionic/ llvm-toolchain-bionic-13 main</span>
@@ -369,14 +371,14 @@ FILE=test_clCreateKernelsInProgram
 while RISCV fail on both 14.x and 15.x as follows,</p>
 <div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="go">CodeGenOpenCL % pwd</span>
 <span class="gp">$</span>HOME/git/lbt/exlbt/pocl
-<span class="gp">% </span>~/llvm/14.x/llvm-project/build/bin/clang<span class="w"> </span>-cc1<span class="w"> </span>-cl-std<span class="o">=</span>CL2.0<span class="w"> </span>-emit-llvm<span class="w"> </span>-triple<span class="w"> </span>spir-unknown-unknown<span class="w"> </span>test.cl
-<span class="gp">% </span>~/llvm/debug/build/bin/llc<span class="w"> </span>-march<span class="o">=</span>mips<span class="w"> </span>test.ll
-<span class="gp">% </span>~/llvm/test/build/bin/llc<span class="w"> </span>-march<span class="o">=</span>cpu0<span class="w"> </span>test.ll
-<span class="gp">% </span>~/llvm/14.x/llvm-project/build/bin/llc<span class="w"> </span>-mtriple<span class="o">=</span>riscv64<span class="w"> </span>test.ll
+<span class="gp">% </span>~/llvm/14.x/llvm-project/build/bin/clang -cc1 -cl-std<span class="o">=</span>CL2.0 -emit-llvm -triple spir-unknown-unknown test.cl
+<span class="gp">% </span>~/llvm/debug/build/bin/llc -march<span class="o">=</span>mips test.ll
+<span class="gp">% </span>~/llvm/test/build/bin/llc -march<span class="o">=</span>cpu0 test.ll
+<span class="gp">% </span>~/llvm/14.x/llvm-project/build/bin/llc -mtriple<span class="o">=</span>riscv64 test.ll
 <span class="go">LLVM ERROR: Unsupported calling convention</span>
 <span class="go">...</span>
-<span class="gp">% </span>~/llvm/15.x/llvm-project/build/bin/clang<span class="w"> </span>-cc1<span class="w"> </span>-cl-std<span class="o">=</span>CL2.0<span class="w"> </span>-emit-llvm<span class="w"> </span>-triple<span class="w"> </span>spir-unknown-unknown<span class="w"> </span>test.cl
-<span class="gp">% </span>~/llvm/15.x/llvm-project/build/bin/llc<span class="w"> </span>-mtriple<span class="o">=</span>riscv64<span class="w"> </span>test.ll
+<span class="gp">% </span>~/llvm/15.x/llvm-project/build/bin/clang -cc1 -cl-std<span class="o">=</span>CL2.0 -emit-llvm -triple spir-unknown-unknown test.cl
+<span class="gp">% </span>~/llvm/15.x/llvm-project/build/bin/llc -mtriple<span class="o">=</span>riscv64 test.ll
 <span class="go">LLVM ERROR: Unsupported calling convention</span>
 <span class="go">...</span>
 
@@ -399,7 +401,6 @@ while RISCV fail on both 14.x and 15.x as follows,</p>
 <h2><a class="toc-backref" href="#id32" role="doc-backlink">DPC++</a><a class="headerlink" href="#dpc" title="Permalink to this heading">¶</a></h2>
 <p>Book <a class="footnote-reference brackets" href="#dpcpp-book" id="id17" role="doc-noteref"><span class="fn-bracket">[</span>16<span class="fn-bracket">]</span></a>.</p>
 <p class="rubric">exlbt/pocl/dpc++.txt</p>
-<aside class="footnote-list brackets">
 <aside class="footnote brackets" id="ocl-impl" role="note">
 <span class="label"><span class="fn-bracket">[</span><a role="doc-backlink" href="#id1">1</a><span class="fn-bracket">]</span></span>
 <p><a class="reference external" href="https://www.iwocl.org/resources/opencl-implementations/">https://www.iwocl.org/resources/opencl-implementations/</a></p>
@@ -465,7 +466,6 @@ while RISCV fail on both 14.x and 15.x as follows,</p>
 <span class="label"><span class="fn-bracket">[</span><a role="doc-backlink" href="#id17">16</a><span class="fn-bracket">]</span></span>
 <p><a class="reference external" href="https://itbook.store/books/9781484255735">https://itbook.store/books/9781484255735</a></p>
 </aside>
-</aside>
 </section>
 </section>
 
@@ -483,7 +483,7 @@ while RISCV fail on both 14.x and 15.x as follows,</p>
 
     <div class="footer" role="contentinfo">
         &#169; Copyright 2016, Chen Chung-Shu.
-      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 6.1.3.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 5.0.2.
     </div>
   </body>
 </html>

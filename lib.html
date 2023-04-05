@@ -4,15 +4,17 @@
 <html lang="en">
   <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.19: https://docutils.sourceforge.io/" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
 
     <title>Library &#8212; Tutorial: Creating an LLVM Toolchain for the Cpu0 Architecture</title>
     <link rel="stylesheet" type="text/css" href="_static/pygments.css" />
     <link rel="stylesheet" type="text/css" href="_static/haiku.css" />
     <link rel="stylesheet" type="text/css" href="_static/graphviz.css" />
     <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
+    <script src="_static/jquery.js"></script>
+    <script src="_static/underscore.js"></script>
+    <script src="_static/_sphinx_javascript_frameworks_compat.js"></script>
     <script src="_static/doctools.js"></script>
-    <script src="_static/sphinx_highlight.js"></script>
     <link rel="author" title="About these documents" href="about.html" />
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
@@ -320,7 +322,7 @@ $BB1:
         ret	$lr
 </pre></div>
 </div>
-<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">cschen@cschendeiMac exlbt % </span>bash<span class="w"> </span>newlib-cpu0.sh
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">cschen@cschendeiMac exlbt % </span>bash newlib-cpu0.sh
 </pre></div>
 </div>
 <p>The libm.a depends on variable errno of libc defined in sys/errno.h.</p>
@@ -400,15 +402,15 @@ as a function call for float-add instruction.</p>
 
 </pre></div>
 </div>
-<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">chungshu@ChungShudeMacBook-Air input % </span>clang<span class="w"> </span>-target<span class="w"> </span>mips-unknown-linux-gnu<span class="w"> </span>-S
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">chungshu@ChungShudeMacBook-Air input % </span>clang -target mips-unknown-linux-gnu -S
 <span class="go">ch_call_compilerrt_func.c -emit-llvm</span>
-<span class="gp">chungshu@ChungShudeMacBook-Air input % </span>cat<span class="w"> </span>ch_call_compilerrt_func.ll
+<span class="gp">chungshu@ChungShudeMacBook-Air input % </span>cat ch_call_compilerrt_func.ll
 <span class="go">  ...</span>
-<span class="gp">  %</span><span class="nv">4</span><span class="w"> </span><span class="o">=</span><span class="w"> </span>load<span class="w"> </span>float,<span class="w"> </span>float*<span class="w"> </span>%1,<span class="w"> </span>align<span class="w"> </span><span class="m">4</span>
-<span class="gp">  %</span><span class="nv">5</span><span class="w"> </span><span class="o">=</span><span class="w"> </span>load<span class="w"> </span>float,<span class="w"> </span>float*<span class="w"> </span>%2,<span class="w"> </span>align<span class="w"> </span><span class="m">4</span>
-<span class="gp">  %</span><span class="nv">6</span><span class="w"> </span><span class="o">=</span><span class="w"> </span>fadd<span class="w"> </span>float<span class="w"> </span>%4,<span class="w"> </span>%5
+<span class="gp">  %</span><span class="nv">4</span> <span class="o">=</span> load float, float* %1, align <span class="m">4</span>
+<span class="gp">  %</span><span class="nv">5</span> <span class="o">=</span> load float, float* %2, align <span class="m">4</span>
+<span class="gp">  %</span><span class="nv">6</span> <span class="o">=</span> fadd float %4, %5
 
-<span class="gp">chungshu@ChungShudeMacBook-Air input % </span>~/llvm/test/build/bin/llc<span class="w"> </span>-march<span class="o">=</span>cpu0
+<span class="gp">chungshu@ChungShudeMacBook-Air input % </span>~/llvm/test/build/bin/llc -march<span class="o">=</span>cpu0
 <span class="go">-mcpu=cpu032II -relocation-model=static -filetype=asm ch_call_compilerrt_func.ll -o -</span>
 <span class="go">      ...</span>
 <span class="go">      ld      $4, 20($fp)</span>
@@ -468,8 +470,8 @@ into &#64;llvm.pow.f32 as follows,</p>
 intrinsic, then different backends can choose to compile them into specific
 instructions or call builtin functions in libm. The following is Clang’s
 comment <a class="footnote-reference brackets" href="#clang-builtin-comment" id="id19" role="doc-noteref"><span class="fn-bracket">[</span>15<span class="fn-bracket">]</span></a>.</p>
-<div class="highlight-c++ notranslate"><div class="highlight"><pre><span></span><span class="n">RValue</span><span class="w"> </span><span class="n">CodeGenFunction</span><span class="o">::</span><span class="n">EmitBuiltinExpr</span><span class="p">(...)</span>
-<span class="w">  </span><span class="p">...</span>
+<div class="highlight-c++ notranslate"><div class="highlight"><pre><span></span><span class="n">RValue</span><span class="w"> </span><span class="n">CodeGenFunction</span><span class="o">::</span><span class="n">EmitBuiltinExpr</span><span class="p">(...)</span><span class="w"></span>
+<span class="w">  </span><span class="p">...</span><span class="w"></span>
 <span class="w">  </span><span class="c1">// There are LLVM math intrinsics/instructions corresponding to math library</span>
 <span class="w">  </span><span class="c1">// functions except the LLVM op will never set errno while the math library</span>
 <span class="w">  </span><span class="c1">// might. Also, math builtins have the same semantics as their math library</span>
@@ -1301,13 +1303,13 @@ LIBS := $(LIBBUILTINS_DIR)/build-$(CPU)-$(ENDIAN)/libbuiltins.a
 include Common.mk
 </pre></div>
 </div>
-<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">chungshu@ChungShudeMacBook-Air input % </span>bash<span class="w"> </span>make.sh<span class="w"> </span>cpu032II<span class="w"> </span>eb<span class="w"> </span>Makefile.float
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">chungshu@ChungShudeMacBook-Air input % </span>bash make.sh cpu032II eb Makefile.float
 <span class="go">...</span>
 <span class="go">endian =  BigEndian</span>
 <span class="go">ISR address:00020614</span>
 <span class="go">0   /* 0: big endian, 1: little endian */</span>
 
-<span class="gp">chungshu@ChungShudeMacBook-Air verilog % </span>iverilog<span class="w"> </span>-o<span class="w"> </span>cpu0IIs<span class="w"> </span>cpu0IIs.v
+<span class="gp">chungshu@ChungShudeMacBook-Air verilog % </span>iverilog -o cpu0IIs cpu0IIs.v
 <span class="gp">chungshu@ChungShudeMacBook-Air verilog % </span>./cpu0IIs
 <span class="go">...</span>
 
@@ -2133,7 +2135,7 @@ include Common.mk
 </pre></div>
 </div>
 <p>Run as follows,</p>
-<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">chungshu@ChungShudeMacBook-Air input % </span>bash<span class="w"> </span>make.sh<span class="w"> </span>cpu032II<span class="w"> </span>eb<span class="w"> </span>Makefile.builtins
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">chungshu@ChungShudeMacBook-Air input % </span>bash make.sh cpu032II eb Makefile.builtins
 <span class="go">...</span>
 <span class="gp">chungshu@ChungShudeMacBook-Air verilog % </span>./cpu0IIs
 <span class="go">...</span>
@@ -2257,7 +2259,6 @@ include Common.mk
 <span class="go">RET to PC &lt; 0, finished!</span>
 </pre></div>
 </div>
-<aside class="footnote-list brackets">
 <aside class="footnote brackets" id="newlib" role="note">
 <span class="label"><span class="fn-bracket">[</span><a role="doc-backlink" href="#id1">1</a><span class="fn-bracket">]</span></span>
 <p><a class="reference external" href="https://sourceware.org/newlib/">https://sourceware.org/newlib/</a></p>
@@ -2320,7 +2321,6 @@ include Common.mk
 <span class="label"><span class="fn-bracket">[</span><a role="doc-backlink" href="#id19">15</a><span class="fn-bracket">]</span></span>
 <p><a class="reference external" href="https://github.com/llvm/llvm-project/blob/main/clang/lib/CodeGen/CGBuiltin.cpp">https://github.com/llvm/llvm-project/blob/main/clang/lib/CodeGen/CGBuiltin.cpp</a></p>
 </aside>
-</aside>
 </section>
 </section>
 
@@ -2340,7 +2340,7 @@ include Common.mk
 
     <div class="footer" role="contentinfo">
         &#169; Copyright 2016, Chen Chung-Shu.
-      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 6.1.3.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 5.0.2.
     </div>
   </body>
 </html>
