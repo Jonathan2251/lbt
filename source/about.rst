@@ -38,7 +38,11 @@ https://github.com/Jonathan2251/lbt/blob/master/README.md
 Revision history
 ----------------
 
-Version 12.0.13, not released yet.
+Version 12.0.14, not released yet.
+
+Version 12.0.13, Released July 15, 2023.
+
+  riscv.rst: AnLLVMBasedNPUCompiler.key.
 
 Version 12.0.12, Released April 4, 2023.
 
