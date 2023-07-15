@@ -516,6 +516,12 @@ Atomic instructions
 RISCV atomic instructions [#atomic-isa]_.
 
 
+RISCV+NPU for Deep Learning
+---------------------------
+
+https://github.com/Jonathan2251/lbt/blob/master/present/AnLLVMBasedNPUCompiler.pdf
+
+
 Resources
 ---------
 
