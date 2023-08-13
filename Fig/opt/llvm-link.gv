@@ -1,0 +1,21 @@
+digraph G {
+  rankdir=LR;
+
+  node [shape=record];
+  program1 [label = "program"];
+  program2 [label = "program"];
+  clang1 [label = "clang"];
+  clang2 [label = "clang"];
+  llc;
+  lld;
+  llvm_link [label="llvm-link",style=filled,color=green];
+
+  program1 -> clang1 [label = "C/C++"];
+  program2 -> clang2 [label = "Object C"];
+  clang1 -> llvm_link [label = "IR"];
+  clang2 -> llvm_link [label = "IR"];
+  llvm_link -> llc [ label = "IR (optimized)" ];
+  llc -> lld [ label = "obj" ];
+
+  label = "llvm-link flow";
+}
