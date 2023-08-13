@@ -67,23 +67,26 @@ Open sources
 
 .. table:: Open sources for OpenCL
 
-  ==============  ==============  =============  ===========
-  Project         Runtime         Driver         Compiler
-  ==============  ==============  =============  ===========
-  POCL                 V               V           
-  clang                                               V
-  ==============  ==============  =============  ===========
+  ==============  =======  ======  ========  =======
+  Project         Runtime  Driver  Compiler  Library
+  ==============  =======  ======  ========  =======
+  POCL            V        V     
+  clang                            V
+  libclc                                     V
+  ==============  =======  ======  ========  =======
 
 .. table:: Open sources for OpenCL 2
 
   ==============  ==============  ===================  ===========
   project         Host Compiler   Device Compiler      Device Lib
   ==============  ==============  ===================  ===========
-  POCL            X86             X86,ARM,AMD,TCE,PTX  -
-  clang           X86             NVIDIA-gpu, AMD-gpu  -
-  Liclc           -               -                    Spir, Spir64, NVIDIA-gpu, AMD-gpu
+  POCL            X86             X86,ARM,AMD,TCE,PTX  
+  clang           X86             NVIDIA-gpu, AMD-gpu  
+  libclc                                               Spir, Spir64, NVIDIA-gpu, AMD-gpu
   ==============  ==============  ===================  ===========
 
+libclc is an open source, BSD/MIT dual licensed implementation of 
+the library requirements of the OpenCL C programming language [#libclc]_.
 
 POCL
 ----
@@ -242,6 +245,8 @@ Book [#dpcpp-book]_.
 .. [#ocl-impl] https://www.iwocl.org/resources/opencl-implementations/
 
 .. [#wiki-ocl-osi] https://en.wikipedia.org/wiki/OpenCL#Open_source_implementations\
+
+.. [#libclc] https://libclc.llvm.org
 
 .. [#pocl-web] http://portablecl.org/
 
