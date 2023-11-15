@@ -4,7 +4,7 @@ digraph G {
   subgraph cluster_0 {
     style=filled;
     color=lightgrey;
-    label = "RISCV toolchain flow";
+//    label = "RISCV toolchain flow";
     node [style=filled,color=white]; usercode [label = "user program"];
     node [style=filled,color=white]; sflib [label = "lib (libm/libc/libstdc++)"];
     node [style=filled,color=white]; linker [label = "lld or ld"];

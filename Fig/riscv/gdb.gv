@@ -4,7 +4,7 @@ digraph G {
   subgraph cluster_0 {
     style=filled;
     color=lightgrey;
-    label = "GDB flow";
+//    label = "GDB flow";
     node [style=filled,color=white]; user, gdb;
 //    node [style=filled,color=white]; linker [label = "lld or ld"];
     node [style=filled,color=white]; simulator [label = "qemu "];

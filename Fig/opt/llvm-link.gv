@@ -17,5 +17,5 @@ digraph G {
   llvm_link -> llc [ label = "IR (optimized)" ];
   llc -> lld [ label = "obj" ];
 
-  label = "llvm-link flow";
+//  label = "llvm-link flow";
 }

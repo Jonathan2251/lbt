@@ -19,6 +19,6 @@ digraph G {
   HMem -> DMem2 [label="Send(DMA+Net)"];
   DMem2 -> HMem [label="Receive(DMA+Net)"];
 
-  label = "Figure: OpenCL with discrete memory (Device: 2 processor+memory)";
+//  label = "Figure: OpenCL with discrete memory (Device: 2 processor+memory)";
 }
 

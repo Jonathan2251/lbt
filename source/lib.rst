@@ -7,20 +7,18 @@ Library
    :local:
    :depth: 4
 
-Since Cpu0 has not hardware float point instructions, it needs soft float point
-library to finish the floating point operation. LLVM compiler-rt project include
-software floating point library implementation :numref:`lib-empty` , so we choose it as the 
-implementation. 
+Since Cpu0 has not hardware float point instructions, it needs software float 
+point library to finish the floating point operation. 
+LLVM compiler-rt project has software floating point library implementation 
+:numref:`swf-lib` , so I choose it as the implementation. 
 
 Since compiler-rt uses unix/linux rootfs structure, we fill the gap by add few
 empty include-files in exlbt/include.
 
-.. _lib-empty:
-.. figure:: ../Fig/empty.png
-
-  compiler-rt\/lib\/builtins' software float library
-  
+.. _swf-lib:
 .. graphviz:: ../Fig/lib/lib.gv
+  :caption: compiler-rt\/lib\/builtins' software float library
+  
 
 .. table:: lldb dependences
 
@@ -47,9 +45,8 @@ Newlib is a C library for bare metal platform.
 Two libraries in newlib are libc and libm. Libc is for functions of
 IO, file and string supported while libm is for mathematical functions.
 Web of newlib is here [#newlib]_ and newlib/libm here [#newlib-libm]_ .
-Since the next section compiler-rt/builtins depends on libm, please running
-the following bash script is for installing and building newlib for
-Cpu0.
+Since the next section compiler-rt/builtins depends on libm, please run
+the following bash script to install and build newlib for Cpu0.
 
 .. rubric:: lbt/exlbt/newlib-cpu0.sh
 .. literalinclude:: ../exlbt/newlib-cpu0.sh
@@ -71,10 +68,11 @@ The libm.a depends on variable errno of libc defined in sys/errno.h.
 Compiler-rt's builtins
 ----------------------
 
-Compiler-rt is a project with runtime libraries implentation [#compiler-rt]_ .
+Compiler-rt is a project for runtime libraries implentation [#compiler-rt]_ .
 Compiler-rt/lib/builtins provides functions for basic operations such as +, -, 
 \*, /, ... on type of float or double and for conversion between float and 
-integer, or on type of over 32-bit. The compiler-rt/lib/builtins/README.txt 
+integer, or other type of more than 32-bit, such as `long long`. 
+The compiler-rt/lib/builtins/README.txt 
 [#builtins-README]_ includes the dependent functions that the whole builtins 
 called.
 The dependent functions is a small part of libm listed in 
@@ -113,10 +111,11 @@ The libgcc's Integer plus Soft float library  [#lib-gcc]_ [#int-lib]_
 Though the 'rt' means RunTime libaraies, in builtins library, 
 most of these functions 
 written in target-independent C form and can be compiled and static-linked
-into target. When you compile the following c code, llc generates 
-**jsub __addsf3** to call compiler-rt float function since Cpu0 hasn't hardware
-float-instructions so Cpu0 backend doesn't handle it, and llvm treats it
-as a function call for float-add instruction.
+into target. When you compile the following c code, llc will generate 
+**jsub __addsf3** to call compiler-rt float function for Cpu0.
+This is because Cpu0 hasn't hardware float-instructions, so Cpu0 backend 
+doesn't handle the DAG of __addsf3. The end result, llvm treats the DAG of 
+__addsf3 as a function call for float-add instruction.
 
 .. rubric:: lbt/exlbt/input/ch_call_compilerrt_func.c
 .. literalinclude:: ../exlbt/input/ch_call_compilerrt_func.c

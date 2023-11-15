@@ -9,8 +9,9 @@ Appendix C: POCL
 
 .. _opencl-f:
 .. graphviz:: ../Fig/pocl/opencl.gv
+  :caption: OpenCL with discrete memory (Device: 2 processor+memory)
 
-As above figure, one possible HW platform is that one Host + Device with 2 RISCV 
+As :numref:`opencl-f`, one possible HW platform is that one Host + Device with 2 RISCV 
 processors and each RISCV has each dedicated memory.
 
 - info::local_mem_type::global -> conherent, CPU cache (SRAM)

@@ -19,6 +19,7 @@ the same language which support seperate compile.
 
 .. _llvm-link-f-flow:
 .. graphviz:: ../Fig/opt/llvm-link.gv 
+  :caption: llvm-link flow
 
 Clang provide optimization options to do optimation from high level language 
 to IR. 
