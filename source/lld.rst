@@ -179,14 +179,20 @@ is for this purpose.
   
 .. code-block:: console
 
-  1-160-136-173:input Jonathan$ pwd
-  /Users/Jonathan/Downloads/exlbt/input
-  114-37-148-111:input Jonathan$ bash make.sh cpu032I el Makefile.slinker
+  $ cd ~/git/lbd/lbdex/verilog
+  $ make
+  $ cd  ~/git/lbt/exlbt/input
+  $ pwd
+  $HOME/git/lbt/exlbt/input
+  $ bash make.sh cpu032I el Makefile.slinker
   ...
   endian =  LittleEndian
   ISR address:00020780
   1   /* 0: big endian, 1: little endian */
-  chungshu@ChungShudeMacBook-Air verilog % ./cpu0Is       
+  $ cd ~/git/lbd/lbdex/verilog
+  $ pwd
+  $HOME/git/lbd/lbdex/verilog
+  $ ./cpu0Is 
   WARNING: cpu0.v:487: $readmemh(cpu0.hex): Not enough words in the file for the requested range [0:524287].
   taskInterrupt(001)
   74
@@ -271,12 +277,15 @@ Let's check the result with PC program printf-stdarg-1.c output as follows,
 
 .. code-block:: console
 
-  1-160-136-173:input Jonathan$ clang printf-stdarg-1.c
+  $ cd  ~/git/lbt/exlbt/input
+  $ pwd
+  $HOME/git/lbt/exlbt/input
+  $ clang printf-stdarg-1.c
   printf-stdarg-1.c:58:19: warning: incomplete format specifier [-Wformat]
     printf("%d %s(s)%", 0, "message");
                     ^
   1 warning generated.
-  1-160-136-173:input Jonathan$ ./a.out
+  $ ./a.out
   Hello world!
   printf test
   (null) is null pointer
