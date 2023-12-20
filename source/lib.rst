@@ -18,6 +18,12 @@ empty include-files in exlbt/include.
 .. _swf-lib:
 .. graphviz:: ../Fig/lib/lib.gv
   :caption: compiler-rt\/lib\/builtins' software float library
+
+The dependences for compiler-rt on libm as :numref:`compiler-rrt-dep`.
+  
+.. _compiler-rrt-dep-short:
+.. graphviz:: ../Fig/lib/compiler-rt-dep-short.gv
+  :caption: Dependences for compiler-rt on libm
   
 
 .. table:: lldb dependences
@@ -40,6 +46,9 @@ empty include-files in exlbt/include.
 
 C Library (Newlib)
 ------------------
+
+Since complex type of compiler-rt depends on libm, I porting NewLib in this 
+section.
 
 Newlib is a C library for bare metal platform.
 Two libraries in newlib are libc and libm. Libc is for functions of
@@ -90,38 +99,40 @@ compier-rt/lib/builtins/int_math.h [#builtins-int_math]_ .
   #MATHDIR = mathfp 
 
 As above Makefile, newlib uses libm/math.
-The dependences for compiler-rt on libm as :numref:`compiler-rrt-dep`.
+The dependences for builtin functions of compiler-rt on libm as 
+:numref:`compiler-rrt-dep`.
 
 .. _compiler-rrt-dep:
 .. graphviz:: ../Fig/lib/compiler-rt-dep.gv
-  :caption: Dependences for compiler-rt on libm
+  :caption: Dependences for builtin functions of compiler-rt on libm
   
-.. table:: compiler-rt builtins dependences on newlib/libm (open source libc for bare metal) 
+.. table:: compiler-rt builtins dependences on newlib/libm (open source libc 
+           for bare metal) 
 
-  ==============  ========================== 
-  function        file
-  ==============  ==========================
+  ==============  =============================  ==============
+  function        file                           directory of libm 
+  ==============  =============================  ==============
   abort           compiler-rt-12.x/cpu0/abort.c
-  isinf           s_isinf.c
-  isnan           s_isnan.c
-  fabsl           fabsl.c
-  fmax            s_fmax.c
-  fmaxf           sf_fmax.c
-  fmaxl           fmaxl.c
-  log             log.c
-  logf            sf_log.c
-  logl            logl.c
-  scalbn          s_scalbn.c
-  scalbnf         sf_scalbn.c
-  scalbnl         scalblnl.c
-  copysign        s_copysign.c
-  copysignf       sf_copysign.c
-  copysignl       copysignl.c
-  fabsl           fabsl.c
-  --------------  --------------------------
-  fabs            s_fabs.c
-  fabsf           sf_fabs.c
-  ==============  ==========================
+  isinf           s_isinf.c                      newlib-cygwin/newlib/libm/common
+  isnan           s_isnan.c                        "
+  fabsl           fabsl.c                          "
+  fmax            s_fmax.c                         "
+  fmaxf           sf_fmax.c                        "
+  fmaxl           fmaxl.c                          "
+  log             log.c                            "
+  logf            sf_log.c                         "
+  logl            logl.c                           "
+  scalbn          s_scalbn.c                       "
+  scalbnf         sf_scalbn.c                      "
+  scalbnl         scalblnl.c                       "
+  copysign        s_copysign.c                     "
+  copysignf       sf_copysign.c                    "
+  copysignl       copysignl.c                      "
+  fabsl           fabsl.c                          "
+  --------------  -----------------------------  --------------
+  fabs            s_fabs.c                       newlib-cygwin/newlib/libm/math
+  fabsf           sf_fabs.c                        "
+  ==============  =============================  ==============
 
 - Libm has no dependence to any other library.
 

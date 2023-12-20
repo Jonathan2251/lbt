@@ -2,7 +2,22 @@
 digraph G {
   rankdir=LR;
 
-  "float and double types" -> "Cpu0 backend of llvm" [ label = "__builtin_clz(), __builtin_clo() and abort()" ];
-  "complex types" -> "libm/common" [ label = "the __builtin functions of isinf, isnan, fabsl, fmax, fmaxf, fmaxl, log, logf, logl, scalbn, scalbnf, scalbnl, copysign, copysignf, copysignl, fabsl" ];
-  "complex types" -> "libm/math" [ label = "the __builtin functions of fabs, fabsf" ];
+  compound=true;
+  node [shape=record];
+
+  subgraph cluster_compiler_rt {
+    label = "compiler-rt";
+    compiler_rt [label="<fdt> float and double types | <ct> complex type"];
+  }
+
+  node [label = "Cpu0 backend of llvm"]; cpu0;
+
+  subgraph cluster_libm {
+    label = "libm";
+    libm [label="<c> common | <ma> math"];
+  }
+
+  compiler_rt:ct -> libm:c [label = "the __builtin functions of isinf, isnan, fabsl, \n fmax, fmaxf, fmaxl, log, logf, logl, scalbn, scalbnf, \n scalbnl, copysign, copysignf, copysignl, fabsl" ];
+  compiler_rt:ct -> libm:ma [label = "the __builtin functions of fabs, fabsf" ];
+  compiler_rt:fdt -> cpu0 [label = "__builtin_clz(), __builtin_clo() and abort()" ];
 }

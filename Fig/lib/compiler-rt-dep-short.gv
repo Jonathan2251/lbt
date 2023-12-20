@@ -1,0 +1,23 @@
+// dot -Tpng compiler-rt-dep-short.gv -o compiler-rt-dep-short.png
+digraph G {
+  rankdir=LR;
+
+  compound=true;
+  node [shape=record];
+
+  subgraph cluster_compiler_rt {
+    label = "compiler-rt";
+    compiler_rt [label="<fdt> float and double types | <ct> complex type"];
+  }
+
+  node [label = "Cpu0 backend of llvm"]; cpu0;
+
+  subgraph cluster_libm {
+    label = "libm";
+    libm [label="<c> common | <ma> math"];
+  }
+
+  compiler_rt:ct -> libm:c;
+  compiler_rt:ct -> libm:ma;
+  compiler_rt:fdt -> cpu0;
+}
