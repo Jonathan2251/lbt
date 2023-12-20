@@ -32,7 +32,7 @@ The dependences for compiler-rt on libm as :numref:`compiler-rrt-dep`.
   functions       depend on
   ==============  ==========================
   scanf           newlib/libc
-  printf          sanitizter_printf.c of compiler-rt
+  printf          sanitizer_printf.c of compiler-rt
   ==============  ==========================
 
 .. table:: sanitizer_printf.c of compiler-rt dependences
@@ -106,6 +106,15 @@ The dependences for builtin functions of compiler-rt on libm as
 .. graphviz:: ../Fig/lib/compiler-rt-dep.gv
   :caption: Dependences for builtin functions of compiler-rt on libm
   
+In this section, I get test cases for verification of SW Float Point from
+compiler-rt/test/builtins/Unit to compiler-rt-test/builtins/Unit/.
+
+Since lbt/exlbt/input/printf-stdarg.c does not support %lld (long long 
+integeter, 64-bit) and test cases in compiler-rt/test/builtins/Unit needs it to
+verify the result of test cases for SW Float Point, I port sanitizer_printf.cpp 
+and sanitizer_internal_defs.h of lbt/exlbt/input from sanitizer_printf.cpp and 
+sanitizer_internal_defs.h of compiler-rt/lib/sanitizer_common.
+
 .. table:: compiler-rt builtins dependences on newlib/libm (open source libc 
            for bare metal) 
 
@@ -249,8 +258,8 @@ comment [#clang-builtin-comment]_.
     // LLVM counterparts if the call is marked 'const' (known to never set errno).
 
 
-Software Float Point Support
------------------------------
+Verification
+~~~~~~~~~~~~
 
 The following sanitizer_printf.cpp extended from compiler-rt can support 
 printf("%lld"). It's implementation calling some floating lib functions
