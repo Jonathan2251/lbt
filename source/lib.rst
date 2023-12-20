@@ -78,32 +78,66 @@ called.
 The dependent functions is a small part of libm listed in 
 compier-rt/lib/builtins/int_math.h [#builtins-int_math]_ .
 
+.. rubric:: ~git/newlib-cygwin/build-cpu032I-eb/Makefile
+.. code-block:: Makefile
+
+  MATHDIR = math
+
+  # The newlib hardware floating-point routines have been disabled due to
+  # inaccuracy.  If you wish to work on them, you will need to edit the
+  # configure.in file to re-enable the configuration option.  By default,
+  # the NEWLIB_HW_FP variable will always be false.
+  #MATHDIR = mathfp 
+
+As above Makefile, newlib uses libm/math.
+The dependences for compiler-rt on libm as :numref:`compiler-rrt-dep`.
+
+.. _compiler-rrt-dep:
+.. graphviz:: ../Fig/lib/compiler-rt-dep.gv
+  :caption: Dependences for compiler-rt on libm
+  
 .. table:: compiler-rt builtins dependences on newlib/libm (open source libc for bare metal) 
 
   ==============  ========================== 
-  library         functions
+  function        file
   ==============  ==========================
-  ported already  abort
-  libm/common     finite, isinf, isnan
-  libm/complex    cabs
-  libm/math       copysign, fcabs, fmax, log, scalbn
-  libm/mathfp     cabs
+  abort           compiler-rt-12.x/cpu0/abort.c
+  isinf           s_isinf.c
+  isnan           s_isnan.c
+  fabsl           fabsl.c
+  fmax            s_fmax.c
+  fmaxf           sf_fmax.c
+  fmaxl           fmaxl.c
+  log             log.c
+  logf            sf_log.c
+  logl            logl.c
+  scalbn          s_scalbn.c
+  scalbnf         sf_scalbn.c
+  scalbnl         scalblnl.c
+  copysign        s_copysign.c
+  copysignf       sf_copysign.c
+  copysignl       copysignl.c
+  fabsl           fabsl.c
+  --------------  --------------------------
+  fabs            s_fabs.c
+  fabsf           sf_fabs.c
   ==============  ==========================
 
-- fabs (may includes fabsf, fabsl).
+- Libm has no dependence to any other library.
 
-- Only type of complex need above, others (float and double) depend on abort() 
-  only which I ported in lbt/exlbt/compiler-rt/cpu0/abort.c.
+- Only type of complex in compiler-rt/lib/builtin need above, others (float and 
+  double) depend on __builtin_clz(), __builtin_clo() and abort() only. I has 
+  ported in lbt/exlbt/compiler-rt/cpu0/abort.c.
 
 - All test cases in compiler-rt/test/builtins/Unit depend on 
   printf(%lld or %llX, ...), I ported from 
   compiler-rt/lib/sanitizer_common/sanitizer_printf.cpp to 
   lbt/exlbt/input/sanitizer_printf.cpp.
 
-- These dependent functions from has bee ported from newlib/libm.
+- These dependent functions of complex type has bee ported from newlib/libm.
 
 - Except builtins, the other three, sanitizer runtimes, profile and BlocksRuntime, 
-  are not needed for my embedded Cpu0.
+  in compiler-rt are not needed for my embedded Cpu0.
 
 The libgcc's Integer plus Soft float library  [#lib-gcc]_ [#int-lib]_ 
 [#sw-float-lib]_ are equal to functions of compiler-rt's builtins.

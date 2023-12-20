@@ -1,0 +1,8 @@
+// dot -Tpng compiler-rt-dep.gv -o compiler-rt-dep.png
+digraph G {
+  rankdir=LR;
+
+  "float and double types" -> "Cpu0 backend of llvm" [ label = "__builtin_clz(), __builtin_clo() and abort()" ];
+  "complex types" -> "libm/common" [ label = "the __builtin functions of isinf, isnan, fabsl, fmax, fmaxf, fmaxl, log, logf, logl, scalbn, scalbnf, scalbnl, copysign, copysignf, copysignl, fabsl" ];
+  "complex types" -> "libm/math" [ label = "the __builtin functions of fabs, fabsf" ];
+}
