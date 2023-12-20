@@ -18,6 +18,6 @@ digraph G {
   }
 
   compiler_rt:ct -> libm:c [label = "the __builtin functions of isinf, isnan, fabsl, \n fmax, fmaxf, fmaxl, log, logf, logl, scalbn, scalbnf, \n scalbnl, copysign, copysignf, copysignl, fabsl" ];
-  compiler_rt:ct -> libm:ma [label = "the __builtin functions of fabs, fabsf" ];
+  compiler_rt:ct:se -> libm:ma [label = "the __builtin functions of fabs, fabsf" ];
   compiler_rt:fdt -> cpu0 [label = "__builtin_clz(), __builtin_clo() and abort()" ];
 }

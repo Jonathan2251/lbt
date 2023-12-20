@@ -18,6 +18,6 @@ digraph G {
   }
 
   compiler_rt:ct -> libm:c;
-  compiler_rt:ct -> libm:ma;
+  compiler_rt:ct:se -> libm:ma;
   compiler_rt:fdt -> cpu0;
 }
