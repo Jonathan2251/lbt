@@ -60,6 +60,15 @@ the following bash script to install and build newlib for Cpu0.
 .. rubric:: lbt/exlbt/newlib-cpu0.sh
 .. literalinclude:: ../exlbt/newlib-cpu0.sh
 
+.. note:: **In order to add Cpu0 backend to NewLib, the following changes in lbt/exlbt/newlib.patch** 
+
+  - lbt/exlbt/newlib-cygwin/newlib/libc/machine/cpu0/setjmp.S is added; 
+
+  - newlib-cygwin/config.sub, newlib-cygwin/newlib/configure.host, 
+    newlib-cygwin/newlib/libc/include/machine/ieeefp.h, 
+    newlib-cygwin/newlib/libc/include/sys/unistd.h and
+    newlib-cygwin/newlib/libc/machine/configure are modified for adding cpu0.
+
 .. rubric:: lbt/exlbt/newlib.patch
 .. literalinclude:: ../exlbt/newlib.patch
 
@@ -121,7 +130,8 @@ sanitizer_internal_defs.h of compiler-rt/lib/sanitizer_common.
   ==============  =============================  ==============
   function        file                           directory of libm 
   ==============  =============================  ==============
-  abort           compiler-rt-12.x/cpu0/abort.c
+  abort           lbt/exlbt/compiler-rt/
+                  cpu0/abort.c
   isinf           s_isinf.c                      newlib-cygwin/newlib/libm/common
   isnan           s_isnan.c                        "
   fabsl           fabsl.c                          "

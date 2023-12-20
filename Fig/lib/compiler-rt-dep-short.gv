@@ -7,7 +7,11 @@ digraph G {
 
   subgraph cluster_compiler_rt {
     label = "compiler-rt";
-    compiler_rt [label="<ut> unit test of builtin | <fdt> float and double types | <ct> complex type"];
+    utb [label="test/builtins/Unit"];
+    subgraph cluster_builtins {
+      label = "lib/builtins";
+      builtins [label="<fdt> float and double types | <ct> complex type"];
+    }
   }
 
   node [label = "sanitizer_printf(%lld)"]; sanitizer_printf;
@@ -18,8 +22,8 @@ digraph G {
     libm [label="<c> common | <ma> math"];
   }
 
-  compiler_rt:ct -> libm:c;
-  compiler_rt:ct:se -> libm:ma;
-  compiler_rt:fdt -> cpu0;
-  compiler_rt:ut -> sanitizer_printf;
+  builtins:ct -> libm:c;
+  builtins:ct:se -> libm:ma;
+  builtins:fdt -> cpu0;
+  utb -> sanitizer_printf;
 }
