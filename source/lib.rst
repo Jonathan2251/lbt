@@ -7,6 +7,25 @@ Library
    :local:
    :depth: 4
 
+Floating point can be implemented both on software and hardware.
+
+The 16-bit a*b can be calculated as follows,
+
+- Precondition: a and b are normalized of IEEE half precision (16-bit) [#ieee754-half]_.
+  Exponent bias: zero offset being 15: 15->0, 1-> -14, 30 -> 15. And 31 -> NaN.
+
+- Transformation for a*b:
+
+  - 1. {sign-bit(a) xor sign-bit(b)} {exponent-bits(a)+exponent-bits(b)-15} {significand-bits(a)*significand-bits(b) >> 10}
+  - 2. Normalize:
+
+- ex.
+
+  - a = 0.01 (binary) = {0 01110 1000000000}; b = 0.11 (binary) = {0 10000 1100000000}
+
+  - 1. a*b = {0 xor 0} {01110+10000-01111=01111} {1000000000*1100000000 >> 10 = 0110000000}
+  - 2. Normalize: {0 01111 0110000000} -> {0 01110 1100000000}
+
 Since Cpu0 has not hardware float point instructions, it needs software float 
 point library to finish the floating point operation. 
 LLVM compiler-rt project has software floating point library implementation 
@@ -501,6 +520,8 @@ Run as follows,
   ...          
   RET to PC < 0, finished!
 
+
+.. [#ieee754-half] https://en.wikipedia.org/wiki/Half-precision_floating-point_format
 
 .. [#newlib] https://sourceware.org/newlib/
 
