@@ -7,9 +7,35 @@ Library
    :local:
    :depth: 4
 
+Fixed point for representation of floating point as :numref:`fixed-point` and 
+calculate as below after.
+
+.. _fixed-point:
+.. figure:: ../Fig/lib/fixed-point.png
+  :scale: 50 %
+  :align: center
+
+  Fixed point representation
+
+Assume Sign part: 1-bit (0:+, 1:-), Integer part: 2-bit, Fraction part: 2-bit.
+
+- 3.0 * 0.5 = {0 11 00} * {0 00 10} = {(0 xor 0) (11 00 * 00 10) >> 2} = {0 01 10} = 1.5
+
+The layout for half precision of Floating point as :numref:`floating-point-half`.
+
+.. _floating-point-half:
+.. figure:: ../Fig/lib/floating-point-half.png
+  :scale: 50 %
+  :align: center
+
+  IEEE 754 half precision of Floating point representation [#ieee754-half]_
+
+
 Floating point can be implemented both on software and hardware.
 
-The 16-bit a*b can be calculated as follows,
+The 16-bit a*b can be calculated by transfering to Fixed point above for both a 
+and b on more bits of memory/registers, calcuate as Fixed point and transfer 
+back to Fixed point, or as follows,
 
 - Precondition: a and b are normalized of IEEE half precision (16-bit) [#ieee754-half]_.
   Exponent bias: zero offset being 15: 15->0, 1-> -14, 30 -> 15. And 31 -> NaN.
