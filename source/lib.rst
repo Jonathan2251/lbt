@@ -7,6 +7,9 @@ Library
    :local:
    :depth: 4
 
+The theory of Floating point implementation
+-------------------------------------------
+
 Fixed point for representation of floating point as :numref:`fixed-point` and 
 calculate as below after.
 
@@ -51,6 +54,64 @@ back to Fixed point, or as follows,
 
   - 1. a*b = {0 xor 0} {01110+10000-01111=01111} {1000000000*1100000000 >> 10 = 0110000000}
   - 2. Normalize: {0 01111 0110000000} -> {0 01110 1100000000}
+
+IEEE-754 floating standard also consider NaN (Not a Number) such as 0/0 and 
+:math:`\infty` as :numref:`exp-enc`.
+
+.. _exp-enc:
+.. figure:: ../Fig/lib/exp-enc.png
+  :scale: 50 %
+  :align: center
+
+  Encoding of exponent for IEEE 754 half precision [#ieee754-half]_
+
+Since Normalization applied in Floating precision is the critial code, Cpu0 HW
+provides clz and clo to speedup Normalization Operation.
+
+Compiler-rt implement mul of Floating point considering NaN and `\infty` as the 
+same way for implementation above and clz/clo to speedup Normalization as 
+follows,
+
+.. rubric:: ~/llvm/debug/compiler-rt/lib/builtins/fp_lib.h
+.. code-block:: c++
+
+  #if defined SINGLE_PRECISION
+  static __inline int rep_clz(rep_t a) { return __builtin_clz(a); }
+  ...
+  #endif
+  ...
+  static __inline rep_t toRep(fp_t x) {
+    const union {
+      fp_t f;
+      rep_t i;
+    } rep = {.f = x};
+    return rep.i;
+  }
+  ...
+  static __inline int normalize(rep_t *significand) {
+    const int shift = rep_clz(*significand) - rep_clz(implicitBit);
+    *significand <<= shift;
+    return 1 - shift;
+  }
+
+.. rubric:: ~/llvm/debug/compiler-rt/lib/builtins/fp_mul_impl.inc
+.. code-block:: c++
+
+  #include "fp_lib.h"
+  ...
+  static __inline fp_t __mulXf3__(fp_t a, fp_t b) {
+    const unsigned int aExponent = toRep(a) >> significandBits & maxExponent;
+    const unsigned int bExponent = toRep(b) >> significandBits & maxExponent;
+    ...
+    int productExponent = aExponent + bExponent - exponentBias + scale;
+    ...
+      productHi |= (rep_t)productExponent << significandBits;
+    ...
+    return fromRep(productHi);
+  }
+
+The dependence for Cpu0 based on Compiler-rt's builtin
+------------------------------------------------------
 
 Since Cpu0 has not hardware float point instructions, it needs software float 
 point library to finish the floating point operation. 
@@ -216,6 +277,18 @@ sanitizer_internal_defs.h of compiler-rt/lib/sanitizer_common.
 
 The libgcc's Integer plus Soft float library  [#lib-gcc]_ [#int-lib]_ 
 [#sw-float-lib]_ are equal to functions of compiler-rt's builtins.
+
+In compiler-rt/lib/builtins, the dependence between files as table.
+
+.. table:: dependence between files for compiler-rt/lib/builtins
+
+  ====================  ========================== 
+  functions             depend on
+  ====================  ==========================
+  \*.c                  \*.inc
+  \*.inc                \*.h
+  ====================  ==========================
+
 
 Though the 'rt' means RunTime libaraies, in builtins library, 
 most of these functions 
