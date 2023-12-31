@@ -38,7 +38,15 @@ https://github.com/Jonathan2251/lbt/blob/master/README.md
 Revision history
 ----------------
 
-Version 12.0.14, not released yet.
+Version 12.0.15, not released yet.
+
+Version 12.0.14, Released December 30, 2023.
+
+  libclc.
+  opt.rst: llvm-link.gv.
+  Add caption for reference of .gv.
+  lib.rst: compiler-rt-dep.gv, compiler-rt-dep-short.gv.
+  lib.rst: 16-bit a*b calculation.
 
 Version 12.0.13, Released July 15, 2023.
 
