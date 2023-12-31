@@ -12,7 +12,7 @@ simulators on Linux as figure and table below.
 
 .. _toolchain-f1:
 .. graphviz:: ../Fig/riscv/toolchain.gv
-
+  :caption: RISCV toolchain flow
 
 .. table:: RISCV toolchain [#toolchain]_
 
@@ -318,6 +318,7 @@ GDB
 
 .. _gdb-f:
 .. graphviz:: ../Fig/riscv/gdb.gv
+  :caption: GDB flow
 
 LLVM 13.x fails on "clang -g" for rvv C/C++ file while LLVM 14.x is work. Run 
 qemu on terminal A with gdb on terminal B [#riscv-qemu-gdb]_ as follows,

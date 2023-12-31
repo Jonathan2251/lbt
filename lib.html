@@ -15,6 +15,7 @@
     <script src="_static/underscore.js"></script>
     <script src="_static/_sphinx_javascript_frameworks_compat.js"></script>
     <script src="_static/doctools.js"></script>
+    <script async="async" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
     <link rel="author" title="About these documents" href="about.html" />
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
@@ -43,24 +44,159 @@
 <span id="sec-lib"></span><h1>Library<a class="headerlink" href="#library" title="Permalink to this heading">¶</a></h1>
 <nav class="contents local" id="contents">
 <ul class="simple">
-<li><p><a class="reference internal" href="#c-library-newlib" id="id24">C Library (Newlib)</a></p></li>
-<li><p><a class="reference internal" href="#compiler-rt-s-builtins" id="id25">Compiler-rt’s builtins</a></p></li>
-<li><p><a class="reference internal" href="#software-float-point-support" id="id26">Software Float Point Support</a></p></li>
+<li><p><a class="reference internal" href="#the-theory-of-floating-point-implementation" id="id34">The theory of Floating point implementation</a></p></li>
+<li><p><a class="reference internal" href="#the-dependence-for-cpu0-based-on-compiler-rt-s-builtin" id="id35">The dependence for Cpu0 based on Compiler-rt’s builtin</a></p></li>
+<li><p><a class="reference internal" href="#c-library-newlib" id="id36">C Library (Newlib)</a></p></li>
+<li><p><a class="reference internal" href="#compiler-rt-s-builtins" id="id37">Compiler-rt’s builtins</a></p>
+<ul>
+<li><p><a class="reference internal" href="#verification" id="id38">Verification</a></p></li>
+</ul>
+</li>
 </ul>
 </nav>
-<p>Since Cpu0 has not hardware float point instructions, it needs soft float point
-library to finish the floating point operation. LLVM compiler-rt project include
-software floating point library implementation <a class="reference internal" href="#lib-empty"><span class="std std-numref">Fig. 6</span></a> , so we choose it as the
-implementation.</p>
-<p>Since compiler-rt uses unix/linux rootfs structure, we fill the gap by add few
-empty include-files in exlbt/include.</p>
-<figure class="align-default" id="id20">
-<span id="lib-empty"></span><img alt="_images/empty.png" src="_images/empty.png" />
+<section id="the-theory-of-floating-point-implementation">
+<h2><a class="toc-backref" href="#id34" role="doc-backlink">The theory of Floating point implementation</a><a class="headerlink" href="#the-theory-of-floating-point-implementation" title="Permalink to this heading">¶</a></h2>
+<p>Fixed point for representation of floating point as <a class="reference internal" href="#fixed-point"><span class="std std-numref">Fig. 6</span></a> and
+calculate as below after.</p>
+<figure class="align-center" id="id24">
+<span id="fixed-point"></span><a class="reference internal image-reference" href="_images/fixed-point.png"><img alt="_images/fixed-point.png" src="_images/fixed-point.png" style="width: 379.0px; height: 81.0px;" /></a>
 <figcaption>
-<p><span class="caption-number">Fig. 6 </span><span class="caption-text">compiler-rt/lib/builtins’ software float library</span><a class="headerlink" href="#id20" title="Permalink to this image">¶</a></p>
+<p><span class="caption-number">Fig. 6 </span><span class="caption-text">Fixed point representation</span><a class="headerlink" href="#id24" title="Permalink to this image">¶</a></p>
 </figcaption>
 </figure>
-<div class="graphviz"><img src="_images/graphviz-27ca1dabd6b60df91c84b556090fa1e8f64984d7.png" alt="// dot -Tpng lib.gv -o lib.png
+<p>Assume Sign part: 1-bit (0:+, 1:-), Integer part: 2-bit, Fraction part: 2-bit.</p>
+<ul class="simple">
+<li><p>3.0 * 0.5 = {0 11 00} * {0 00 10} = {(0 xor 0) (11 00 * 00 10) &gt;&gt; 2} = {0 01 10} = 1.5</p></li>
+</ul>
+<p>The layout for half precision of Floating point as <a class="reference internal" href="#floating-point-half"><span class="std std-numref">Fig. 7</span></a>.</p>
+<figure class="align-center" id="id25">
+<span id="floating-point-half"></span><a class="reference internal image-reference" href="_images/floating-point-half.png"><img alt="_images/floating-point-half.png" src="_images/floating-point-half.png" style="width: 191.0px; height: 103.0px;" /></a>
+<figcaption>
+<p><span class="caption-number">Fig. 7 </span><span class="caption-text">IEEE 754 half precision of Floating point representation <a class="footnote-reference brackets" href="#ieee754-half" id="id1" role="doc-noteref"><span class="fn-bracket">[</span>2<span class="fn-bracket">]</span></a></span><a class="headerlink" href="#id25" title="Permalink to this image">¶</a></p>
+</figcaption>
+</figure>
+<p>Floating point can be implemented both on software and hardware.</p>
+<p>The 16-bit a*b can be calculated by transfering to Fixed point above for both a
+and b on more bits of memory/registers, calcuate as Fixed point and transfer
+back to Fixed point as this website <a class="footnote-reference brackets" href="#fp-calc" id="id2" role="doc-noteref"><span class="fn-bracket">[</span>1<span class="fn-bracket">]</span></a>.</p>
+<p>The example for multiplication based on exponent 2 as follows,</p>
+<ul class="simple">
+<li><p>Precondition: a and b are normalized of IEEE half precision (16-bit) <a class="footnote-reference brackets" href="#ieee754-half" id="id3" role="doc-noteref"><span class="fn-bracket">[</span>2<span class="fn-bracket">]</span></a>.
+Exponent bias: zero offset being 15: 15-&gt;0, 1-&gt; -14, 30 -&gt; 15. And 31 -&gt; NaN.</p></li>
+<li><p>Transformation for a*b:</p>
+<ul>
+<li><ol class="arabic simple">
+<li><p>{sign-bit(a) xor sign-bit(b)} {exponent-bits(a)+exponent-bits(b)-15} {significand-bits(a)*significand-bits(b) &gt;&gt; 10}</p></li>
+</ol>
+</li>
+<li><ol class="arabic simple" start="2">
+<li><p>Normalize:</p></li>
+</ol>
+</li>
+</ul>
+</li>
+<li><p>ex.</p>
+<ul>
+<li><p>a = 0.01 (binary) = {0 01110 1000000000}; b = 1.1 (binary) = {010000 1100000000}</p></li>
+<li><ol class="arabic simple">
+<li><p>a*b = {0 xor 0} {01110+10000-01111=01111} {1000000000*1100000000 &gt;&gt; 10 = 0110000000}</p></li>
+</ol>
+</li>
+<li><ol class="arabic simple" start="2">
+<li><p>Normalize: {0 01111 0110000000} -&gt; {0 01110 1100000000} = 0.011</p></li>
+</ol>
+</li>
+</ul>
+</li>
+</ul>
+<p>The following is for division operation.</p>
+<ul class="simple">
+<li><p>Transformation for a/b:</p>
+<ul>
+<li><ol class="arabic simple">
+<li><p>{sign-bit(a) xor sign-bit(b)} {exponent-bits(a)-exponent-bits(b)+15} {significand-bits(a)/significand-bits(b) &gt;&gt; 10}</p></li>
+</ol>
+</li>
+<li><ol class="arabic simple" start="2">
+<li><p>Normalize:</p></li>
+</ol>
+</li>
+</ul>
+</li>
+<li><p>ex.</p>
+<ul>
+<li><p>a = 0.01 (binary) = {0 01110 1000000000}; b = 1 (binary) = {0 10000 1000000000}</p></li>
+<li><ol class="arabic simple">
+<li><p>a*b = {0 xor 0} {01110-10000+01111=01101} {1000000000/1000000000 &lt;&lt; 9 = 1000000000}</p></li>
+</ol>
+</li>
+<li><ol class="arabic simple" start="2">
+<li><p>Normalize: {0 01101 0000000001} -&gt; {0 01101 1000000000} = 0.01</p></li>
+</ol>
+</li>
+</ul>
+</li>
+</ul>
+<p>IEEE-754 floating standard also consider NaN (Not a Number) such as 0/0 and
+<span class="math notranslate nohighlight">\(\infty\)</span> as <a class="reference internal" href="#exp-enc"><span class="std std-numref">Fig. 8</span></a>.</p>
+<figure class="align-center" id="id26">
+<span id="exp-enc"></span><a class="reference internal image-reference" href="_images/exp-enc.png"><img alt="_images/exp-enc.png" src="_images/exp-enc.png" style="width: 694.0px; height: 127.0px;" /></a>
+<figcaption>
+<p><span class="caption-number">Fig. 8 </span><span class="caption-text">Encoding of exponent for IEEE 754 half precision <a class="footnote-reference brackets" href="#ieee754-half" id="id4" role="doc-noteref"><span class="fn-bracket">[</span>2<span class="fn-bracket">]</span></a></span><a class="headerlink" href="#id26" title="Permalink to this image">¶</a></p>
+</figcaption>
+</figure>
+<p>Since Normalization applied in Floating precision is the critial code, Cpu0 HW
+provides clz and clo to speedup Normalization Operation.</p>
+<p>Compiler-rt implement multiplication of Floating point considering NaN and
+<span class="math notranslate nohighlight">\(\infty\)</span> as the same way for implementation above and clz/clo to speedup
+Normalization as follows,</p>
+<p class="rubric">~/llvm/debug/compiler-rt/lib/builtins/fp_lib.h</p>
+<div class="highlight-c++ notranslate"><div class="highlight"><pre><span></span><span class="cp">#if defined SINGLE_PRECISION</span>
+<span class="k">static</span><span class="w"> </span><span class="kr">__inline</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="nf">rep_clz</span><span class="p">(</span><span class="n">rep_t</span><span class="w"> </span><span class="n">a</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="k">return</span><span class="w"> </span><span class="n">__builtin_clz</span><span class="p">(</span><span class="n">a</span><span class="p">);</span><span class="w"> </span><span class="p">}</span><span class="w"></span>
+<span class="p">...</span><span class="w"></span>
+<span class="cp">#endif</span>
+<span class="p">...</span><span class="w"></span>
+<span class="k">static</span><span class="w"> </span><span class="kr">__inline</span><span class="w"> </span><span class="n">rep_t</span><span class="w"> </span><span class="n">toRep</span><span class="p">(</span><span class="n">fp_t</span><span class="w"> </span><span class="n">x</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">  </span><span class="k">const</span><span class="w"> </span><span class="k">union</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">    </span><span class="n">fp_t</span><span class="w"> </span><span class="n">f</span><span class="p">;</span><span class="w"></span>
+<span class="w">    </span><span class="n">rep_t</span><span class="w"> </span><span class="n">i</span><span class="p">;</span><span class="w"></span>
+<span class="w">  </span><span class="p">}</span><span class="w"> </span><span class="n">rep</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{.</span><span class="n">f</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">x</span><span class="p">};</span><span class="w"></span>
+<span class="w">  </span><span class="k">return</span><span class="w"> </span><span class="n">rep</span><span class="p">.</span><span class="n">i</span><span class="p">;</span><span class="w"></span>
+<span class="p">}</span><span class="w"></span>
+<span class="p">...</span><span class="w"></span>
+<span class="k">static</span><span class="w"> </span><span class="kr">__inline</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">normalize</span><span class="p">(</span><span class="n">rep_t</span><span class="w"> </span><span class="o">*</span><span class="n">significand</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">  </span><span class="k">const</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">shift</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">rep_clz</span><span class="p">(</span><span class="o">*</span><span class="n">significand</span><span class="p">)</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="n">rep_clz</span><span class="p">(</span><span class="n">implicitBit</span><span class="p">);</span><span class="w"></span>
+<span class="w">  </span><span class="o">*</span><span class="n">significand</span><span class="w"> </span><span class="o">&lt;&lt;=</span><span class="w"> </span><span class="n">shift</span><span class="p">;</span><span class="w"></span>
+<span class="w">  </span><span class="k">return</span><span class="w"> </span><span class="mi">1</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="n">shift</span><span class="p">;</span><span class="w"></span>
+<span class="p">}</span><span class="w"></span>
+</pre></div>
+</div>
+<p class="rubric">~/llvm/debug/compiler-rt/lib/builtins/fp_mul_impl.inc</p>
+<div class="highlight-c++ notranslate"><div class="highlight"><pre><span></span><span class="cp">#include</span><span class="w"> </span><span class="cpf">&quot;fp_lib.h&quot;</span><span class="cp"></span>
+<span class="p">...</span><span class="w"></span>
+<span class="k">static</span><span class="w"> </span><span class="kr">__inline</span><span class="w"> </span><span class="n">fp_t</span><span class="w"> </span><span class="n">__mulXf3__</span><span class="p">(</span><span class="n">fp_t</span><span class="w"> </span><span class="n">a</span><span class="p">,</span><span class="w"> </span><span class="n">fp_t</span><span class="w"> </span><span class="n">b</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">  </span><span class="k">const</span><span class="w"> </span><span class="kt">unsigned</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">aExponent</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">toRep</span><span class="p">(</span><span class="n">a</span><span class="p">)</span><span class="w"> </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="n">significandBits</span><span class="w"> </span><span class="o">&amp;</span><span class="w"> </span><span class="n">maxExponent</span><span class="p">;</span><span class="w"></span>
+<span class="w">  </span><span class="k">const</span><span class="w"> </span><span class="kt">unsigned</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">bExponent</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">toRep</span><span class="p">(</span><span class="n">b</span><span class="p">)</span><span class="w"> </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="n">significandBits</span><span class="w"> </span><span class="o">&amp;</span><span class="w"> </span><span class="n">maxExponent</span><span class="p">;</span><span class="w"></span>
+<span class="w">  </span><span class="p">...</span><span class="w"></span>
+<span class="w">  </span><span class="kt">int</span><span class="w"> </span><span class="n">productExponent</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">aExponent</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">bExponent</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="n">exponentBias</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">scale</span><span class="p">;</span><span class="w"></span>
+<span class="w">  </span><span class="p">...</span><span class="w"></span>
+<span class="w">    </span><span class="n">productHi</span><span class="w"> </span><span class="o">|=</span><span class="w"> </span><span class="p">(</span><span class="n">rep_t</span><span class="p">)</span><span class="n">productExponent</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="n">significandBits</span><span class="p">;</span><span class="w"></span>
+<span class="w">  </span><span class="p">...</span><span class="w"></span>
+<span class="w">  </span><span class="k">return</span><span class="w"> </span><span class="n">fromRep</span><span class="p">(</span><span class="n">productHi</span><span class="p">);</span><span class="w"></span>
+<span class="p">}</span><span class="w"></span>
+</pre></div>
+</div>
+</section>
+<section id="the-dependence-for-cpu0-based-on-compiler-rt-s-builtin">
+<h2><a class="toc-backref" href="#id35" role="doc-backlink">The dependence for Cpu0 based on Compiler-rt’s builtin</a><a class="headerlink" href="#the-dependence-for-cpu0-based-on-compiler-rt-s-builtin" title="Permalink to this heading">¶</a></h2>
+<p>Since Cpu0 has not hardware float point instructions, it needs software float
+point library to finish the floating point operation.
+LLVM compiler-rt project has software floating point library implementation
+<a class="reference internal" href="#swf-lib"><span class="std std-numref">Fig. 9</span></a> , so I choose it as the implementation.</p>
+<p>Since compiler-rt uses unix/linux rootfs structure, we fill the gap by add few
+empty include-files in exlbt/include.</p>
+<figure class="align-default" id="id27">
+<span id="swf-lib"></span><div class="graphviz"><img src="_images/graphviz-27ca1dabd6b60df91c84b556090fa1e8f64984d7.png" alt="// dot -Tpng lib.gv -o lib.png
 digraph G {
   rankdir=LR;
 
@@ -70,8 +206,47 @@ digraph G {
   lib -&gt; &quot;clang/llc&quot; [ label = &quot;c&quot; ];
   &quot;clang/llc&quot; -&gt; lld [ label = &quot;obj&quot; ];
 }" class="graphviz" /></div>
-<table class="docutils align-default" id="id21">
-<caption><span class="caption-number">Table 2 </span><span class="caption-text">lldb dependences</span><a class="headerlink" href="#id21" title="Permalink to this table">¶</a></caption>
+<figcaption>
+<p><span class="caption-number">Fig. 9 </span><span class="caption-text">compiler-rt/lib/builtins’ software float library</span><a class="headerlink" href="#id27" title="Permalink to this image">¶</a></p>
+</figcaption>
+</figure>
+<p>The dependences for compiler-rt on libm as <a class="reference internal" href="#compiler-rrt-dep"><span class="std std-numref">Fig. 11</span></a>.</p>
+<figure class="align-default" id="id28">
+<span id="compiler-rrt-dep-short"></span><div class="graphviz"><img src="_images/graphviz-0ee855d97534fb88032190bd88679d3de56582f1.png" alt="// dot -Tpng compiler-rt-dep-short.gv -o compiler-rt-dep-short.png
+digraph G {
+  rankdir=LR;
+
+  compound=true;
+  node [shape=record];
+
+  subgraph cluster_compiler_rt {
+    label = &quot;compiler-rt&quot;;
+    utb [label=&quot;test/builtins/Unit&quot;];
+    subgraph cluster_builtins {
+      label = &quot;lib/builtins&quot;;
+      builtins [label=&quot;&lt;fdt&gt; float and double types | &lt;ct&gt; complex type&quot;];
+    }
+  }
+
+  node [label = &quot;sanitizer_printf(%lld)&quot;]; sanitizer_printf;
+  node [label = &quot;Cpu0 backend of llvm&quot;]; cpu0;
+
+  subgraph cluster_libm {
+    label = &quot;libm&quot;;
+    libm [label=&quot;&lt;c&gt; common | &lt;ma&gt; math&quot;];
+  }
+
+  builtins:ct -&gt; libm:c;
+  builtins:ct:se -&gt; libm:ma;
+  builtins:fdt -&gt; cpu0;
+  utb -&gt; sanitizer_printf;
+}" class="graphviz" /></div>
+<figcaption>
+<p><span class="caption-number">Fig. 10 </span><span class="caption-text">Dependences for compiler-rt on libm</span><a class="headerlink" href="#id28" title="Permalink to this image">¶</a></p>
+</figcaption>
+</figure>
+<table class="docutils align-default" id="id29">
+<caption><span class="caption-number">Table 2 </span><span class="caption-text">lldb dependences</span><a class="headerlink" href="#id29" title="Permalink to this table">¶</a></caption>
 <thead>
 <tr class="row-odd"><th class="head"><p>functions</p></th>
 <th class="head"><p>depend on</p></th>
@@ -82,12 +257,12 @@ digraph G {
 <td><p>newlib/libc</p></td>
 </tr>
 <tr class="row-odd"><td><p>printf</p></td>
-<td><p>sanitizter_printf.c of compiler-rt</p></td>
+<td><p>sanitizer_printf.c of compiler-rt</p></td>
 </tr>
 </tbody>
 </table>
-<table class="docutils align-default" id="id22">
-<caption><span class="caption-number">Table 3 </span><span class="caption-text">sanitizer_printf.c of compiler-rt dependences</span><a class="headerlink" href="#id22" title="Permalink to this table">¶</a></caption>
+<table class="docutils align-default" id="id30">
+<caption><span class="caption-number">Table 3 </span><span class="caption-text">sanitizer_printf.c of compiler-rt dependences</span><a class="headerlink" href="#id30" title="Permalink to this table">¶</a></caption>
 <thead>
 <tr class="row-odd"><th class="head"><p>functions</p></th>
 <th class="head"><p>depend on</p></th>
@@ -99,15 +274,17 @@ digraph G {
 </tr>
 </tbody>
 </table>
+</section>
 <section id="c-library-newlib">
-<h2><a class="toc-backref" href="#id24" role="doc-backlink">C Library (Newlib)</a><a class="headerlink" href="#c-library-newlib" title="Permalink to this heading">¶</a></h2>
+<h2><a class="toc-backref" href="#id36" role="doc-backlink">C Library (Newlib)</a><a class="headerlink" href="#c-library-newlib" title="Permalink to this heading">¶</a></h2>
+<p>Since complex type of compiler-rt depends on libm, I porting NewLib in this
+section.</p>
 <p>Newlib is a C library for bare metal platform.
 Two libraries in newlib are libc and libm. Libc is for functions of
 IO, file and string supported while libm is for mathematical functions.
-Web of newlib is here <a class="footnote-reference brackets" href="#newlib" id="id1" role="doc-noteref"><span class="fn-bracket">[</span>1<span class="fn-bracket">]</span></a> and newlib/libm here <a class="footnote-reference brackets" href="#newlib-libm" id="id2" role="doc-noteref"><span class="fn-bracket">[</span>2<span class="fn-bracket">]</span></a> .
-Since the next section compiler-rt/builtins depends on libm, please running
-the following bash script is for installing and building newlib for
-Cpu0.</p>
+Web of newlib is here <a class="footnote-reference brackets" href="#newlib" id="id5" role="doc-noteref"><span class="fn-bracket">[</span>3<span class="fn-bracket">]</span></a> and newlib/libm here <a class="footnote-reference brackets" href="#newlib-libm" id="id6" role="doc-noteref"><span class="fn-bracket">[</span>4<span class="fn-bracket">]</span></a> .
+Since the next section compiler-rt/builtins depends on libm, please run
+the following bash script to install and build newlib for Cpu0.</p>
 <p class="rubric">lbt/exlbt/newlib-cpu0.sh</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span>#!/usr/bin/env bash
 
@@ -165,6 +342,17 @@ build_newlib() {
 install_newlib;
 build_newlib;
 </pre></div>
+</div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p><strong>In order to add Cpu0 backend to NewLib, the following changes in lbt/exlbt/newlib.patch</strong></p>
+<ul class="simple">
+<li><p>lbt/exlbt/newlib-cygwin/newlib/libc/machine/cpu0/setjmp.S is added;</p></li>
+<li><p>newlib-cygwin/config.sub, newlib-cygwin/newlib/configure.host,
+newlib-cygwin/newlib/libc/include/machine/ieeefp.h,
+newlib-cygwin/newlib/libc/include/sys/unistd.h and
+newlib-cygwin/newlib/libc/machine/configure are modified for adding cpu0.</p></li>
+</ul>
 </div>
 <p class="rubric">lbt/exlbt/newlib.patch</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span>diff --git a/config.sub b/config.sub
@@ -327,65 +515,203 @@ $BB1:
 </div>
 <p>The libm.a depends on variable errno of libc defined in sys/errno.h.</p>
 <ul class="simple">
-<li><p>libgloss is BSP <a class="footnote-reference brackets" href="#libgloss-bsp" id="id3" role="doc-noteref"><span class="fn-bracket">[</span>3<span class="fn-bracket">]</span></a></p></li>
+<li><p>libgloss is BSP <a class="footnote-reference brackets" href="#libgloss-bsp" id="id7" role="doc-noteref"><span class="fn-bracket">[</span>5<span class="fn-bracket">]</span></a></p></li>
 </ul>
 </section>
 <section id="compiler-rt-s-builtins">
-<h2><a class="toc-backref" href="#id25" role="doc-backlink">Compiler-rt’s builtins</a><a class="headerlink" href="#compiler-rt-s-builtins" title="Permalink to this heading">¶</a></h2>
-<p>Compiler-rt is a project with runtime libraries implentation <a class="footnote-reference brackets" href="#compiler-rt" id="id4" role="doc-noteref"><span class="fn-bracket">[</span>4<span class="fn-bracket">]</span></a> .
+<h2><a class="toc-backref" href="#id37" role="doc-backlink">Compiler-rt’s builtins</a><a class="headerlink" href="#compiler-rt-s-builtins" title="Permalink to this heading">¶</a></h2>
+<p>Compiler-rt is a project for runtime libraries implentation <a class="footnote-reference brackets" href="#compiler-rt" id="id8" role="doc-noteref"><span class="fn-bracket">[</span>6<span class="fn-bracket">]</span></a> .
 Compiler-rt/lib/builtins provides functions for basic operations such as +, -,
 *, /, … on type of float or double and for conversion between float and
-integer, or on type of over 32-bit. The compiler-rt/lib/builtins/README.txt
-<a class="footnote-reference brackets" href="#builtins-readme" id="id5" role="doc-noteref"><span class="fn-bracket">[</span>5<span class="fn-bracket">]</span></a> includes the dependent functions that the whole builtins
+integer, or other type of more than 32-bit, such as <cite>long long</cite>.
+The compiler-rt/lib/builtins/README.txt
+<a class="footnote-reference brackets" href="#builtins-readme" id="id9" role="doc-noteref"><span class="fn-bracket">[</span>7<span class="fn-bracket">]</span></a> includes the dependent functions that the whole builtins
 called.
 The dependent functions is a small part of libm listed in
-compier-rt/lib/builtins/int_math.h <a class="footnote-reference brackets" href="#builtins-int-math" id="id6" role="doc-noteref"><span class="fn-bracket">[</span>6<span class="fn-bracket">]</span></a> .</p>
-<table class="docutils align-default" id="id23">
-<caption><span class="caption-number">Table 4 </span><span class="caption-text">compiler-rt builtins dependences on newlib/libm (open source libc for bare metal)</span><a class="headerlink" href="#id23" title="Permalink to this table">¶</a></caption>
+compier-rt/lib/builtins/int_math.h <a class="footnote-reference brackets" href="#builtins-int-math" id="id10" role="doc-noteref"><span class="fn-bracket">[</span>8<span class="fn-bracket">]</span></a> .</p>
+<p class="rubric">~git/newlib-cygwin/build-cpu032I-eb/Makefile</p>
+<div class="highlight-Makefile notranslate"><div class="highlight"><pre><span></span><span class="nv">MATHDIR</span> <span class="o">=</span> math
+
+<span class="c"># The newlib hardware floating-point routines have been disabled due to</span>
+<span class="c"># inaccuracy.  If you wish to work on them, you will need to edit the</span>
+<span class="c"># configure.in file to re-enable the configuration option.  By default,</span>
+<span class="c"># the NEWLIB_HW_FP variable will always be false.</span>
+<span class="c">#MATHDIR = mathfp</span>
+</pre></div>
+</div>
+<p>As above Makefile, newlib uses libm/math.
+The dependences for builtin functions of compiler-rt on libm as
+<a class="reference internal" href="#compiler-rrt-dep"><span class="std std-numref">Fig. 11</span></a>.</p>
+<figure class="align-default" id="id31">
+<span id="compiler-rrt-dep"></span><div class="graphviz"><img src="_images/graphviz-5b1f37a39603cb0a721adbb9c51e4a5ec0392fa3.png" alt="// dot -Tpng compiler-rt-dep.gv -o compiler-rt-dep.png
+digraph G {
+  rankdir=LR;
+
+  compound=true;
+  node [shape=record];
+
+  subgraph cluster_compiler_rt {
+    label = &quot;compiler-rt&quot;;
+    utb [label=&quot;test/builtins/Unit&quot;];
+    subgraph cluster_builtins {
+      label = &quot;lib/builtins&quot;;
+      builtins [label=&quot;&lt;fdt&gt; float and double types | &lt;ct&gt; complex type&quot;];
+    }
+  }
+
+  node [label = &quot;sanitizer_printf(%lld)&quot;]; sanitizer_printf;
+  node [label = &quot;Cpu0 backend of llvm&quot;]; cpu0;
+
+  subgraph cluster_libm {
+    label = &quot;libm&quot;;
+    libm [label=&quot;&lt;c&gt; common | &lt;ma&gt; math&quot;];
+  }
+
+  builtins:ct -&gt; libm:c [label = &quot;the __builtin functions of isinf, isnan, fabsl, \n fmax, fmaxf, fmaxl, log, logf, logl, scalbn, scalbnf, \n scalbnl, copysign, copysignf, copysignl, fabsl&quot; ];
+  builtins:ct:se -&gt; libm:ma [label = &quot;the __builtin functions of fabs, fabsf&quot; ];
+  builtins:fdt -&gt; cpu0 [label = &quot;__builtin_clz(), __builtin_clo() and abort()&quot; ];
+  utb -&gt; sanitizer_printf [label = &quot;sanitizer_printf.cpp and sanitizer_internal_defs.h \n of compiler-rt/test/builtins/Unit&quot; ];
+}" class="graphviz" /></div>
+<figcaption>
+<p><span class="caption-number">Fig. 11 </span><span class="caption-text">Dependences for builtin functions of compiler-rt on libm</span><a class="headerlink" href="#id31" title="Permalink to this image">¶</a></p>
+</figcaption>
+</figure>
+<p>In this section, I get test cases for verification of SW Float Point from
+compiler-rt/test/builtins/Unit to compiler-rt-test/builtins/Unit/.</p>
+<p>Since lbt/exlbt/input/printf-stdarg.c does not support %lld (long long
+integeter, 64-bit) and test cases in compiler-rt/test/builtins/Unit needs it to
+verify the result of test cases for SW Float Point, I port sanitizer_printf.cpp
+and sanitizer_internal_defs.h of lbt/exlbt/input from sanitizer_printf.cpp and
+sanitizer_internal_defs.h of compiler-rt/lib/sanitizer_common.</p>
+<table class="docutils align-default" id="id32">
+<caption><span class="caption-number">Table 4 </span><span class="caption-text">compiler-rt builtins dependences on newlib/libm (open source libc
+         for bare metal)</span><a class="headerlink" href="#id32" title="Permalink to this table">¶</a></caption>
 <thead>
-<tr class="row-odd"><th class="head"><p>library</p></th>
-<th class="head"><p>functions</p></th>
+<tr class="row-odd"><th class="head"><p>function</p></th>
+<th class="head"><p>file</p></th>
+<th class="head"><p>directory of libm</p></th>
 </tr>
 </thead>
 <tbody>
-<tr class="row-even"><td><p>ported already</p></td>
-<td><p>abort</p></td>
+<tr class="row-even"><td><p>abort</p></td>
+<td><p>lbt/exlbt/compiler-rt/
+cpu0/abort.c</p></td>
+<td></td>
 </tr>
-<tr class="row-odd"><td><p>libm/common</p></td>
-<td><p>finite, isinf, isnan</p></td>
+<tr class="row-odd"><td><p>isinf</p></td>
+<td><p>s_isinf.c</p></td>
+<td><p>newlib-cygwin/newlib/libm/common</p></td>
 </tr>
-<tr class="row-even"><td><p>libm/complex</p></td>
-<td><p>cabs</p></td>
+<tr class="row-even"><td><p>isnan</p></td>
+<td><p>s_isnan.c</p></td>
+<td><p>“</p></td>
 </tr>
-<tr class="row-odd"><td><p>libm/math</p></td>
-<td><p>copysign, fcabs, fmax, log, scalbn</p></td>
+<tr class="row-odd"><td><p>fabsl</p></td>
+<td><p>fabsl.c</p></td>
+<td><p>“</p></td>
 </tr>
-<tr class="row-even"><td><p>libm/mathfp</p></td>
-<td><p>cabs</p></td>
+<tr class="row-even"><td><p>fmax</p></td>
+<td><p>s_fmax.c</p></td>
+<td><p>“</p></td>
+</tr>
+<tr class="row-odd"><td><p>fmaxf</p></td>
+<td><p>sf_fmax.c</p></td>
+<td><p>“</p></td>
+</tr>
+<tr class="row-even"><td><p>fmaxl</p></td>
+<td><p>fmaxl.c</p></td>
+<td><p>“</p></td>
+</tr>
+<tr class="row-odd"><td><p>log</p></td>
+<td><p>log.c</p></td>
+<td><p>“</p></td>
+</tr>
+<tr class="row-even"><td><p>logf</p></td>
+<td><p>sf_log.c</p></td>
+<td><p>“</p></td>
+</tr>
+<tr class="row-odd"><td><p>logl</p></td>
+<td><p>logl.c</p></td>
+<td><p>“</p></td>
+</tr>
+<tr class="row-even"><td><p>scalbn</p></td>
+<td><p>s_scalbn.c</p></td>
+<td><p>“</p></td>
+</tr>
+<tr class="row-odd"><td><p>scalbnf</p></td>
+<td><p>sf_scalbn.c</p></td>
+<td><p>“</p></td>
+</tr>
+<tr class="row-even"><td><p>scalbnl</p></td>
+<td><p>scalblnl.c</p></td>
+<td><p>“</p></td>
+</tr>
+<tr class="row-odd"><td><p>copysign</p></td>
+<td><p>s_copysign.c</p></td>
+<td><p>“</p></td>
+</tr>
+<tr class="row-even"><td><p>copysignf</p></td>
+<td><p>sf_copysign.c</p></td>
+<td><p>“</p></td>
+</tr>
+<tr class="row-odd"><td><p>copysignl</p></td>
+<td><p>copysignl.c</p></td>
+<td><p>“</p></td>
+</tr>
+<tr class="row-even"><td><p>fabsl</p></td>
+<td><p>fabsl.c</p></td>
+<td><p>“</p></td>
+</tr>
+<tr class="row-odd"><td><p>fabs</p></td>
+<td><p>s_fabs.c</p></td>
+<td><p>newlib-cygwin/newlib/libm/math</p></td>
+</tr>
+<tr class="row-even"><td><p>fabsf</p></td>
+<td><p>sf_fabs.c</p></td>
+<td><p>“</p></td>
 </tr>
 </tbody>
 </table>
 <ul class="simple">
-<li><p>fabs (may includes fabsf, fabsl).</p></li>
-<li><p>Only type of complex need above, others (float and double) depend on abort()
-only which I ported in lbt/exlbt/compiler-rt/cpu0/abort.c.</p></li>
+<li><p>Libm has no dependence to any other library.</p></li>
+<li><p>Only type of complex in compiler-rt/lib/builtin need above, others (float and
+double) depend on __builtin_clz(), __builtin_clo() and abort() only. I has
+ported in lbt/exlbt/compiler-rt/cpu0/abort.c.</p></li>
 <li><p>All test cases in compiler-rt/test/builtins/Unit depend on
 printf(%lld or %llX, …), I ported from
 compiler-rt/lib/sanitizer_common/sanitizer_printf.cpp to
 lbt/exlbt/input/sanitizer_printf.cpp.</p></li>
-<li><p>These dependent functions from has bee ported from newlib/libm.</p></li>
+<li><p>These dependent functions of complex type has bee ported from newlib/libm.</p></li>
 <li><p>Except builtins, the other three, sanitizer runtimes, profile and BlocksRuntime,
-are not needed for my embedded Cpu0.</p></li>
+in compiler-rt are not needed for my embedded Cpu0.</p></li>
 </ul>
-<p>The libgcc’s Integer plus Soft float library  <a class="footnote-reference brackets" href="#lib-gcc" id="id7" role="doc-noteref"><span class="fn-bracket">[</span>7<span class="fn-bracket">]</span></a> <a class="footnote-reference brackets" href="#int-lib" id="id8" role="doc-noteref"><span class="fn-bracket">[</span>8<span class="fn-bracket">]</span></a>
-<a class="footnote-reference brackets" href="#sw-float-lib" id="id9" role="doc-noteref"><span class="fn-bracket">[</span>9<span class="fn-bracket">]</span></a> are equal to functions of compiler-rt’s builtins.</p>
+<p>The libgcc’s Integer plus Soft float library  <a class="footnote-reference brackets" href="#lib-gcc" id="id11" role="doc-noteref"><span class="fn-bracket">[</span>9<span class="fn-bracket">]</span></a> <a class="footnote-reference brackets" href="#int-lib" id="id12" role="doc-noteref"><span class="fn-bracket">[</span>10<span class="fn-bracket">]</span></a>
+<a class="footnote-reference brackets" href="#sw-float-lib" id="id13" role="doc-noteref"><span class="fn-bracket">[</span>11<span class="fn-bracket">]</span></a> are equal to functions of compiler-rt’s builtins.</p>
+<p>In compiler-rt/lib/builtins, the dependence between files as table.</p>
+<table class="docutils align-default" id="id33">
+<caption><span class="caption-number">Table 5 </span><span class="caption-text">dependence between files for compiler-rt/lib/builtins</span><a class="headerlink" href="#id33" title="Permalink to this table">¶</a></caption>
+<thead>
+<tr class="row-odd"><th class="head"><p>functions</p></th>
+<th class="head"><p>depend on</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>*.c</p></td>
+<td><p>*.inc</p></td>
+</tr>
+<tr class="row-odd"><td><p>*.inc</p></td>
+<td><p>*.h</p></td>
+</tr>
+</tbody>
+</table>
 <p>Though the ‘rt’ means RunTime libaraies, in builtins library,
 most of these functions
 written in target-independent C form and can be compiled and static-linked
-into target. When you compile the following c code, llc generates
-<strong>jsub __addsf3</strong> to call compiler-rt float function since Cpu0 hasn’t hardware
-float-instructions so Cpu0 backend doesn’t handle it, and llvm treats it
-as a function call for float-add instruction.</p>
+into target. When you compile the following c code, llc will generate
+<strong>jsub __addsf3</strong> to call compiler-rt float function for Cpu0.
+This is because Cpu0 hasn’t hardware float-instructions, so Cpu0 backend
+doesn’t handle the DAG of __addsf3. The end result, llvm treats the DAG of
+__addsf3 as a function call for float-add instruction.</p>
 <p class="rubric">lbt/exlbt/input/ch_call_compilerrt_func.c</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="o">//</span> <span class="n">clang</span> <span class="o">-</span><span class="n">target</span> <span class="n">mips</span><span class="o">-</span><span class="n">unknown</span><span class="o">-</span><span class="n">linux</span><span class="o">-</span><span class="n">gnu</span> <span class="o">-</span><span class="n">S</span> <span class="n">ch_call_compilerrt_func</span><span class="o">.</span><span class="n">c</span> <span class="o">-</span><span class="n">emit</span><span class="o">-</span><span class="n">llvm</span> <span class="o">-</span><span class="n">o</span> <span class="n">ch_call_compilerrt_func</span><span class="o">.</span><span class="n">ll</span>
 <span class="o">//</span> <span class="o">~/</span><span class="n">llvm</span><span class="o">/</span><span class="n">test</span><span class="o">/</span><span class="n">build</span><span class="o">/</span><span class="nb">bin</span><span class="o">/</span><span class="n">llc</span> <span class="o">-</span><span class="n">march</span><span class="o">=</span><span class="n">cpu0</span> <span class="o">-</span><span class="n">mcpu</span><span class="o">=</span><span class="n">cpu032II</span> <span class="o">-</span><span class="n">relocation</span><span class="o">-</span><span class="n">model</span><span class="o">=</span><span class="n">static</span> <span class="o">-</span><span class="n">filetype</span><span class="o">=</span><span class="n">asm</span> <span class="n">ch_call_compilerrt_func</span><span class="o">.</span><span class="n">ll</span> <span class="o">-</span><span class="n">o</span> <span class="o">-</span>
@@ -421,8 +747,8 @@ as a function call for float-add instruction.</p>
 <p>For some brar-metal or embedded application, the C code doesn’t need the
 file and high-level IO in libc.
 Libm provides a lots of functions to support software floating point beyond
-basic operations <a class="footnote-reference brackets" href="#math" id="id10" role="doc-noteref"><span class="fn-bracket">[</span>10<span class="fn-bracket">]</span></a> .
-Libc provides file, high-level IO functions and basic float functions <a class="footnote-reference brackets" href="#clib" id="id11" role="doc-noteref"><span class="fn-bracket">[</span>11<span class="fn-bracket">]</span></a> .</p>
+basic operations <a class="footnote-reference brackets" href="#math" id="id14" role="doc-noteref"><span class="fn-bracket">[</span>12<span class="fn-bracket">]</span></a> .
+Libc provides file, high-level IO functions and basic float functions <a class="footnote-reference brackets" href="#clib" id="id15" role="doc-noteref"><span class="fn-bracket">[</span>13<span class="fn-bracket">]</span></a> .</p>
 <p>Cpu0 hires Compiler-rt/lib/builtins and
 compiler-rt/lib/sanitizer_common/sanitizer_printf.cpp at this point.
 The compiler-rt/lib/builtins is a
@@ -441,35 +767,35 @@ for them. Of course, for the implemenation, clang compiles these float type’s
 operation in C into llvm ir, then Mips backends compiles them into their
 HW instructions. For example:</p>
 <ul class="simple">
-<li><p>float a, b, c; a=b*c; -&gt; (clang) -&gt; %add = fmul float %0, %1 <a class="footnote-reference brackets" href="#llvm-fmul" id="id12" role="doc-noteref"><span class="fn-bracket">[</span>13<span class="fn-bracket">]</span></a></p></li>
+<li><p>float a, b, c; a=b*c; -&gt; (clang) -&gt; %add = fmul float %0, %1 <a class="footnote-reference brackets" href="#llvm-fmul" id="id16" role="doc-noteref"><span class="fn-bracket">[</span>15<span class="fn-bracket">]</span></a></p></li>
 </ul>
 <p>Mips backend compiles <cite>fmul</cite> into HW instructions as follows,</p>
 <ul class="simple">
-<li><p>%add = fmul float %0, %1 -&gt; (llvm-mips) -&gt; mul.s <a class="footnote-reference brackets" href="#llvm-fmul" id="id13" role="doc-noteref"><span class="fn-bracket">[</span>13<span class="fn-bracket">]</span></a> <a class="footnote-reference brackets" href="#mips-fmadd1-ll" id="id14" role="doc-noteref"><span class="fn-bracket">[</span>12<span class="fn-bracket">]</span></a></p></li>
+<li><p>%add = fmul float %0, %1 -&gt; (llvm-mips) -&gt; mul.s <a class="footnote-reference brackets" href="#llvm-fmul" id="id17" role="doc-noteref"><span class="fn-bracket">[</span>15<span class="fn-bracket">]</span></a> <a class="footnote-reference brackets" href="#mips-fmadd1-ll" id="id18" role="doc-noteref"><span class="fn-bracket">[</span>14<span class="fn-bracket">]</span></a></p></li>
 </ul>
 <p>Cpu0 backend compiles <cite>fmul</cite> into libm function call fmul as follows,</p>
 <ul class="simple">
-<li><p>%add = fmul float %0, %1 -&gt; (llvm-mips) -&gt; jsub fmul <a class="footnote-reference brackets" href="#llvm-fmul" id="id15" role="doc-noteref"><span class="fn-bracket">[</span>13<span class="fn-bracket">]</span></a></p></li>
+<li><p>%add = fmul float %0, %1 -&gt; (llvm-mips) -&gt; jsub fmul <a class="footnote-reference brackets" href="#llvm-fmul" id="id19" role="doc-noteref"><span class="fn-bracket">[</span>15<span class="fn-bracket">]</span></a></p></li>
 </ul>
 <p>For high level of math functions, clang compiles these float type’s
 operation in C into llvm intrinsic functions, then the llvm backends of these
 CPU compile them into their HW instructions. For example, clang compiles pow()
 into &#64;llvm.pow.f32 as follows,</p>
 <ul class="simple">
-<li><p>%pow = call float &#64;llvm.pow.f32(float %x, float %y) <a class="footnote-reference brackets" href="#clang-pow" id="id16" role="doc-noteref"><span class="fn-bracket">[</span>14<span class="fn-bracket">]</span></a></p></li>
+<li><p>%pow = call float &#64;llvm.pow.f32(float %x, float %y) <a class="footnote-reference brackets" href="#clang-pow" id="id20" role="doc-noteref"><span class="fn-bracket">[</span>16<span class="fn-bracket">]</span></a></p></li>
 </ul>
 <p>AMDGPU compiles &#64;llvm.pow.f32 into a few instructions as follows:</p>
 <ul class="simple">
-<li><p>%pow = call float &#64;llvm.pow.f32(float %x, float %y) (llvm-AMDGPU) -&gt; … + v_exp_f32_e32 v0, v0 + … <a class="footnote-reference brackets" href="#clang-pow" id="id17" role="doc-noteref"><span class="fn-bracket">[</span>14<span class="fn-bracket">]</span></a></p></li>
+<li><p>%pow = call float &#64;llvm.pow.f32(float %x, float %y) (llvm-AMDGPU) -&gt; … + v_exp_f32_e32 v0, v0 + … <a class="footnote-reference brackets" href="#clang-pow" id="id21" role="doc-noteref"><span class="fn-bracket">[</span>16<span class="fn-bracket">]</span></a></p></li>
 </ul>
 <p>Mips compiles &#64;llvm.pow.f32 into a few instructions as follows:</p>
 <ul class="simple">
-<li><p>%pow = call float &#64;llvm.pow.f32(float %x, float %y) (llvm-AMDGPU) -&gt; jal powf <a class="footnote-reference brackets" href="#clang-pow" id="id18" role="doc-noteref"><span class="fn-bracket">[</span>14<span class="fn-bracket">]</span></a></p></li>
+<li><p>%pow = call float &#64;llvm.pow.f32(float %x, float %y) (llvm-AMDGPU) -&gt; jal powf <a class="footnote-reference brackets" href="#clang-pow" id="id22" role="doc-noteref"><span class="fn-bracket">[</span>16<span class="fn-bracket">]</span></a></p></li>
 </ul>
 <p>Clang treats these libm functions as builtin and compiles them into llvm ir or
 intrinsic, then different backends can choose to compile them into specific
 instructions or call builtin functions in libm. The following is Clang’s
-comment <a class="footnote-reference brackets" href="#clang-builtin-comment" id="id19" role="doc-noteref"><span class="fn-bracket">[</span>15<span class="fn-bracket">]</span></a>.</p>
+comment <a class="footnote-reference brackets" href="#clang-builtin-comment" id="id23" role="doc-noteref"><span class="fn-bracket">[</span>17<span class="fn-bracket">]</span></a>.</p>
 <div class="highlight-c++ notranslate"><div class="highlight"><pre><span></span><span class="n">RValue</span><span class="w"> </span><span class="n">CodeGenFunction</span><span class="o">::</span><span class="n">EmitBuiltinExpr</span><span class="p">(...)</span><span class="w"></span>
 <span class="w">  </span><span class="p">...</span><span class="w"></span>
 <span class="w">  </span><span class="c1">// There are LLVM math intrinsics/instructions corresponding to math library</span>
@@ -479,9 +805,8 @@ comment <a class="footnote-reference brackets" href="#clang-builtin-comment" id=
 <span class="w">  </span><span class="c1">// LLVM counterparts if the call is marked &#39;const&#39; (known to never set errno).</span>
 </pre></div>
 </div>
-</section>
-<section id="software-float-point-support">
-<h2><a class="toc-backref" href="#id26" role="doc-backlink">Software Float Point Support</a><a class="headerlink" href="#software-float-point-support" title="Permalink to this heading">¶</a></h2>
+<section id="verification">
+<h3><a class="toc-backref" href="#id38" role="doc-backlink">Verification</a><a class="headerlink" href="#verification" title="Permalink to this heading">¶</a></h3>
 <p>The following sanitizer_printf.cpp extended from compiler-rt can support
 printf(“%lld”). It’s implementation calling some floating lib functions
 in compiler-rt/lib/builtins.</p>
@@ -2259,68 +2584,78 @@ include Common.mk
 <span class="go">RET to PC &lt; 0, finished!</span>
 </pre></div>
 </div>
+<aside class="footnote brackets" id="fp-calc" role="note">
+<span class="label"><span class="fn-bracket">[</span><a role="doc-backlink" href="#id2">1</a><span class="fn-bracket">]</span></span>
+<p><a class="reference external" href="https://witscad.com/course/computer-architecture/chapter/floating-point-arithmetic">https://witscad.com/course/computer-architecture/chapter/floating-point-arithmetic</a></p>
+</aside>
+<aside class="footnote brackets" id="ieee754-half" role="note">
+<span class="label"><span class="fn-bracket">[</span>2<span class="fn-bracket">]</span></span>
+<span class="backrefs">(<a role="doc-backlink" href="#id1">1</a>,<a role="doc-backlink" href="#id3">2</a>,<a role="doc-backlink" href="#id4">3</a>)</span>
+<p><a class="reference external" href="https://en.wikipedia.org/wiki/Half-precision_floating-point_format">https://en.wikipedia.org/wiki/Half-precision_floating-point_format</a></p>
+</aside>
 <aside class="footnote brackets" id="newlib" role="note">
-<span class="label"><span class="fn-bracket">[</span><a role="doc-backlink" href="#id1">1</a><span class="fn-bracket">]</span></span>
+<span class="label"><span class="fn-bracket">[</span><a role="doc-backlink" href="#id5">3</a><span class="fn-bracket">]</span></span>
 <p><a class="reference external" href="https://sourceware.org/newlib/">https://sourceware.org/newlib/</a></p>
 </aside>
 <aside class="footnote brackets" id="newlib-libm" role="note">
-<span class="label"><span class="fn-bracket">[</span><a role="doc-backlink" href="#id2">2</a><span class="fn-bracket">]</span></span>
+<span class="label"><span class="fn-bracket">[</span><a role="doc-backlink" href="#id6">4</a><span class="fn-bracket">]</span></span>
 <p><a class="reference external" href="https://sourceware.org/newlib/libm.html">https://sourceware.org/newlib/libm.html</a></p>
 </aside>
 <aside class="footnote brackets" id="libgloss-bsp" role="note">
-<span class="label"><span class="fn-bracket">[</span><a role="doc-backlink" href="#id3">3</a><span class="fn-bracket">]</span></span>
+<span class="label"><span class="fn-bracket">[</span><a role="doc-backlink" href="#id7">5</a><span class="fn-bracket">]</span></span>
 <p><a class="reference external" href="https://www.embecosm.com/appnotes/ean9/html/ch03s01.html">https://www.embecosm.com/appnotes/ean9/html/ch03s01.html</a></p>
 </aside>
 <aside class="footnote brackets" id="compiler-rt" role="note">
-<span class="label"><span class="fn-bracket">[</span><a role="doc-backlink" href="#id4">4</a><span class="fn-bracket">]</span></span>
+<span class="label"><span class="fn-bracket">[</span><a role="doc-backlink" href="#id8">6</a><span class="fn-bracket">]</span></span>
 <p><a class="reference external" href="http://compiler-rt.llvm.org/">http://compiler-rt.llvm.org/</a></p>
 </aside>
 <aside class="footnote brackets" id="builtins-readme" role="note">
-<span class="label"><span class="fn-bracket">[</span><a role="doc-backlink" href="#id5">5</a><span class="fn-bracket">]</span></span>
+<span class="label"><span class="fn-bracket">[</span><a role="doc-backlink" href="#id9">7</a><span class="fn-bracket">]</span></span>
 <p><a class="reference external" href="https://github.com/llvm-mirror/compiler-rt/blob/master/lib/builtins/README.txt">https://github.com/llvm-mirror/compiler-rt/blob/master/lib/builtins/README.txt</a></p>
 </aside>
 <aside class="footnote brackets" id="builtins-int-math" role="note">
-<span class="label"><span class="fn-bracket">[</span><a role="doc-backlink" href="#id6">6</a><span class="fn-bracket">]</span></span>
+<span class="label"><span class="fn-bracket">[</span><a role="doc-backlink" href="#id10">8</a><span class="fn-bracket">]</span></span>
 <p><a class="reference external" href="https://github.com/microsoft/compiler-rt/blob/master/lib/builtins/int_math.h">https://github.com/microsoft/compiler-rt/blob/master/lib/builtins/int_math.h</a></p>
 </aside>
 <aside class="footnote brackets" id="lib-gcc" role="note">
-<span class="label"><span class="fn-bracket">[</span><a role="doc-backlink" href="#id7">7</a><span class="fn-bracket">]</span></span>
+<span class="label"><span class="fn-bracket">[</span><a role="doc-backlink" href="#id11">9</a><span class="fn-bracket">]</span></span>
 <p><a class="reference external" href="https://gcc.gnu.org/onlinedocs/gccint/Libgcc.html">https://gcc.gnu.org/onlinedocs/gccint/Libgcc.html</a></p>
 </aside>
 <aside class="footnote brackets" id="int-lib" role="note">
-<span class="label"><span class="fn-bracket">[</span><a role="doc-backlink" href="#id8">8</a><span class="fn-bracket">]</span></span>
+<span class="label"><span class="fn-bracket">[</span><a role="doc-backlink" href="#id12">10</a><span class="fn-bracket">]</span></span>
 <p><a class="reference external" href="https://gcc.gnu.org/onlinedocs/gccint/Integer-library-routines.html#Integer-library-routines">https://gcc.gnu.org/onlinedocs/gccint/Integer-library-routines.html#Integer-library-routines</a></p>
 </aside>
 <aside class="footnote brackets" id="sw-float-lib" role="note">
-<span class="label"><span class="fn-bracket">[</span><a role="doc-backlink" href="#id9">9</a><span class="fn-bracket">]</span></span>
+<span class="label"><span class="fn-bracket">[</span><a role="doc-backlink" href="#id13">11</a><span class="fn-bracket">]</span></span>
 <p><a class="reference external" href="https://gcc.gnu.org/onlinedocs/gccint/Soft-float-library-routines.html#Soft-float-library-routines">https://gcc.gnu.org/onlinedocs/gccint/Soft-float-library-routines.html#Soft-float-library-routines</a></p>
 </aside>
 <aside class="footnote brackets" id="math" role="note">
-<span class="label"><span class="fn-bracket">[</span><a role="doc-backlink" href="#id10">10</a><span class="fn-bracket">]</span></span>
+<span class="label"><span class="fn-bracket">[</span><a role="doc-backlink" href="#id14">12</a><span class="fn-bracket">]</span></span>
 <p><a class="reference external" href="https://www.programiz.com/c-programming/library-function/math.h">https://www.programiz.com/c-programming/library-function/math.h</a></p>
 </aside>
 <aside class="footnote brackets" id="clib" role="note">
-<span class="label"><span class="fn-bracket">[</span><a role="doc-backlink" href="#id11">11</a><span class="fn-bracket">]</span></span>
+<span class="label"><span class="fn-bracket">[</span><a role="doc-backlink" href="#id15">13</a><span class="fn-bracket">]</span></span>
 <p><a class="reference external" href="https://www.cplusplus.com/reference/clibrary">https://www.cplusplus.com/reference/clibrary</a></p>
 </aside>
 <aside class="footnote brackets" id="mips-fmadd1-ll" role="note">
-<span class="label"><span class="fn-bracket">[</span><a role="doc-backlink" href="#id14">12</a><span class="fn-bracket">]</span></span>
+<span class="label"><span class="fn-bracket">[</span><a role="doc-backlink" href="#id18">14</a><span class="fn-bracket">]</span></span>
 <p><a class="reference external" href="https://github.com/llvm/llvm-project/blob/main/llvm/test/CodeGen/Mips/fmadd1.ll">https://github.com/llvm/llvm-project/blob/main/llvm/test/CodeGen/Mips/fmadd1.ll</a></p>
 </aside>
 <aside class="footnote brackets" id="llvm-fmul" role="note">
-<span class="label"><span class="fn-bracket">[</span>13<span class="fn-bracket">]</span></span>
-<span class="backrefs">(<a role="doc-backlink" href="#id12">1</a>,<a role="doc-backlink" href="#id13">2</a>,<a role="doc-backlink" href="#id15">3</a>)</span>
+<span class="label"><span class="fn-bracket">[</span>15<span class="fn-bracket">]</span></span>
+<span class="backrefs">(<a role="doc-backlink" href="#id16">1</a>,<a role="doc-backlink" href="#id17">2</a>,<a role="doc-backlink" href="#id19">3</a>)</span>
 <p>Reference <a class="reference external" href="https://github.com/Jonathan2251/lbd/tree/master/lbdex/input/ch7_1_fmul.c">https://github.com/Jonathan2251/lbd/tree/master/lbdex/input/ch7_1_fmul.c</a></p>
 </aside>
 <aside class="footnote brackets" id="clang-pow" role="note">
-<span class="label"><span class="fn-bracket">[</span>14<span class="fn-bracket">]</span></span>
-<span class="backrefs">(<a role="doc-backlink" href="#id16">1</a>,<a role="doc-backlink" href="#id17">2</a>,<a role="doc-backlink" href="#id18">3</a>)</span>
+<span class="label"><span class="fn-bracket">[</span>16<span class="fn-bracket">]</span></span>
+<span class="backrefs">(<a role="doc-backlink" href="#id20">1</a>,<a role="doc-backlink" href="#id21">2</a>,<a role="doc-backlink" href="#id22">3</a>)</span>
 <p>Reference <a class="reference external" href="https://github.com/Jonathan2251/lbt/tree/master/exlbt/input/test_pow.c">https://github.com/Jonathan2251/lbt/tree/master/exlbt/input/test_pow.c</a></p>
 </aside>
 <aside class="footnote brackets" id="clang-builtin-comment" role="note">
-<span class="label"><span class="fn-bracket">[</span><a role="doc-backlink" href="#id19">15</a><span class="fn-bracket">]</span></span>
+<span class="label"><span class="fn-bracket">[</span><a role="doc-backlink" href="#id23">17</a><span class="fn-bracket">]</span></span>
 <p><a class="reference external" href="https://github.com/llvm/llvm-project/blob/main/clang/lib/CodeGen/CGBuiltin.cpp">https://github.com/llvm/llvm-project/blob/main/clang/lib/CodeGen/CGBuiltin.cpp</a></p>
 </aside>
+</section>
 </section>
 </section>
 

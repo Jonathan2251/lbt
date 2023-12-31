@@ -40,23 +40,24 @@
 <span id="sec-pocl"></span><h1>Appendix C: POCL<a class="headerlink" href="#appendix-c-pocl" title="Permalink to this heading">¶</a></h1>
 <nav class="contents local" id="contents">
 <ul class="simple">
-<li><p><a class="reference internal" href="#opencl" id="id22">OpenCL</a></p></li>
-<li><p><a class="reference internal" href="#run-opencl" id="id23">Run OpenCL</a></p>
+<li><p><a class="reference internal" href="#opencl" id="id24">OpenCL</a></p></li>
+<li><p><a class="reference internal" href="#run-opencl" id="id25">Run OpenCL</a></p>
 <ul>
-<li><p><a class="reference internal" href="#macos" id="id24">Macos</a></p></li>
+<li><p><a class="reference internal" href="#macos" id="id26">Macos</a></p></li>
 </ul>
 </li>
-<li><p><a class="reference internal" href="#open-sources" id="id25">Open sources</a></p></li>
-<li><p><a class="reference internal" href="#pocl" id="id26">POCL</a></p></li>
-<li><p><a class="reference internal" href="#structure" id="id27">Structure</a></p></li>
-<li><p><a class="reference internal" href="#gdb-on-pocl" id="id28">GDB on POCL</a></p></li>
-<li><p><a class="reference internal" href="#examples-of-compiling-and-running-on-pocl" id="id29">Examples of Compiling and running on POCL</a></p></li>
-<li><p><a class="reference internal" href="#riscv-opencl" id="id30">RISCV OpenCL</a></p></li>
-<li><p><a class="reference internal" href="#sycl" id="id31">SYCL</a></p></li>
-<li><p><a class="reference internal" href="#dpc" id="id32">DPC++</a></p></li>
+<li><p><a class="reference internal" href="#open-sources" id="id27">Open sources</a></p></li>
+<li><p><a class="reference internal" href="#pocl" id="id28">POCL</a></p></li>
+<li><p><a class="reference internal" href="#structure" id="id29">Structure</a></p></li>
+<li><p><a class="reference internal" href="#gdb-on-pocl" id="id30">GDB on POCL</a></p></li>
+<li><p><a class="reference internal" href="#examples-of-compiling-and-running-on-pocl" id="id31">Examples of Compiling and running on POCL</a></p></li>
+<li><p><a class="reference internal" href="#riscv-opencl" id="id32">RISCV OpenCL</a></p></li>
+<li><p><a class="reference internal" href="#sycl" id="id33">SYCL</a></p></li>
+<li><p><a class="reference internal" href="#dpc" id="id34">DPC++</a></p></li>
 </ul>
 </nav>
-<div class="graphviz"><img src="_images/graphviz-923739dca7c596f6a9252fdcb059532593626b7f.png" alt="digraph G {
+<figure class="align-default" id="id20">
+<span id="opencl-f"></span><div class="graphviz"><img src="_images/graphviz-21fb840019464deb456541bfacf97b6507bb576b.png" alt="digraph G {
   rankdir=LR;
   subgraph cluster0 {
     label = &quot;Host(X86)&quot;;
@@ -77,9 +78,13 @@
   HMem -&gt; DMem2 [label=&quot;Send(DMA+Net)&quot;];
   DMem2 -&gt; HMem [label=&quot;Receive(DMA+Net)&quot;];
 
-  label = &quot;Figure: OpenCL with discrete memory (Device: 2 processor+memory)&quot;;
+//  label = &quot;Figure: OpenCL with discrete memory (Device: 2 processor+memory)&quot;;
 }" class="graphviz" /></div>
-<p>As above figure, one possible HW platform is that one Host + Device with 2 RISCV
+<figcaption>
+<p><span class="caption-number">Fig. 17 </span><span class="caption-text">OpenCL with discrete memory (Device: 2 processor+memory)</span><a class="headerlink" href="#id20" title="Permalink to this image">¶</a></p>
+</figcaption>
+</figure>
+<p>As <a class="reference internal" href="#opencl-f"><span class="std std-numref">Fig. 17</span></a>, one possible HW platform is that one Host + Device with 2 RISCV
 processors and each RISCV has each dedicated memory.</p>
 <ul class="simple">
 <li><p><a class="reference external" href="info::local_mem_type::global">info::local_mem_type::global</a> -&gt; conherent, CPU cache (SRAM)</p></li>
@@ -90,16 +95,16 @@ POCL is an open source implementation for Runtime API.</p>
 <p>OpenCL Implementation <a class="footnote-reference brackets" href="#ocl-impl" id="id1" role="doc-noteref"><span class="fn-bracket">[</span>1<span class="fn-bracket">]</span></a>.
 Wiki OpenCL Open source implementations <a class="footnote-reference brackets" href="#wiki-ocl-osi" id="id2" role="doc-noteref"><span class="fn-bracket">[</span>2<span class="fn-bracket">]</span></a>.</p>
 <section id="opencl">
-<h2><a class="toc-backref" href="#id22" role="doc-backlink">OpenCL</a><a class="headerlink" href="#opencl" title="Permalink to this heading">¶</a></h2>
-<p>Builtin-function and builtin-kernel reference here <a class="footnote-reference brackets" href="#builtin-function-kernel" id="id3" role="doc-noteref"><span class="fn-bracket">[</span>5<span class="fn-bracket">]</span></a>.
-Books <a class="footnote-reference brackets" href="#open-cl-book-heter" id="id4" role="doc-noteref"><span class="fn-bracket">[</span>6<span class="fn-bracket">]</span></a>.
-Papers <a class="footnote-reference brackets" href="#ocl-acceler-tf" id="id5" role="doc-noteref"><span class="fn-bracket">[</span>7<span class="fn-bracket">]</span></a> <a class="footnote-reference brackets" href="#ocl-agpvldl" id="id6" role="doc-noteref"><span class="fn-bracket">[</span>8<span class="fn-bracket">]</span></a> <a class="footnote-reference brackets" href="#sycl-aesstgplsmlw" id="id7" role="doc-noteref"><span class="fn-bracket">[</span>9<span class="fn-bracket">]</span></a>  <a class="footnote-reference brackets" href="#ocl-acpcco" id="id8" role="doc-noteref"><span class="fn-bracket">[</span>10<span class="fn-bracket">]</span></a>
-<a class="footnote-reference brackets" href="#dlc-acs" id="id9" role="doc-noteref"><span class="fn-bracket">[</span>11<span class="fn-bracket">]</span></a> in lbt/papers/pocl.</p>
+<h2><a class="toc-backref" href="#id24" role="doc-backlink">OpenCL</a><a class="headerlink" href="#opencl" title="Permalink to this heading">¶</a></h2>
+<p>Builtin-function and builtin-kernel reference here <a class="footnote-reference brackets" href="#builtin-function-kernel" id="id3" role="doc-noteref"><span class="fn-bracket">[</span>6<span class="fn-bracket">]</span></a>.
+Books <a class="footnote-reference brackets" href="#open-cl-book-heter" id="id4" role="doc-noteref"><span class="fn-bracket">[</span>7<span class="fn-bracket">]</span></a>.
+Papers <a class="footnote-reference brackets" href="#ocl-acceler-tf" id="id5" role="doc-noteref"><span class="fn-bracket">[</span>8<span class="fn-bracket">]</span></a> <a class="footnote-reference brackets" href="#ocl-agpvldl" id="id6" role="doc-noteref"><span class="fn-bracket">[</span>9<span class="fn-bracket">]</span></a> <a class="footnote-reference brackets" href="#sycl-aesstgplsmlw" id="id7" role="doc-noteref"><span class="fn-bracket">[</span>10<span class="fn-bracket">]</span></a>  <a class="footnote-reference brackets" href="#ocl-acpcco" id="id8" role="doc-noteref"><span class="fn-bracket">[</span>11<span class="fn-bracket">]</span></a>
+<a class="footnote-reference brackets" href="#dlc-acs" id="id9" role="doc-noteref"><span class="fn-bracket">[</span>12<span class="fn-bracket">]</span></a> in lbt/papers/pocl.</p>
 </section>
 <section id="run-opencl">
-<h2><a class="toc-backref" href="#id23" role="doc-backlink">Run OpenCL</a><a class="headerlink" href="#run-opencl" title="Permalink to this heading">¶</a></h2>
+<h2><a class="toc-backref" href="#id25" role="doc-backlink">Run OpenCL</a><a class="headerlink" href="#run-opencl" title="Permalink to this heading">¶</a></h2>
 <section id="macos">
-<h3><a class="toc-backref" href="#id24" role="doc-backlink">Macos</a><a class="headerlink" href="#macos" title="Permalink to this heading">¶</a></h3>
+<h3><a class="toc-backref" href="#id26" role="doc-backlink">Macos</a><a class="headerlink" href="#macos" title="Permalink to this heading">¶</a></h3>
 <p>~/git/lbt/exlbt/opencl/opencl-saxpy/opencl-saxpy.xcodeproj can be created by
 the following:</p>
 <p>Xcode – Create a new Xcode project – macOS – Command Line Tool –
@@ -112,24 +117,25 @@ save</p>
 <p>Build and run saxpy opencl as follows,</p>
 <p>Open ~/git/lbt/exlbt/opencl/opencl-saxpy/opencl-saxpy.xcodeproj – Product –
 Build – Product – Run, then choose the icons of the following
-<a class="reference internal" href="#pocl-f1"><span class="std std-numref">Fig. 10</span></a>  and get the compile options and run-result.</p>
-<figure class="align-center" id="id19">
+<a class="reference internal" href="#pocl-f1"><span class="std std-numref">Fig. 18</span></a>  and get the compile options and run-result.</p>
+<figure class="align-center" id="id21">
 <span id="pocl-f1"></span><a class="reference internal image-reference" href="_images/opencl-saxpy-build-run.png"><img alt="_images/opencl-saxpy-build-run.png" src="_images/opencl-saxpy-build-run.png" style="width: 1396.0px; height: 900.0px;" /></a>
 <figcaption>
-<p><span class="caption-number">Fig. 10 </span><span class="caption-text">Build and run opencl-saxpy.xcodeproj</span><a class="headerlink" href="#id19" title="Permalink to this image">¶</a></p>
+<p><span class="caption-number">Fig. 18 </span><span class="caption-text">Build and run opencl-saxpy.xcodeproj</span><a class="headerlink" href="#id21" title="Permalink to this image">¶</a></p>
 </figcaption>
 </figure>
 </section>
 </section>
 <section id="open-sources">
-<h2><a class="toc-backref" href="#id25" role="doc-backlink">Open sources</a><a class="headerlink" href="#open-sources" title="Permalink to this heading">¶</a></h2>
-<table class="docutils align-default" id="id20">
-<caption><span class="caption-number">Table 7 </span><span class="caption-text">Open sources for OpenCL</span><a class="headerlink" href="#id20" title="Permalink to this table">¶</a></caption>
+<h2><a class="toc-backref" href="#id27" role="doc-backlink">Open sources</a><a class="headerlink" href="#open-sources" title="Permalink to this heading">¶</a></h2>
+<table class="docutils align-default" id="id22">
+<caption><span class="caption-number">Table 8 </span><span class="caption-text">Open sources for OpenCL</span><a class="headerlink" href="#id22" title="Permalink to this table">¶</a></caption>
 <thead>
 <tr class="row-odd"><th class="head"><p>Project</p></th>
 <th class="head"><p>Runtime</p></th>
 <th class="head"><p>Driver</p></th>
 <th class="head"><p>Compiler</p></th>
+<th class="head"><p>Library</p></th>
 </tr>
 </thead>
 <tbody>
@@ -137,16 +143,24 @@ Build – Product – Run, then choose the icons of the following
 <td><p>V</p></td>
 <td><p>V</p></td>
 <td></td>
+<td></td>
 </tr>
 <tr class="row-odd"><td><p>clang</p></td>
+<td></td>
+<td></td>
+<td><p>V</p></td>
+<td></td>
+</tr>
+<tr class="row-even"><td><p>libclc</p></td>
+<td></td>
 <td></td>
 <td></td>
 <td><p>V</p></td>
 </tr>
 </tbody>
 </table>
-<table class="docutils align-default" id="id21">
-<caption><span class="caption-number">Table 8 </span><span class="caption-text">Open sources for OpenCL 2</span><a class="headerlink" href="#id21" title="Permalink to this table">¶</a></caption>
+<table class="docutils align-default" id="id23">
+<caption><span class="caption-number">Table 9 </span><span class="caption-text">Open sources for OpenCL 2</span><a class="headerlink" href="#id23" title="Permalink to this table">¶</a></caption>
 <thead>
 <tr class="row-odd"><th class="head"><p>project</p></th>
 <th class="head"><p>Host Compiler</p></th>
@@ -158,37 +172,27 @@ Build – Product – Run, then choose the icons of the following
 <tr class="row-even"><td><p>POCL</p></td>
 <td><p>X86</p></td>
 <td><p>X86,ARM,AMD,TCE,PTX</p></td>
-<td><ul class="simple">
-<li></li>
-</ul>
-</td>
+<td></td>
 </tr>
 <tr class="row-odd"><td><p>clang</p></td>
 <td><p>X86</p></td>
 <td><p>NVIDIA-gpu, AMD-gpu</p></td>
-<td><ul class="simple">
-<li></li>
-</ul>
-</td>
+<td></td>
 </tr>
-<tr class="row-even"><td><p>Liclc</p></td>
-<td><ul class="simple">
-<li></li>
-</ul>
-</td>
-<td><ul class="simple">
-<li></li>
-</ul>
-</td>
+<tr class="row-even"><td><p>libclc</p></td>
+<td></td>
+<td></td>
 <td><p>Spir, Spir64, NVIDIA-gpu, AMD-gpu</p></td>
 </tr>
 </tbody>
 </table>
+<p>libclc is an open source, BSD/MIT dual licensed implementation of
+the library requirements of the OpenCL C programming language <a class="footnote-reference brackets" href="#libclc" id="id10" role="doc-noteref"><span class="fn-bracket">[</span>3<span class="fn-bracket">]</span></a>.</p>
 </section>
 <section id="pocl">
-<h2><a class="toc-backref" href="#id26" role="doc-backlink">POCL</a><a class="headerlink" href="#pocl" title="Permalink to this heading">¶</a></h2>
-<p>Pocl web <a class="footnote-reference brackets" href="#pocl-web" id="id10" role="doc-noteref"><span class="fn-bracket">[</span>3<span class="fn-bracket">]</span></a> and documentation <a class="footnote-reference brackets" href="#pocl-doc" id="id11" role="doc-noteref"><span class="fn-bracket">[</span>4<span class="fn-bracket">]</span></a>.</p>
-<p>PoCL uses Clang as an OpenCL C frontend and LLVM for kernel compiler implementation, and as a portability layer. Thus, if your desired target has an LLVM backend, it should be able to get OpenCL support easily by using PoCL <a class="footnote-reference brackets" href="#pocl-web" id="id12" role="doc-noteref"><span class="fn-bracket">[</span>3<span class="fn-bracket">]</span></a>.</p>
+<h2><a class="toc-backref" href="#id28" role="doc-backlink">POCL</a><a class="headerlink" href="#pocl" title="Permalink to this heading">¶</a></h2>
+<p>Pocl web <a class="footnote-reference brackets" href="#pocl-web" id="id11" role="doc-noteref"><span class="fn-bracket">[</span>4<span class="fn-bracket">]</span></a> and documentation <a class="footnote-reference brackets" href="#pocl-doc" id="id12" role="doc-noteref"><span class="fn-bracket">[</span>5<span class="fn-bracket">]</span></a>.</p>
+<p>PoCL uses Clang as an OpenCL C frontend and LLVM for kernel compiler implementation, and as a portability layer. Thus, if your desired target has an LLVM backend, it should be able to get OpenCL support easily by using PoCL <a class="footnote-reference brackets" href="#pocl-web" id="id13" role="doc-noteref"><span class="fn-bracket">[</span>4<span class="fn-bracket">]</span></a>.</p>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
 <p>OpenCL is C function with keyword __kernel and some attruibutes in data type. If clang is able to compile input.cl to input.ll, then llvm backend can compile input.ll and link to library.</p>
@@ -291,14 +295,14 @@ check_pocl;
 <span class="go">/etc/apt/sources.list:# deb-src https://apt.llvm.org/bionic/ llvm-toolchain-bionic-13 main</span>
 </pre></div>
 </div>
-<p>Reference <a class="footnote-reference brackets" href="#pocl-build" id="id13" role="doc-noteref"><span class="fn-bracket">[</span>12<span class="fn-bracket">]</span></a>.</p>
+<p>Reference <a class="footnote-reference brackets" href="#pocl-build" id="id14" role="doc-noteref"><span class="fn-bracket">[</span>13<span class="fn-bracket">]</span></a>.</p>
 </section>
 <section id="structure">
-<h2><a class="toc-backref" href="#id27" role="doc-backlink">Structure</a><a class="headerlink" href="#structure" title="Permalink to this heading">¶</a></h2>
+<h2><a class="toc-backref" href="#id29" role="doc-backlink">Structure</a><a class="headerlink" href="#structure" title="Permalink to this heading">¶</a></h2>
 <p>Code of Runtime in pocl/lib/CL. Test cases of Runtime in pocl/tests/runtime.</p>
 </section>
 <section id="gdb-on-pocl">
-<h2><a class="toc-backref" href="#id28" role="doc-backlink">GDB on POCL</a><a class="headerlink" href="#gdb-on-pocl" title="Permalink to this heading">¶</a></h2>
+<h2><a class="toc-backref" href="#id30" role="doc-backlink">GDB on POCL</a><a class="headerlink" href="#gdb-on-pocl" title="Permalink to this heading">¶</a></h2>
 <p>After <cite>bash pocl-install.sh</cite>, can run <cite>make check_tier1</cite> but fail on run single
 test such as <cite>./tests/runtime/test_clCreateKernelsInProgram</cite> as follows,</p>
 <div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="go">~/git/pocl/build$ POCL_DEBUG=all ./tests/runtime/test_clCreateKernelsInProgram</span>
@@ -340,7 +344,7 @@ pocl. Workaround fix as follows,</p>
 </div>
 </section>
 <section id="examples-of-compiling-and-running-on-pocl">
-<h2><a class="toc-backref" href="#id29" role="doc-backlink">Examples of Compiling and running on POCL</a><a class="headerlink" href="#examples-of-compiling-and-running-on-pocl" title="Permalink to this heading">¶</a></h2>
+<h2><a class="toc-backref" href="#id31" role="doc-backlink">Examples of Compiling and running on POCL</a><a class="headerlink" href="#examples-of-compiling-and-running-on-pocl" title="Permalink to this heading">¶</a></h2>
 <p>As tracing clang compilation options in last section, I add compile.sh for running OpenCl program on pocl as follows,</p>
 <p class="rubric">exlbt/pocl/ex/compile.sh</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span>#!/usr/bin/env bash
@@ -363,10 +367,10 @@ FILE=test_clCreateKernelsInProgram
 <span class="go">Hello World!</span>
 </pre></div>
 </div>
-<p>References <a class="footnote-reference brackets" href="#pocl-dbg" id="id14" role="doc-noteref"><span class="fn-bracket">[</span>13<span class="fn-bracket">]</span></a>.</p>
+<p>References <a class="footnote-reference brackets" href="#pocl-dbg" id="id15" role="doc-noteref"><span class="fn-bracket">[</span>14<span class="fn-bracket">]</span></a>.</p>
 </section>
 <section id="riscv-opencl">
-<h2><a class="toc-backref" href="#id30" role="doc-backlink">RISCV OpenCL</a><a class="headerlink" href="#riscv-opencl" title="Permalink to this heading">¶</a></h2>
+<h2><a class="toc-backref" href="#id32" role="doc-backlink">RISCV OpenCL</a><a class="headerlink" href="#riscv-opencl" title="Permalink to this heading">¶</a></h2>
 <p>In llvm, Mips and Cpu0 can compile .ll file from clang’s output for input OpenCL
 while RISCV fail on both 14.x and 15.x as follows,</p>
 <div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="go">CodeGenOpenCL % pwd</span>
@@ -394,12 +398,12 @@ while RISCV fail on both 14.x and 15.x as follows,</p>
 </div>
 </section>
 <section id="sycl">
-<h2><a class="toc-backref" href="#id31" role="doc-backlink">SYCL</a><a class="headerlink" href="#sycl" title="Permalink to this heading">¶</a></h2>
-<p>Webs <a class="footnote-reference brackets" href="#id18" id="id15" role="doc-noteref"><span class="fn-bracket">[</span>14<span class="fn-bracket">]</span></a>. An example <a class="footnote-reference brackets" href="#sycl-wiki" id="id16" role="doc-noteref"><span class="fn-bracket">[</span>15<span class="fn-bracket">]</span></a>.</p>
+<h2><a class="toc-backref" href="#id33" role="doc-backlink">SYCL</a><a class="headerlink" href="#sycl" title="Permalink to this heading">¶</a></h2>
+<p>Webs <a class="footnote-reference brackets" href="#id19" id="id16" role="doc-noteref"><span class="fn-bracket">[</span>15<span class="fn-bracket">]</span></a>. An example <a class="footnote-reference brackets" href="#sycl-wiki" id="id17" role="doc-noteref"><span class="fn-bracket">[</span>16<span class="fn-bracket">]</span></a>.</p>
 </section>
 <section id="dpc">
-<h2><a class="toc-backref" href="#id32" role="doc-backlink">DPC++</a><a class="headerlink" href="#dpc" title="Permalink to this heading">¶</a></h2>
-<p>Book <a class="footnote-reference brackets" href="#dpcpp-book" id="id17" role="doc-noteref"><span class="fn-bracket">[</span>16<span class="fn-bracket">]</span></a>.</p>
+<h2><a class="toc-backref" href="#id34" role="doc-backlink">DPC++</a><a class="headerlink" href="#dpc" title="Permalink to this heading">¶</a></h2>
+<p>Book <a class="footnote-reference brackets" href="#dpcpp-book" id="id18" role="doc-noteref"><span class="fn-bracket">[</span>17<span class="fn-bracket">]</span></a>.</p>
 <p class="rubric">exlbt/pocl/dpc++.txt</p>
 <aside class="footnote brackets" id="ocl-impl" role="note">
 <span class="label"><span class="fn-bracket">[</span><a role="doc-backlink" href="#id1">1</a><span class="fn-bracket">]</span></span>
@@ -409,61 +413,65 @@ while RISCV fail on both 14.x and 15.x as follows,</p>
 <span class="label"><span class="fn-bracket">[</span><a role="doc-backlink" href="#id2">2</a><span class="fn-bracket">]</span></span>
 <p><a class="reference external" href="https://en.wikipedia.org/wiki/OpenCL#Open_source_implementations">https://en.wikipedia.org/wiki/OpenCL#Open_source_implementations</a></p>
 </aside>
+<aside class="footnote brackets" id="libclc" role="note">
+<span class="label"><span class="fn-bracket">[</span><a role="doc-backlink" href="#id10">3</a><span class="fn-bracket">]</span></span>
+<p><a class="reference external" href="https://libclc.llvm.org">https://libclc.llvm.org</a></p>
+</aside>
 <aside class="footnote brackets" id="pocl-web" role="note">
-<span class="label"><span class="fn-bracket">[</span>3<span class="fn-bracket">]</span></span>
-<span class="backrefs">(<a role="doc-backlink" href="#id10">1</a>,<a role="doc-backlink" href="#id12">2</a>)</span>
+<span class="label"><span class="fn-bracket">[</span>4<span class="fn-bracket">]</span></span>
+<span class="backrefs">(<a role="doc-backlink" href="#id11">1</a>,<a role="doc-backlink" href="#id13">2</a>)</span>
 <p><a class="reference external" href="http://portablecl.org/">http://portablecl.org/</a></p>
 </aside>
 <aside class="footnote brackets" id="pocl-doc" role="note">
-<span class="label"><span class="fn-bracket">[</span><a role="doc-backlink" href="#id11">4</a><span class="fn-bracket">]</span></span>
+<span class="label"><span class="fn-bracket">[</span><a role="doc-backlink" href="#id12">5</a><span class="fn-bracket">]</span></span>
 <p><a class="reference external" href="http://portablecl.org/docs/html/">http://portablecl.org/docs/html/</a></p>
 </aside>
 <aside class="footnote brackets" id="builtin-function-kernel" role="note">
-<span class="label"><span class="fn-bracket">[</span><a role="doc-backlink" href="#id3">5</a><span class="fn-bracket">]</span></span>
+<span class="label"><span class="fn-bracket">[</span><a role="doc-backlink" href="#id3">6</a><span class="fn-bracket">]</span></span>
 <p><a class="reference external" href="http://jonathan2251.github.io/lbt/clang.html#builtin-functions">http://jonathan2251.github.io/lbt/clang.html#builtin-functions</a></p>
 </aside>
 <aside class="footnote brackets" id="open-cl-book-heter" role="note">
-<span class="label"><span class="fn-bracket">[</span><a role="doc-backlink" href="#id4">6</a><span class="fn-bracket">]</span></span>
+<span class="label"><span class="fn-bracket">[</span><a role="doc-backlink" href="#id4">7</a><span class="fn-bracket">]</span></span>
 <p><a class="reference external" href="https://dahlan.unimal.ac.id/files/ebooks2/2015%203rd%20Heterogeneous%20Computing%20with%20OpenCL%202.0.pdf">https://dahlan.unimal.ac.id/files/ebooks2/2015%203rd%20Heterogeneous%20Computing%20with%20OpenCL%202.0.pdf</a></p>
 </aside>
 <aside class="footnote brackets" id="ocl-acceler-tf" role="note">
-<span class="label"><span class="fn-bracket">[</span><a role="doc-backlink" href="#id5">7</a><span class="fn-bracket">]</span></span>
+<span class="label"><span class="fn-bracket">[</span><a role="doc-backlink" href="#id5">8</a><span class="fn-bracket">]</span></span>
 <p><a class="reference external" href="https://mlsys.org/Conferences/doc/2018/84.pdf">https://mlsys.org/Conferences/doc/2018/84.pdf</a></p>
 </aside>
 <aside class="footnote brackets" id="ocl-agpvldl" role="note">
-<span class="label"><span class="fn-bracket">[</span><a role="doc-backlink" href="#id6">8</a><span class="fn-bracket">]</span></span>
+<span class="label"><span class="fn-bracket">[</span><a role="doc-backlink" href="#id6">9</a><span class="fn-bracket">]</span></span>
 <p><a class="reference external" href="https://www.researchgate.net/publication/350512301_Automatic_Graph_Partitioning_for_Very_Large-scale_Deep_Learning">https://www.researchgate.net/publication/350512301_Automatic_Graph_Partitioning_for_Very_Large-scale_Deep_Learning</a></p>
 </aside>
 <aside class="footnote brackets" id="sycl-aesstgplsmlw" role="note">
-<span class="label"><span class="fn-bracket">[</span><a role="doc-backlink" href="#id7">9</a><span class="fn-bracket">]</span></span>
+<span class="label"><span class="fn-bracket">[</span><a role="doc-backlink" href="#id7">10</a><span class="fn-bracket">]</span></span>
 <p><a class="reference external" href="https://easychair.org/publications/preprint/GjhX">https://easychair.org/publications/preprint/GjhX</a></p>
 </aside>
 <aside class="footnote brackets" id="ocl-acpcco" role="note">
-<span class="label"><span class="fn-bracket">[</span><a role="doc-backlink" href="#id8">10</a><span class="fn-bracket">]</span></span>
+<span class="label"><span class="fn-bracket">[</span><a role="doc-backlink" href="#id8">11</a><span class="fn-bracket">]</span></span>
 <p><a class="reference external" href="https://www.researchgate.net/publication/221084751_A_comprehensive_performance_comparison_of_CUDA_and_OpenCL">https://www.researchgate.net/publication/221084751_A_comprehensive_performance_comparison_of_CUDA_and_OpenCL</a></p>
 </aside>
 <aside class="footnote brackets" id="dlc-acs" role="note">
-<span class="label"><span class="fn-bracket">[</span><a role="doc-backlink" href="#id9">11</a><span class="fn-bracket">]</span></span>
+<span class="label"><span class="fn-bracket">[</span><a role="doc-backlink" href="#id9">12</a><span class="fn-bracket">]</span></span>
 <p><a class="reference external" href="https://arxiv.org/pdf/2002.03794.pdf">https://arxiv.org/pdf/2002.03794.pdf</a></p>
 </aside>
 <aside class="footnote brackets" id="pocl-build" role="note">
-<span class="label"><span class="fn-bracket">[</span><a role="doc-backlink" href="#id13">12</a><span class="fn-bracket">]</span></span>
+<span class="label"><span class="fn-bracket">[</span><a role="doc-backlink" href="#id14">13</a><span class="fn-bracket">]</span></span>
 <p><a class="reference external" href="http://portablecl.org/docs/html/install.html#configure-build">http://portablecl.org/docs/html/install.html#configure-build</a></p>
 </aside>
 <aside class="footnote brackets" id="pocl-dbg" role="note">
-<span class="label"><span class="fn-bracket">[</span><a role="doc-backlink" href="#id14">13</a><span class="fn-bracket">]</span></span>
+<span class="label"><span class="fn-bracket">[</span><a role="doc-backlink" href="#id15">14</a><span class="fn-bracket">]</span></span>
 <p><a class="reference external" href="http://portablecl.org/docs/html/debug.html">http://portablecl.org/docs/html/debug.html</a></p>
 </aside>
-<aside class="footnote brackets" id="id18" role="note">
-<span class="label"><span class="fn-bracket">[</span><a role="doc-backlink" href="#id15">14</a><span class="fn-bracket">]</span></span>
+<aside class="footnote brackets" id="id19" role="note">
+<span class="label"><span class="fn-bracket">[</span><a role="doc-backlink" href="#id16">15</a><span class="fn-bracket">]</span></span>
 <p><a class="reference external" href="https://www.khronos.org/sycl">https://www.khronos.org/sycl</a></p>
 </aside>
 <aside class="footnote brackets" id="sycl-wiki" role="note">
-<span class="label"><span class="fn-bracket">[</span><a role="doc-backlink" href="#id16">15</a><span class="fn-bracket">]</span></span>
+<span class="label"><span class="fn-bracket">[</span><a role="doc-backlink" href="#id17">16</a><span class="fn-bracket">]</span></span>
 <p><a class="reference external" href="https://en.wikipedia.org/wiki/SYCL">https://en.wikipedia.org/wiki/SYCL</a></p>
 </aside>
 <aside class="footnote brackets" id="dpcpp-book" role="note">
-<span class="label"><span class="fn-bracket">[</span><a role="doc-backlink" href="#id17">16</a><span class="fn-bracket">]</span></span>
+<span class="label"><span class="fn-bracket">[</span><a role="doc-backlink" href="#id18">17</a><span class="fn-bracket">]</span></span>
 <p><a class="reference external" href="https://itbook.store/books/9781484255735">https://itbook.store/books/9781484255735</a></p>
 </aside>
 </section>

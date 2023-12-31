@@ -57,8 +57,28 @@
 <p>The llvm-link provide optimizaton in IR level which can apply in different
 programs developed by more than one language. Of course, it can apply in
 the same language which support seperate compile.</p>
-<figure class="align-center" id="id5">
-<span id="llvm-link-f-flow"></span><a class="reference internal image-reference" href="_images/1.png"><img alt="_images/1.png" src="_images/1.png" style="width: 821.0px; height: 258.0px;" /></a>
+<figure class="align-default" id="id5">
+<span id="llvm-link-f-flow"></span><div class="graphviz"><img src="_images/graphviz-84581890368bb293a7ad9c07ac6d444dd056855c.png" alt="digraph G {
+  rankdir=LR;
+
+  node [shape=record];
+  program1 [label = &quot;program&quot;];
+  program2 [label = &quot;program&quot;];
+  clang1 [label = &quot;clang&quot;];
+  clang2 [label = &quot;clang&quot;];
+  llc;
+  lld;
+  llvm_link [label=&quot;llvm-link&quot;,style=filled,color=green];
+
+  program1 -&gt; clang1 [label = &quot;C/C++&quot;];
+  program2 -&gt; clang2 [label = &quot;Object C&quot;];
+  clang1 -&gt; llvm_link [label = &quot;IR&quot;];
+  clang2 -&gt; llvm_link [label = &quot;IR&quot;];
+  llvm_link -&gt; llc [ label = &quot;IR (optimized)&quot; ];
+  llc -&gt; lld [ label = &quot;obj&quot; ];
+
+//  label = &quot;llvm-link flow&quot;;
+}" class="graphviz" /></div>
 <figcaption>
 <p><span class="caption-number">Fig. 5 </span><span class="caption-text">llvm-link flow</span><a class="headerlink" href="#id5" title="Permalink to this image">¶</a></p>
 </figcaption>

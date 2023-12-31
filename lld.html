@@ -1918,14 +1918,20 @@ epilogue;
 
 </pre></div>
 </div>
-<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">1-160-136-173:input Jonathan$ </span><span class="nb">pwd</span>
-<span class="go">/Users/Jonathan/Downloads/exlbt/input</span>
-<span class="gp">114-37-148-111:input Jonathan$ </span>bash make.sh cpu032I el Makefile.slinker
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span><span class="nb">cd</span> ~/git/lbd/lbdex/verilog
+<span class="gp">$ </span>make
+<span class="gp">$ </span><span class="nb">cd</span>  ~/git/lbt/exlbt/input
+<span class="gp">$ </span><span class="nb">pwd</span>
+<span class="gp">$</span>HOME/git/lbt/exlbt/input
+<span class="gp">$ </span>bash make.sh cpu032I el Makefile.slinker
 <span class="go">...</span>
 <span class="go">endian =  LittleEndian</span>
 <span class="go">ISR address:00020780</span>
 <span class="go">1   /* 0: big endian, 1: little endian */</span>
-<span class="gp">chungshu@ChungShudeMacBook-Air verilog % </span>./cpu0Is
+<span class="gp">$ </span><span class="nb">cd</span> ~/git/lbd/lbdex/verilog
+<span class="gp">$ </span><span class="nb">pwd</span>
+<span class="gp">$</span>HOME/git/lbd/lbdex/verilog
+<span class="gp">$ </span>./cpu0Is
 <span class="go">WARNING: cpu0.v:487: $readmemh(cpu0.hex): Not enough words in the file for the requested range [0:524287].</span>
 <span class="go">taskInterrupt(001)</span>
 <span class="go">74</span>
@@ -2008,12 +2014,15 @@ epilogue;
 </div>
 <p>Above test includes the printf format verification.
 Let’s check the result with PC program printf-stdarg-1.c output as follows,</p>
-<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">1-160-136-173:input Jonathan$ </span>clang printf-stdarg-1.c
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span><span class="nb">cd</span>  ~/git/lbt/exlbt/input
+<span class="gp">$ </span><span class="nb">pwd</span>
+<span class="gp">$</span>HOME/git/lbt/exlbt/input
+<span class="gp">$ </span>clang printf-stdarg-1.c
 <span class="go">printf-stdarg-1.c:58:19: warning: incomplete format specifier [-Wformat]</span>
 <span class="go">  printf(&quot;%d %s(s)%&quot;, 0, &quot;message&quot;);</span>
 <span class="go">                  ^</span>
 <span class="go">1 warning generated.</span>
-<span class="gp">1-160-136-173:input Jonathan$ </span>./a.out
+<span class="gp">$ </span>./a.out
 <span class="go">Hello world!</span>
 <span class="go">printf test</span>
 <span class="gp gp-VirtualEnv">(null)</span> <span class="go">is null pointer</span>

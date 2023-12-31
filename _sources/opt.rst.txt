@@ -17,12 +17,9 @@ The llvm-link provide optimizaton in IR level which can apply in different
 programs developed by more than one language. Of course, it can apply in 
 the same language which support seperate compile.
 
-.. _llvm-link-f-flow: 
-.. figure:: ../Fig/opt/1.png
-  :scale: 100 %
-  :align: center
-
-  llvm-link flow
+.. _llvm-link-f-flow:
+.. graphviz:: ../Fig/opt/llvm-link.gv 
+  :caption: llvm-link flow
 
 Clang provide optimization options to do optimation from high level language 
 to IR. 
