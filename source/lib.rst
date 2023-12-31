@@ -38,7 +38,9 @@ Floating point can be implemented both on software and hardware.
 
 The 16-bit a*b can be calculated by transfering to Fixed point above for both a 
 and b on more bits of memory/registers, calcuate as Fixed point and transfer 
-back to Fixed point, or as follows,
+back to Fixed point as this website [#fp-calc]_.
+
+The example for multiplication based on exponent 2 as follows,
 
 - Precondition: a and b are normalized of IEEE half precision (16-bit) [#ieee754-half]_.
   Exponent bias: zero offset being 15: 15->0, 1-> -14, 30 -> 15. And 31 -> NaN.
@@ -50,10 +52,25 @@ back to Fixed point, or as follows,
 
 - ex.
 
-  - a = 0.01 (binary) = {0 01110 1000000000}; b = 0.11 (binary) = {0 10000 1100000000}
+  - a = 0.01 (binary) = {0 01110 1000000000}; b = 1.1 (binary) = {010000 1100000000}
 
   - 1. a*b = {0 xor 0} {01110+10000-01111=01111} {1000000000*1100000000 >> 10 = 0110000000}
-  - 2. Normalize: {0 01111 0110000000} -> {0 01110 1100000000}
+  - 2. Normalize: {0 01111 0110000000} -> {0 01110 1100000000} = 0.011
+
+The following is for division operation.
+
+- Transformation for a/b:
+
+  - 1. {sign-bit(a) xor sign-bit(b)} {exponent-bits(a)-exponent-bits(b)+15} {significand-bits(a)/significand-bits(b) >> 10}
+  - 2. Normalize:
+
+- ex.
+
+  - a = 0.01 (binary) = {0 01110 1000000000}; b = 1 (binary) = {0 10000 1000000000}
+
+  - 1. a*b = {0 xor 0} {01110-10000+01111=01101} {1000000000/1000000000 << 9 = 1000000000}
+  - 2. Normalize: {0 01101 0000000001} -> {0 01101 1000000000} = 0.01
+
 
 IEEE-754 floating standard also consider NaN (Not a Number) such as 0/0 and 
 :math:`\infty` as :numref:`exp-enc`.
@@ -68,9 +85,9 @@ IEEE-754 floating standard also consider NaN (Not a Number) such as 0/0 and
 Since Normalization applied in Floating precision is the critial code, Cpu0 HW
 provides clz and clo to speedup Normalization Operation.
 
-Compiler-rt implement mul of Floating point considering NaN and `\infty` as the 
-same way for implementation above and clz/clo to speedup Normalization as 
-follows,
+Compiler-rt implement multiplication of Floating point considering NaN and 
+:math:`\infty` as the same way for implementation above and clz/clo to speedup 
+Normalization as follows,
 
 .. rubric:: ~/llvm/debug/compiler-rt/lib/builtins/fp_lib.h
 .. code-block:: c++
@@ -619,6 +636,8 @@ Run as follows,
   ...          
   RET to PC < 0, finished!
 
+
+.. [#fp-calc] https://witscad.com/course/computer-architecture/chapter/floating-point-arithmetic
 
 .. [#ieee754-half] https://en.wikipedia.org/wiki/Half-precision_floating-point_format
 
