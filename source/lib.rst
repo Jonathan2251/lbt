@@ -7,11 +7,12 @@ Library
    :local:
    :depth: 4
 
-The theory of Floating point implementation
+The theory of Floating Point Implementation
 -------------------------------------------
 
-Fixed point for representation of floating point as :numref:`fixed-point` and 
-calculate as below after.
+Fixed-point representation is used to implement floating-point numbers,  
+as illustrated in :numref:`fixed-point`. The calculation is described  
+below.
 
 .. _fixed-point:
 .. figure:: ../Fig/lib/fixed-point.png
@@ -22,9 +23,11 @@ calculate as below after.
 
 Assume Sign part: 1-bit (0:+, 1:-), Integer part: 2-bit, Fraction part: 2-bit.
 
-- 3.0 * 0.5 = {0 11 00} * {0 00 10} = {(0 xor 0) (11 00 * 00 10) >> 2} = {0 01 10} = 1.5
+- `3.0 * 0.5 = {0 11 00} * {0 00 10} = {(0 xor 0) (11 00 * 00 10) >> 2} =` 
+  `{0 01 10} = 1.5`
 
-The layout for half precision of Floating point as :numref:`floating-point-half`.
+The layout for half-precision floating-point format is shown in  
+:numref:`floating-point-half`.
 
 .. _floating-point-half:
 .. figure:: ../Fig/lib/floating-point-half.png
@@ -33,47 +36,58 @@ The layout for half precision of Floating point as :numref:`floating-point-half`
 
   IEEE 754 half precision of Floating point representation [#ieee754-half]_
 
-
-Floating point can be implemented both on software and hardware.
-
-The 16-bit a*b can be calculated by transfering to Fixed point above for both a 
-and b on more bits of memory/registers, calcuate as Fixed point and transfer 
-back to Fixed point as this website [#fp-calc]_.
-
-The example for multiplication based on exponent 2 as follows,
-
-- Precondition: a and b are normalized of IEEE half precision (16-bit) [#ieee754-half]_.
-  Exponent bias: zero offset being 15: 15->0, 1-> -14, 30 -> 15. And 31 -> NaN.
-
-- Transformation for a*b:
-
-  - 1. {sign-bit(a) xor sign-bit(b)} {exponent-bits(a)+exponent-bits(b)-15} {significand-bits(a)*significand-bits(b) >> 10}
-  - 2. Normalize:
-
-- ex.
-
-  - a = 0.01 (binary) = {0 01110 1000000000}; b = 1.1 (binary) = {010000 1100000000}
-
-  - 1. a*b = {0 xor 0} {01110+10000-01111=01111} {1000000000*1100000000 >> 10 = 0110000000}
-  - 2. Normalize: {0 01111 0110000000} -> {0 01110 1100000000} = 0.011
-
-The following is for division operation.
-
-- Transformation for a/b:
-
-  - 1. {sign-bit(a) xor sign-bit(b)} {exponent-bits(a)-exponent-bits(b)+15} {significand-bits(a)/significand-bits(b) >> 10}
-  - 2. Normalize:
-
-- ex.
-
-  - a = 0.01 (binary) = {0 01110 1000000000}; b = 1 (binary) = {0 10000 1000000000}
-
-  - 1. a*b = {0 xor 0} {01110-10000+01111=01101} {1000000000/1000000000 << 9 = 1000000000}
-  - 2. Normalize: {0 01101 0000000001} -> {0 01101 1000000000} = 0.01
-
-
 IEEE-754 floating standard also consider NaN (Not a Number) such as 0/0 and 
 :math:`\infty` as :numref:`exp-enc`.
+
+Floating-point arithmetic can be implemented in both software and hardware.
+
+The 16-bit product `a * b` can be computed by first converting both `a` and `b` 
+to fixed-point format using more bits of memory or registers. After performing the 
+multiplication as fixed-point arithmetic, the result is converted back, as 
+described on this website [#fp-calc]_.
+
+An example of multiplication using exponent base 2 is given below:
+
+- Precondition: `a` and `b` are normalized IEEE half-precision (16-bit) floating 
+  point values [#ieee754-half]_.
+  The exponent bias is 15. For example: 15 -> 0, 1 -> -14, 30 -> 15, and 31 -> NaN.
+
+- Transformation for `a * b`:
+
+  1. `{sign-bit(a) xor sign-bit(b)} {exponent(a) + exponent(b) - 15}` 
+     `{significand(a) * significand(b) >> 10}`
+  2. Normalize the result.
+
+- Example:
+
+  a = 0.01 (binary) = `{0 01110 1000000000}`  
+  b = 1.1 (binary) = `{0 10000 1100000000}`
+
+  1. `a * b` = `{0 xor 0} {01110 + 10000 - 01111 = 01111}` 
+     `{1000000000 * 1100000000 >> 10 = 0110000000}`
+  2. Normalize: `{0 01111 0110000000}` → `{0 01110 1100000000}` = 0.011
+
+Division is handled similarly:
+
+- Transformation for `a / b`:
+
+  1. `{sign-bit(a) xor sign-bit(b)}` 
+     `{exponent(a) - exponent(b) + 15}` 
+     `{significand(a) / significand(b) >> 10}`
+  2. Normalize the result.
+
+- Example:
+
+  a = 0.01 (binary) = `{0 01110 1000000000}`  
+  b = 1 (binary) = `{0 10000 1000000000}`
+
+  1. `a / b` = `{0 xor 0} {01110 - 10000 + 01111 = 01101}` 
+     `{1000000000 / 1000000000 << 9 = 1000000000}`
+  2. Normalize: `{0 01101 0000000001}` → `{0 01101 1000000000}` = 0.01
+
+The IEEE-754 floating-point standard also includes special cases such as NaN
+(Not a Number), which can result from operations like 0/0, and `\infty`, as 
+illustrated in :numref:`exp-enc`.
 
 .. _exp-enc:
 .. figure:: ../Fig/lib/exp-enc.png
@@ -82,12 +96,14 @@ IEEE-754 floating standard also consider NaN (Not a Number) such as 0/0 and
 
   Encoding of exponent for IEEE 754 half precision [#ieee754-half]_
 
-Since Normalization applied in Floating precision is the critial code, Cpu0 HW
-provides clz and clo to speedup Normalization Operation.
+Since normalization in floating-point arithmetic is a critical operation, the 
+Cpu0 hardware provides `clz` (count leading zeros) and `clo` (count leading ones) 
+instructions to speed up the normalization process.
 
-Compiler-rt implement multiplication of Floating point considering NaN and 
-:math:`\infty` as the same way for implementation above and clz/clo to speedup 
-Normalization as follows,
+The `compiler-rt` library implements floating-point multiplication by handling 
+special cases like NaN and :math:`\infty` in the same way as described in the 
+implementation above. It also uses `clz` and `clo` instructions to accelerate 
+normalization, as shown below:
 
 .. rubric:: ~/llvm/debug/compiler-rt/lib/builtins/fp_lib.h
 .. code-block:: c++
@@ -127,29 +143,32 @@ Normalization as follows,
     return fromRep(productHi);
   }
 
-The dependence for Cpu0 based on Compiler-rt's builtin
-------------------------------------------------------
 
-Since Cpu0 has not hardware float point instructions, it needs software float 
-point library to finish the floating point operation. 
-LLVM compiler-rt project has software floating point library implementation 
-:numref:`swf-lib` , so I choose it as the implementation. 
+The dependence for Cpu0 based on Compiler-rt's builtins
+--------------------------------------------------------
 
-Since compiler-rt uses unix/linux rootfs structure, we fill the gap by add few
-empty include-files in exlbt/include.
+Since Cpu0 does not have hardware floating-point instructions, it requires a 
+software floating-point library to perform floating-point operations.
+
+The LLVM `compiler-rt` project provides a software floating-point implementation 
+(:numref:`swf-lib`), so I chose it for this purpose.
+
+As `compiler-rt` assumes a Unix/Linux rootfs structure, we bridge the gap by 
+adding a few empty header files in `exlbt/include`.
 
 .. _swf-lib:
 .. graphviz:: ../Fig/lib/lib.gv
   :caption: compiler-rt\/lib\/builtins' software float library
 
-The dependences for compiler-rt on libm as :numref:`compiler-rrt-dep`.
+The dependencies for `compiler-rt` on `libm` are shown in 
+:numref:`compiler-rrt-dep`.
   
 .. _compiler-rrt-dep-short:
 .. graphviz:: ../Fig/lib/compiler-rt-dep-short.gv
   :caption: Dependences for compiler-rt on libm
   
 
-.. table:: lldb dependences
+.. table:: `lldb` dependences
 
   ==============  ========================== 
   functions       depend on
@@ -158,7 +177,7 @@ The dependences for compiler-rt on libm as :numref:`compiler-rrt-dep`.
   printf          sanitizer_printf.c of compiler-rt
   ==============  ==========================
 
-.. table:: sanitizer_printf.c of compiler-rt dependences
+.. table:: sanitizer_printf.c of `compiler-rt` dependences
 
   ====================  ========================== 
   functions             depend on
@@ -170,15 +189,18 @@ The dependences for compiler-rt on libm as :numref:`compiler-rrt-dep`.
 C Library (Newlib)
 ------------------
 
-Since complex type of compiler-rt depends on libm, I porting NewLib in this 
-section.
+Since the complex type in `compiler-rt` depends on `libm`, I port Newlib in
+this section.
 
-Newlib is a C library for bare metal platform.
-Two libraries in newlib are libc and libm. Libc is for functions of
-IO, file and string supported while libm is for mathematical functions.
-Web of newlib is here [#newlib]_ and newlib/libm here [#newlib-libm]_ .
-Since the next section compiler-rt/builtins depends on libm, please run
-the following bash script to install and build newlib for Cpu0.
+Newlib is a C library designed for bare-metal platforms. It consists of two
+libraries: `libc` and `libm`. The `libc` library supports I/O, file, and
+string functions, while `libm` provides mathematical functions.
+
+The official website for Newlib is available here [#newlib]_, and the `libm`
+library can be found here [#newlib-libm]_.
+
+Since the next section, `compiler-rt/builtins`, depends on `libm`, please run
+the following bash script to install and build Newlib for Cpu0.
 
 .. rubric:: lbt/exlbt/newlib-cpu0.sh
 .. literalinclude:: ../exlbt/newlib-cpu0.sh
@@ -202,22 +224,25 @@ the following bash script to install and build newlib for Cpu0.
 
   cschen@cschendeiMac exlbt % bash newlib-cpu0.sh
 
-The libm.a depends on variable errno of libc defined in sys/errno.h.
+The `libm.a` library depends on the `errno` variable from `libc`, which is
+defined in `sys/errno.h`.
 
-- libgloss is BSP [#libgloss-bsp]_
+- libgloss is BSP license [#libgloss-bsp]_
+
 
 Compiler-rt's builtins
 ----------------------
 
-Compiler-rt is a project for runtime libraries implentation [#compiler-rt]_ .
-Compiler-rt/lib/builtins provides functions for basic operations such as +, -, 
-\*, /, ... on type of float or double and for conversion between float and 
-integer, or other type of more than 32-bit, such as `long long`. 
-The compiler-rt/lib/builtins/README.txt 
-[#builtins-README]_ includes the dependent functions that the whole builtins 
-called.
-The dependent functions is a small part of libm listed in 
-compier-rt/lib/builtins/int_math.h [#builtins-int_math]_ .
+Compiler-rt is a project for runtime libraries implementation [#compiler-rt]_.
+The `compiler-rt/lib/builtins` directory provides functions for basic operations
+such as `+`, `-`, `*`, `/`, etc., on `float` or `double` types. It also supports
+type conversions between floating-point and integer, or conversions involving
+types wider than 32 bits, such as `long long`.
+
+The `compiler-rt/lib/builtins/README.txt` [#builtins-README]_ lists the
+dependent functions used throughout the builtins. These dependent functions are
+a small subset of `libm`, which are defined in
+`compiler-rt/lib/builtins/int_math.h` [#builtins-int_math]_.
 
 .. rubric:: ~git/newlib-cygwin/build-cpu032I-eb/Makefile
 .. code-block:: Makefile
@@ -230,22 +255,24 @@ compier-rt/lib/builtins/int_math.h [#builtins-int_math]_ .
   # the NEWLIB_HW_FP variable will always be false.
   #MATHDIR = mathfp 
 
-As above Makefile, newlib uses libm/math.
-The dependences for builtin functions of compiler-rt on libm as 
+As shown in the Makefile above, Newlib uses the `libm/math` directory.
+
+The dependencies for the builtin functions of compiler-rt on `libm` are shown in
 :numref:`compiler-rrt-dep`.
 
 .. _compiler-rrt-dep:
 .. graphviz:: ../Fig/lib/compiler-rt-dep.gv
   :caption: Dependences for builtin functions of compiler-rt on libm
   
-In this section, I get test cases for verification of SW Float Point from
-compiler-rt/test/builtins/Unit to compiler-rt-test/builtins/Unit/.
+In this section, I copied test cases for verification of software floating point
+(SW FP) from `compiler-rt/test/builtins/Unit` to
+`compiler-rt-test/builtins/Unit/`.
 
-Since lbt/exlbt/input/printf-stdarg.c does not support %lld (long long 
-integeter, 64-bit) and test cases in compiler-rt/test/builtins/Unit needs it to
-verify the result of test cases for SW Float Point, I port sanitizer_printf.cpp 
-and sanitizer_internal_defs.h of lbt/exlbt/input from sanitizer_printf.cpp and 
-sanitizer_internal_defs.h of compiler-rt/lib/sanitizer_common.
+Since `lbt/exlbt/input/printf-stdarg.c` does not support `%lld` (long long
+integer, 64-bit), and the test cases in
+`compiler-rt/test/builtins/Unit` require this format to verify SW FP results, I
+ported `sanitizer_printf.cpp` and `sanitizer_internal_defs.h` to
+`lbt/exlbt/input/` from `compiler-rt/lib/sanitizer_common/`.
 
 .. table:: compiler-rt builtins dependences on newlib/libm (open source libc 
            for bare metal) 
@@ -276,28 +303,31 @@ sanitizer_internal_defs.h of compiler-rt/lib/sanitizer_common.
   fabsf           sf_fabs.c                        "
   ==============  =============================  ==============
 
-- Libm has no dependence to any other library.
+- Libm has no dependencies on any other library.
 
-- Only type of complex in compiler-rt/lib/builtin need above, others (float and 
-  double) depend on __builtin_clz(), __builtin_clo() and abort() only. I has 
-  ported in lbt/exlbt/compiler-rt/cpu0/abort.c.
+- Only the `complex` type in `compiler-rt/lib/builtins` depends on libm. Other
+  types (float and double) only depend on `__builtin_clz()`, `__builtin_clo()`,
+  and `abort()`. I have ported `abort()` in
+  `lbt/exlbt/compiler-rt/cpu0/abort.c`.
 
-- All test cases in compiler-rt/test/builtins/Unit depend on 
-  printf(%lld or %llX, ...), I ported from 
-  compiler-rt/lib/sanitizer_common/sanitizer_printf.cpp to 
-  lbt/exlbt/input/sanitizer_printf.cpp.
+- All test cases in `compiler-rt/test/builtins/Unit` depend on `printf(%lld or
+  %llX, ...)`. I ported this functionality from
+  `compiler-rt/lib/sanitizer_common/sanitizer_printf.cpp` to
+  `lbt/exlbt/input/sanitizer_printf.cpp`.
 
-- These dependent functions of complex type has bee ported from newlib/libm.
+- The dependent functions for `complex` type have been ported from `newlib/libm`.
 
-- Except builtins, the other three, sanitizer runtimes, profile and BlocksRuntime, 
-  in compiler-rt are not needed for my embedded Cpu0.
+- Except for `builtins`, the other three components—sanitizer runtimes,
+  profile and BlocksRuntime in `compiler-rt` are not needed for my embedded
+  Cpu0.
 
-The libgcc's Integer plus Soft float library  [#lib-gcc]_ [#int-lib]_ 
-[#sw-float-lib]_ are equal to functions of compiler-rt's builtins.
+The libgcc integer and soft float libraries [#lib-gcc]_ [#int-lib]_ 
+[#sw-float-lib]_ are functionally equivalent to the builtins in `compiler-rt`.
 
-In compiler-rt/lib/builtins, the dependence between files as table.
+In `compiler-rt/lib/builtins`, the file-level dependencies are listed in the
+following table.
 
-.. table:: dependence between files for compiler-rt/lib/builtins
+.. table:: dependence between files for `compiler-rt/lib/builtins`
 
   ====================  ========================== 
   functions             depend on
@@ -307,14 +337,17 @@ In compiler-rt/lib/builtins, the dependence between files as table.
   ====================  ==========================
 
 
-Though the 'rt' means RunTime libaraies, in builtins library, 
-most of these functions 
-written in target-independent C form and can be compiled and static-linked
-into target. When you compile the following c code, llc will generate 
-**jsub __addsf3** to call compiler-rt float function for Cpu0.
-This is because Cpu0 hasn't hardware float-instructions, so Cpu0 backend 
-doesn't handle the DAG of __addsf3. The end result, llvm treats the DAG of 
-__addsf3 as a function call for float-add instruction.
+Though the 'rt' stands for Runtime Libraries, most functions in the `builtins`
+library are written in target-independent C code. These functions can be
+compiled and statically linked into the target.
+
+When you compile the following C code, `llc` will generate a **call to
+__addsf3** to invoke the compiler-rt floating-point function for Cpu0.
+
+This is because Cpu0 does not have hardware floating-point instructions, so the
+Cpu0 backend does not handle the DAG for `__addsf3`. As a result, LLVM treats
+the DAG for `__addsf3` as a function call, rather than a direct float-add
+instruction.
 
 .. rubric:: lbt/exlbt/input/ch_call_compilerrt_func.c
 .. literalinclude:: ../exlbt/input/ch_call_compilerrt_func.c
@@ -337,60 +370,76 @@ __addsf3 as a function call for float-add instruction.
 	jsub	__addsf3
 
 
-For some brar-metal or embedded application, the C code doesn't need the
-file and high-level IO in libc.
-Libm provides a lots of functions to support software floating point beyond
-basic operations [#math]_ .
-Libc provides file, high-level IO functions and basic float functions [#clib]_ .
 
-Cpu0 hires Compiler-rt/lib/builtins and 
-compiler-rt/lib/sanitizer_common/sanitizer_printf.cpp at this point.
-The compiler-rt/lib/builtins is a 
-target-independent C form of software float library implementation. Cpu0 
-implements compiler-rt-12.x/cpu0/abort.c only at this point for supporting 
-this feature.
+For some bare-metal or embedded applications, the C code does not need the
+file and high-level I/O features provided by `libc`.
 
-.. note:: **Why these libm functions called builtins in compiler-rt/lib/builtins?**
+`libm` provides a wide range of functions to support software floating-point
+operations beyond basic arithmetic [#math]_.
 
-  Though these compiler-rt builtins functions are written in C. The CPU can
-  provide float type instructions or high level instructions to compile these
-  libm function calls into specific HW instructions to speed up.
+`libc` provides file handling, high-level I/O functions, and some basic float
+operations [#clib]_.
 
-In order to speed up these libm functions, many CPU provide float instructions
-for them. Of course, for the implemenation, clang compiles these float type's
-operation in C into llvm ir, then Mips backends compiles them into their 
-HW instructions. For example:
+Cpu0 uses `compiler-rt/lib/builtins` and
+`compiler-rt/lib/sanitizer_common/sanitizer_printf.cpp` to support
+software floating-point.
 
-- float a, b, c; a=b*c; -> (clang) -> %add = fmul float %0, %1 [#llvm-fmul]_
+The `compiler-rt/lib/builtins` is a target-independent C implementation of a
+software floating-point library. Cpu0 currently implements only
+`compiler-rt-12.x/cpu0/abort.c` to support this functionality.
 
-Mips backend compiles `fmul` into HW instructions as follows,
+.. note:: **Why are these libm functions called builtins in
+   compiler-rt/lib/builtins?**
 
-- %add = fmul float %0, %1 -> (llvm-mips) -> mul.s [#llvm-fmul]_ [#mips-fmadd1.ll]_
+   Though these `compiler-rt` built-in functions are written in C, CPUs can
+   provide hardware float or high-level instructions to accelerate them.
+   Compilers like Clang can convert float-type operations in C into LLVM IR.
+   Then, the backend compiles them into specific hardware instructions for
+   performance.
 
-Cpu0 backend compiles `fmul` into libm function call fmul as follows,
+To optimize `libm` functions, many CPUs include hardware floating-point
+instructions.
 
-- %add = fmul float %0, %1 -> (llvm-mips) -> jsub fmul [#llvm-fmul]_
+For example, the Clang compilation and backend translation go as follows:
 
-For high level of math functions, clang compiles these float type's
-operation in C into llvm intrinsic functions, then the llvm backends of these
-CPU compile them into their HW instructions. For example, clang compiles pow()
-into @llvm.pow.f32 as follows,
+- `float a, b, c; a = b * c;` → (Clang) → `%add = fmul float %0, %1`
+  [#llvm-fmul]_
 
-- %pow = call float @llvm.pow.f32(float %x, float %y) [#clang-pow]_
+MIPS backend compiles `fmul` into hardware instructions:
 
-AMDGPU compiles @llvm.pow.f32 into a few instructions as follows:
+- `%add = fmul float %0, %1` → (LLVM-MIPS) → `mul.s`
+  [#llvm-fmul]_ [#mips-fmadd1.ll]_
 
-- %pow = call float @llvm.pow.f32(float %x, float %y) (llvm-AMDGPU) -> ... + v_exp_f32_e32 v0, v0 + ... [#clang-pow]_
+Cpu0 backend, without hardware float support, compiles `fmul` into a library
+function call:
 
-Mips compiles @llvm.pow.f32 into a few instructions as follows:
+- `%add = fmul float %0, %1` → (LLVM-Cpu0) → `jsub fmul`
+  [#llvm-fmul]_
 
-- %pow = call float @llvm.pow.f32(float %x, float %y) (llvm-AMDGPU) -> jal powf [#clang-pow]_
+For high-level math functions, Clang compiles float-type operations in C
+into LLVM intrinsic functions. Then, LLVM backends for different CPUs compile
+these intrinsics into hardware instructions when available.
 
+For example, Clang compiles `pow()` into `@llvm.pow.f32` as follows:
 
-Clang treats these libm functions as builtin and compiles them into llvm ir or 
-intrinsic, then different backends can choose to compile them into specific 
-instructions or call builtin functions in libm. The following is Clang's 
-comment [#clang-builtin-comment]_.
+- `%pow = call float @llvm.pow.f32(float %x, float %y)` [#clang-pow]_
+
+The AMDGPU backend compiles `@llvm.pow.f32` into a sequence of instructions:
+
+- `%pow = call float @llvm.pow.f32(float %x, float %y)`  
+  → (LLVM-AMDGPU) → `... + v_exp_f32_e32 v0, v0 + ...` [#clang-pow]_
+
+The MIPS backend compiles `@llvm.pow.f32` into a function call:
+
+- `%pow = call float @llvm.pow.f32(float %x, float %y)`  
+  → (LLVM-MIPS) → `jal powf` [#clang-pow]_
+
+Clang treats these `libm` functions as built-ins and compiles them into LLVM IR
+or intrinsics. Then, the LLVM backend can either lower them into hardware
+instructions (if available) or generate function calls to built-in implementations
+in `libm`.
+
+The following quote is from Clang's documentation [#clang-builtin-comment]_:
 
 .. code-block:: c++
 
@@ -406,9 +455,9 @@ comment [#clang-builtin-comment]_.
 Verification
 ~~~~~~~~~~~~
 
-The following sanitizer_printf.cpp extended from compiler-rt can support 
-printf("%lld"). It's implementation calling some floating lib functions
-in compiler-rt/lib/builtins.
+The following `sanitizer_printf.cpp`, extended from compiler-rt, supports
+`printf("%lld")`. Its implementation calls some floating-point library
+functions in `compiler-rt/lib/builtins`.
 
 .. rubric:: exlbt/include/math.h
 .. literalinclude:: ../exlbt/include/math.h
@@ -431,10 +480,9 @@ in compiler-rt/lib/builtins.
 .. rubric:: exlbt/input/sanitizer_printf.cpp
 .. literalinclude:: ../exlbt/input/sanitizer_printf.cpp
 
-
-Above two sanitizer_*.* files are ported from compiler-rt and I add code to
-support left-justify for number-printf and right-justify for string-printf.
-The following ch_float.cpp test the float lib.
+The above two `sanitizer_*.*` files are ported from compiler-rt. I added code
+to support left-justify for number printf and right-justify for string
+printf. The following `ch_float.cpp` tests the float library.
 
 .. rubric:: lbt/exlbt/compiler-rt-12.x/builtins/Makefile
 .. literalinclude:: ../exlbt/compiler-rt-12.x/builtins/Makefile
@@ -500,8 +548,8 @@ The following ch_float.cpp test the float lib.
   RET to PC < 0, finished!
 
 
-The exlbt/input/compiler-rt-test/builtins/Unit copied from 
-compiler-rt/test/builtins/Unit as follows,
+The `exlbt/input/compiler-rt-test/builtins/Unit` directory is copied from
+`compiler-rt/test/builtins/Unit` as follows,
 
 .. rubric:: exlbt/input/ch_builtins.cpp
 .. literalinclude:: ../exlbt/input/ch_builtins.cpp
@@ -509,7 +557,7 @@ compiler-rt/test/builtins/Unit as follows,
 .. rubric:: exlbt/input/Makefile.builtins
 .. literalinclude:: ../exlbt/input/Makefile.builtins
 
-Run as follows,
+Run the tests as follows,
 
 .. code-block:: console
 

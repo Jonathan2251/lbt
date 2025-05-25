@@ -38,7 +38,16 @@ https://github.com/Jonathan2251/lbt/blob/master/README.md
 Revision history
 ----------------
 
-Version 12.0.15, not released yet.
+Version 12.0.17, not released yet.
+
+Version 12.0.16, Released May 24, 2026.
+
+  Chatgpt: Refine my English for the input rst format texts I input the 
+  following and output rst format with <= 80 characters each line.
+
+Version 12.0.15, skip.
+
+  Skip for syncing same version with lbd.
 
 Version 12.0.14, Released December 30, 2023.
 

@@ -7,30 +7,35 @@ Optimization
    :local:
    :depth: 4
 
-This chapter introduce llvm optimization. 
+This chapter introduces LLVM optimization.
 
-
-LLVM IR optimization
+LLVM IR Optimization
 ----------------------
 
-The llvm-link provide optimizaton in IR level which can apply in different 
-programs developed by more than one language. Of course, it can apply in 
-the same language which support seperate compile.
+The `llvm-link` tool provides optimization at the IR level, which can  
+be applied across different programs developed in multiple languages.  
+Of course, it can also be applied to the same language that supports  
+separate compilation.
 
 .. _llvm-link-f-flow:
-.. graphviz:: ../Fig/opt/llvm-link.gv 
+.. graphviz:: ../Fig/opt/llvm-link.gv
   :caption: llvm-link flow
 
-Clang provide optimization options to do optimation from high level language 
-to IR. 
-But since many languages like C/C++ support separate compilation, it meaning 
-there is no chance to do inter-procedure optimization if the functions come from  
-different source files.
-To solve this problem, llvm provide **llvm-link** to link all \*.bc into a single
-IR file, and through **opt** to finish the inter-procedure optimation [#]_.
-Beyond the DAG local optimization mentioned in Chapter 2, there are global 
-optimization based on inter-procedure analysis [#dragonbooks-9]_.
-The following steps and examples show this optimization solution in llvm.
+Clang provides optimization options to optimize code from high-level  
+languages to IR.  
+However, since many languages like C/C++ support separate compilation,  
+there is no opportunity for inter-procedure optimization if functions  
+come from different source files.
+
+To solve this problem, LLVM provides **llvm-link** to link all `*.bc`  
+files into a single IR file, and then uses **opt** to perform  
+inter-procedure optimization [#]_.
+
+Beyond the DAG local optimization discussed in Chapter 2 of lbd, LLVM supports  
+global optimizations based on inter-procedure analysis [#dragonbooks-9]_.
+
+The following steps and examples demonstrate this optimization approach  
+in LLVM.
 
 .. rubric:: exlbt/input/optimizen/1.cpp
 .. literalinclude:: ../exlbt/input/optimize/1.cpp
@@ -81,9 +86,10 @@ The following steps and examples show this optimization solution in llvm.
   }
   ...
 
-From the result as above, the **opt** output has lesser number of IR 
-instructions. 
-Of course, the backend code will be more effective as follows,
+From the result above, the **opt** output contains a smaller number of  
+IR instructions.  
+As a result, the backend-generated code will also be more efficient,  
+as shown below.
 
 .. code-block:: console
 
@@ -193,9 +199,10 @@ Of course, the backend code will be more effective as follows,
   $tmp1:
 	  .size	_Z6callerv, ($tmp1)-_Z6callerv
 
+
 Though llvm-link provide optimization in IR level to support seperate compile,
-it come with the cost in compile time. As you can imagine, any one statement 
-change will change the output IR of llvm-link. And the obj binary code have to 
+it come with the cost in compile time. As you can imagine, any one statement
+change may change the output IR of llvm-link. And the obj binary code have to
 re-compile. Compare to the seperate compile for each \*.c file, it only need to
 re-compile the corresponding \*.o file only.
 
@@ -206,13 +213,13 @@ Project
 LLVM-VPO
 ~~~~~~~~~
 
-Friend Gang-Ryung Uh replace LLC compiler by llvm on Very Portable Optimizer 
-(VPO) compiler toolchain. VPO performs optimizations on a single intermediate 
-representation called Register Transfer Lists (RTLs). In other word, the system 
+Friend Gang-Ryung Uh replace LLC compiler by llvm on Very Portable Optimizer
+(VPO) compiler toolchain. VPO performs optimizations on a single intermediate
+representation called Register Transfer Lists (RTLs). In other word, the system
 generate RTLs from llvm IR and it do further optimization on RTLs.
 
-The LLVM-VPO is illustrated at his home page. Click **"6. LLVM-VPO Compiler 
-Development - 2012 Google Faculty Research Award"** at this home page 
+The LLVM-VPO is illustrated at his home page. Click **"6. LLVM-VPO Compiler
+Development - 2012 Google Faculty Research Award"** at this home page
 [#Gang-Ryung]_ will get the information.
 
 

@@ -7,4 +7,5 @@ LLDB
    :local:
    :depth: 4
 
-With scanf from newlib/libc and printf from compiler-rt, now ready to porting lldb. Beginning...
+With `scanf` from newlib/libc and `printf` from compiler-rt, we are now ready  
+to start porting LLDB. Beginning...

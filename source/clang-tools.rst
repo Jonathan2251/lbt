@@ -7,10 +7,10 @@ Appendix B: Clang library and tools
    :local:
    :depth: 4
 
-This chapter shows that Using Clang as a Library and Tools [clang-doc]_.
+This chapter shows how to use Clang as a Library and Tools [clang-doc]_.
 
 
-Install llvm with clang tools
+Install LLVM with Clang Tools
 -----------------------------
 
 .. rubric:: exlbt/clang-tools/install-llvm.sh
@@ -22,13 +22,14 @@ Install llvm with clang tools
   $ $HOME/lbt/exlbt/clang-tools
   $ bash install-llvm.sh
 
+
 Using Clang as a Library
--------------------------
+------------------------
 
 Clang Plugins
 ~~~~~~~~~~~~~
 
-References clang/examples/PrintFunctionNames [clang-plugins]_ [clang-ast-fa]_.
+Refer example code, clang/examples/PrintFunctionNames [clang-plugins]_ [clang-ast-fa]_.
 
 .. rubric:: exlbt/clang-tools/Rewriter/plugin/README.txt
 .. literalinclude:: ../exlbt/clang-tools/Rewriter/plugin/README.txt
@@ -37,7 +38,8 @@ References clang/examples/PrintFunctionNames [clang-plugins]_ [clang-ast-fa]_.
 .. literalinclude:: ../exlbt/clang-tools/Rewriter/plugin/Rewriter/README.txt
 
 
-Rewriter/exe/Linux and Rewriter/exe/macOS applies on Linux and macOS as follows,
+Rewriter/exe/Linux and Rewriter/exe/macOS apply on Linux and macOS as follows,
+respectively:
 
 .. rubric:: exlbt/clang-tools/Rewriter/exe/Linux/README.txt
 .. literalinclude:: ../exlbt/clang-tools/Rewriter/exe/Linux/README.txt
@@ -49,7 +51,8 @@ Rewriter/exe/Linux and Rewriter/exe/macOS applies on Linux and macOS as follows,
 Using LibTooling and LibASTMatchers
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-References clang-tools-extra/loop-convert [clang-lamt]_ [clang-lam]_.
+Refer to `clang-tools-extra/loop-convert` for examples and usage:
+[clang-lamt]_ and [clang-lam]_.
 
 .. rubric:: exlbt/clang-tools/loop-convert2/README.txt
 .. literalinclude:: ../exlbt/clang-tools/loop-convert2/README.txt
@@ -61,13 +64,14 @@ Using Clang as Tools
 clang-query
 ~~~~~~~~~~~
 
-References [#ASTMatchers]_ [#ASTMatchersRef]_ [#narrowing-matchers]_. RVV 
-reference ~/riscv/riscv_newlib/lib/clang/13.0.1/include/riscv_vector.h.
+References: [#ASTMatchers]_, [#ASTMatchersRef]_, [#narrowing-matchers]_.
+
+RVV reference: ~/riscv/riscv_newlib/lib/clang/13.0.1/include/riscv_vector.h.
 
 .. rubric:: exlbt/clang-tools/vecotor-dsl.cpp
 .. literalinclude:: ../exlbt/clang-tools/vector-dsl.cpp
 
-- References [#check-command]_ .
+References: [#check-command]_.
 
 .. [clang-doc] https://clang.llvm.org/docs/index.html
 

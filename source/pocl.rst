@@ -11,49 +11,52 @@ Appendix C: POCL
 .. graphviz:: ../Fig/pocl/opencl.gv
   :caption: OpenCL with discrete memory (Device: 2 processor+memory)
 
-As :numref:`opencl-f`, one possible HW platform is that one Host + Device with 2 RISCV 
-processors and each RISCV has each dedicated memory.
+As :numref:`opencl-f`, one possible HW platform has one Host and Device with
+2 RISCV processors, each with dedicated memory.
 
-- info::local_mem_type::global -> conherent, CPU cache (SRAM)
-
+- info::local_mem_type::global -> coherent, CPU cache (SRAM)
 - info::local_mem_type::local -> dedicated local memory, GPU cache (SRAM)
 
-OpenCL includes Runtime API, Driver and Compiler three components. 
-POCL is an open source implementation for Runtime API.
+OpenCL includes three components: Runtime API, Driver, and Compiler.
+POCL is an open-source implementation of the Runtime API.
 
 OpenCL Implementation [#ocl-impl]_.
-Wiki OpenCL Open source implementations [#wiki-ocl-osi]_.
+Wiki OpenCL Open Source Implementations [#wiki-ocl-osi]_.
 
 OpenCL
 ------
 
 Builtin-function and builtin-kernel reference here [#builtin-function-kernel]_.
 Books [#open-cl-book-heter]_.
-Papers [#ocl-acceler-tf]_ [#ocl-agpvldl]_ [#sycl-aesstgplsmlw]_  [#ocl-acpcco]_ 
+Papers [#ocl-acceler-tf]_ [#ocl-agpvldl]_ [#sycl-aesstgplsmlw]_ [#ocl-acpcco]_
 [#dlc-acs]_ in lbt/papers/pocl.
 
 Run OpenCL
 ----------
 
-Macos
+MacOS
 +++++
 
-~/git/lbt/exlbt/opencl/opencl-saxpy/opencl-saxpy.xcodeproj can be created by 
-the following:
+You can create the project ~/git/lbt/exlbt/opencl/opencl-saxpy/opencl-saxpy.xcodeproj by:
 
-Xcode -- Create a new Xcode project -- macOS -- Command Line Tool -- 
-Product Name: opencl-saxpy, Language: C -- Next -- Create -- 
-"Choose folder ~/git/lbt/exlbt/opencl" -- 
-on left opencl-saxpy folder: delete C main -- Move to trash -- 
-"copy saxpy.c to ~/git/lbt/exlbt/opencl/opencl-saxpy/opencl-saxpy" -- 
-on left opencl-saxpy folder: right click mouse "Add files to "opencl-saxpy"" -- 
-save
+- Open Xcode
+- Create a new Xcode project
+- Select macOS → Command Line Tool
+- Set Product Name: opencl-saxpy, Language: C
+- Click Next → Create
+- Choose folder ~/git/lbt/exlbt/opencl
+- On the left, in the opencl-saxpy folder, delete the default main.c → Move to Trash
+- Copy saxpy.c into ~/git/lbt/exlbt/opencl/opencl-saxpy/opencl-saxpy
+- On the left, right-click opencl-saxpy folder → Add Files to "opencl-saxpy"
+- Save the project
 
-Build and run saxpy opencl as follows,
+Build and run the saxpy OpenCL program:
 
-Open ~/git/lbt/exlbt/opencl/opencl-saxpy/opencl-saxpy.xcodeproj -- Product -- 
-Build -- Product -- Run, then choose the icons of the following 
-:numref:`pocl-f1`  and get the compile options and run-result.
+- Open ~/git/lbt/exlbt/opencl/opencl-saxpy/opencl-saxpy.xcodeproj
+- Choose Product → Build
+- Choose Product → Run
+
+Refer to the icons shown in :numref:`pocl-f1` to see compile options and run results.
 
 .. _pocl-f1:
 .. figure:: ../Fig/pocl/opencl-saxpy-build-run.png
@@ -94,9 +97,15 @@ POCL
 
 Pocl web [#pocl-web]_ and documentation [#pocl-doc]_.
 
-PoCL uses Clang as an OpenCL C frontend and LLVM for kernel compiler implementation, and as a portability layer. Thus, if your desired target has an LLVM backend, it should be able to get OpenCL support easily by using PoCL [#pocl-web]_.
+PoCL uses Clang as an OpenCL C frontend and LLVM for kernel compiler 
+implementation, and as a portability layer. Thus, if your desired target has an 
+LLVM backend, it should be able to get OpenCL support easily by using PoCL 
+[#pocl-web]_.
 
-.. note:: OpenCL is C function with keyword __kernel and some attruibutes in data type. If clang is able to compile input.cl to input.ll, then llvm backend can compile input.ll and link to library.
+.. note:: OpenCL is a C-based language with the keyword `__kernel` and special 
+          attributes in data types. If Clang can compile `input.cl` to LLVM IR 
+          (`input.ll`), then the LLVM backend can compile `input.ll` and link 
+          it with libraries.
 
 Build as the following bash:
 
@@ -122,64 +131,83 @@ Reference [#pocl-build]_.
 Structure
 ---------
 
-Code of Runtime in pocl/lib/CL. Test cases of Runtime in pocl/tests/runtime.
-
+The runtime code is located in `pocl/lib/CL`. Test cases for the runtime can be
+found in `pocl/tests/runtime`.
 
 GDB on POCL
 -----------
 
-After `bash pocl-install.sh`, can run `make check_tier1` but fail on run single 
-test such as `./tests/runtime/test_clCreateKernelsInProgram` as follows,
+After running `bash pocl-install.sh`, you can execute `make check_tier1`. However,
+running a single test such as `./tests/runtime/test_clCreateKernelsInProgram`
+fails, as shown below:
 
 .. code-block:: console
 
   ~/git/pocl/build$ POCL_DEBUG=all ./tests/runtime/test_clCreateKernelsInProgram
   ...
   [2022-07-15 08:43:44.140733258219579]POCL: in fn pocl_init_devices at line 529:
-    |   WARNING |  cschen:Loading /home/cschen/git/pocl/build/lib/CL/pocl/libpocl-devices-basic.so failed: /home/cschen/git/pocl/build/lib/CL/pocl/libpocl-devices-basic.so: cannot open shared object file: No such file or directory
+    |   WARNING |  cschen:Loading 
+    /home/cschen/git/pocl/build/lib/CL/pocl/libpocl-devices-basic.so failed: 
+    /home/cschen/git/pocl/build/lib/CL/pocl/libpocl-devices-basic.so: cannot 
+    open shared object file: No such file or directory
   ...
   [2022-10-06 08:48:06.140725365544843]POCL: in fn pocl_init_devices at line 584:
     |     ERROR | CL_DEVICE_NOT_FOUND no devices found. POCL_DEVICES=(null)
   CL_DEVICE_NOT_FOUND in poclu_get_any_device on line 22
 
-Fail to run single test of executable file is not accpetable for tracing code of 
-pocl. Workaround fix as follows,
+Failing to run a single test executable is not acceptable for tracing the
+pocl code. A workaround fix is as follows:
 
 .. code-block:: console
 
   ~/git/pocl/build$ touch ../tests/runtime/test_clCreateKernelsInProgram.c
   ~/git/pocl/build$ make VERBOSE=1|grep test_clCreateKernelsInProgram
   ...
-  /usr/lib/llvm-13/bin/clang -g  -pie CMakeFiles/test_clCreateKernelsInProgram.dir/test_clCreateKernelsInProgram.c.o -o test_clCreateKernelsInProgram  -Wl,-rpath,/home/cschen/git/pocl/build/lib/CL ../../poclu/libpoclu.a ../../lib/CL/libOpenCL.so.2.9.0 -L/usr/lib/x86_64-linux-gnu -lhwloc /usr/lib/llvm-13/lib/libclang-cpp.so /usr/lib/llvm-13/lib/libLLVM-13.so -lrt -lm -ldl -lm -ldl 
+  /usr/lib/llvm-13/bin/clang -g  -pie 
+  CMakeFiles/test_clCreateKernelsInProgram.dir/test_clCreateKernelsInProgram.c.o 
+  -o test_clCreateKernelsInProgram  -Wl,-rpath,/home/cschen/git/pocl/build/lib/CL 
+  ../../poclu/libpoclu.a ../../lib/CL/libOpenCL.so.2.9.0 
+  -L/usr/lib/x86_64-linux-gnu -lhwloc /usr/lib/llvm-13/lib/libclang-cpp.so 
+  /usr/lib/llvm-13/lib/libLLVM-13.so -lrt -lm -ldl -lm -ldl 
 
-Change link path `rpath` from /home/cschen/git/pocl/build/lib/CL to /usr/local/lib for libpocl-devices-basic.so then PASS as follows,
+Change the link path (`rpath`) from
+`/home/cschen/git/pocl/build/lib/CL` to `/usr/local/lib`
+for `libpocl-devices-basic.so`, then it passes as follows:
 
 .. code-block:: console
 
   ~/git/pocl/build$ cd /home/jonathanchen/git/pocl/build/tests/runtime
-  ~/git/pocl/build/tests/runtime$ /usr/lib/llvm-13/bin/clang -g  -pie CMakeFiles/test_clCreateKernelsInProgram.dir/test_clCreateKernelsInProgram.c.o -o test_clCreateKernelsInProgram  -Wl,-rpath,/usr/local/lib ../../poclu/libpoclu.a ../../lib/CL/libOpenCL.so.2.9.0 -lhwloc /usr/lib/llvm-13/lib/libclang-cpp.so /usr/lib/llvm-13/lib/libLLVM-13.so -lrt -lm -ldl -lm -pthread -ldl
+  ~/git/pocl/build/tests/runtime$ /usr/lib/llvm-13/bin/clang -g  -pie 
+  CMakeFiles/test_clCreateKernelsInProgram.dir/test_clCreateKernelsInProgram.c.o 
+  -o test_clCreateKernelsInProgram  -Wl,-rpath,/usr/local/lib 
+  ../../poclu/libpoclu.a ../../lib/CL/libOpenCL.so.2.9.0 -lhwloc 
+  /usr/lib/llvm-13/lib/libclang-cpp.so /usr/lib/llvm-13/lib/libLLVM-13.so -lrt 
+  -lm -ldl -lm -pthread -ldl
   ~/git/pocl/build/tests/runtime$ cd ../..
   ~/git/pocl/build$ ./tests/runtime/test_clCreateKernelsInProgram
   Hello
   World
 
-Then I can use gdb as follows,
+Then I can use GDB as follows:
 
 .. code-block:: console
 
   ~/git/pocl/build/$ gdb --args ./tests/runtime/test_clCreateKernelsInProgram
   (gdb) b test_clCreateKernelsInProgram.c:21
-  Breakpoint 1 at 0x23b4: file /home/cschen/git/pocl/tests/runtime/test_clCreateKernelsInProgram.c, line 21.
+  Breakpoint 1 at 0x23b4: file 
+  /home/cschen/git/pocl/tests/runtime/test_clCreateKernelsInProgram.c, line 21.
   (gdb) r
   ...
-  Breakpoint 1, main (argc=1, argv=0x7fffffffdfa8) at /home/cschen/git/pocl/tests/runtime/test_clCreateKernelsInProgram.c:23
+  Breakpoint 1, main (argc=1, argv=0x7fffffffdfa8) at 
+  /home/cschen/git/pocl/tests/runtime/test_clCreateKernelsInProgram.c:23
   21        err = poclu_get_any_device(&ctx, &did, &queue);
 
 
-Examples of Compiling and running on POCL
+Examples of Compiling and Running on POCL
 -----------------------------------------
 
-As tracing clang compilation options in last section, I add compile.sh for running OpenCl program on pocl as follows,
+As traced from Clang compilation options in the last section, I added a
+`compile.sh` script to run OpenCL programs on POCL as follows:
 
 .. rubric:: exlbt/pocl/ex/compile.sh
 .. literalinclude:: ../exlbt/pocl/ex/compile.sh
@@ -189,11 +217,11 @@ As tracing clang compilation options in last section, I add compile.sh for runni
   ~/git/lbt/exlbt/pocl/ex$ POCL_DEBUG=err,warn
   ~/git/lbt/exlbt/pocl/ex$ bash compile.sh
   ~/git/lbt/exlbt/pocl/ex$ ./a.out
-  ** Final POCL_DEBUG flags: 18000000000 
-  Hello World!
+    ** Final POCL_DEBUG flags: 18000000000 
+    Hello World!
   ~/git/lbt/exlbt/pocl/ex$ POCL_DEBUG=
   ~/git/lbt/exlbt/pocl/ex$ ./a.out 
-  Hello World!
+    Hello World!
 
 References [#pocl-dbg]_.
 
@@ -201,32 +229,35 @@ References [#pocl-dbg]_.
 RISCV OpenCL
 ------------
 
-In llvm, Mips and Cpu0 can compile .ll file from clang's output for input OpenCL
-while RISCV fail on both 14.x and 15.x as follows,
+In LLVM, both MIPS and Cpu0 can compile `.ll` files generated by Clang from
+OpenCL input. However, RISCV fails to do so on both LLVM 14.x and 15.x, as
+shown below:
 
 .. code-block:: console
 
   CodeGenOpenCL % pwd
   $HOME/git/lbt/exlbt/pocl
-  % ~/llvm/14.x/llvm-project/build/bin/clang -cc1 -cl-std=CL2.0 -emit-llvm -triple spir-unknown-unknown test.cl
+  % ~/llvm/14.x/llvm-project/build/bin/clang -cc1 -cl-std=CL2.0 -emit-llvm 
+    -triple spir-unknown-unknown test.cl
   % ~/llvm/debug/build/bin/llc -march=mips test.ll
   % ~/llvm/test/build/bin/llc -march=cpu0 test.ll
   % ~/llvm/14.x/llvm-project/build/bin/llc -mtriple=riscv64 test.ll
-  LLVM ERROR: Unsupported calling convention
-  ...
+    LLVM ERROR: Unsupported calling convention
+    ...
   % ~/llvm/15.x/llvm-project/build/bin/clang -cc1 -cl-std=CL2.0 -emit-llvm -triple spir-unknown-unknown test.cl
   % ~/llvm/15.x/llvm-project/build/bin/llc -mtriple=riscv64 test.ll
-  LLVM ERROR: Unsupported calling convention
-  ...
+    LLVM ERROR: Unsupported calling convention
+    ...
 
   CodeGenOpenCL % pwd
   $HOME/llvm/14.x/llvm-project/clang/test/CodeGenOpenCL
-  CodeGenOpenCL % ~/llvm/debug/build/bin/clang -cc1 -cl-std=CL2.0 -emit-llvm -triple spir-unknown-unknown overload.cl
+  CodeGenOpenCL % ~/llvm/debug/build/bin/clang -cc1 -cl-std=CL2.0 -emit-llvm 
+                 -triple spir-unknown-unknown overload.cl
   CodeGenOpenCL % ~/llvm/debug/build/bin/llc -march=mips overload.ll
   CodeGenOpenCL % ~/llvm/test/build/bin/llc -march=cpu0 overload.ll
   CodeGenOpenCL % ~/llvm/14.x/llvm-project/build/bin/llc -mtriple=riscv64 overload.ll
-  LLVM ERROR: Unsupported calling convention
-  ...
+                  LLVM ERROR: Unsupported calling convention
+                  ...
 
 
 SYCL
