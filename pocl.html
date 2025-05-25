@@ -43,14 +43,14 @@
 <li><p><a class="reference internal" href="#opencl" id="id24">OpenCL</a></p></li>
 <li><p><a class="reference internal" href="#run-opencl" id="id25">Run OpenCL</a></p>
 <ul>
-<li><p><a class="reference internal" href="#macos" id="id26">Macos</a></p></li>
+<li><p><a class="reference internal" href="#macos" id="id26">MacOS</a></p></li>
 </ul>
 </li>
 <li><p><a class="reference internal" href="#open-sources" id="id27">Open sources</a></p></li>
 <li><p><a class="reference internal" href="#pocl" id="id28">POCL</a></p></li>
 <li><p><a class="reference internal" href="#structure" id="id29">Structure</a></p></li>
 <li><p><a class="reference internal" href="#gdb-on-pocl" id="id30">GDB on POCL</a></p></li>
-<li><p><a class="reference internal" href="#examples-of-compiling-and-running-on-pocl" id="id31">Examples of Compiling and running on POCL</a></p></li>
+<li><p><a class="reference internal" href="#examples-of-compiling-and-running-on-pocl" id="id31">Examples of Compiling and Running on POCL</a></p></li>
 <li><p><a class="reference internal" href="#riscv-opencl" id="id32">RISCV OpenCL</a></p></li>
 <li><p><a class="reference internal" href="#sycl" id="id33">SYCL</a></p></li>
 <li><p><a class="reference internal" href="#dpc" id="id34">DPC++</a></p></li>
@@ -84,40 +84,47 @@
 <p><span class="caption-number">Fig. 17 </span><span class="caption-text">OpenCL with discrete memory (Device: 2 processor+memory)</span><a class="headerlink" href="#id20" title="Permalink to this image">¶</a></p>
 </figcaption>
 </figure>
-<p>As <a class="reference internal" href="#opencl-f"><span class="std std-numref">Fig. 17</span></a>, one possible HW platform is that one Host + Device with 2 RISCV
-processors and each RISCV has each dedicated memory.</p>
+<p>As <a class="reference internal" href="#opencl-f"><span class="std std-numref">Fig. 17</span></a>, one possible HW platform has one Host and Device with
+2 RISCV processors, each with dedicated memory.</p>
 <ul class="simple">
-<li><p><a class="reference external" href="info::local_mem_type::global">info::local_mem_type::global</a> -&gt; conherent, CPU cache (SRAM)</p></li>
+<li><p><a class="reference external" href="info::local_mem_type::global">info::local_mem_type::global</a> -&gt; coherent, CPU cache (SRAM)</p></li>
 <li><p><a class="reference external" href="info::local_mem_type::local">info::local_mem_type::local</a> -&gt; dedicated local memory, GPU cache (SRAM)</p></li>
 </ul>
-<p>OpenCL includes Runtime API, Driver and Compiler three components.
-POCL is an open source implementation for Runtime API.</p>
+<p>OpenCL includes three components: Runtime API, Driver, and Compiler.
+POCL is an open-source implementation of the Runtime API.</p>
 <p>OpenCL Implementation <a class="footnote-reference brackets" href="#ocl-impl" id="id1" role="doc-noteref"><span class="fn-bracket">[</span>1<span class="fn-bracket">]</span></a>.
-Wiki OpenCL Open source implementations <a class="footnote-reference brackets" href="#wiki-ocl-osi" id="id2" role="doc-noteref"><span class="fn-bracket">[</span>2<span class="fn-bracket">]</span></a>.</p>
+Wiki OpenCL Open Source Implementations <a class="footnote-reference brackets" href="#wiki-ocl-osi" id="id2" role="doc-noteref"><span class="fn-bracket">[</span>2<span class="fn-bracket">]</span></a>.</p>
 <section id="opencl">
 <h2><a class="toc-backref" href="#id24" role="doc-backlink">OpenCL</a><a class="headerlink" href="#opencl" title="Permalink to this heading">¶</a></h2>
 <p>Builtin-function and builtin-kernel reference here <a class="footnote-reference brackets" href="#builtin-function-kernel" id="id3" role="doc-noteref"><span class="fn-bracket">[</span>6<span class="fn-bracket">]</span></a>.
 Books <a class="footnote-reference brackets" href="#open-cl-book-heter" id="id4" role="doc-noteref"><span class="fn-bracket">[</span>7<span class="fn-bracket">]</span></a>.
-Papers <a class="footnote-reference brackets" href="#ocl-acceler-tf" id="id5" role="doc-noteref"><span class="fn-bracket">[</span>8<span class="fn-bracket">]</span></a> <a class="footnote-reference brackets" href="#ocl-agpvldl" id="id6" role="doc-noteref"><span class="fn-bracket">[</span>9<span class="fn-bracket">]</span></a> <a class="footnote-reference brackets" href="#sycl-aesstgplsmlw" id="id7" role="doc-noteref"><span class="fn-bracket">[</span>10<span class="fn-bracket">]</span></a>  <a class="footnote-reference brackets" href="#ocl-acpcco" id="id8" role="doc-noteref"><span class="fn-bracket">[</span>11<span class="fn-bracket">]</span></a>
+Papers <a class="footnote-reference brackets" href="#ocl-acceler-tf" id="id5" role="doc-noteref"><span class="fn-bracket">[</span>8<span class="fn-bracket">]</span></a> <a class="footnote-reference brackets" href="#ocl-agpvldl" id="id6" role="doc-noteref"><span class="fn-bracket">[</span>9<span class="fn-bracket">]</span></a> <a class="footnote-reference brackets" href="#sycl-aesstgplsmlw" id="id7" role="doc-noteref"><span class="fn-bracket">[</span>10<span class="fn-bracket">]</span></a> <a class="footnote-reference brackets" href="#ocl-acpcco" id="id8" role="doc-noteref"><span class="fn-bracket">[</span>11<span class="fn-bracket">]</span></a>
 <a class="footnote-reference brackets" href="#dlc-acs" id="id9" role="doc-noteref"><span class="fn-bracket">[</span>12<span class="fn-bracket">]</span></a> in lbt/papers/pocl.</p>
 </section>
 <section id="run-opencl">
 <h2><a class="toc-backref" href="#id25" role="doc-backlink">Run OpenCL</a><a class="headerlink" href="#run-opencl" title="Permalink to this heading">¶</a></h2>
 <section id="macos">
-<h3><a class="toc-backref" href="#id26" role="doc-backlink">Macos</a><a class="headerlink" href="#macos" title="Permalink to this heading">¶</a></h3>
-<p>~/git/lbt/exlbt/opencl/opencl-saxpy/opencl-saxpy.xcodeproj can be created by
-the following:</p>
-<p>Xcode – Create a new Xcode project – macOS – Command Line Tool –
-Product Name: opencl-saxpy, Language: C – Next – Create –
-“Choose folder ~/git/lbt/exlbt/opencl” –
-on left opencl-saxpy folder: delete C main – Move to trash –
-“copy saxpy.c to ~/git/lbt/exlbt/opencl/opencl-saxpy/opencl-saxpy” –
-on left opencl-saxpy folder: right click mouse “Add files to “opencl-saxpy”” –
-save</p>
-<p>Build and run saxpy opencl as follows,</p>
-<p>Open ~/git/lbt/exlbt/opencl/opencl-saxpy/opencl-saxpy.xcodeproj – Product –
-Build – Product – Run, then choose the icons of the following
-<a class="reference internal" href="#pocl-f1"><span class="std std-numref">Fig. 18</span></a>  and get the compile options and run-result.</p>
+<h3><a class="toc-backref" href="#id26" role="doc-backlink">MacOS</a><a class="headerlink" href="#macos" title="Permalink to this heading">¶</a></h3>
+<p>You can create the project ~/git/lbt/exlbt/opencl/opencl-saxpy/opencl-saxpy.xcodeproj by:</p>
+<ul class="simple">
+<li><p>Open Xcode</p></li>
+<li><p>Create a new Xcode project</p></li>
+<li><p>Select macOS → Command Line Tool</p></li>
+<li><p>Set Product Name: opencl-saxpy, Language: C</p></li>
+<li><p>Click Next → Create</p></li>
+<li><p>Choose folder ~/git/lbt/exlbt/opencl</p></li>
+<li><p>On the left, in the opencl-saxpy folder, delete the default main.c → Move to Trash</p></li>
+<li><p>Copy saxpy.c into ~/git/lbt/exlbt/opencl/opencl-saxpy/opencl-saxpy</p></li>
+<li><p>On the left, right-click opencl-saxpy folder → Add Files to “opencl-saxpy”</p></li>
+<li><p>Save the project</p></li>
+</ul>
+<p>Build and run the saxpy OpenCL program:</p>
+<ul class="simple">
+<li><p>Open ~/git/lbt/exlbt/opencl/opencl-saxpy/opencl-saxpy.xcodeproj</p></li>
+<li><p>Choose Product → Build</p></li>
+<li><p>Choose Product → Run</p></li>
+</ul>
+<p>Refer to the icons shown in <a class="reference internal" href="#pocl-f1"><span class="std std-numref">Fig. 18</span></a> to see compile options and run results.</p>
 <figure class="align-center" id="id21">
 <span id="pocl-f1"></span><a class="reference internal image-reference" href="_images/opencl-saxpy-build-run.png"><img alt="_images/opencl-saxpy-build-run.png" src="_images/opencl-saxpy-build-run.png" style="width: 1396.0px; height: 900.0px;" /></a>
 <figcaption>
@@ -192,10 +199,16 @@ the library requirements of the OpenCL C programming language <a class="footnote
 <section id="pocl">
 <h2><a class="toc-backref" href="#id28" role="doc-backlink">POCL</a><a class="headerlink" href="#pocl" title="Permalink to this heading">¶</a></h2>
 <p>Pocl web <a class="footnote-reference brackets" href="#pocl-web" id="id11" role="doc-noteref"><span class="fn-bracket">[</span>4<span class="fn-bracket">]</span></a> and documentation <a class="footnote-reference brackets" href="#pocl-doc" id="id12" role="doc-noteref"><span class="fn-bracket">[</span>5<span class="fn-bracket">]</span></a>.</p>
-<p>PoCL uses Clang as an OpenCL C frontend and LLVM for kernel compiler implementation, and as a portability layer. Thus, if your desired target has an LLVM backend, it should be able to get OpenCL support easily by using PoCL <a class="footnote-reference brackets" href="#pocl-web" id="id13" role="doc-noteref"><span class="fn-bracket">[</span>4<span class="fn-bracket">]</span></a>.</p>
+<p>PoCL uses Clang as an OpenCL C frontend and LLVM for kernel compiler
+implementation, and as a portability layer. Thus, if your desired target has an
+LLVM backend, it should be able to get OpenCL support easily by using PoCL
+<a class="footnote-reference brackets" href="#pocl-web" id="id13" role="doc-noteref"><span class="fn-bracket">[</span>4<span class="fn-bracket">]</span></a>.</p>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
-<p>OpenCL is C function with keyword __kernel and some attruibutes in data type. If clang is able to compile input.cl to input.ll, then llvm backend can compile input.ll and link to library.</p>
+<p>OpenCL is a C-based language with the keyword <cite>__kernel</cite> and special
+attributes in data types. If Clang can compile <cite>input.cl</cite> to LLVM IR
+(<cite>input.ll</cite>), then the LLVM backend can compile <cite>input.ll</cite> and link
+it with libraries.</p>
 </div>
 <p>Build as the following bash:</p>
 <p class="rubric">exlbt/pocl/pocl-install.sh</p>
@@ -299,53 +312,73 @@ check_pocl;
 </section>
 <section id="structure">
 <h2><a class="toc-backref" href="#id29" role="doc-backlink">Structure</a><a class="headerlink" href="#structure" title="Permalink to this heading">¶</a></h2>
-<p>Code of Runtime in pocl/lib/CL. Test cases of Runtime in pocl/tests/runtime.</p>
+<p>The runtime code is located in <cite>pocl/lib/CL</cite>. Test cases for the runtime can be
+found in <cite>pocl/tests/runtime</cite>.</p>
 </section>
 <section id="gdb-on-pocl">
 <h2><a class="toc-backref" href="#id30" role="doc-backlink">GDB on POCL</a><a class="headerlink" href="#gdb-on-pocl" title="Permalink to this heading">¶</a></h2>
-<p>After <cite>bash pocl-install.sh</cite>, can run <cite>make check_tier1</cite> but fail on run single
-test such as <cite>./tests/runtime/test_clCreateKernelsInProgram</cite> as follows,</p>
+<p>After running <cite>bash pocl-install.sh</cite>, you can execute <cite>make check_tier1</cite>. However,
+running a single test such as <cite>./tests/runtime/test_clCreateKernelsInProgram</cite>
+fails, as shown below:</p>
 <div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="go">~/git/pocl/build$ POCL_DEBUG=all ./tests/runtime/test_clCreateKernelsInProgram</span>
 <span class="go">...</span>
 <span class="go">[2022-07-15 08:43:44.140733258219579]POCL: in fn pocl_init_devices at line 529:</span>
-<span class="go">  |   WARNING |  cschen:Loading /home/cschen/git/pocl/build/lib/CL/pocl/libpocl-devices-basic.so failed: /home/cschen/git/pocl/build/lib/CL/pocl/libpocl-devices-basic.so: cannot open shared object file: No such file or directory</span>
+<span class="go">  |   WARNING |  cschen:Loading</span>
+<span class="go">  /home/cschen/git/pocl/build/lib/CL/pocl/libpocl-devices-basic.so failed:</span>
+<span class="go">  /home/cschen/git/pocl/build/lib/CL/pocl/libpocl-devices-basic.so: cannot</span>
+<span class="go">  open shared object file: No such file or directory</span>
 <span class="go">...</span>
 <span class="go">[2022-10-06 08:48:06.140725365544843]POCL: in fn pocl_init_devices at line 584:</span>
 <span class="go">  |     ERROR | CL_DEVICE_NOT_FOUND no devices found. POCL_DEVICES=(null)</span>
 <span class="go">CL_DEVICE_NOT_FOUND in poclu_get_any_device on line 22</span>
 </pre></div>
 </div>
-<p>Fail to run single test of executable file is not accpetable for tracing code of
-pocl. Workaround fix as follows,</p>
+<p>Failing to run a single test executable is not acceptable for tracing the
+pocl code. A workaround fix is as follows:</p>
 <div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="go">~/git/pocl/build$ touch ../tests/runtime/test_clCreateKernelsInProgram.c</span>
 <span class="go">~/git/pocl/build$ make VERBOSE=1|grep test_clCreateKernelsInProgram</span>
 <span class="go">...</span>
-<span class="go">/usr/lib/llvm-13/bin/clang -g  -pie CMakeFiles/test_clCreateKernelsInProgram.dir/test_clCreateKernelsInProgram.c.o -o test_clCreateKernelsInProgram  -Wl,-rpath,/home/cschen/git/pocl/build/lib/CL ../../poclu/libpoclu.a ../../lib/CL/libOpenCL.so.2.9.0 -L/usr/lib/x86_64-linux-gnu -lhwloc /usr/lib/llvm-13/lib/libclang-cpp.so /usr/lib/llvm-13/lib/libLLVM-13.so -lrt -lm -ldl -lm -ldl</span>
+<span class="go">/usr/lib/llvm-13/bin/clang -g  -pie</span>
+<span class="go">CMakeFiles/test_clCreateKernelsInProgram.dir/test_clCreateKernelsInProgram.c.o</span>
+<span class="go">-o test_clCreateKernelsInProgram  -Wl,-rpath,/home/cschen/git/pocl/build/lib/CL</span>
+<span class="go">../../poclu/libpoclu.a ../../lib/CL/libOpenCL.so.2.9.0</span>
+<span class="go">-L/usr/lib/x86_64-linux-gnu -lhwloc /usr/lib/llvm-13/lib/libclang-cpp.so</span>
+<span class="go">/usr/lib/llvm-13/lib/libLLVM-13.so -lrt -lm -ldl -lm -ldl</span>
 </pre></div>
 </div>
-<p>Change link path <cite>rpath</cite> from /home/cschen/git/pocl/build/lib/CL to /usr/local/lib for libpocl-devices-basic.so then PASS as follows,</p>
+<p>Change the link path (<cite>rpath</cite>) from
+<cite>/home/cschen/git/pocl/build/lib/CL</cite> to <cite>/usr/local/lib</cite>
+for <cite>libpocl-devices-basic.so</cite>, then it passes as follows:</p>
 <div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="go">~/git/pocl/build$ cd /home/jonathanchen/git/pocl/build/tests/runtime</span>
-<span class="go">~/git/pocl/build/tests/runtime$ /usr/lib/llvm-13/bin/clang -g  -pie CMakeFiles/test_clCreateKernelsInProgram.dir/test_clCreateKernelsInProgram.c.o -o test_clCreateKernelsInProgram  -Wl,-rpath,/usr/local/lib ../../poclu/libpoclu.a ../../lib/CL/libOpenCL.so.2.9.0 -lhwloc /usr/lib/llvm-13/lib/libclang-cpp.so /usr/lib/llvm-13/lib/libLLVM-13.so -lrt -lm -ldl -lm -pthread -ldl</span>
+<span class="go">~/git/pocl/build/tests/runtime$ /usr/lib/llvm-13/bin/clang -g  -pie</span>
+<span class="go">CMakeFiles/test_clCreateKernelsInProgram.dir/test_clCreateKernelsInProgram.c.o</span>
+<span class="go">-o test_clCreateKernelsInProgram  -Wl,-rpath,/usr/local/lib</span>
+<span class="go">../../poclu/libpoclu.a ../../lib/CL/libOpenCL.so.2.9.0 -lhwloc</span>
+<span class="go">/usr/lib/llvm-13/lib/libclang-cpp.so /usr/lib/llvm-13/lib/libLLVM-13.so -lrt</span>
+<span class="go">-lm -ldl -lm -pthread -ldl</span>
 <span class="go">~/git/pocl/build/tests/runtime$ cd ../..</span>
 <span class="go">~/git/pocl/build$ ./tests/runtime/test_clCreateKernelsInProgram</span>
 <span class="go">Hello</span>
 <span class="go">World</span>
 </pre></div>
 </div>
-<p>Then I can use gdb as follows,</p>
+<p>Then I can use GDB as follows:</p>
 <div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="go">~/git/pocl/build/$ gdb --args ./tests/runtime/test_clCreateKernelsInProgram</span>
 <span class="gp gp-VirtualEnv">(gdb)</span> <span class="go">b test_clCreateKernelsInProgram.c:21</span>
-<span class="go">Breakpoint 1 at 0x23b4: file /home/cschen/git/pocl/tests/runtime/test_clCreateKernelsInProgram.c, line 21.</span>
+<span class="go">Breakpoint 1 at 0x23b4: file</span>
+<span class="go">/home/cschen/git/pocl/tests/runtime/test_clCreateKernelsInProgram.c, line 21.</span>
 <span class="gp gp-VirtualEnv">(gdb)</span> <span class="go">r</span>
 <span class="go">...</span>
-<span class="go">Breakpoint 1, main (argc=1, argv=0x7fffffffdfa8) at /home/cschen/git/pocl/tests/runtime/test_clCreateKernelsInProgram.c:23</span>
+<span class="go">Breakpoint 1, main (argc=1, argv=0x7fffffffdfa8) at</span>
+<span class="go">/home/cschen/git/pocl/tests/runtime/test_clCreateKernelsInProgram.c:23</span>
 <span class="go">21        err = poclu_get_any_device(&amp;ctx, &amp;did, &amp;queue);</span>
 </pre></div>
 </div>
 </section>
 <section id="examples-of-compiling-and-running-on-pocl">
-<h2><a class="toc-backref" href="#id31" role="doc-backlink">Examples of Compiling and running on POCL</a><a class="headerlink" href="#examples-of-compiling-and-running-on-pocl" title="Permalink to this heading">¶</a></h2>
-<p>As tracing clang compilation options in last section, I add compile.sh for running OpenCl program on pocl as follows,</p>
+<h2><a class="toc-backref" href="#id31" role="doc-backlink">Examples of Compiling and Running on POCL</a><a class="headerlink" href="#examples-of-compiling-and-running-on-pocl" title="Permalink to this heading">¶</a></h2>
+<p>As traced from Clang compilation options in the last section, I added a
+<cite>compile.sh</cite> script to run OpenCL programs on POCL as follows:</p>
 <p class="rubric">exlbt/pocl/ex/compile.sh</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span>#!/usr/bin/env bash
 
@@ -360,40 +393,43 @@ FILE=test_clCreateKernelsInProgram
 <div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="go">~/git/lbt/exlbt/pocl/ex$ POCL_DEBUG=err,warn</span>
 <span class="go">~/git/lbt/exlbt/pocl/ex$ bash compile.sh</span>
 <span class="go">~/git/lbt/exlbt/pocl/ex$ ./a.out</span>
-<span class="go">** Final POCL_DEBUG flags: 18000000000</span>
-<span class="go">Hello World!</span>
+<span class="go">  ** Final POCL_DEBUG flags: 18000000000</span>
+<span class="go">  Hello World!</span>
 <span class="go">~/git/lbt/exlbt/pocl/ex$ POCL_DEBUG=</span>
 <span class="go">~/git/lbt/exlbt/pocl/ex$ ./a.out</span>
-<span class="go">Hello World!</span>
+<span class="go">  Hello World!</span>
 </pre></div>
 </div>
 <p>References <a class="footnote-reference brackets" href="#pocl-dbg" id="id15" role="doc-noteref"><span class="fn-bracket">[</span>14<span class="fn-bracket">]</span></a>.</p>
 </section>
 <section id="riscv-opencl">
 <h2><a class="toc-backref" href="#id32" role="doc-backlink">RISCV OpenCL</a><a class="headerlink" href="#riscv-opencl" title="Permalink to this heading">¶</a></h2>
-<p>In llvm, Mips and Cpu0 can compile .ll file from clang’s output for input OpenCL
-while RISCV fail on both 14.x and 15.x as follows,</p>
+<p>In LLVM, both MIPS and Cpu0 can compile <cite>.ll</cite> files generated by Clang from
+OpenCL input. However, RISCV fails to do so on both LLVM 14.x and 15.x, as
+shown below:</p>
 <div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="go">CodeGenOpenCL % pwd</span>
 <span class="gp">$</span>HOME/git/lbt/exlbt/pocl
-<span class="gp">% </span>~/llvm/14.x/llvm-project/build/bin/clang -cc1 -cl-std<span class="o">=</span>CL2.0 -emit-llvm -triple spir-unknown-unknown test.cl
+<span class="gp">% </span>~/llvm/14.x/llvm-project/build/bin/clang -cc1 -cl-std<span class="o">=</span>CL2.0 -emit-llvm
+<span class="go">  -triple spir-unknown-unknown test.cl</span>
 <span class="gp">% </span>~/llvm/debug/build/bin/llc -march<span class="o">=</span>mips test.ll
 <span class="gp">% </span>~/llvm/test/build/bin/llc -march<span class="o">=</span>cpu0 test.ll
 <span class="gp">% </span>~/llvm/14.x/llvm-project/build/bin/llc -mtriple<span class="o">=</span>riscv64 test.ll
-<span class="go">LLVM ERROR: Unsupported calling convention</span>
-<span class="go">...</span>
+<span class="go">  LLVM ERROR: Unsupported calling convention</span>
+<span class="go">  ...</span>
 <span class="gp">% </span>~/llvm/15.x/llvm-project/build/bin/clang -cc1 -cl-std<span class="o">=</span>CL2.0 -emit-llvm -triple spir-unknown-unknown test.cl
 <span class="gp">% </span>~/llvm/15.x/llvm-project/build/bin/llc -mtriple<span class="o">=</span>riscv64 test.ll
-<span class="go">LLVM ERROR: Unsupported calling convention</span>
-<span class="go">...</span>
+<span class="go">  LLVM ERROR: Unsupported calling convention</span>
+<span class="go">  ...</span>
 
 <span class="go">CodeGenOpenCL % pwd</span>
 <span class="gp">$</span>HOME/llvm/14.x/llvm-project/clang/test/CodeGenOpenCL
-<span class="go">CodeGenOpenCL % ~/llvm/debug/build/bin/clang -cc1 -cl-std=CL2.0 -emit-llvm -triple spir-unknown-unknown overload.cl</span>
+<span class="go">CodeGenOpenCL % ~/llvm/debug/build/bin/clang -cc1 -cl-std=CL2.0 -emit-llvm</span>
+<span class="go">               -triple spir-unknown-unknown overload.cl</span>
 <span class="go">CodeGenOpenCL % ~/llvm/debug/build/bin/llc -march=mips overload.ll</span>
 <span class="go">CodeGenOpenCL % ~/llvm/test/build/bin/llc -march=cpu0 overload.ll</span>
 <span class="go">CodeGenOpenCL % ~/llvm/14.x/llvm-project/build/bin/llc -mtriple=riscv64 overload.ll</span>
-<span class="go">LLVM ERROR: Unsupported calling convention</span>
-<span class="go">...</span>
+<span class="go">                LLVM ERROR: Unsupported calling convention</span>
+<span class="go">                ...</span>
 </pre></div>
 </div>
 </section>

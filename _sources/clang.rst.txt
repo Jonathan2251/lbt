@@ -7,8 +7,7 @@ Clang
    :local:
    :depth: 4
 
-This chapter add Cpu0 target to frontend clang. 
-
+This chapter adds the Cpu0 target to the frontend Clang.
 
 
 Cpu0 target
@@ -95,9 +94,11 @@ Cpu0 target
 Builtin functions
 -----------------
 
-Builtin-function is a function may map to one or more HW instructions for 
-speedup. Cpu0 port compiler-rt's builtins in the section Compiler-rt's 
-builtins of chapter Library [#cpu0-compiler-rt-builtins]_. 
+A builtin function is a function that may map to one or more hardware instructions
+for performance improvement. The Cpu0 backend ports compiler-rt's builtins in the
+section "Compiler-rt's Builtins" of the Library chapter
+[#cpu0-compiler-rt-builtins]_.
+
 Built-in kernels are kernels that are specific to a particular device and 
 provide a mechanism to allow an application developer to leverage special 
 hardware that may be present on the device [#builtin-kernel]_.

@@ -44,8 +44,8 @@
 <span id="sec-lib"></span><h1>Library<a class="headerlink" href="#library" title="Permalink to this heading">¶</a></h1>
 <nav class="contents local" id="contents">
 <ul class="simple">
-<li><p><a class="reference internal" href="#the-theory-of-floating-point-implementation" id="id34">The theory of Floating point implementation</a></p></li>
-<li><p><a class="reference internal" href="#the-dependence-for-cpu0-based-on-compiler-rt-s-builtin" id="id35">The dependence for Cpu0 based on Compiler-rt’s builtin</a></p></li>
+<li><p><a class="reference internal" href="#the-theory-of-floating-point-implementation" id="id34">The theory of Floating Point Implementation</a></p></li>
+<li><p><a class="reference internal" href="#the-dependence-for-cpu0-based-on-compiler-rt-s-builtins" id="id35">The dependence for Cpu0 based on Compiler-rt’s builtins</a></p></li>
 <li><p><a class="reference internal" href="#c-library-newlib" id="id36">C Library (Newlib)</a></p></li>
 <li><p><a class="reference internal" href="#compiler-rt-s-builtins" id="id37">Compiler-rt’s builtins</a></p>
 <ul>
@@ -55,9 +55,10 @@
 </ul>
 </nav>
 <section id="the-theory-of-floating-point-implementation">
-<h2><a class="toc-backref" href="#id34" role="doc-backlink">The theory of Floating point implementation</a><a class="headerlink" href="#the-theory-of-floating-point-implementation" title="Permalink to this heading">¶</a></h2>
-<p>Fixed point for representation of floating point as <a class="reference internal" href="#fixed-point"><span class="std std-numref">Fig. 6</span></a> and
-calculate as below after.</p>
+<h2><a class="toc-backref" href="#id34" role="doc-backlink">The theory of Floating Point Implementation</a><a class="headerlink" href="#the-theory-of-floating-point-implementation" title="Permalink to this heading">¶</a></h2>
+<p>Fixed-point representation is used to implement floating-point numbers,
+as illustrated in <a class="reference internal" href="#fixed-point"><span class="std std-numref">Fig. 6</span></a>. The calculation is described
+below.</p>
 <figure class="align-center" id="id24">
 <span id="fixed-point"></span><a class="reference internal image-reference" href="_images/fixed-point.png"><img alt="_images/fixed-point.png" src="_images/fixed-point.png" style="width: 379.0px; height: 81.0px;" /></a>
 <figcaption>
@@ -66,90 +67,82 @@ calculate as below after.</p>
 </figure>
 <p>Assume Sign part: 1-bit (0:+, 1:-), Integer part: 2-bit, Fraction part: 2-bit.</p>
 <ul class="simple">
-<li><p>3.0 * 0.5 = {0 11 00} * {0 00 10} = {(0 xor 0) (11 00 * 00 10) &gt;&gt; 2} = {0 01 10} = 1.5</p></li>
+<li><p><cite>3.0 * 0.5 = {0 11 00} * {0 00 10} = {(0 xor 0) (11 00 * 00 10) &gt;&gt; 2} =</cite>
+<cite>{0 01 10} = 1.5</cite></p></li>
 </ul>
-<p>The layout for half precision of Floating point as <a class="reference internal" href="#floating-point-half"><span class="std std-numref">Fig. 7</span></a>.</p>
+<p>The layout for half-precision floating-point format is shown in
+<a class="reference internal" href="#floating-point-half"><span class="std std-numref">Fig. 7</span></a>.</p>
 <figure class="align-center" id="id25">
 <span id="floating-point-half"></span><a class="reference internal image-reference" href="_images/floating-point-half.png"><img alt="_images/floating-point-half.png" src="_images/floating-point-half.png" style="width: 191.0px; height: 103.0px;" /></a>
 <figcaption>
 <p><span class="caption-number">Fig. 7 </span><span class="caption-text">IEEE 754 half precision of Floating point representation <a class="footnote-reference brackets" href="#ieee754-half" id="id1" role="doc-noteref"><span class="fn-bracket">[</span>2<span class="fn-bracket">]</span></a></span><a class="headerlink" href="#id25" title="Permalink to this image">¶</a></p>
 </figcaption>
 </figure>
-<p>Floating point can be implemented both on software and hardware.</p>
-<p>The 16-bit a*b can be calculated by transfering to Fixed point above for both a
-and b on more bits of memory/registers, calcuate as Fixed point and transfer
-back to Fixed point as this website <a class="footnote-reference brackets" href="#fp-calc" id="id2" role="doc-noteref"><span class="fn-bracket">[</span>1<span class="fn-bracket">]</span></a>.</p>
-<p>The example for multiplication based on exponent 2 as follows,</p>
-<ul class="simple">
-<li><p>Precondition: a and b are normalized of IEEE half precision (16-bit) <a class="footnote-reference brackets" href="#ieee754-half" id="id3" role="doc-noteref"><span class="fn-bracket">[</span>2<span class="fn-bracket">]</span></a>.
-Exponent bias: zero offset being 15: 15-&gt;0, 1-&gt; -14, 30 -&gt; 15. And 31 -&gt; NaN.</p></li>
-<li><p>Transformation for a*b:</p>
-<ul>
-<li><ol class="arabic simple">
-<li><p>{sign-bit(a) xor sign-bit(b)} {exponent-bits(a)+exponent-bits(b)-15} {significand-bits(a)*significand-bits(b) &gt;&gt; 10}</p></li>
-</ol>
-</li>
-<li><ol class="arabic simple" start="2">
-<li><p>Normalize:</p></li>
-</ol>
-</li>
-</ul>
-</li>
-<li><p>ex.</p>
-<ul>
-<li><p>a = 0.01 (binary) = {0 01110 1000000000}; b = 1.1 (binary) = {010000 1100000000}</p></li>
-<li><ol class="arabic simple">
-<li><p>a*b = {0 xor 0} {01110+10000-01111=01111} {1000000000*1100000000 &gt;&gt; 10 = 0110000000}</p></li>
-</ol>
-</li>
-<li><ol class="arabic simple" start="2">
-<li><p>Normalize: {0 01111 0110000000} -&gt; {0 01110 1100000000} = 0.011</p></li>
-</ol>
-</li>
-</ul>
-</li>
-</ul>
-<p>The following is for division operation.</p>
-<ul class="simple">
-<li><p>Transformation for a/b:</p>
-<ul>
-<li><ol class="arabic simple">
-<li><p>{sign-bit(a) xor sign-bit(b)} {exponent-bits(a)-exponent-bits(b)+15} {significand-bits(a)/significand-bits(b) &gt;&gt; 10}</p></li>
-</ol>
-</li>
-<li><ol class="arabic simple" start="2">
-<li><p>Normalize:</p></li>
-</ol>
-</li>
-</ul>
-</li>
-<li><p>ex.</p>
-<ul>
-<li><p>a = 0.01 (binary) = {0 01110 1000000000}; b = 1 (binary) = {0 10000 1000000000}</p></li>
-<li><ol class="arabic simple">
-<li><p>a*b = {0 xor 0} {01110-10000+01111=01101} {1000000000/1000000000 &lt;&lt; 9 = 1000000000}</p></li>
-</ol>
-</li>
-<li><ol class="arabic simple" start="2">
-<li><p>Normalize: {0 01101 0000000001} -&gt; {0 01101 1000000000} = 0.01</p></li>
-</ol>
-</li>
-</ul>
-</li>
-</ul>
 <p>IEEE-754 floating standard also consider NaN (Not a Number) such as 0/0 and
 <span class="math notranslate nohighlight">\(\infty\)</span> as <a class="reference internal" href="#exp-enc"><span class="std std-numref">Fig. 8</span></a>.</p>
+<p>Floating-point arithmetic can be implemented in both software and hardware.</p>
+<p>The 16-bit product <cite>a * b</cite> can be computed by first converting both <cite>a</cite> and <cite>b</cite>
+to fixed-point format using more bits of memory or registers. After performing the
+multiplication as fixed-point arithmetic, the result is converted back, as
+described on this website <a class="footnote-reference brackets" href="#fp-calc" id="id2" role="doc-noteref"><span class="fn-bracket">[</span>1<span class="fn-bracket">]</span></a>.</p>
+<p>An example of multiplication using exponent base 2 is given below:</p>
+<ul>
+<li><p>Precondition: <cite>a</cite> and <cite>b</cite> are normalized IEEE half-precision (16-bit) floating
+point values <a class="footnote-reference brackets" href="#ieee754-half" id="id3" role="doc-noteref"><span class="fn-bracket">[</span>2<span class="fn-bracket">]</span></a>.
+The exponent bias is 15. For example: 15 -&gt; 0, 1 -&gt; -14, 30 -&gt; 15, and 31 -&gt; NaN.</p></li>
+<li><p>Transformation for <cite>a * b</cite>:</p>
+<ol class="arabic simple">
+<li><p><cite>{sign-bit(a) xor sign-bit(b)} {exponent(a) + exponent(b) - 15}</cite>
+<cite>{significand(a) * significand(b) &gt;&gt; 10}</cite></p></li>
+<li><p>Normalize the result.</p></li>
+</ol>
+</li>
+<li><p>Example:</p>
+<p>a = 0.01 (binary) = <cite>{0 01110 1000000000}</cite>
+b = 1.1 (binary) = <cite>{0 10000 1100000000}</cite></p>
+<ol class="arabic simple">
+<li><p><cite>a * b</cite> = <cite>{0 xor 0} {01110 + 10000 - 01111 = 01111}</cite>
+<cite>{1000000000 * 1100000000 &gt;&gt; 10 = 0110000000}</cite></p></li>
+<li><p>Normalize: <cite>{0 01111 0110000000}</cite> → <cite>{0 01110 1100000000}</cite> = 0.011</p></li>
+</ol>
+</li>
+</ul>
+<p>Division is handled similarly:</p>
+<ul>
+<li><p>Transformation for <cite>a / b</cite>:</p>
+<ol class="arabic simple">
+<li><p><cite>{sign-bit(a) xor sign-bit(b)}</cite>
+<cite>{exponent(a) - exponent(b) + 15}</cite>
+<cite>{significand(a) / significand(b) &gt;&gt; 10}</cite></p></li>
+<li><p>Normalize the result.</p></li>
+</ol>
+</li>
+<li><p>Example:</p>
+<p>a = 0.01 (binary) = <cite>{0 01110 1000000000}</cite>
+b = 1 (binary) = <cite>{0 10000 1000000000}</cite></p>
+<ol class="arabic simple">
+<li><p><cite>a / b</cite> = <cite>{0 xor 0} {01110 - 10000 + 01111 = 01101}</cite>
+<cite>{1000000000 / 1000000000 &lt;&lt; 9 = 1000000000}</cite></p></li>
+<li><p>Normalize: <cite>{0 01101 0000000001}</cite> → <cite>{0 01101 1000000000}</cite> = 0.01</p></li>
+</ol>
+</li>
+</ul>
+<p>The IEEE-754 floating-point standard also includes special cases such as NaN
+(Not a Number), which can result from operations like 0/0, and <cite>infty</cite>, as
+illustrated in <a class="reference internal" href="#exp-enc"><span class="std std-numref">Fig. 8</span></a>.</p>
 <figure class="align-center" id="id26">
 <span id="exp-enc"></span><a class="reference internal image-reference" href="_images/exp-enc.png"><img alt="_images/exp-enc.png" src="_images/exp-enc.png" style="width: 694.0px; height: 127.0px;" /></a>
 <figcaption>
 <p><span class="caption-number">Fig. 8 </span><span class="caption-text">Encoding of exponent for IEEE 754 half precision <a class="footnote-reference brackets" href="#ieee754-half" id="id4" role="doc-noteref"><span class="fn-bracket">[</span>2<span class="fn-bracket">]</span></a></span><a class="headerlink" href="#id26" title="Permalink to this image">¶</a></p>
 </figcaption>
 </figure>
-<p>Since Normalization applied in Floating precision is the critial code, Cpu0 HW
-provides clz and clo to speedup Normalization Operation.</p>
-<p>Compiler-rt implement multiplication of Floating point considering NaN and
-<span class="math notranslate nohighlight">\(\infty\)</span> as the same way for implementation above and clz/clo to speedup
-Normalization as follows,</p>
+<p>Since normalization in floating-point arithmetic is a critical operation, the
+Cpu0 hardware provides <cite>clz</cite> (count leading zeros) and <cite>clo</cite> (count leading ones)
+instructions to speed up the normalization process.</p>
+<p>The <cite>compiler-rt</cite> library implements floating-point multiplication by handling
+special cases like NaN and <span class="math notranslate nohighlight">\(\infty\)</span> in the same way as described in the
+implementation above. It also uses <cite>clz</cite> and <cite>clo</cite> instructions to accelerate
+normalization, as shown below:</p>
 <p class="rubric">~/llvm/debug/compiler-rt/lib/builtins/fp_lib.h</p>
 <div class="highlight-c++ notranslate"><div class="highlight"><pre><span></span><span class="cp">#if defined SINGLE_PRECISION</span>
 <span class="k">static</span><span class="w"> </span><span class="kr">__inline</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="nf">rep_clz</span><span class="p">(</span><span class="n">rep_t</span><span class="w"> </span><span class="n">a</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="k">return</span><span class="w"> </span><span class="n">__builtin_clz</span><span class="p">(</span><span class="n">a</span><span class="p">);</span><span class="w"> </span><span class="p">}</span><span class="w"></span>
@@ -187,14 +180,14 @@ Normalization as follows,</p>
 </pre></div>
 </div>
 </section>
-<section id="the-dependence-for-cpu0-based-on-compiler-rt-s-builtin">
-<h2><a class="toc-backref" href="#id35" role="doc-backlink">The dependence for Cpu0 based on Compiler-rt’s builtin</a><a class="headerlink" href="#the-dependence-for-cpu0-based-on-compiler-rt-s-builtin" title="Permalink to this heading">¶</a></h2>
-<p>Since Cpu0 has not hardware float point instructions, it needs software float
-point library to finish the floating point operation.
-LLVM compiler-rt project has software floating point library implementation
-<a class="reference internal" href="#swf-lib"><span class="std std-numref">Fig. 9</span></a> , so I choose it as the implementation.</p>
-<p>Since compiler-rt uses unix/linux rootfs structure, we fill the gap by add few
-empty include-files in exlbt/include.</p>
+<section id="the-dependence-for-cpu0-based-on-compiler-rt-s-builtins">
+<h2><a class="toc-backref" href="#id35" role="doc-backlink">The dependence for Cpu0 based on Compiler-rt’s builtins</a><a class="headerlink" href="#the-dependence-for-cpu0-based-on-compiler-rt-s-builtins" title="Permalink to this heading">¶</a></h2>
+<p>Since Cpu0 does not have hardware floating-point instructions, it requires a
+software floating-point library to perform floating-point operations.</p>
+<p>The LLVM <cite>compiler-rt</cite> project provides a software floating-point implementation
+(<a class="reference internal" href="#swf-lib"><span class="std std-numref">Fig. 9</span></a>), so I chose it for this purpose.</p>
+<p>As <cite>compiler-rt</cite> assumes a Unix/Linux rootfs structure, we bridge the gap by
+adding a few empty header files in <cite>exlbt/include</cite>.</p>
 <figure class="align-default" id="id27">
 <span id="swf-lib"></span><div class="graphviz"><img src="_images/graphviz-27ca1dabd6b60df91c84b556090fa1e8f64984d7.png" alt="// dot -Tpng lib.gv -o lib.png
 digraph G {
@@ -210,7 +203,8 @@ digraph G {
 <p><span class="caption-number">Fig. 9 </span><span class="caption-text">compiler-rt/lib/builtins’ software float library</span><a class="headerlink" href="#id27" title="Permalink to this image">¶</a></p>
 </figcaption>
 </figure>
-<p>The dependences for compiler-rt on libm as <a class="reference internal" href="#compiler-rrt-dep"><span class="std std-numref">Fig. 11</span></a>.</p>
+<p>The dependencies for <cite>compiler-rt</cite> on <cite>libm</cite> are shown in
+<a class="reference internal" href="#compiler-rrt-dep"><span class="std std-numref">Fig. 11</span></a>.</p>
 <figure class="align-default" id="id28">
 <span id="compiler-rrt-dep-short"></span><div class="graphviz"><img src="_images/graphviz-0ee855d97534fb88032190bd88679d3de56582f1.png" alt="// dot -Tpng compiler-rt-dep-short.gv -o compiler-rt-dep-short.png
 digraph G {
@@ -246,7 +240,7 @@ digraph G {
 </figcaption>
 </figure>
 <table class="docutils align-default" id="id29">
-<caption><span class="caption-number">Table 2 </span><span class="caption-text">lldb dependences</span><a class="headerlink" href="#id29" title="Permalink to this table">¶</a></caption>
+<caption><span class="caption-number">Table 2 </span><span class="caption-text"><cite>lldb</cite> dependences</span><a class="headerlink" href="#id29" title="Permalink to this table">¶</a></caption>
 <thead>
 <tr class="row-odd"><th class="head"><p>functions</p></th>
 <th class="head"><p>depend on</p></th>
@@ -262,7 +256,7 @@ digraph G {
 </tbody>
 </table>
 <table class="docutils align-default" id="id30">
-<caption><span class="caption-number">Table 3 </span><span class="caption-text">sanitizer_printf.c of compiler-rt dependences</span><a class="headerlink" href="#id30" title="Permalink to this table">¶</a></caption>
+<caption><span class="caption-number">Table 3 </span><span class="caption-text">sanitizer_printf.c of <cite>compiler-rt</cite> dependences</span><a class="headerlink" href="#id30" title="Permalink to this table">¶</a></caption>
 <thead>
 <tr class="row-odd"><th class="head"><p>functions</p></th>
 <th class="head"><p>depend on</p></th>
@@ -277,14 +271,15 @@ digraph G {
 </section>
 <section id="c-library-newlib">
 <h2><a class="toc-backref" href="#id36" role="doc-backlink">C Library (Newlib)</a><a class="headerlink" href="#c-library-newlib" title="Permalink to this heading">¶</a></h2>
-<p>Since complex type of compiler-rt depends on libm, I porting NewLib in this
-section.</p>
-<p>Newlib is a C library for bare metal platform.
-Two libraries in newlib are libc and libm. Libc is for functions of
-IO, file and string supported while libm is for mathematical functions.
-Web of newlib is here <a class="footnote-reference brackets" href="#newlib" id="id5" role="doc-noteref"><span class="fn-bracket">[</span>3<span class="fn-bracket">]</span></a> and newlib/libm here <a class="footnote-reference brackets" href="#newlib-libm" id="id6" role="doc-noteref"><span class="fn-bracket">[</span>4<span class="fn-bracket">]</span></a> .
-Since the next section compiler-rt/builtins depends on libm, please run
-the following bash script to install and build newlib for Cpu0.</p>
+<p>Since the complex type in <cite>compiler-rt</cite> depends on <cite>libm</cite>, I port Newlib in
+this section.</p>
+<p>Newlib is a C library designed for bare-metal platforms. It consists of two
+libraries: <cite>libc</cite> and <cite>libm</cite>. The <cite>libc</cite> library supports I/O, file, and
+string functions, while <cite>libm</cite> provides mathematical functions.</p>
+<p>The official website for Newlib is available here <a class="footnote-reference brackets" href="#newlib" id="id5" role="doc-noteref"><span class="fn-bracket">[</span>3<span class="fn-bracket">]</span></a>, and the <cite>libm</cite>
+library can be found here <a class="footnote-reference brackets" href="#newlib-libm" id="id6" role="doc-noteref"><span class="fn-bracket">[</span>4<span class="fn-bracket">]</span></a>.</p>
+<p>Since the next section, <cite>compiler-rt/builtins</cite>, depends on <cite>libm</cite>, please run
+the following bash script to install and build Newlib for Cpu0.</p>
 <p class="rubric">lbt/exlbt/newlib-cpu0.sh</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span>#!/usr/bin/env bash
 
@@ -513,22 +508,23 @@ $BB1:
 <div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">cschen@cschendeiMac exlbt % </span>bash newlib-cpu0.sh
 </pre></div>
 </div>
-<p>The libm.a depends on variable errno of libc defined in sys/errno.h.</p>
+<p>The <cite>libm.a</cite> library depends on the <cite>errno</cite> variable from <cite>libc</cite>, which is
+defined in <cite>sys/errno.h</cite>.</p>
 <ul class="simple">
-<li><p>libgloss is BSP <a class="footnote-reference brackets" href="#libgloss-bsp" id="id7" role="doc-noteref"><span class="fn-bracket">[</span>5<span class="fn-bracket">]</span></a></p></li>
+<li><p>libgloss is BSP license <a class="footnote-reference brackets" href="#libgloss-bsp" id="id7" role="doc-noteref"><span class="fn-bracket">[</span>5<span class="fn-bracket">]</span></a></p></li>
 </ul>
 </section>
 <section id="compiler-rt-s-builtins">
 <h2><a class="toc-backref" href="#id37" role="doc-backlink">Compiler-rt’s builtins</a><a class="headerlink" href="#compiler-rt-s-builtins" title="Permalink to this heading">¶</a></h2>
-<p>Compiler-rt is a project for runtime libraries implentation <a class="footnote-reference brackets" href="#compiler-rt" id="id8" role="doc-noteref"><span class="fn-bracket">[</span>6<span class="fn-bracket">]</span></a> .
-Compiler-rt/lib/builtins provides functions for basic operations such as +, -,
-*, /, … on type of float or double and for conversion between float and
-integer, or other type of more than 32-bit, such as <cite>long long</cite>.
-The compiler-rt/lib/builtins/README.txt
-<a class="footnote-reference brackets" href="#builtins-readme" id="id9" role="doc-noteref"><span class="fn-bracket">[</span>7<span class="fn-bracket">]</span></a> includes the dependent functions that the whole builtins
-called.
-The dependent functions is a small part of libm listed in
-compier-rt/lib/builtins/int_math.h <a class="footnote-reference brackets" href="#builtins-int-math" id="id10" role="doc-noteref"><span class="fn-bracket">[</span>8<span class="fn-bracket">]</span></a> .</p>
+<p>Compiler-rt is a project for runtime libraries implementation <a class="footnote-reference brackets" href="#compiler-rt" id="id8" role="doc-noteref"><span class="fn-bracket">[</span>6<span class="fn-bracket">]</span></a>.
+The <cite>compiler-rt/lib/builtins</cite> directory provides functions for basic operations
+such as <cite>+</cite>, <cite>-</cite>, <cite>*</cite>, <cite>/</cite>, etc., on <cite>float</cite> or <cite>double</cite> types. It also supports
+type conversions between floating-point and integer, or conversions involving
+types wider than 32 bits, such as <cite>long long</cite>.</p>
+<p>The <cite>compiler-rt/lib/builtins/README.txt</cite> <a class="footnote-reference brackets" href="#builtins-readme" id="id9" role="doc-noteref"><span class="fn-bracket">[</span>7<span class="fn-bracket">]</span></a> lists the
+dependent functions used throughout the builtins. These dependent functions are
+a small subset of <cite>libm</cite>, which are defined in
+<cite>compiler-rt/lib/builtins/int_math.h</cite> <a class="footnote-reference brackets" href="#builtins-int-math" id="id10" role="doc-noteref"><span class="fn-bracket">[</span>8<span class="fn-bracket">]</span></a>.</p>
 <p class="rubric">~git/newlib-cygwin/build-cpu032I-eb/Makefile</p>
 <div class="highlight-Makefile notranslate"><div class="highlight"><pre><span></span><span class="nv">MATHDIR</span> <span class="o">=</span> math
 
@@ -539,8 +535,8 @@ compier-rt/lib/builtins/int_math.h <a class="footnote-reference brackets" href="
 <span class="c">#MATHDIR = mathfp</span>
 </pre></div>
 </div>
-<p>As above Makefile, newlib uses libm/math.
-The dependences for builtin functions of compiler-rt on libm as
+<p>As shown in the Makefile above, Newlib uses the <cite>libm/math</cite> directory.</p>
+<p>The dependencies for the builtin functions of compiler-rt on <cite>libm</cite> are shown in
 <a class="reference internal" href="#compiler-rrt-dep"><span class="std std-numref">Fig. 11</span></a>.</p>
 <figure class="align-default" id="id31">
 <span id="compiler-rrt-dep"></span><div class="graphviz"><img src="_images/graphviz-5b1f37a39603cb0a721adbb9c51e4a5ec0392fa3.png" alt="// dot -Tpng compiler-rt-dep.gv -o compiler-rt-dep.png
@@ -576,13 +572,14 @@ digraph G {
 <p><span class="caption-number">Fig. 11 </span><span class="caption-text">Dependences for builtin functions of compiler-rt on libm</span><a class="headerlink" href="#id31" title="Permalink to this image">¶</a></p>
 </figcaption>
 </figure>
-<p>In this section, I get test cases for verification of SW Float Point from
-compiler-rt/test/builtins/Unit to compiler-rt-test/builtins/Unit/.</p>
-<p>Since lbt/exlbt/input/printf-stdarg.c does not support %lld (long long
-integeter, 64-bit) and test cases in compiler-rt/test/builtins/Unit needs it to
-verify the result of test cases for SW Float Point, I port sanitizer_printf.cpp
-and sanitizer_internal_defs.h of lbt/exlbt/input from sanitizer_printf.cpp and
-sanitizer_internal_defs.h of compiler-rt/lib/sanitizer_common.</p>
+<p>In this section, I copied test cases for verification of software floating point
+(SW FP) from <cite>compiler-rt/test/builtins/Unit</cite> to
+<cite>compiler-rt-test/builtins/Unit/</cite>.</p>
+<p>Since <cite>lbt/exlbt/input/printf-stdarg.c</cite> does not support <cite>%lld</cite> (long long
+integer, 64-bit), and the test cases in
+<cite>compiler-rt/test/builtins/Unit</cite> require this format to verify SW FP results, I
+ported <cite>sanitizer_printf.cpp</cite> and <cite>sanitizer_internal_defs.h</cite> to
+<cite>lbt/exlbt/input/</cite> from <cite>compiler-rt/lib/sanitizer_common/</cite>.</p>
 <table class="docutils align-default" id="id32">
 <caption><span class="caption-number">Table 4 </span><span class="caption-text">compiler-rt builtins dependences on newlib/libm (open source libc
          for bare metal)</span><a class="headerlink" href="#id32" title="Permalink to this table">¶</a></caption>
@@ -673,23 +670,26 @@ cpu0/abort.c</p></td>
 </tbody>
 </table>
 <ul class="simple">
-<li><p>Libm has no dependence to any other library.</p></li>
-<li><p>Only type of complex in compiler-rt/lib/builtin need above, others (float and
-double) depend on __builtin_clz(), __builtin_clo() and abort() only. I has
-ported in lbt/exlbt/compiler-rt/cpu0/abort.c.</p></li>
-<li><p>All test cases in compiler-rt/test/builtins/Unit depend on
-printf(%lld or %llX, …), I ported from
-compiler-rt/lib/sanitizer_common/sanitizer_printf.cpp to
-lbt/exlbt/input/sanitizer_printf.cpp.</p></li>
-<li><p>These dependent functions of complex type has bee ported from newlib/libm.</p></li>
-<li><p>Except builtins, the other three, sanitizer runtimes, profile and BlocksRuntime,
-in compiler-rt are not needed for my embedded Cpu0.</p></li>
+<li><p>Libm has no dependencies on any other library.</p></li>
+<li><p>Only the <cite>complex</cite> type in <cite>compiler-rt/lib/builtins</cite> depends on libm. Other
+types (float and double) only depend on <cite>__builtin_clz()</cite>, <cite>__builtin_clo()</cite>,
+and <cite>abort()</cite>. I have ported <cite>abort()</cite> in
+<cite>lbt/exlbt/compiler-rt/cpu0/abort.c</cite>.</p></li>
+<li><p>All test cases in <cite>compiler-rt/test/builtins/Unit</cite> depend on <cite>printf(%lld or
+%llX, …)</cite>. I ported this functionality from
+<cite>compiler-rt/lib/sanitizer_common/sanitizer_printf.cpp</cite> to
+<cite>lbt/exlbt/input/sanitizer_printf.cpp</cite>.</p></li>
+<li><p>The dependent functions for <cite>complex</cite> type have been ported from <cite>newlib/libm</cite>.</p></li>
+<li><p>Except for <cite>builtins</cite>, the other three components—sanitizer runtimes,
+profile and BlocksRuntime in <cite>compiler-rt</cite> are not needed for my embedded
+Cpu0.</p></li>
 </ul>
-<p>The libgcc’s Integer plus Soft float library  <a class="footnote-reference brackets" href="#lib-gcc" id="id11" role="doc-noteref"><span class="fn-bracket">[</span>9<span class="fn-bracket">]</span></a> <a class="footnote-reference brackets" href="#int-lib" id="id12" role="doc-noteref"><span class="fn-bracket">[</span>10<span class="fn-bracket">]</span></a>
-<a class="footnote-reference brackets" href="#sw-float-lib" id="id13" role="doc-noteref"><span class="fn-bracket">[</span>11<span class="fn-bracket">]</span></a> are equal to functions of compiler-rt’s builtins.</p>
-<p>In compiler-rt/lib/builtins, the dependence between files as table.</p>
+<p>The libgcc integer and soft float libraries <a class="footnote-reference brackets" href="#lib-gcc" id="id11" role="doc-noteref"><span class="fn-bracket">[</span>9<span class="fn-bracket">]</span></a> <a class="footnote-reference brackets" href="#int-lib" id="id12" role="doc-noteref"><span class="fn-bracket">[</span>10<span class="fn-bracket">]</span></a>
+<a class="footnote-reference brackets" href="#sw-float-lib" id="id13" role="doc-noteref"><span class="fn-bracket">[</span>11<span class="fn-bracket">]</span></a> are functionally equivalent to the builtins in <cite>compiler-rt</cite>.</p>
+<p>In <cite>compiler-rt/lib/builtins</cite>, the file-level dependencies are listed in the
+following table.</p>
 <table class="docutils align-default" id="id33">
-<caption><span class="caption-number">Table 5 </span><span class="caption-text">dependence between files for compiler-rt/lib/builtins</span><a class="headerlink" href="#id33" title="Permalink to this table">¶</a></caption>
+<caption><span class="caption-number">Table 5 </span><span class="caption-text">dependence between files for <cite>compiler-rt/lib/builtins</cite></span><a class="headerlink" href="#id33" title="Permalink to this table">¶</a></caption>
 <thead>
 <tr class="row-odd"><th class="head"><p>functions</p></th>
 <th class="head"><p>depend on</p></th>
@@ -704,14 +704,15 @@ in compiler-rt are not needed for my embedded Cpu0.</p></li>
 </tr>
 </tbody>
 </table>
-<p>Though the ‘rt’ means RunTime libaraies, in builtins library,
-most of these functions
-written in target-independent C form and can be compiled and static-linked
-into target. When you compile the following c code, llc will generate
-<strong>jsub __addsf3</strong> to call compiler-rt float function for Cpu0.
-This is because Cpu0 hasn’t hardware float-instructions, so Cpu0 backend
-doesn’t handle the DAG of __addsf3. The end result, llvm treats the DAG of
-__addsf3 as a function call for float-add instruction.</p>
+<p>Though the ‘rt’ stands for Runtime Libraries, most functions in the <cite>builtins</cite>
+library are written in target-independent C code. These functions can be
+compiled and statically linked into the target.</p>
+<p>When you compile the following C code, <cite>llc</cite> will generate a <strong>call to
+__addsf3</strong> to invoke the compiler-rt floating-point function for Cpu0.</p>
+<p>This is because Cpu0 does not have hardware floating-point instructions, so the
+Cpu0 backend does not handle the DAG for <cite>__addsf3</cite>. As a result, LLVM treats
+the DAG for <cite>__addsf3</cite> as a function call, rather than a direct float-add
+instruction.</p>
 <p class="rubric">lbt/exlbt/input/ch_call_compilerrt_func.c</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="o">//</span> <span class="n">clang</span> <span class="o">-</span><span class="n">target</span> <span class="n">mips</span><span class="o">-</span><span class="n">unknown</span><span class="o">-</span><span class="n">linux</span><span class="o">-</span><span class="n">gnu</span> <span class="o">-</span><span class="n">S</span> <span class="n">ch_call_compilerrt_func</span><span class="o">.</span><span class="n">c</span> <span class="o">-</span><span class="n">emit</span><span class="o">-</span><span class="n">llvm</span> <span class="o">-</span><span class="n">o</span> <span class="n">ch_call_compilerrt_func</span><span class="o">.</span><span class="n">ll</span>
 <span class="o">//</span> <span class="o">~/</span><span class="n">llvm</span><span class="o">/</span><span class="n">test</span><span class="o">/</span><span class="n">build</span><span class="o">/</span><span class="nb">bin</span><span class="o">/</span><span class="n">llc</span> <span class="o">-</span><span class="n">march</span><span class="o">=</span><span class="n">cpu0</span> <span class="o">-</span><span class="n">mcpu</span><span class="o">=</span><span class="n">cpu032II</span> <span class="o">-</span><span class="n">relocation</span><span class="o">-</span><span class="n">model</span><span class="o">=</span><span class="n">static</span> <span class="o">-</span><span class="n">filetype</span><span class="o">=</span><span class="n">asm</span> <span class="n">ch_call_compilerrt_func</span><span class="o">.</span><span class="n">ll</span> <span class="o">-</span><span class="n">o</span> <span class="o">-</span>
@@ -744,58 +745,68 @@ __addsf3 as a function call for float-add instruction.</p>
 <span class="go">      jsub    __addsf3</span>
 </pre></div>
 </div>
-<p>For some brar-metal or embedded application, the C code doesn’t need the
-file and high-level IO in libc.
-Libm provides a lots of functions to support software floating point beyond
-basic operations <a class="footnote-reference brackets" href="#math" id="id14" role="doc-noteref"><span class="fn-bracket">[</span>12<span class="fn-bracket">]</span></a> .
-Libc provides file, high-level IO functions and basic float functions <a class="footnote-reference brackets" href="#clib" id="id15" role="doc-noteref"><span class="fn-bracket">[</span>13<span class="fn-bracket">]</span></a> .</p>
-<p>Cpu0 hires Compiler-rt/lib/builtins and
-compiler-rt/lib/sanitizer_common/sanitizer_printf.cpp at this point.
-The compiler-rt/lib/builtins is a
-target-independent C form of software float library implementation. Cpu0
-implements compiler-rt-12.x/cpu0/abort.c only at this point for supporting
-this feature.</p>
+<p>For some bare-metal or embedded applications, the C code does not need the
+file and high-level I/O features provided by <cite>libc</cite>.</p>
+<p><cite>libm</cite> provides a wide range of functions to support software floating-point
+operations beyond basic arithmetic <a class="footnote-reference brackets" href="#math" id="id14" role="doc-noteref"><span class="fn-bracket">[</span>12<span class="fn-bracket">]</span></a>.</p>
+<p><cite>libc</cite> provides file handling, high-level I/O functions, and some basic float
+operations <a class="footnote-reference brackets" href="#clib" id="id15" role="doc-noteref"><span class="fn-bracket">[</span>13<span class="fn-bracket">]</span></a>.</p>
+<p>Cpu0 uses <cite>compiler-rt/lib/builtins</cite> and
+<cite>compiler-rt/lib/sanitizer_common/sanitizer_printf.cpp</cite> to support
+software floating-point.</p>
+<p>The <cite>compiler-rt/lib/builtins</cite> is a target-independent C implementation of a
+software floating-point library. Cpu0 currently implements only
+<cite>compiler-rt-12.x/cpu0/abort.c</cite> to support this functionality.</p>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
-<p><strong>Why these libm functions called builtins in compiler-rt/lib/builtins?</strong></p>
-<p>Though these compiler-rt builtins functions are written in C. The CPU can
-provide float type instructions or high level instructions to compile these
-libm function calls into specific HW instructions to speed up.</p>
+<p><strong>Why are these libm functions called builtins in
+compiler-rt/lib/builtins?</strong></p>
+<p>Though these <cite>compiler-rt</cite> built-in functions are written in C, CPUs can
+provide hardware float or high-level instructions to accelerate them.
+Compilers like Clang can convert float-type operations in C into LLVM IR.
+Then, the backend compiles them into specific hardware instructions for
+performance.</p>
 </div>
-<p>In order to speed up these libm functions, many CPU provide float instructions
-for them. Of course, for the implemenation, clang compiles these float type’s
-operation in C into llvm ir, then Mips backends compiles them into their
-HW instructions. For example:</p>
+<p>To optimize <cite>libm</cite> functions, many CPUs include hardware floating-point
+instructions.</p>
+<p>For example, the Clang compilation and backend translation go as follows:</p>
 <ul class="simple">
-<li><p>float a, b, c; a=b*c; -&gt; (clang) -&gt; %add = fmul float %0, %1 <a class="footnote-reference brackets" href="#llvm-fmul" id="id16" role="doc-noteref"><span class="fn-bracket">[</span>15<span class="fn-bracket">]</span></a></p></li>
+<li><p><cite>float a, b, c; a = b * c;</cite> → (Clang) → <cite>%add = fmul float %0, %1</cite>
+<a class="footnote-reference brackets" href="#llvm-fmul" id="id16" role="doc-noteref"><span class="fn-bracket">[</span>15<span class="fn-bracket">]</span></a></p></li>
 </ul>
-<p>Mips backend compiles <cite>fmul</cite> into HW instructions as follows,</p>
+<p>MIPS backend compiles <cite>fmul</cite> into hardware instructions:</p>
 <ul class="simple">
-<li><p>%add = fmul float %0, %1 -&gt; (llvm-mips) -&gt; mul.s <a class="footnote-reference brackets" href="#llvm-fmul" id="id17" role="doc-noteref"><span class="fn-bracket">[</span>15<span class="fn-bracket">]</span></a> <a class="footnote-reference brackets" href="#mips-fmadd1-ll" id="id18" role="doc-noteref"><span class="fn-bracket">[</span>14<span class="fn-bracket">]</span></a></p></li>
+<li><p><cite>%add = fmul float %0, %1</cite> → (LLVM-MIPS) → <cite>mul.s</cite>
+<a class="footnote-reference brackets" href="#llvm-fmul" id="id17" role="doc-noteref"><span class="fn-bracket">[</span>15<span class="fn-bracket">]</span></a> <a class="footnote-reference brackets" href="#mips-fmadd1-ll" id="id18" role="doc-noteref"><span class="fn-bracket">[</span>14<span class="fn-bracket">]</span></a></p></li>
 </ul>
-<p>Cpu0 backend compiles <cite>fmul</cite> into libm function call fmul as follows,</p>
+<p>Cpu0 backend, without hardware float support, compiles <cite>fmul</cite> into a library
+function call:</p>
 <ul class="simple">
-<li><p>%add = fmul float %0, %1 -&gt; (llvm-mips) -&gt; jsub fmul <a class="footnote-reference brackets" href="#llvm-fmul" id="id19" role="doc-noteref"><span class="fn-bracket">[</span>15<span class="fn-bracket">]</span></a></p></li>
+<li><p><cite>%add = fmul float %0, %1</cite> → (LLVM-Cpu0) → <cite>jsub fmul</cite>
+<a class="footnote-reference brackets" href="#llvm-fmul" id="id19" role="doc-noteref"><span class="fn-bracket">[</span>15<span class="fn-bracket">]</span></a></p></li>
 </ul>
-<p>For high level of math functions, clang compiles these float type’s
-operation in C into llvm intrinsic functions, then the llvm backends of these
-CPU compile them into their HW instructions. For example, clang compiles pow()
-into &#64;llvm.pow.f32 as follows,</p>
+<p>For high-level math functions, Clang compiles float-type operations in C
+into LLVM intrinsic functions. Then, LLVM backends for different CPUs compile
+these intrinsics into hardware instructions when available.</p>
+<p>For example, Clang compiles <cite>pow()</cite> into <cite>&#64;llvm.pow.f32</cite> as follows:</p>
 <ul class="simple">
-<li><p>%pow = call float &#64;llvm.pow.f32(float %x, float %y) <a class="footnote-reference brackets" href="#clang-pow" id="id20" role="doc-noteref"><span class="fn-bracket">[</span>16<span class="fn-bracket">]</span></a></p></li>
+<li><p><cite>%pow = call float &#64;llvm.pow.f32(float %x, float %y)</cite> <a class="footnote-reference brackets" href="#clang-pow" id="id20" role="doc-noteref"><span class="fn-bracket">[</span>16<span class="fn-bracket">]</span></a></p></li>
 </ul>
-<p>AMDGPU compiles &#64;llvm.pow.f32 into a few instructions as follows:</p>
+<p>The AMDGPU backend compiles <cite>&#64;llvm.pow.f32</cite> into a sequence of instructions:</p>
 <ul class="simple">
-<li><p>%pow = call float &#64;llvm.pow.f32(float %x, float %y) (llvm-AMDGPU) -&gt; … + v_exp_f32_e32 v0, v0 + … <a class="footnote-reference brackets" href="#clang-pow" id="id21" role="doc-noteref"><span class="fn-bracket">[</span>16<span class="fn-bracket">]</span></a></p></li>
+<li><p><cite>%pow = call float &#64;llvm.pow.f32(float %x, float %y)</cite>
+→ (LLVM-AMDGPU) → <cite>… + v_exp_f32_e32 v0, v0 + …</cite> <a class="footnote-reference brackets" href="#clang-pow" id="id21" role="doc-noteref"><span class="fn-bracket">[</span>16<span class="fn-bracket">]</span></a></p></li>
 </ul>
-<p>Mips compiles &#64;llvm.pow.f32 into a few instructions as follows:</p>
+<p>The MIPS backend compiles <cite>&#64;llvm.pow.f32</cite> into a function call:</p>
 <ul class="simple">
-<li><p>%pow = call float &#64;llvm.pow.f32(float %x, float %y) (llvm-AMDGPU) -&gt; jal powf <a class="footnote-reference brackets" href="#clang-pow" id="id22" role="doc-noteref"><span class="fn-bracket">[</span>16<span class="fn-bracket">]</span></a></p></li>
+<li><p><cite>%pow = call float &#64;llvm.pow.f32(float %x, float %y)</cite>
+→ (LLVM-MIPS) → <cite>jal powf</cite> <a class="footnote-reference brackets" href="#clang-pow" id="id22" role="doc-noteref"><span class="fn-bracket">[</span>16<span class="fn-bracket">]</span></a></p></li>
 </ul>
-<p>Clang treats these libm functions as builtin and compiles them into llvm ir or
-intrinsic, then different backends can choose to compile them into specific
-instructions or call builtin functions in libm. The following is Clang’s
-comment <a class="footnote-reference brackets" href="#clang-builtin-comment" id="id23" role="doc-noteref"><span class="fn-bracket">[</span>17<span class="fn-bracket">]</span></a>.</p>
+<p>Clang treats these <cite>libm</cite> functions as built-ins and compiles them into LLVM IR
+or intrinsics. Then, the LLVM backend can either lower them into hardware
+instructions (if available) or generate function calls to built-in implementations
+in <cite>libm</cite>.</p>
+<p>The following quote is from Clang’s documentation <a class="footnote-reference brackets" href="#clang-builtin-comment" id="id23" role="doc-noteref"><span class="fn-bracket">[</span>17<span class="fn-bracket">]</span></a>:</p>
 <div class="highlight-c++ notranslate"><div class="highlight"><pre><span></span><span class="n">RValue</span><span class="w"> </span><span class="n">CodeGenFunction</span><span class="o">::</span><span class="n">EmitBuiltinExpr</span><span class="p">(...)</span><span class="w"></span>
 <span class="w">  </span><span class="p">...</span><span class="w"></span>
 <span class="w">  </span><span class="c1">// There are LLVM math intrinsics/instructions corresponding to math library</span>
@@ -807,9 +818,9 @@ comment <a class="footnote-reference brackets" href="#clang-builtin-comment" id=
 </div>
 <section id="verification">
 <h3><a class="toc-backref" href="#id38" role="doc-backlink">Verification</a><a class="headerlink" href="#verification" title="Permalink to this heading">¶</a></h3>
-<p>The following sanitizer_printf.cpp extended from compiler-rt can support
-printf(“%lld”). It’s implementation calling some floating lib functions
-in compiler-rt/lib/builtins.</p>
+<p>The following <cite>sanitizer_printf.cpp</cite>, extended from compiler-rt, supports
+<cite>printf(“%lld”)</cite>. Its implementation calls some floating-point library
+functions in <cite>compiler-rt/lib/builtins</cite>.</p>
 <p class="rubric">exlbt/include/math.h</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="c1">#ifndef _MATH_H_</span>
 <span class="c1">#define	_MATH_H_</span>
@@ -1244,9 +1255,9 @@ extern &quot;C&quot; int san_printf(const char *format, ...) {
 }
 </pre></div>
 </div>
-<p>Above two sanitizer_*.* files are ported from compiler-rt and I add code to
-support left-justify for number-printf and right-justify for string-printf.
-The following ch_float.cpp test the float lib.</p>
+<p>The above two <cite>sanitizer_*.*</cite> files are ported from compiler-rt. I added code
+to support left-justify for number printf and right-justify for string
+printf. The following <cite>ch_float.cpp</cite> tests the float library.</p>
 <p class="rubric">lbt/exlbt/compiler-rt-12.x/builtins/Makefile</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span># Thanks .c .cb Vranish (https://spin.a.cmi.cbject..cm/2016/08/26/makefile-c-p.cjects/)
 
@@ -1679,8 +1690,8 @@ include Common.mk
 <span class="go">RET to PC &lt; 0, finished!</span>
 </pre></div>
 </div>
-<p>The exlbt/input/compiler-rt-test/builtins/Unit copied from
-compiler-rt/test/builtins/Unit as follows,</p>
+<p>The <cite>exlbt/input/compiler-rt-test/builtins/Unit</cite> directory is copied from
+<cite>compiler-rt/test/builtins/Unit</cite> as follows,</p>
 <p class="rubric">exlbt/input/ch_builtins.cpp</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span>#include &quot;debug.h&quot;
 #include &lt;stdlib.h&gt;
@@ -2459,7 +2470,7 @@ LIBS := $(LIBBUILTINS_DIR)/build-$(CPU)-$(ENDIAN)/libbuiltins.a \
 include Common.mk
 </pre></div>
 </div>
-<p>Run as follows,</p>
+<p>Run the tests as follows,</p>
 <div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">chungshu@ChungShudeMacBook-Air input % </span>bash make.sh cpu032II eb Makefile.builtins
 <span class="go">...</span>
 <span class="gp">chungshu@ChungShudeMacBook-Air verilog % </span>./cpu0IIs

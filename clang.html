@@ -47,7 +47,7 @@
 <li><p><a class="reference internal" href="#builtin-functions" id="id4">Builtin functions</a></p></li>
 </ul>
 </nav>
-<p>This chapter add Cpu0 target to frontend clang.</p>
+<p>This chapter adds the Cpu0 target to the frontend Clang.</p>
 <section id="cpu0-target">
 <h2><a class="toc-backref" href="#id3" role="doc-backlink">Cpu0 target</a><a class="headerlink" href="#cpu0-target" title="Permalink to this heading">¶</a></h2>
 <p class="rubric">exlbt/clang/include/clang/lib/Driver/CMakeLists.txt</p>
@@ -548,10 +548,11 @@ bool Cpu0TargetInfo::validateTarget(DiagnosticsEngine &amp;Diags) const {
 </section>
 <section id="builtin-functions">
 <h2><a class="toc-backref" href="#id4" role="doc-backlink">Builtin functions</a><a class="headerlink" href="#builtin-functions" title="Permalink to this heading">¶</a></h2>
-<p>Builtin-function is a function may map to one or more HW instructions for
-speedup. Cpu0 port compiler-rt’s builtins in the section Compiler-rt’s
-builtins of chapter Library <a class="footnote-reference brackets" href="#cpu0-compiler-rt-builtins" id="id1" role="doc-noteref"><span class="fn-bracket">[</span>1<span class="fn-bracket">]</span></a>.
-Built-in kernels are kernels that are specific to a particular device and
+<p>A builtin function is a function that may map to one or more hardware instructions
+for performance improvement. The Cpu0 backend ports compiler-rt’s builtins in the
+section “Compiler-rt’s Builtins” of the Library chapter
+<a class="footnote-reference brackets" href="#cpu0-compiler-rt-builtins" id="id1" role="doc-noteref"><span class="fn-bracket">[</span>1<span class="fn-bracket">]</span></a>.</p>
+<p>Built-in kernels are kernels that are specific to a particular device and
 provide a mechanism to allow an application developer to leverage special
 hardware that may be present on the device <a class="footnote-reference brackets" href="#builtin-kernel" id="id2" role="doc-noteref"><span class="fn-bracket">[</span>2<span class="fn-bracket">]</span></a>.</p>
 <p class="rubric">exlbt/clang/include/clang/Basic/TargetBuiltins.h</p>

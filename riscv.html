@@ -45,10 +45,10 @@
 <ul class="simple">
 <li><p><a class="reference internal" href="#isa" id="id42">ISA</a></p></li>
 <li><p><a class="reference internal" href="#mem" id="id43">Mem</a></p></li>
-<li><p><a class="reference internal" href="#risc-compiler-toolchain-installatation" id="id44">RISC compiler toolchain installatation</a></p></li>
+<li><p><a class="reference internal" href="#risc-compiler-toolchain-installation" id="id44">RISC compiler toolchain installation</a></p></li>
 <li><p><a class="reference internal" href="#linker-command" id="id45">Linker Command</a></p></li>
-<li><p><a class="reference internal" href="#qemu-simulator" id="id46">Qemu simulator</a></p></li>
-<li><p><a class="reference internal" href="#gem5-simulator" id="id47">Gem5 simulator</a></p></li>
+<li><p><a class="reference internal" href="#qemu-simulator" id="id46">QEMU simulator</a></p></li>
+<li><p><a class="reference internal" href="#gem5-simulator" id="id47">Gem5 Simulator</a></p></li>
 <li><p><a class="reference internal" href="#gdb" id="id48">GDB</a></p></li>
 <li><p><a class="reference internal" href="#riscv-calling-convention" id="id49">RISCV Calling Convention </a></p></li>
 <li><p><a class="reference internal" href="#rvv" id="id50">RVV</a></p></li>
@@ -66,8 +66,8 @@
 <li><p><a class="reference internal" href="#to-do" id="id59">To do:</a></p></li>
 </ul>
 </nav>
-<p>This chapter shows the RISC toolchain installatation including gnu, llvm and
-simulators on Linux as figure and table below.</p>
+<p>This chapter shows the installation of the RISC toolchain, including GNU, LLVM,
+and simulators on Linux, as illustrated in the figure and table below.</p>
 <figure class="align-default" id="id35">
 <span id="toolchain-f1"></span><div class="graphviz"><img src="_images/graphviz-8e35cf64bdab0b7fad41e40f16ac819c650f14d8.png" alt="digraph G {
 
@@ -181,18 +181,19 @@ simulators on Linux as figure and table below.</p>
 <p><span class="caption-number">Fig. 14 </span><span class="caption-text">RISCV ISA Description</span><a class="headerlink" href="#id38" title="Permalink to this image">¶</a></p>
 </figcaption>
 </figure>
-<p>As above <a class="reference internal" href="#riscv-f1"><span class="std std-numref">Fig. 13</span></a> and <a class="reference internal" href="#riscv-f2"><span class="std std-numref">Fig. 14</span></a>, RISC has 32/64/128 bit and
-I (integer) is the Base part and the others are optional. G=IMAFD, general
-extensions (i.e., IMAFD)  <a class="footnote-reference brackets" href="#id33" id="id2" role="doc-noteref"><span class="fn-bracket">[</span>2<span class="fn-bracket">]</span></a> <a class="footnote-reference brackets" href="#riscv-wiki" id="id3" role="doc-noteref"><span class="fn-bracket">[</span>3<span class="fn-bracket">]</span></a> <a class="footnote-reference brackets" href="#rre" id="id4" role="doc-noteref"><span class="fn-bracket">[</span>4<span class="fn-bracket">]</span></a>.</p>
-<p>Since RISCV has vector instruction for variable length of data and allowing
-vendor to encode variable length of instruction set, the little endian is the
-dominate format in market <a class="footnote-reference brackets" href="#endians-format" id="id5" role="doc-noteref"><span class="fn-bracket">[</span>5<span class="fn-bracket">]</span></a>.</p>
+<p>As shown in <a class="reference internal" href="#riscv-f1"><span class="std std-numref">Fig. 13</span></a> and <a class="reference internal" href="#riscv-f2"><span class="std std-numref">Fig. 14</span></a>, RISC has 32/64/128 bit
+variants. The I (integer) extension is the base part, and others are optional.
+G = IMAFD, the general extensions (i.e., I, M, A, F, D) <a class="footnote-reference brackets" href="#id33" id="id2" role="doc-noteref"><span class="fn-bracket">[</span>2<span class="fn-bracket">]</span></a> <a class="footnote-reference brackets" href="#riscv-wiki" id="id3" role="doc-noteref"><span class="fn-bracket">[</span>3<span class="fn-bracket">]</span></a>
+<a class="footnote-reference brackets" href="#rre" id="id4" role="doc-noteref"><span class="fn-bracket">[</span>4<span class="fn-bracket">]</span></a>.</p>
+<p>Since RISC-V has vector instructions supporting variable-length data and allows
+vendors to encode variable-length instruction sets, little endian is the
+dominant format in the market <a class="footnote-reference brackets" href="#endians-format" id="id5" role="doc-noteref"><span class="fn-bracket">[</span>5<span class="fn-bracket">]</span></a>.</p>
 </section>
 <section id="mem">
 <h2><a class="toc-backref" href="#id43" role="doc-backlink">Mem</a><a class="headerlink" href="#mem" title="Permalink to this heading">¶</a></h2>
 <ul class="simple">
-<li><p>I-cache, D-cache: Size: 4KB to 64KB in Andes N25f</p></li>
-<li><p>ILM, DLM: Size: 4KB to 16MB <a class="footnote-reference brackets" href="#andes-ilm" id="id6" role="doc-noteref"><span class="fn-bracket">[</span>6<span class="fn-bracket">]</span></a></p>
+<li><p>I-cache, D-cache: Size ranges from 4KB to 64KB in Andes N25f.</p></li>
+<li><p>ILM, DLM: Size ranges from 4KB to 16MB <a class="footnote-reference brackets" href="#andes-ilm" id="id6" role="doc-noteref"><span class="fn-bracket">[</span>6<span class="fn-bracket">]</span></a>.</p>
 <ul>
 <li><p>For deterministic and efficient program execution</p></li>
 <li><p>Flexible size selection to fit diversified needs</p></li>
@@ -201,12 +202,11 @@ dominate format in market <a class="footnote-reference brackets" href="#endians-
 <li><p>DRAM</p></li>
 </ul>
 </section>
-<section id="risc-compiler-toolchain-installatation">
-<h2><a class="toc-backref" href="#id44" role="doc-backlink">RISC compiler toolchain installatation</a><a class="headerlink" href="#risc-compiler-toolchain-installatation" title="Permalink to this heading">¶</a></h2>
-<p>First, install the depended packages according
-<a class="reference external" href="https://github.com/riscv-collab/riscv-gnu-toolchain#readme">https://github.com/riscv-collab/riscv-gnu-toolchain#readme</a>.
-Next, create your $HOME/riscv and $HOME/riscv/git. Then run the following bash
-script.</p>
+<section id="risc-compiler-toolchain-installation">
+<h2><a class="toc-backref" href="#id44" role="doc-backlink">RISC compiler toolchain installation</a><a class="headerlink" href="#risc-compiler-toolchain-installation" title="Permalink to this heading">¶</a></h2>
+<p>First, install the dependent packages following
+<a class="reference external" href="https://github.com/riscv-collab/riscv-gnu-toolchain#readme">https://github.com/riscv-collab/riscv-gnu-toolchain#readme</a>. Next, create your
+$HOME/riscv and $HOME/riscv/git directories. Then run the following bash script.</p>
 <p class="rubric">exlbt/riscv/riscv-toolchain-setup.sh</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span>#!/usr/bin/env bash
 
@@ -350,7 +350,8 @@ build_llvm_toolchain;
 <span class="gp">$ </span>bash riscv-toolchain-setup.sh
 </pre></div>
 </div>
-<p>RISCV toolchain includes both baremetal(Newlib) and Linux platform support.</p>
+<p>RISCV toolchain includes support for both bare-metal (Newlib) and Linux
+platforms.</p>
 <div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span><span class="nb">pwd</span>
 <span class="gp">$ </span><span class="nv">$HOME</span>/git/lbt/exlbt/riscv
 <span class="gp">$ </span>ls <span class="nv">$HOME</span>/riscv/riscv_newlib
@@ -363,8 +364,8 @@ build_llvm_toolchain;
 <p><span class="caption-number">Fig. 15 </span><span class="caption-text">RISCV ISA Description</span><a class="headerlink" href="#id39" title="Permalink to this image">¶</a></p>
 </figcaption>
 </figure>
-<p>The linux sysroot as <a class="reference internal" href="#riscv-f3"><span class="std std-numref">Fig. 15</span></a> above. You can compare it with the following
-installed dirctory.</p>
+<p>The Linux sysroot is shown in <a class="reference internal" href="#riscv-f3"><span class="std std-numref">Fig. 15</span></a> above.
+You can compare it with the following installed directory.</p>
 <div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>ls <span class="nv">$HOME</span>/riscv/riscv_linux/sysroot/
 <span class="go">etc  lib  lib64  sbin  usr  var</span>
 <span class="gp">$ </span>ls <span class="nv">$HOME</span>/riscv/riscv_linux/sysroot/usr
@@ -374,10 +375,12 @@ installed dirctory.</p>
 </section>
 <section id="linker-command">
 <h2><a class="toc-backref" href="#id45" role="doc-backlink">Linker Command</a><a class="headerlink" href="#linker-command" title="Permalink to this heading">¶</a></h2>
-<p>Different HW platforms have their memory map for their RISCV architecture. As
-result, their HW may need to initialize $sp, $pc and $gp … .
-GNU linker command language <a class="footnote-reference brackets" href="#ld-cl" id="id7" role="doc-noteref"><span class="fn-bracket">[</span>15<span class="fn-bracket">]</span></a> provides user’s memory map to their HW.</p>
-<p>The crt0.S and riscv64-virt.ld in lbt/exlbt/riscv modified from origin as follows,</p>
+<p>Different HW platforms have their own memory map for the RISCV architecture.
+As a result, their HW may need to initialize $sp, $pc, $gp, and others.
+The GNU linker command language <a class="footnote-reference brackets" href="#ld-cl" id="id7" role="doc-noteref"><span class="fn-bracket">[</span>15<span class="fn-bracket">]</span></a> allows users to specify the memory
+map for their HW.</p>
+<p>The crt0.S and riscv64-virt.ld in lbt/exlbt/riscv are modified from the original
+as follows:</p>
 <div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="go">riscv$ pwd</span>
 <span class="go">~/git/lbt/exlbt/riscv</span>
 <span class="go">riscv$ diff exlbt/riscv/crt0.S ~/riscv/git/riscv-gnu-toolchain/newlib/libgloss/riscv/crt0.S</span>
@@ -409,10 +412,11 @@ GNU linker command language <a class="footnote-reference brackets" href="#ld-cl"
 <span class="go">-march=rv64gcv1p0 -O0 -mabi=lp64d -T riscv64-virt.ld -nostartfiles crt0.S -v</span>
 </pre></div>
 </div>
-<p>If uses RAM (rwx), it has warning and can be removed by <cite>-Wl,–no-warn-rwx-segment</cite>
-in clang option.</p>
-<p>Qemu on next section can run program without initialzing $sp in crt0.S. Maybe it
-is that qemu initialize $sp as in the following code.</p>
+<p>If RAM is used with (rwx) permission, a warning may occur.
+This warning can be suppressed by adding <cite>-Wl,–no-warn-rwx-segment</cite>
+to the clang options.</p>
+<p>QEMU in the next section can run the program without initializing $sp in crt0.S.
+Perhaps QEMU initializes $sp as shown in the following code.</p>
 <div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="go">qemu$ pwd</span>
 <span class="go">~/riscv/git/qemu</span>
 <span class="go">qemu$ vi linux-user/riscv/cpu_loop.c</span>
@@ -422,15 +426,15 @@ is that qemu initialize $sp as in the following code.</p>
 <span class="go">  env-&gt;gpr[xSP] = regs-&gt;sp;</span>
 </pre></div>
 </div>
-<p>The ELF object file format uses program headers, which are read by the system
-loader and describe how the program should be loaded into memory.
-The program headers of an ELF file may be displayed using <cite>llvm-objdump -p</cite>
-<a class="footnote-reference brackets" href="#ld-ph" id="id8" role="doc-noteref"><span class="fn-bracket">[</span>16<span class="fn-bracket">]</span></a>.</p>
-<p>The “la sp, __stack_top” is Psuedo instructions in RISCV <a class="footnote-reference brackets" href="#riscv-pseudo-inst" id="id9" role="doc-noteref"><span class="fn-bracket">[</span>17<span class="fn-bracket">]</span></a>.</p>
+<p>The ELF object file format uses program headers, which the system loader reads
+to know how to load the program into memory. The program headers of an ELF file
+can be displayed using <cite>llvm-objdump -p</cite> <a class="footnote-reference brackets" href="#ld-ph" id="id8" role="doc-noteref"><span class="fn-bracket">[</span>16<span class="fn-bracket">]</span></a>.</p>
+<p>The instruction “la sp, __stack_top” is a pseudo-instruction in RISCV <a class="footnote-reference brackets" href="#riscv-pseudo-inst" id="id9" role="doc-noteref"><span class="fn-bracket">[</span>17<span class="fn-bracket">]</span></a>.</p>
 </section>
 <section id="qemu-simulator">
-<h2><a class="toc-backref" href="#id46" role="doc-backlink">Qemu simulator</a><a class="headerlink" href="#qemu-simulator" title="Permalink to this heading">¶</a></h2>
-<p>Install according <a class="reference external" href="https://gitlab.com/qemu-project/qemu">https://gitlab.com/qemu-project/qemu</a> as follows,</p>
+<h2><a class="toc-backref" href="#id46" role="doc-backlink">QEMU simulator</a><a class="headerlink" href="#qemu-simulator" title="Permalink to this heading">¶</a></h2>
+<p>Install QEMU following the instructions at:
+<a class="reference external" href="https://gitlab.com/qemu-project/qemu">https://gitlab.com/qemu-project/qemu</a> as shown below.</p>
 <div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span><span class="nb">pwd</span>
 <span class="gp">$ </span><span class="nv">$HOME</span>/riscv/git
 <span class="gp">$ </span>git clone https://gitlab.com/qemu-project/qemu.git
@@ -444,7 +448,7 @@ The program headers of an ELF file may be displayed using <cite>llvm-objdump -p<
 <span class="gp">$ </span>make
 </pre></div>
 </div>
-<p>Then it can compile and run qemu for baremetal as follows,</p>
+<p>Then, you can compile and run QEMU for bare-metal as follows:</p>
 <div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span><span class="nb">pwd</span>
 <span class="gp">$ </span><span class="nv">$HOME</span>/git/lbt/exlbt/riscv
 <span class="gp">$ </span><span class="nv">$HOME</span>/riscv/riscv_newlib/bin/clang -march<span class="o">=</span>rv64g hello.c -fuse-ld<span class="o">=</span>lld <span class="se">\</span>
@@ -453,13 +457,13 @@ The program headers of an ELF file may be displayed using <cite>llvm-objdump -p<
 <span class="go">hello world!</span>
 </pre></div>
 </div>
-<p>Linux <a class="footnote-reference brackets" href="#riscv-build-linux" id="id10" role="doc-noteref"><span class="fn-bracket">[</span>18<span class="fn-bracket">]</span></a> as follows,</p>
+<p>Also, compile and run QEMU for Linux <a class="footnote-reference brackets" href="#riscv-build-linux" id="id10" role="doc-noteref"><span class="fn-bracket">[</span>18<span class="fn-bracket">]</span></a> as follows:</p>
 <div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span><span class="nv">$HOME</span>/riscv/riscv_linux/bin/clang -march<span class="o">=</span>rv64g hello.c -o hello_linux -static
 <span class="gp">$ </span><span class="nv">$HOME</span>/riscv/git/qemu/build/qemu-riscv64 hello_linux
 <span class="go">hello world!</span>
 </pre></div>
 </div>
-<p>RISCV does need -lm for math.h as follows,</p>
+<p>RISCV requires linking with -lm for math.h functions, as shown below:</p>
 <p class="rubric">exlbt/riscv/pow.cpp</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span>// RISCV does need -lm while X86-64 does not.
 // $ ~/riscv/riscv_newlib/bin/clang++ -menable-experimental-extensions pow.cpp -march=rv64gcv0p10 -O0 -fuse-ld=lld -mno-relax -g -mabi=lp64d -lm  -v
@@ -486,14 +490,15 @@ int main() {
 }
 </pre></div>
 </div>
-<p>The asm for hello world in baremetal as follows,</p>
+<p>Assembly code of “Hello, World” can be compiled and run in bare-metal mode as
+follows:</p>
 <div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span><span class="nv">$HOME</span>/riscv/riscv_newlib/bin/riscv64-unknown-elf-gcc -c hello_world.s
 <span class="gp">$ </span><span class="nv">$HOME</span>/riscv/riscv_newlib/bin/riscv64-unknown-elf-ld hello_world.o -o hello_world
 <span class="gp">$ </span><span class="nv">$HOME</span>/riscv/git/qemu/build/qemu-riscv64 hello_world
 <span class="go">Hello World</span>
 </pre></div>
 </div>
-<p>The link for asm and C in baremetal as follows,</p>
+<p>Linking between assembly code and C for bare-metal can be done as follows:</p>
 <p class="rubric">exlbt/riscv/caller_hello.c</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span>/* ~/git/lbt/exlbt/riscv$ ~/riscv/riscv_newlib/bin/riscv64-unknown-elf-gcc -c func_hello_start.s 
 ~/git/lbt/exlbt/riscv$ ~/riscv/riscv_newlib/bin/riscv64-unknown-elf-gcc -c caller_hello.c 
@@ -544,23 +549,24 @@ int main() {
 </div>
 </section>
 <section id="gem5-simulator">
-<h2><a class="toc-backref" href="#id47" role="doc-backlink">Gem5 simulator</a><a class="headerlink" href="#gem5-simulator" title="Permalink to this heading">¶</a></h2>
-<p>Build Gem5 according the following,</p>
+<h2><a class="toc-backref" href="#id47" role="doc-backlink">Gem5 Simulator</a><a class="headerlink" href="#gem5-simulator" title="Permalink to this heading">¶</a></h2>
+<p>Build Gem5 according to the following steps:</p>
 <p><a class="reference external" href="https://www.gem5.org/documentation/general_docs/building">https://www.gem5.org/documentation/general_docs/building</a> or
 <a class="reference external" href="http://learning.gem5.org/book/part1/building.html#requirements-for-gem5">http://learning.gem5.org/book/part1/building.html#requirements-for-gem5</a></p>
-<p>If you don’t have python3.x-config on Ubuntu 18.04 as follows,</p>
+<p>If you do not have <code class="docutils literal notranslate"><span class="pre">python3.x-config</span></code> on Ubuntu 18.04, as shown below:</p>
 <div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>ls /usr/bin/python*
 <span class="go">... /usr/bin/python2.7-config</span>
 </pre></div>
 </div>
-<p>Then do install by pip3 as follows <a class="footnote-reference brackets" href="#install-python3-config" id="id11" role="doc-noteref"><span class="fn-bracket">[</span>19<span class="fn-bracket">]</span></a>,</p>
+<p>Then install it using pip3 as follows <a class="footnote-reference brackets" href="#install-python3-config" id="id11" role="doc-noteref"><span class="fn-bracket">[</span>19<span class="fn-bracket">]</span></a>:</p>
 <div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>sudo apt install python3-pip
 <span class="gp">$ </span>pip3 install scons
 <span class="gp">$ </span>ls /usr/bin/python*
 <span class="go">... /usr/bin/python3-config</span>
 </pre></div>
 </div>
-<p>After install all dependencies, get gem5 and build RISCV as follows,</p>
+<p>After installing all dependencies, clone gem5 and build the RISC-V target as
+follows:</p>
 <div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span><span class="nb">pwd</span>
 <span class="gp">$ </span><span class="nv">$HOME</span>/riscv/git
 <span class="gp">$ </span>sudo apt install -y libglib2.0-dev
@@ -581,7 +587,7 @@ int main() {
 <span class="go">hello world!</span>
 </pre></div>
 </div>
-<p>Check cycles as follows,</p>
+<p>Check the number of cycles as follows:</p>
 <div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$</span>HOME/git/lbt/exlbt/riscv$ vi m5out/stats.txt
 <span class="go">simSeconds          0.000001       # Number of seconds simulated (Second)</span>
 <span class="go">simTicks            1229000        # Number of ticks simulated (Tick)</span>
@@ -594,7 +600,7 @@ int main() {
 <span class="go">...</span>
 </pre></div>
 </div>
-<p>The config of gem5 reference here.
+<p>The configuration examples for gem5 can be found at the following reference:
 <a class="reference external" href="http://learning.gem5.org/book/part1/example_configs.html">http://learning.gem5.org/book/part1/example_configs.html</a></p>
 </section>
 <section id="gdb">
@@ -622,8 +628,8 @@ int main() {
 <p><span class="caption-number">Fig. 16 </span><span class="caption-text">GDB flow</span><a class="headerlink" href="#id40" title="Permalink to this image">¶</a></p>
 </figcaption>
 </figure>
-<p>LLVM 13.x fails on “clang -g” for rvv C/C++ file while LLVM 14.x is work. Run
-qemu on terminal A with gdb on terminal B <a class="footnote-reference brackets" href="#riscv-qemu-gdb" id="id12" role="doc-noteref"><span class="fn-bracket">[</span>7<span class="fn-bracket">]</span></a> as follows,</p>
+<p>LLVM 13.x fails to compile RVV C/C++ files with <cite>clang -g</cite>, while LLVM 14.x works.
+Run QEMU on terminal A with GDB on terminal B as follows <a class="footnote-reference brackets" href="#riscv-qemu-gdb" id="id12" role="doc-noteref"><span class="fn-bracket">[</span>7<span class="fn-bracket">]</span></a>:</p>
 <div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="go">// terminal A:</span>
 <span class="gp">$ </span><span class="nb">pwd</span>
 <span class="gp">$ </span><span class="nv">$HOME</span>/git/lbt/exlbt/riscv
@@ -675,10 +681,11 @@ qemu on terminal A with gdb on terminal B <a class="footnote-reference brackets"
 <span class="gp">$</span>
 </pre></div>
 </div>
-<p>Since rvv v1.0 is accepted and v0.10 is draft for release version v1.0, above
--march change from rv64gv0p10 of llvm 13.x to rv64gcv1p0 llvm 14.x
-<a class="footnote-reference brackets" href="#rvv-0p10-1p0" id="id13" role="doc-noteref"><span class="fn-bracket">[</span>8<span class="fn-bracket">]</span></a>.</p>
-<p>Beside GDB runs in the same host environment as your program. When you need more
+<p>Since RVV v1.0 is accepted and v0.10 is draft for release v1.0, the above
+-march option changed from <cite>rv64gv0p10</cite> in LLVM 13.x to <cite>rv64gcv1p0</cite> in LLVM
+14.x <a class="footnote-reference brackets" href="#rvv-0p10-1p0" id="id13" role="doc-noteref"><span class="fn-bracket">[</span>8<span class="fn-bracket">]</span></a>.</p>
+<p>In the example above, both QEMU and GDB run in the same host environment.</p>
+<p>When you need more
 flexibility–for example, running GDB on a physically separate host, or
 controlling a standalone system over a serial port or a realtime system over a
 TCP/IP connection <a class="footnote-reference brackets" href="#gdb-target" id="id14" role="doc-noteref"><span class="fn-bracket">[</span>9<span class="fn-bracket">]</span></a>. To use a TCP connection, use an argument of the
@@ -687,11 +694,12 @@ host listening port 1234 <a class="footnote-reference brackets" href="#gdb-tcpip
 </section>
 <section id="riscv-calling-convention">
 <h2><a class="toc-backref" href="#id49" role="doc-backlink">RISCV Calling Convention <a class="footnote-reference brackets" href="#calling-conv" id="id16" role="doc-noteref"><span class="fn-bracket">[</span>11<span class="fn-bracket">]</span></a></a><a class="headerlink" href="#riscv-calling-convention" title="Permalink to this heading">¶</a></h2>
-<p>The rv32: register size 32-bit. The rv64 register size 64-bit.</p>
-<p>In RV64, 32-bit types, such as int, are stored in integer registers as proper
-sign extensions of their 32-bit values; that is, bits 63..31 are all equal.</p>
-<p>Two kinds of ABI, ilp32 and lp64, -mabi=ilp32, ilp32f, ilp32d, lp64, lp64f,
-lp64d. The ways of pass float arguments on integer/single-float/double-float.</p>
+<p>The RV32 register size is 32 bits. The RV64 register size is 64 bits.</p>
+<p>In RV64, 32-bit types, such as int, are stored in integer registers with proper
+sign extension; that is, bits 63..32 are copies of bit 31.</p>
+<p>There are two kinds of ABI: ilp32 and lp64, such as -mabi=ilp32, ilp32f, ilp32d,
+lp64, lp64f, lp64d. They differ in how float arguments are passed on integer,
+single-float, or double-float registers.</p>
 <table class="docutils align-default" id="id41">
 <caption><span class="caption-number">Table 7 </span><span class="caption-text">ABI, caller passing integer/float/double arguments <a class="footnote-reference brackets" href="#calling-conv-1" id="id17" role="doc-noteref"><span class="fn-bracket">[</span>12<span class="fn-bracket">]</span></a> <a class="footnote-reference brackets" href="#calling-conv-2" id="id18" role="doc-noteref"><span class="fn-bracket">[</span>13<span class="fn-bracket">]</span></a></span><a class="headerlink" href="#id41" title="Permalink to this table">¶</a></caption>
 <thead>
@@ -715,9 +723,10 @@ lp64d. The ways of pass float arguments on integer/single-float/double-float.</p
 </tr>
 </tbody>
 </table>
-<p>ilp32 and lp64 are Soft-Float Calling Convention.
-Soft-Float Calling Convention: Floating-point arguments are passed and returned
-<strong>in integer registers</strong>, using the rules for integer arguments of the same size.</p>
+<p>Both ilp32 and lp64 are Soft-Float Calling Conventions.</p>
+<p>Soft-Float Calling Convention means floating-point arguments are passed and
+returned <strong>in integer registers</strong>, using the same rules as integer arguments
+of the corresponding size.</p>
 <ul>
 <li><p>-mabi=ABI-string</p>
 <p>Specify integer and floating-point calling convention. ABI-string contains
@@ -742,11 +751,11 @@ is not well specified at present, and is subject to change <a class="footnote-re
 </section>
 <section id="rvv">
 <h2><a class="toc-backref" href="#id50" role="doc-backlink">RVV</a><a class="headerlink" href="#rvv" title="Permalink to this heading">¶</a></h2>
-<p>Clang/llvm provide RVV (RISC-V Vectors) written in C rather than inline-asm.
-Though it notices as clang option: -target-feature +experimental-v, this way in
-C is shorter, more user-friendly and easy to remember for users than in
-inline-asm form.
-Builtin is C function and friendly either. RVV can be written and run as follows,</p>
+<p>Clang/LLVM provides RVV (RISC-V Vectors) written in C rather than inline assembly.</p>
+<p>Although enabled by the clang option <cite>-target-feature +experimental-v</cite>, using C
+is shorter, more user-friendly, and easier to remember than inline assembly.</p>
+<p>Builtins are C functions and also user-friendly. RVV code can be written and
+run as follows,</p>
 <p class="rubric">exlbt/riscv/vadd2.c</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="o">//</span> <span class="k">pass</span><span class="p">:</span> 
 <span class="o">/*</span> <span class="o">~/</span><span class="n">riscv</span><span class="o">/</span><span class="n">riscv_newlib</span><span class="o">/</span><span class="nb">bin</span><span class="o">/</span><span class="n">clang</span><span class="o">++</span> <span class="n">vadd2</span><span class="o">.</span><span class="n">c</span> <span class="o">-</span><span class="n">menable</span><span class="o">-</span><span class="n">experimental</span><span class="o">-</span><span class="n">extensions</span> \
@@ -868,14 +877,14 @@ Builtin is C function and friendly either. RVV can be written and run as follows
 <span class="go"> 106fc:       03ae0d57                vadd.vv v26,v26,v28</span>
 </pre></div>
 </div>
-<p>For -march=rv64imfv0p10zfh0p1,</p>
+<p>For <cite>-march=rv64imfv0p10zfh0p1</cite>,</p>
 <ul class="simple">
-<li><p>v0p10: vector version 0.10.</p></li>
-<li><p>zfh0p1: “Zfh” 0.1 version <a class="footnote-reference brackets" href="#rre" id="id20" role="doc-noteref"><span class="fn-bracket">[</span>4<span class="fn-bracket">]</span></a>.</p></li>
+<li><p><cite>v0p10</cite>: vector version 0.10.</p></li>
+<li><p><cite>zfh0p1</cite>: “Zfh” version 0.1 <a class="footnote-reference brackets" href="#rre" id="id20" role="doc-noteref"><span class="fn-bracket">[</span>4<span class="fn-bracket">]</span></a>.</p></li>
 </ul>
-<p>For -mabi, as the section above.</p>
-<p>Clang/llvm provide builtin and intrinsic functions to implement RVV (RISC-V
-Vectors)</p>
+<p>For <cite>-mabi</cite>, see the section above.</p>
+<p>Clang/LLVM provides builtin and intrinsic functions to implement RVV (RISC-V
+Vectors).</p>
 <p class="rubric">$HOME/riscv/git/llvm-project/clang/include/clang/Basic/riscv_vector.td</p>
 <div class="highlight-c++ notranslate"><div class="highlight"><pre><span></span><span class="cp">#define vsetvl_e8mf8(avl) __builtin_rvv_vsetvli((size_t)(avl), 0, 5)</span>
 <span class="p">...</span><span class="w"></span>
@@ -892,7 +901,7 @@ Vectors)</p>
 <span class="n">defm</span><span class="w"> </span><span class="n">vfdiv</span><span class="w"> </span><span class="o">:</span><span class="w"> </span><span class="n">RISCVBinaryAAX</span><span class="p">;</span><span class="w"></span>
 </pre></div>
 </div>
-<p>Refer to clang/llvm test cases in the following folders.</p>
+<p>Refer to Clang/LLVM test cases in the following folders.</p>
 <div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$</span>HOME/riscv/git/llvm-project/clang/test/CodeGen/RISCV/rvv-intrinsics$ ls
 <span class="go">... vfdiv.c ... vfmadd.c</span>
 
@@ -936,15 +945,16 @@ Vectors)</p>
 </section>
 <section id="to-do">
 <h2><a class="toc-backref" href="#id59" role="doc-backlink">To do:</a><a class="headerlink" href="#to-do" title="Permalink to this heading">¶</a></h2>
-<p>As exlbt/riscv/riscv-toolchain-setup-macos-intel.sh.
-Currently, this script complete build on both riscv_newlib and riscv_linux.
-However, qemu does not create qemu-riscv64 for baremetal on macos. So cannot
-verify it yet.</p>
-<ul class="simple">
-<li><p>How to run qemu-system-riscv64 as baremetal qemu-risv64? Following
-<a class="reference external" href="https://twilco.github.io/riscv-from-scratch/2019/04/27/riscv-from-scratch-2.html#link-it-up">https://twilco.github.io/riscv-from-scratch/2019/04/27/riscv-from-scratch-2.html#link-it-up</a>
-to create crt0.S and riscv64-virt.ld but not work. It fails without changing
-crt0.S either.</p></li>
+<p>As in exlbt/riscv/riscv-toolchain-setup-macos-intel.sh,
+this script currently completes building both riscv_newlib and riscv_linux.</p>
+<p>However, qemu does not create qemu-riscv64 for baremetal on macOS,
+so verification cannot be done yet.</p>
+<ul>
+<li><p>How to run qemu-system-riscv64 as baremetal qemu-riscv64?</p>
+<p>Following <a class="reference external" href="https://twilco.github.io/riscv-from-scratch/2019/04/27/riscv-from-scratch-2.html#link-it-up">https://twilco.github.io/riscv-from-scratch/2019/04/27/riscv-from-scratch-2.html#link-it-up</a>
+to create crt0.S and riscv64-virt.ld does not work.
+It fails without changing crt0.S as well.</p>
+</li>
 </ul>
 <div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="go">// terminal A:</span>
 <span class="go">riscv % ~/riscv/14.x/riscv_newlib/bin/clang hello.c -menable-experimental-extensions \</span>
@@ -963,7 +973,7 @@ crt0.S either.</p></li>
 <span class="go">Continuing.</span>
 </pre></div>
 </div>
-<p>qemu-system-riscv64 with -nographic fail too.</p>
+<p>The qemu-system-riscv64 with -nographic option also fails to run properly.</p>
 <aside class="footnote brackets" id="toolchain" role="note">
 <span class="label"><span class="fn-bracket">[</span><a role="doc-backlink" href="#id1">1</a><span class="fn-bracket">]</span></span>
 <p>Reference “Table 1 Toolchain components” of <a class="reference external" href="http://jonathan2251.github.io/lbt/about.html#outline-of-chapters">http://jonathan2251.github.io/lbt/about.html#outline-of-chapters</a></p>

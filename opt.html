@@ -43,7 +43,7 @@
 <span id="sec-opt"></span><h1>Optimization<a class="headerlink" href="#optimization" title="Permalink to this heading">¶</a></h1>
 <nav class="contents local" id="contents">
 <ul class="simple">
-<li><p><a class="reference internal" href="#llvm-ir-optimization" id="id6">LLVM IR optimization</a></p></li>
+<li><p><a class="reference internal" href="#llvm-ir-optimization" id="id6">LLVM IR Optimization</a></p></li>
 <li><p><a class="reference internal" href="#project" id="id7">Project</a></p>
 <ul>
 <li><p><a class="reference internal" href="#llvm-vpo" id="id8">LLVM-VPO</a></p></li>
@@ -51,12 +51,13 @@
 </li>
 </ul>
 </nav>
-<p>This chapter introduce llvm optimization.</p>
+<p>This chapter introduces LLVM optimization.</p>
 <section id="llvm-ir-optimization">
-<h2><a class="toc-backref" href="#id6" role="doc-backlink">LLVM IR optimization</a><a class="headerlink" href="#llvm-ir-optimization" title="Permalink to this heading">¶</a></h2>
-<p>The llvm-link provide optimizaton in IR level which can apply in different
-programs developed by more than one language. Of course, it can apply in
-the same language which support seperate compile.</p>
+<h2><a class="toc-backref" href="#id6" role="doc-backlink">LLVM IR Optimization</a><a class="headerlink" href="#llvm-ir-optimization" title="Permalink to this heading">¶</a></h2>
+<p>The <cite>llvm-link</cite> tool provides optimization at the IR level, which can
+be applied across different programs developed in multiple languages.
+Of course, it can also be applied to the same language that supports
+separate compilation.</p>
 <figure class="align-default" id="id5">
 <span id="llvm-link-f-flow"></span><div class="graphviz"><img src="_images/graphviz-84581890368bb293a7ad9c07ac6d444dd056855c.png" alt="digraph G {
   rankdir=LR;
@@ -83,16 +84,18 @@ the same language which support seperate compile.</p>
 <p><span class="caption-number">Fig. 5 </span><span class="caption-text">llvm-link flow</span><a class="headerlink" href="#id5" title="Permalink to this image">¶</a></p>
 </figcaption>
 </figure>
-<p>Clang provide optimization options to do optimation from high level language
-to IR.
-But since many languages like C/C++ support separate compilation, it meaning
-there is no chance to do inter-procedure optimization if the functions come from
-different source files.
-To solve this problem, llvm provide <strong>llvm-link</strong> to link all *.bc into a single
-IR file, and through <strong>opt</strong> to finish the inter-procedure optimation <a class="footnote-reference brackets" href="#id4" id="id1" role="doc-noteref"><span class="fn-bracket">[</span>1<span class="fn-bracket">]</span></a>.
-Beyond the DAG local optimization mentioned in Chapter 2, there are global
-optimization based on inter-procedure analysis <a class="footnote-reference brackets" href="#dragonbooks-9" id="id2" role="doc-noteref"><span class="fn-bracket">[</span>2<span class="fn-bracket">]</span></a>.
-The following steps and examples show this optimization solution in llvm.</p>
+<p>Clang provides optimization options to optimize code from high-level
+languages to IR.
+However, since many languages like C/C++ support separate compilation,
+there is no opportunity for inter-procedure optimization if functions
+come from different source files.</p>
+<p>To solve this problem, LLVM provides <strong>llvm-link</strong> to link all <cite>*.bc</cite>
+files into a single IR file, and then uses <strong>opt</strong> to perform
+inter-procedure optimization <a class="footnote-reference brackets" href="#id4" id="id1" role="doc-noteref"><span class="fn-bracket">[</span>1<span class="fn-bracket">]</span></a>.</p>
+<p>Beyond the DAG local optimization discussed in Chapter 2 of lbd, LLVM supports
+global optimizations based on inter-procedure analysis <a class="footnote-reference brackets" href="#dragonbooks-9" id="id2" role="doc-noteref"><span class="fn-bracket">[</span>2<span class="fn-bracket">]</span></a>.</p>
+<p>The following steps and examples demonstrate this optimization approach
+in LLVM.</p>
 <p class="rubric">exlbt/input/optimizen/1.cpp</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="nb">int</span> <span class="n">callee</span><span class="p">(</span><span class="n">const</span> <span class="nb">int</span> <span class="o">*</span><span class="n">a</span><span class="p">)</span> <span class="p">{</span>
   <span class="k">return</span> <span class="o">*</span><span class="n">a</span><span class="o">+</span><span class="mi">1</span><span class="p">;</span>
@@ -152,9 +155,10 @@ The following steps and examples show this optimization solution in llvm.</p>
 <span class="go">...</span>
 </pre></div>
 </div>
-<p>From the result as above, the <strong>opt</strong> output has lesser number of IR
-instructions.
-Of course, the backend code will be more effective as follows,</p>
+<p>From the result above, the <strong>opt</strong> output contains a smaller number of
+IR instructions.
+As a result, the backend-generated code will also be more efficient,
+as shown below.</p>
 <div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">JonathantekiiMac:input Jonathan$ </span>~/llvm/test/build/
 <span class="go">bin/llc -march=cpu0 -relocation-model=pic -filetype=asm a.bc -o -</span>
 <span class="go">        .section .mdebug.abi32</span>
@@ -264,7 +268,7 @@ Of course, the backend code will be more effective as follows,</p>
 </div>
 <p>Though llvm-link provide optimization in IR level to support seperate compile,
 it come with the cost in compile time. As you can imagine, any one statement
-change will change the output IR of llvm-link. And the obj binary code have to
+change may change the output IR of llvm-link. And the obj binary code have to
 re-compile. Compare to the seperate compile for each *.c file, it only need to
 re-compile the corresponding *.o file only.</p>
 </section>

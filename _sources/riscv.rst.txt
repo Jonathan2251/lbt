@@ -7,8 +7,8 @@ Appendix A: RISCV
    :local:
    :depth: 4
 
-This chapter shows the RISC toolchain installatation including gnu, llvm and 
-simulators on Linux as figure and table below.
+This chapter shows the installation of the RISC toolchain, including GNU, LLVM,  
+and simulators on Linux, as illustrated in the figure and table below.
 
 .. _toolchain-f1:
 .. graphviz:: ../Fig/riscv/toolchain.gv
@@ -54,34 +54,33 @@ ISA
 
   RISCV ISA Description
 
+As shown in :numref:`riscv-f1` and :numref:`riscv-f2`, RISC has 32/64/128 bit  
+variants. The I (integer) extension is the base part, and others are optional.  
+G = IMAFD, the general extensions (i.e., I, M, A, F, D) [#ISA]_ [#RISCV-wiki]_  
+[#RRE]_.
 
-As above :numref:`riscv-f1` and :numref:`riscv-f2`, RISC has 32/64/128 bit and 
-I (integer) is the Base part and the others are optional. G=IMAFD, general 
-extensions (i.e., IMAFD)  [#ISA]_ [#RISCV-wiki]_ [#RRE]_.
-
-Since RISCV has vector instruction for variable length of data and allowing 
-vendor to encode variable length of instruction set, the little endian is the
-dominate format in market [#endians-format]_.
+Since RISC-V has vector instructions supporting variable-length data and allows  
+vendors to encode variable-length instruction sets, little endian is the  
+dominant format in the market [#endians-format]_.
 
 Mem
 ---
 
-- I-cache, D-cache: Size: 4KB to 64KB in Andes N25f
+- I-cache, D-cache: Size ranges from 4KB to 64KB in Andes N25f.
 
-- ILM, DLM: Size: 4KB to 16MB [#andes-ilm]_
+- ILM, DLM: Size ranges from 4KB to 16MB [#andes-ilm]_.
 
-  - For deterministic and efficient program execution
+  - For deterministic and efficient program execution  
   - Flexible size selection to fit diversified needs
 
 - DRAM
 
-RISC compiler toolchain installatation
---------------------------------------
+RISC compiler toolchain installation
+------------------------------------
 
-First, install the depended packages according 
-https://github.com/riscv-collab/riscv-gnu-toolchain#readme. 
-Next, create your $HOME/riscv and $HOME/riscv/git. Then run the following bash
-script.
+First, install the dependent packages following  
+https://github.com/riscv-collab/riscv-gnu-toolchain#readme. Next, create your  
+$HOME/riscv and $HOME/riscv/git directories. Then run the following bash script.
 
 .. rubric:: exlbt/riscv/riscv-toolchain-setup.sh
 .. literalinclude:: ../exlbt/riscv/riscv-toolchain-setup.sh
@@ -93,7 +92,8 @@ script.
   $ bash riscv-toolchain-setup.sh
 
 
-RISCV toolchain includes both baremetal(Newlib) and Linux platform support.
+RISCV toolchain includes support for both bare-metal (Newlib) and Linux  
+platforms.
 
 .. code-block:: console
 
@@ -109,8 +109,8 @@ RISCV toolchain includes both baremetal(Newlib) and Linux platform support.
 
   RISCV ISA Description
 
-The linux sysroot as :numref:`riscv-f3` above. You can compare it with the following 
-installed dirctory.
+The Linux sysroot is shown in :numref:`riscv-f3` above.  
+You can compare it with the following installed directory.
 
 .. code-block:: console
 
@@ -123,11 +123,13 @@ installed dirctory.
 Linker Command
 --------------
 
-Different HW platforms have their memory map for their RISCV architecture. As 
-result, their HW may need to initialize $sp, $pc and $gp ... . 
-GNU linker command language [#ld-cl]_ provides user's memory map to their HW.
+Different HW platforms have their own memory map for the RISCV architecture.  
+As a result, their HW may need to initialize $sp, $pc, $gp, and others.  
+The GNU linker command language [#ld-cl]_ allows users to specify the memory  
+map for their HW.
 
-The crt0.S and riscv64-virt.ld in lbt/exlbt/riscv modified from origin as follows,
+The crt0.S and riscv64-virt.ld in lbt/exlbt/riscv are modified from the original  
+as follows:
 
 .. code-block:: console
 
@@ -161,11 +163,12 @@ The crt0.S and riscv64-virt.ld in lbt/exlbt/riscv modified from origin as follow
   riscv$ ~/riscv/14.x/riscv_newlib/bin/clang hello.c -menable-experimental-extensions \
   -march=rv64gcv1p0 -O0 -mabi=lp64d -T riscv64-virt.ld -nostartfiles crt0.S -v
 
-If uses RAM (rwx), it has warning and can be removed by `-Wl,--no-warn-rwx-segment`
-in clang option.
+If RAM is used with (rwx) permission, a warning may occur.  
+This warning can be suppressed by adding `-Wl,--no-warn-rwx-segment`  
+to the clang options.
 
-Qemu on next section can run program without initialzing $sp in crt0.S. Maybe it
-is that qemu initialize $sp as in the following code.
+QEMU in the next section can run the program without initializing $sp in crt0.S.  
+Perhaps QEMU initializes $sp as shown in the following code.
 
 .. code-block:: console
 
@@ -177,18 +180,17 @@ is that qemu initialize $sp as in the following code.
     ...
     env->gpr[xSP] = regs->sp;
 
-The ELF object file format uses program headers, which are read by the system 
-loader and describe how the program should be loaded into memory. 
-The program headers of an ELF file may be displayed using `llvm-objdump -p` 
-[#ld-ph]_.
+The ELF object file format uses program headers, which the system loader reads  
+to know how to load the program into memory. The program headers of an ELF file  
+can be displayed using `llvm-objdump -p` [#ld-ph]_.
 
-The "la sp, __stack_top" is Psuedo instructions in RISCV [#riscv-pseudo-inst]_.
+The instruction "la sp, __stack_top" is a pseudo-instruction in RISCV [#riscv-pseudo-inst]_.
 
-
-Qemu simulator
+QEMU simulator
 --------------
 
-Install according https://gitlab.com/qemu-project/qemu as follows,
+Install QEMU following the instructions at:  
+https://gitlab.com/qemu-project/qemu as shown below.
 
 .. code-block:: console
 
@@ -204,7 +206,7 @@ Install according https://gitlab.com/qemu-project/qemu as follows,
   $ ../configure
   $ make
 
-Then it can compile and run qemu for baremetal as follows,
+Then, you can compile and run QEMU for bare-metal as follows:
 
 .. code-block:: console
 
@@ -215,7 +217,7 @@ Then it can compile and run qemu for baremetal as follows,
   $ $HOME/riscv/git/qemu/build/qemu-riscv64 hello_newlib
   hello world!
 
-Linux [#riscv-build-linux]_ as follows,
+Also, compile and run QEMU for Linux [#riscv-build-linux]_ as follows:
 
 .. code-block:: console
 
@@ -223,12 +225,13 @@ Linux [#riscv-build-linux]_ as follows,
   $ $HOME/riscv/git/qemu/build/qemu-riscv64 hello_linux
   hello world!
 
-RISCV does need -lm for math.h as follows,
+RISCV requires linking with -lm for math.h functions, as shown below:
 
 .. rubric:: exlbt/riscv/pow.cpp
 .. literalinclude:: ../exlbt/riscv/pow.cpp
 
-The asm for hello world in baremetal as follows,
+Assembly code of "Hello, World" can be compiled and run in bare-metal mode as
+follows:
 
 .. code-block:: console
 
@@ -237,7 +240,7 @@ The asm for hello world in baremetal as follows,
   $ $HOME/riscv/git/qemu/build/qemu-riscv64 hello_world
   Hello World
 
-The link for asm and C in baremetal as follows,
+Linking between assembly code and C for bare-metal can be done as follows:
 
 .. rubric:: exlbt/riscv/caller_hello.c
 .. literalinclude:: ../exlbt/riscv/caller_hello.c
@@ -247,22 +250,22 @@ The link for asm and C in baremetal as follows,
 
 
 
-Gem5 simulator
+Gem5 Simulator
 --------------
 
-Build Gem5 according the following,
+Build Gem5 according to the following steps:
 
 https://www.gem5.org/documentation/general_docs/building or
 http://learning.gem5.org/book/part1/building.html#requirements-for-gem5
 
-If you don't have python3.x-config on Ubuntu 18.04 as follows,
+If you do not have ``python3.x-config`` on Ubuntu 18.04, as shown below:
 
 .. code-block:: console
 
   $ ls /usr/bin/python*
   ... /usr/bin/python2.7-config
 
-Then do install by pip3 as follows [#install-python3-config]_,
+Then install it using pip3 as follows [#install-python3-config]_:
 
 .. code-block:: console
 
@@ -271,7 +274,8 @@ Then do install by pip3 as follows [#install-python3-config]_,
   $ ls /usr/bin/python*
   ... /usr/bin/python3-config
 
-After install all dependencies, get gem5 and build RISCV as follows,
+After installing all dependencies, clone gem5 and build the RISC-V target as
+follows:
 
 .. code-block:: console
 
@@ -294,7 +298,7 @@ After install all dependencies, get gem5 and build RISCV as follows,
   build/RISCV/sim/simulate.cc:107: info: Entering event queue @ 0.  Starting simulation...
   hello world!
 
-Check cycles as follows,
+Check the number of cycles as follows:
 
 .. code-block:: console
 
@@ -309,7 +313,7 @@ Check cycles as follows,
   hello world!
   ...
 
-The config of gem5 reference here.
+The configuration examples for gem5 can be found at the following reference:  
 http://learning.gem5.org/book/part1/example_configs.html
 
 
@@ -320,8 +324,8 @@ GDB
 .. graphviz:: ../Fig/riscv/gdb.gv
   :caption: GDB flow
 
-LLVM 13.x fails on "clang -g" for rvv C/C++ file while LLVM 14.x is work. Run 
-qemu on terminal A with gdb on terminal B [#riscv-qemu-gdb]_ as follows,
+LLVM 13.x fails to compile RVV C/C++ files with `clang -g`, while LLVM 14.x works.  
+Run QEMU on terminal A with GDB on terminal B as follows [#riscv-qemu-gdb]_:
 
 .. code-block:: console
 
@@ -375,11 +379,13 @@ qemu on terminal A with gdb on terminal B [#riscv-qemu-gdb]_ as follows,
   The results of VMUL:	PASS
   $ 
 
-Since rvv v1.0 is accepted and v0.10 is draft for release version v1.0, above 
--march change from rv64gv0p10 of llvm 13.x to rv64gcv1p0 llvm 14.x 
-[#rvv-0p10-1p0]_.
+Since RVV v1.0 is accepted and v0.10 is draft for release v1.0, the above  
+-march option changed from `rv64gv0p10` in LLVM 13.x to `rv64gcv1p0` in LLVM  
+14.x [#rvv-0p10-1p0]_.
 
-Beside GDB runs in the same host environment as your program. When you need more 
+In the example above, both QEMU and GDB run in the same host environment.
+
+When you need more 
 flexibility--for example, running GDB on a physically separate host, or 
 controlling a standalone system over a serial port or a realtime system over a 
 TCP/IP connection [#gdb-target]_. To use a TCP connection, use an argument of the 
@@ -388,15 +394,16 @@ host listening port 1234 [#gdb-tcpip]_.
 
 
 RISCV Calling Convention [#calling-conv]_
--------------------------------------------
+-----------------------------------------
 
-The rv32: register size 32-bit. The rv64 register size 64-bit.
+The RV32 register size is 32 bits. The RV64 register size is 64 bits.
 
-In RV64, 32-bit types, such as int, are stored in integer registers as proper 
-sign extensions of their 32-bit values; that is, bits 63..31 are all equal. 
+In RV64, 32-bit types, such as int, are stored in integer registers with proper
+sign extension; that is, bits 63..32 are copies of bit 31.
 
-Two kinds of ABI, ilp32 and lp64, -mabi=ilp32, ilp32f, ilp32d, lp64, lp64f, 
-lp64d. The ways of pass float arguments on integer/single-float/double-float.
+There are two kinds of ABI: ilp32 and lp64, such as -mabi=ilp32, ilp32f, ilp32d,
+lp64, lp64f, lp64d. They differ in how float arguments are passed on integer,
+single-float, or double-float registers.
 
 .. table:: ABI, caller passing integer/float/double arguments [#calling-conv-1]_ [#calling-conv-2]_
 
@@ -409,9 +416,11 @@ lp64d. The ways of pass float arguments on integer/single-float/double-float.
   ==============  ==============  =============
 
 
-ilp32 and lp64 are Soft-Float Calling Convention.
-Soft-Float Calling Convention: Floating-point arguments are passed and returned 
-**in integer registers**, using the rules for integer arguments of the same size.
+Both ilp32 and lp64 are Soft-Float Calling Conventions.
+
+Soft-Float Calling Convention means floating-point arguments are passed and
+returned **in integer registers**, using the same rules as integer arguments
+of the corresponding size.
 
 - -mabi=ABI-string
 
@@ -438,11 +447,14 @@ Soft-Float Calling Convention: Floating-point arguments are passed and returned
 RVV
 ----
 
-Clang/llvm provide RVV (RISC-V Vectors) written in C rather than inline-asm. 
-Though it notices as clang option: -target-feature +experimental-v, this way in 
-C is shorter, more user-friendly and easy to remember for users than in 
-inline-asm form. 
-Builtin is C function and friendly either. RVV can be written and run as follows,
+
+Clang/LLVM provides RVV (RISC-V Vectors) written in C rather than inline assembly.
+
+Although enabled by the clang option `-target-feature +experimental-v`, using C
+is shorter, more user-friendly, and easier to remember than inline assembly.
+
+Builtins are C functions and also user-friendly. RVV code can be written and
+run as follows,
 
 .. rubric:: exlbt/riscv/vadd2.c
 .. literalinclude:: ../exlbt/riscv/vadd2.c
@@ -471,16 +483,16 @@ Builtin is C function and friendly either. RVV can be written and run as follows
   $ $HOME/riscv/riscv_newlib/bin/riscv64-unknown-elf-objdump -d a.out|grep vadd.vv
    106fc:	03ae0d57          	vadd.vv	v26,v26,v28
 
-For -march=rv64imfv0p10zfh0p1,
+For `-march=rv64imfv0p10zfh0p1`,
 
-- v0p10: vector version 0.10.
+- `v0p10`: vector version 0.10.
 
-- zfh0p1: "Zfh" 0.1 version [#RRE]_.
+- `zfh0p1`: "Zfh" version 0.1 [#RRE]_.
 
-For -mabi, as the section above.
+For `-mabi`, see the section above.
 
-Clang/llvm provide builtin and intrinsic functions to implement RVV (RISC-V 
-Vectors) 
+Clang/LLVM provides builtin and intrinsic functions to implement RVV (RISC-V
+Vectors).
 
 .. rubric:: $HOME/riscv/git/llvm-project/clang/include/clang/Basic/riscv_vector.td
 .. code-block:: c++
@@ -500,7 +512,7 @@ Vectors)
    ...
    defm vfdiv : RISCVBinaryAAX;
 
-Refer to clang/llvm test cases in the following folders.
+Refer to Clang/LLVM test cases in the following folders.
 
 .. code-block:: console
 
@@ -560,16 +572,17 @@ https://twilco.github.io
 To do:
 ------
 
-As exlbt/riscv/riscv-toolchain-setup-macos-intel.sh. 
-Currently, this script complete build on both riscv_newlib and riscv_linux.
-However, qemu does not create qemu-riscv64 for baremetal on macos. So cannot
-verify it yet.
+As in exlbt/riscv/riscv-toolchain-setup-macos-intel.sh,
+this script currently completes building both riscv_newlib and riscv_linux.
 
+However, qemu does not create qemu-riscv64 for baremetal on macOS,
+so verification cannot be done yet.
 
-- How to run qemu-system-riscv64 as baremetal qemu-risv64? Following 
-  https://twilco.github.io/riscv-from-scratch/2019/04/27/riscv-from-scratch-2.html#link-it-up
-  to create crt0.S and riscv64-virt.ld but not work. It fails without changing 
-  crt0.S either.
+- How to run qemu-system-riscv64 as baremetal qemu-riscv64?
+
+  Following https://twilco.github.io/riscv-from-scratch/2019/04/27/riscv-from-scratch-2.html#link-it-up
+  to create crt0.S and riscv64-virt.ld does not work.
+  It fails without changing crt0.S as well.
 
 .. code-block:: console
 
@@ -589,7 +602,7 @@ verify it yet.
   (gdb) c
   Continuing.
 
-qemu-system-riscv64 with -nographic fail too.
+The qemu-system-riscv64 with -nographic option also fails to run properly.
 
 
 .. [#toolchain] Reference "Table 1 Toolchain components" of http://jonathan2251.github.io/lbt/about.html#outline-of-chapters

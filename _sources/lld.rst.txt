@@ -7,11 +7,12 @@ Cpu0 ELF linker
    :local:
    :depth: 4
 
-LLD changes quickly and the figures of this chapter is not up to date.
-Like llvm, lld linker include a couple of target in ELF format handling.
-The term Cpu0 backend used in this chapter can refer to the ELF format handling 
-for Cpu0 target machine under lld, llvm compiler backend, or both. But
-supposing readers will easy knowing what it refer to.
+LLD changes frequently, and the figures in this chapter are not up to date. Like
+LLVM, the LLD linker includes support for multiple targets in ELF format.
+
+The term "Cpu0 backend" used in this chapter can refer to ELF format handling for
+the Cpu0 target under LLD, the LLVM compiler backend, or both. It is assumed that
+readers will understand the intended meaning from the context.
 
 .. _lld-f-workflow: 
 .. figure:: ../Fig/about/mywork_1.png
@@ -20,35 +21,38 @@ supposing readers will easy knowing what it refer to.
 
   Code generation and execution flow
 
-As depicted in :numref:`lld-f-workflow` of chapter About. Beside llvm backend,
-we implement ELF linker and elf2hex to run on Cpu0 verilog simulator.
-This chapter extends lld to support Cpu0 backend as well as elf2hex to replace
-Cpu0 loader.
-After link with lld,
-the program with global variables can be allocated in ELF file format layout. 
-Meaning the relocation records of global variables is resolved. In addition, 
-elf2hex is implemented for supporting generate Hex file from ELF.
-With these two tools supported, the global variables exists in 
-section .data and .rodata can be accessed and transfered to Hex file which feeds  
-to Verilog Cpu0 machine and run on your PC/Laptop.
+As depicted in :numref:`lld-f-workflow` of chapter About, beside LLVM backend, we
+implement ELF linker and elf2hex to run on Cpu0 Verilog simulator.
 
-As the previouse chapters mentioned, Cpu0 has two relocation models for static 
-link and dynamic link, respectively, which controlled by option 
-``-relocation-model`` in ``llc``. 
-This chapter supports the static link.
+This chapter extends LLD to support the Cpu0 backend as well as elf2hex to replace
+the Cpu0 loader.
 
-About lld please refer LLD web site here [#lldweb]_ and LLD install requirement 
-on Linux here [#lld-install]_. 
-Currently, lld can be built by: gcc and clang compiler on Ubuntu. 
-On iMac, lld can be built by clang with the Xcode version as the next sub 
-section.
-If you run with Virtual Machine (VM), please keep your phisical memory size 
-setting over 1GB to avoid insufficient memory link error.
+After linking with LLD, the program with global variables can be allocated in ELF
+file format layout. This means relocation records of global variables are resolved.
+
+In addition, elf2hex is implemented to generate Hex files from ELF.
+
+With these two tools, global variables in sections .data and .rodata can be accessed
+and transferred to Hex files which feed the Verilog Cpu0 machine running on your
+PC/Laptop.
+
+As previous chapters mentioned, Cpu0 has two relocation models for static and
+dynamic linking respectively, controlled by the option ``-relocation-model`` in
+``llc``. This chapter supports static linking.
+
+For more about LLD, please refer to the LLD website here [#lldweb]_ and the LLD
+install requirements on Linux here [#lld-install]_.
+
+Currently, LLD can be built by gcc and clang on Ubuntu. On iMac, LLD can be built
+by clang with the Xcode version as described in the next subsection.
+
+If you run inside a Virtual Machine (VM), please set the physical memory size over
+1GB to avoid insufficient memory link errors.
 
 ELF to Hex
 -----------
 
-As follows,
+The code to convert ELF file format into Hex format for Cpu0 as follows,
 
 .. rubric:: exlbt/elf2hex/CMakeLists.txt
 .. literalinclude:: ../exlbt/elf2hex/CMakeLists.txt
@@ -59,8 +63,8 @@ As follows,
 .. rubric:: exlbt/elf2hex/elf2hex.cpp
 .. literalinclude:: ../exlbt/elf2hex/elf2hex.cpp
 
-In order to support command, **llvm-objdump -d** and **llvm-objdump -t**, for 
-Cpu0, the code add to llvm-objdump.cpp as follows,
+To support the commands **llvm-objdump -d** and **llvm-objdump -t** for Cpu0, 
+the following code is added to llvm-objdump.cpp:
 
 .. rubric:: exlbt/llvm-objdump/llvm-objdump.cpp
 .. code-block:: c++
@@ -71,13 +75,13 @@ Cpu0, the code add to llvm-objdump.cpp as follows,
 Create Cpu0 backend under LLD
 -----------------------------
 
-LLD introduction 
+LLD introduction
 ~~~~~~~~~~~~~~~~
 
-In general, linker do the Relocation Records Resolve as Chapter ELF support 
-depicted, and optimization for those cannot finish in compiler stage. One of 
-the optimization opportunities in linker is Dead Code Stripping which is 
-explained as follows, 
+In general, the linker performs relocation record resolution as described in 
+the ELF support chapter. Some optimizations cannot be completed during the 
+compiler stage. One such optimization opportunity in the linker is Dead Code 
+Stripping, which is explained as follows:
 
 .. rubric:: Dead code stripping - example (modified from llvm lto document web)
 
@@ -90,8 +94,8 @@ explained as follows,
 .. rubric:: ch13_1.cpp
 .. literalinclude:: ../exlbt/input/ch13_1.cpp
 
-Above code can be reduced to :numref:`lld-deadcodestripping` to perform
-mark and swip in graph for Dead Code Stripping.
+The above code can be simplified to :numref:`lld-deadcodestripping` to perform
+mark and sweep in the graph for Dead Code Stripping.
 
 .. _lld-deadcodestripping: 
 .. figure:: ../Fig/lld/deadcodestripping.png
@@ -101,30 +105,31 @@ mark and swip in graph for Dead Code Stripping.
   Atom classified (from lld web)
 
 
-As above example, the foo2() is an isolated node without any reference. It's 
-dead code and can be removed in linker optimization. We test this example by 
-Makefile.ch13_1 and find foo2() cannot be removed. 
-There are two possibilities for this situation. 
-One is we do not trigger lld dead code stripping 
-optimization in command (the default is not do it). The other is lld hasn't 
-implemented it yet at this point. It's reasonable since the 
-lld is in its early stages of development. We didn't dig it more, since the 
-Cpu0 backend tutorial just need a linker to finish Relocation Records Resolve 
-and see how it runs on PC.
+As shown in the above example, the function `foo2()` is an isolated node without
+any references. It is dead code and should be removed during linker optimization.
+We tested this example using `Makefile.ch13_1` and found that `foo2()` was not
+removed.
 
-Remind, llvm-linker is the linker works on IR level linker optimization. 
-Sometime when you got the obj file only (if you have a.o in this case), 
-the native linker (such as lld) have the opportunity to do Dead Code Stripping 
-while the IR linker hasn't.
+There are two possible reasons for this behavior. First, the dead code stripping
+optimization in LLD might not be enabled by default in the command line. Second,
+LLD may not have implemented this optimization yet, which is reasonable given
+that LLD was in its early stages of development at the time.
 
+We did not investigate further since the Cpu0 backend tutorial only requires a
+linker to complete relocation record resolution and to run the program on a PC.
 
-Static linker 
+Note that `llvm-linker` works at the LLVM IR level and performs linker
+optimizations there. However, if you only have object files (e.g., `a.o`), the
+native linker (such as LLD) has the opportunity to perform dead code stripping,
+while the IR linker cannot.
+
+Static linker
 ~~~~~~~~~~~~~
 
 Let's run the static linker first and explain it next.
 
-File printf-stdarg.c [#printf-stdarg]_ come from internet download which is 
-GPL2 license. GPL2 is more restricted than LLVM license. 
+File ``printf-stdarg.c`` [#printf-stdarg]_ comes from an internet download and
+is under the GPL2 license. GPL2 is more restrictive than the LLVM license.
 
 .. rubric:: exlbt/input/printf-stdarg-1.c
 .. literalinclude:: ../exlbt/input/printf-stdarg-1.c
@@ -148,12 +153,9 @@ GPL2 license. GPL2 is more restricted than LLVM license.
 .. rubric:: exlbt/input/Common.mk
 .. literalinclude:: ../exlbt/input/Common.mk
 
-
-
-
-With the printf() of GPL source code, we can program more test code with it 
-to verify the previous llvm Cpu0 backend generated program. The following code 
-is for this purpose.
+With the ``printf()`` function from the GPL source code, we can write more test
+code to verify the previously generated LLVM Cpu0 backend program. The
+following code serves this purpose.
 
 .. rubric:: exlbt/input/debug.cpp
 .. literalinclude:: ../exlbt/input/debug.cpp
@@ -272,8 +274,9 @@ is for this purpose.
   ...             
   RET to PC < 0, finished!
 
-Above test includes the printf format verification.
-Let's check the result with PC program printf-stdarg-1.c output as follows,
+The above test includes verification of the ``printf`` format.
+Let’s check the result by comparing it with the output of the PC program
+``printf-stdarg-1.c`` as follows,
 
 .. code-block:: console
 
@@ -306,28 +309,30 @@ Let's check the result with PC program printf-stdarg-1.c output as follows,
   -3: -3   left justif.
   -3:   -3 right justif.
 
-As above, by taking the open source code advantage, Cpu0 got the more stable 
-printf() program. 
-Once Cpu0 backend can translate the printf() function of the open source C 
-printf() program into machine instructions, the llvm Cpu0 backend can be 
-verified with printf(). 
-With the quality code of open source printf() program, the Cpu0 toolchain is 
-extended from compiler backend to C std library support. (Notice that some GPL 
-open source code are not quality code, but some are.)
+As described above, by leveraging open source code, Cpu0 gained a more stable
+implementation of the ``printf()`` function. Once the Cpu0 backend can translate
+the open source C ``printf()`` program into machine instructions, the LLVM
+Cpu0 backend can be effectively verified using ``printf()``.
 
-The "Overflow exception is printed twice meaning the ISR() of debug.cpp is 
-called twice from ch4_1_2.cpp. 
-The printed "taskInterrupt(001)" and "taskInterrupt(011)" just are trace 
-message from cpu0.v code.
+With the high-quality open source ``printf()`` code, the Cpu0 toolchain extends
+from just a compiler backend to also support the C standard library.
+(Note that while some GPL open source code may be of lower quality, many are
+well-written.)
 
+The message "Overflow exception is printed twice" means the ISR() in
+``debug.cpp`` is called twice from ``ch4_1_2.cpp``.
 
-Dynamic linker 
+The printed messages ``taskInterrupt(001)`` and ``taskInterrupt(011)`` are just
+trace messages from ``cpu0.v`` code.
+
+Dynamic linker
 ~~~~~~~~~~~~~~
 
-I remove dynamic linker demostration from 3.9.0 because I don't know how to
-do it from lld 3.9 and this demostration add lots of code in elf2hex, verilog 
-and lld of Cpu0 backend. However it can be run with llvm 3.7 with the following 
-command.
+The dynamic linker demonstration was removed from version 3.9.0 because its
+implementation with lld 3.9 was unclear and required extensive additions to
+``elf2hex``, Verilog, and the Cpu0 backend in lld.
+
+However, it can still be run with LLVM 3.7 using the following command.
 
 .. code-block:: console
 
@@ -343,82 +348,93 @@ command.
   1-160-136-173:test Jonathan$ git checkout release_374
   1-160-136-173:lbt Jonathan$ make html
 
-Then reading this section in lld.html for it.
-
+Then read the corresponding section in ``lld.html`` for more details.
 
 Summary
 --------
 
-Create a new backend base on LLVM
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Create a new backend based on LLVM
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Thanks the llvm open source project. 
-To write a linker and ELF to Hex tools for a new CPU architecture is easy and 
-reliable. 
-Combined with the llvm Cpu0 backend code and Verilog language code programmed
-in previouse chapters, we design a software 
-toolchain to compile C/C++ code, link and run it on Verilog Cpu0 simulator 
-without any real hardware investment.
-If you buy the FPGA development hardware, we believe these 
-code can run on FPGA CPU even though we didn't do it.
-Extend system program toolchain to support a new CPU instruction set can be 
-finished just like we have shown you at this point. 
-School knowledges of system program, compiler, linker, loader, computer 
-architecture and CPU design has been translated into a real work and see how it 
-is running. Now, these school books knowledge is not limited on paper. 
-We design it, program it, and run it on real world.
+Thanks to the LLVM open source project, writing a linker and ELF-to-Hex tools
+for a new CPU architecture is both easy and reliable.
 
-The total code size of llvm Cpu0 backend compiler, Cpu0 lld linker, elf2hex and 
-Cpu0 Verilog Language is around 10 thousands lines of source code include 
-comments. 
-The total code size of clang, llvm and lld has 1000 thousands lines exclude the
-test and documents parts. It is only 1 \% of the llvm size.
-More over, the llvm Cpu0 backend and lld Cpu0 backend are 70% of same with llvm 
-Mips and lld X86_64.
-Based on this truth, we believe llvm is a well defined structure in compiler 
-architecture. 
+Combined with the LLVM Cpu0 backend code and Verilog code programmed in previous
+chapters, we designed a software toolchain to compile C/C++ code, link it, and
+run it on the Verilog Cpu0 simulator without any real hardware investment.
 
-Contribute back to Open Source through working and learning
+If you buy FPGA development hardware, we believe this code can run on an FPGA
+CPU even though we did not test it ourselves.
+
+Extending system programming toolchains to support a new CPU instruction set
+can be completed just like we have shown here.
+
+School knowledge of system programming, compiler, linker, loader, computer
+architecture, and CPU design has been translated into real work and demonstrated
+running in practice. Now this knowledge is not limited to paper.
+
+We designed it, programmed it, and ran it in the real world.
+
+The total code size of the LLVM Cpu0 backend compiler, Cpu0 LLD linker, elf2hex,
+and Cpu0 Verilog code is around 10,000 lines including comments.
+
+In comparison, the total code size of Clang, LLVM, and LLD exceeds 1,000,000
+lines excluding tests and documentation. 
+
+This means the Cpu0 backend, based on Clang, LLVM, and LLD, is only about 1%
+of the size of the entire infrastructure.
+
+Moreover, the LLVM Cpu0 backend and LLD Cpu0 backend share about 70% similarity
+with LLVM MIPS.
+
+Based on this fact, we believe LLVM has a well-defined architecture for compiler
+design.
+
+
+Contribute Back to Open Source Through Working and Learning
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Finally, 10 thousands lines of source code in Cpu0 backend is very small in UI 
-program. But it's quite complex in system program which based on llvm. 
-We spent 600 pages of pdf to explain these code. Open source code give 
-programmers best opportunity to understand the code and enhance/extend the 
-code function. But it can be better, we believe the documentation is the next 
-most important thing to improve the open source code development. 
-The Open Source Organization recognized this point and set 
-Open Source Document Project years ago [#BSDLicense]_ [#docproj]_ 
-[#freebsdLicense]_ [#gnuLicense]_ [#fdl]_.
-Open Source grows up and becomes a giant software infrastructure with the forces 
-of company [#apple-opensource]_  [#ibm-opensource]_, school research team and 
-countless talent engineers passion. 
-It terminated the situation of everyone trying to re-invent wheels during 10 
-years ago.
-Extend your software from the re-usable source code is the right way. 
-Of course you should consider an open source license if you are working 
-with business.
-Actually anyone can contribute back to open source through the learning process. 
-This book is written through the process of learning llvm backend and contribute 
-back to llvm open source project.
-We think this book cannot exists in traditional paper book form since only 
-few number of readers interested in study llvm backend even though
-there are many paper published books in concept of compiler. So, this book 
-is published via electric media form and try to match the Open Document License 
-Expection [#gnu-phi]_.
-There are distance between the concept and the realistic program implemenation. 
-Keep note through learning a large complicate software such as this llvm backend 
-is not enough. 
-We all learned the knowledge through books during school and after school. 
-So, if you cannot find a good way to produce documents, you can consider to 
-write documents like this book. This book document uses sphinx tool 
-just like the llvm development team. Sphinx uses restructured text format here
-[#rst-ref]_ [#rst-directives]_ [#rst]_.
-Appendix A of lbd book tell you how to install sphinx tool. 
-Documentation work will help yourself to re-examine your software and make your 
-program better in structure, reliability and more important "Extend your code 
-to somewhere you didn't expect".
+Finally, 10,000 lines of source code in the Cpu0 backend is very small for a UI
+program, but it is quite complex for system programming based on LLVM.  
+Open source code gives  
+programmers the best opportunity to understand, enhance, and extend the code.  
+However, documentation is the next most important factor to improve open source  
+development.
 
+The Open Source Organization recognized this and started the Open Source  
+Document Project [#BSDLicense]_ [#docproj]_ [#freebsdLicense]_  
+[#gnuLicense]_ [#fdl]_. Open Source has grown into a giant software infrastructure  
+powered by companies [#apple-opensource]_ [#ibm-opensource]_, academic research,  
+and countless passionate engineers.
+
+It has ended the era when everyone tried to reinvent the wheel.  
+Extending your software from reusable source code is the right way. Of course,  
+if you work in business, you should consider open source licensing.
+
+Anyone can contribute back to open source through the learning process.  
+This book was written by learning the LLVM backend and contributing back to  
+the LLVM open source project.
+
+We believe this book cannot exist in traditional paper form, since few readers  
+are interested in studying LLVM backend, despite many compiler books published.  
+Therefore, it is published electronically and tries to follow the Open Document  
+License Exception [#gnu-phi]_.
+
+There is a gap between concept and realistic program implementation.  
+For learning a large, complex software such as the LLVM backend the concept of 
+compiler knowledge alone is not enough.
+
+We all learned knowledge through books in and after school. If you cannot find  
+a good way to produce documentation, consider writing documents like this book.  
+This book’s documentation uses the Sphinx tool, just like the LLVM development  
+team. Sphinx uses the restructured text format here [#rst-ref]_ [#rst-directives]_  
+[#rst]_.
+
+Appendix A of the lbd book explains how to install the Sphinx tool.
+
+Documentation work helps you re-examine your software and improve your program  
+structure, reliability, and—most importantly—extend your code to places you  
+did not expect.
 
 .. [#lldweb] http://lld.llvm.org/
 
