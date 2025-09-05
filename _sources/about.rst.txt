@@ -38,7 +38,11 @@ https://github.com/Jonathan2251/lbt/blob/master/README.md
 Revision history
 ----------------
 
-Version 12.0.17, not released yet.
+Version 12.0.18, not released yet.
+
+Version 12.0.17, Released September 5, 2026.
+
+  Refine elf2hex.
 
 Version 12.0.16, Released May 24, 2026.
 

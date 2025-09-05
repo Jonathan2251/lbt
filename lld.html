@@ -97,24 +97,17 @@ by clang with the Xcode version as described in the next subsection.</p>
 # LLVMInitializeCpu0TargetInfo and LLVMInitializeCpu0Disassembler ... etc.
 # Set LLVM_LINK_COMPONENTS then it can link them during the link stage.
 set(LLVM_LINK_COMPONENTS
-#  AllTargetsAsmPrinters
   AllTargetsDescs
   AllTargetsDisassemblers
   AllTargetsInfos
-  BinaryFormat
   CodeGen
-  DebugInfoDWARF
-  DebugInfoPDB
-  Demangle
-  MC
   MCDisassembler
-  Object
-  Support
   Symbolize
   )
 
 add_llvm_tool(elf2hex
   elf2hex.cpp
+  ../dishex/disas.cpp
   )
 
 if(HAVE_LIBXAR)
@@ -139,13 +132,10 @@ endif()
 <span class="c1">#ifndef LLVM_TOOLS_ELF2HEX_ELF2HEX_H</span>
 <span class="c1">#define LLVM_TOOLS_ELF2HEX_ELF2HEX_H</span>
 
+<span class="c1">#include &quot;../dishex/disas.h&quot;</span>
+
 <span class="c1">#include &quot;llvm/DebugInfo/DIContext.h&quot;</span>
-<span class="c1">#include &quot;llvm/MC/MCDisassembler/MCDisassembler.h&quot;</span>
-<span class="c1">#include &quot;llvm/MC/MCInstPrinter.h&quot;</span>
 <span class="c1">#include &quot;llvm/Support/CommandLine.h&quot;</span>
-<span class="c1">#include &quot;llvm/Support/Compiler.h&quot;</span>
-<span class="c1">#include &quot;llvm/Support/DataTypes.h&quot;</span>
-<span class="c1">#include &quot;llvm/Object/Archive.h&quot;</span>
 
 <span class="c1">#include &lt;stdio.h&gt;</span>
 <span class="c1">#include &quot;llvm/Support/raw_ostream.h&quot;</span>
@@ -163,7 +153,7 @@ endif()
 
 <span class="k">class</span> <span class="nc">HexOut</span> <span class="p">{</span>
 <span class="n">public</span><span class="p">:</span>
-  <span class="n">virtual</span> <span class="n">void</span> <span class="n">ProcessDisAsmInstruction</span><span class="p">(</span><span class="n">MCInst</span> <span class="n">inst</span><span class="p">,</span> <span class="n">uint64_t</span> <span class="n">Size</span><span class="p">,</span> 
+  <span class="n">virtual</span> <span class="n">void</span> <span class="n">ProcessDisAsmInstruction</span><span class="p">(</span><span class="n">uint64_t</span> <span class="n">Size</span><span class="p">,</span> 
                                 <span class="n">ArrayRef</span><span class="o">&lt;</span><span class="n">uint8_t</span><span class="o">&gt;</span> <span class="n">Bytes</span><span class="p">,</span> <span class="n">const</span> <span class="n">ObjectFile</span> <span class="o">*</span><span class="n">Obj</span><span class="p">)</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
   <span class="n">virtual</span> <span class="n">void</span> <span class="n">ProcessDataSection</span><span class="p">(</span><span class="n">SectionRef</span> <span class="n">Section</span><span class="p">)</span> <span class="p">{};</span>
   <span class="n">virtual</span> <span class="o">~</span><span class="n">HexOut</span><span class="p">()</span> <span class="p">{};</span>
@@ -173,10 +163,8 @@ endif()
 <span class="o">//</span> <span class="n">functions</span><span class="o">.</span>
 <span class="k">class</span> <span class="nc">VerilogHex</span> <span class="p">:</span> <span class="n">public</span> <span class="n">HexOut</span> <span class="p">{</span>
 <span class="n">public</span><span class="p">:</span>
-  <span class="n">VerilogHex</span><span class="p">(</span><span class="n">std</span><span class="p">::</span><span class="n">unique_ptr</span><span class="o">&lt;</span><span class="n">MCInstPrinter</span><span class="o">&gt;&amp;</span> <span class="n">instructionPointer</span><span class="p">,</span> 
-             <span class="n">std</span><span class="p">::</span><span class="n">unique_ptr</span><span class="o">&lt;</span><span class="n">const</span> <span class="n">MCSubtargetInfo</span><span class="o">&gt;&amp;</span> <span class="n">subTargetInfo</span><span class="p">,</span>
-             <span class="n">const</span> <span class="n">ObjectFile</span> <span class="o">*</span><span class="n">Obj</span><span class="p">);</span>
-  <span class="n">void</span> <span class="n">ProcessDisAsmInstruction</span><span class="p">(</span><span class="n">MCInst</span> <span class="n">inst</span><span class="p">,</span> <span class="n">uint64_t</span> <span class="n">Size</span><span class="p">,</span> 
+  <span class="n">VerilogHex</span><span class="p">(</span><span class="n">const</span> <span class="n">ObjectFile</span> <span class="o">*</span><span class="n">Obj</span><span class="p">);</span>
+  <span class="n">void</span> <span class="n">ProcessDisAsmInstruction</span><span class="p">(</span><span class="n">uint64_t</span> <span class="n">Size</span><span class="p">,</span> 
                                 <span class="n">ArrayRef</span><span class="o">&lt;</span><span class="n">uint8_t</span><span class="o">&gt;</span> <span class="n">Bytes</span><span class="p">,</span> <span class="n">const</span> <span class="n">ObjectFile</span> <span class="o">*</span><span class="n">Obj</span><span class="p">)</span> <span class="n">override</span><span class="p">;</span>
   <span class="n">void</span> <span class="n">ProcessDataSection</span><span class="p">(</span><span class="n">SectionRef</span> <span class="n">Section</span><span class="p">)</span> <span class="n">override</span><span class="p">;</span>
 
@@ -184,19 +172,16 @@ endif()
   <span class="n">void</span> <span class="n">PrintBootSection</span><span class="p">(</span><span class="n">uint64_t</span> <span class="n">textOffset</span><span class="p">,</span> <span class="n">uint64_t</span> <span class="n">isrAddr</span><span class="p">,</span> <span class="nb">bool</span> <span class="n">isLittleEndian</span><span class="p">);</span>
   <span class="n">void</span> <span class="n">Fill0s</span><span class="p">(</span><span class="n">uint64_t</span> <span class="n">startAddr</span><span class="p">,</span> <span class="n">uint64_t</span> <span class="n">endAddr</span><span class="p">);</span>
   <span class="n">void</span> <span class="n">PrintDataSection</span><span class="p">(</span><span class="n">SectionRef</span> <span class="n">Section</span><span class="p">);</span>
-  <span class="n">std</span><span class="p">::</span><span class="n">unique_ptr</span><span class="o">&lt;</span><span class="n">MCInstPrinter</span><span class="o">&gt;&amp;</span> <span class="n">IP</span><span class="p">;</span>
-  <span class="n">std</span><span class="p">::</span><span class="n">unique_ptr</span><span class="o">&lt;</span><span class="n">const</span> <span class="n">MCSubtargetInfo</span><span class="o">&gt;&amp;</span> <span class="n">STI</span><span class="p">;</span>
   <span class="n">uint64_t</span> <span class="n">lastDumpAddr</span><span class="p">;</span>
   <span class="n">unsigned</span> <span class="n">si</span><span class="p">;</span>
   <span class="n">StringRef</span> <span class="n">sectionName</span><span class="p">;</span>
+
+  <span class="n">DisAs</span> <span class="o">*</span><span class="n">Disas</span><span class="p">;</span>
 <span class="p">};</span>
 
 <span class="k">class</span> <span class="nc">Reader</span> <span class="p">{</span>
 <span class="n">public</span><span class="p">:</span>
-  <span class="n">void</span> <span class="n">DisassembleObject</span><span class="p">(</span><span class="n">const</span> <span class="n">ObjectFile</span> <span class="o">*</span><span class="n">Obj</span><span class="p">,</span> 
-                         <span class="n">std</span><span class="p">::</span><span class="n">unique_ptr</span><span class="o">&lt;</span><span class="n">MCDisassembler</span><span class="o">&gt;&amp;</span> <span class="n">DisAsm</span><span class="p">,</span> 
-                         <span class="n">std</span><span class="p">::</span><span class="n">unique_ptr</span><span class="o">&lt;</span><span class="n">MCInstPrinter</span><span class="o">&gt;&amp;</span> <span class="n">IP</span><span class="p">,</span> 
-                         <span class="n">std</span><span class="p">::</span><span class="n">unique_ptr</span><span class="o">&lt;</span><span class="n">const</span> <span class="n">MCSubtargetInfo</span><span class="o">&gt;&amp;</span> <span class="n">STI</span><span class="p">);</span>
+  <span class="n">void</span> <span class="n">DisassembleObject</span><span class="p">(</span><span class="n">const</span> <span class="n">ObjectFile</span> <span class="o">*</span><span class="n">Obj</span><span class="p">);</span> 
   <span class="n">StringRef</span> <span class="n">CurrentSymbol</span><span class="p">();</span>
   <span class="n">SectionRef</span> <span class="n">CurrentSection</span><span class="p">();</span>
   <span class="n">unsigned</span> <span class="n">CurrentSi</span><span class="p">();</span>
@@ -248,13 +233,12 @@ endif()
 #include &quot;llvm/MC/MCTargetOptions.h&quot;
 #include &quot;llvm/Object/MachO.h&quot;
 #include &quot;llvm/Support/InitLLVM.h&quot;
-#include &quot;llvm/Support/TargetRegistry.h&quot;
 #include &quot;llvm/Support/TargetSelect.h&quot;
 
 using namespace llvm;
 using namespace llvm::object;
 
-static StringRef ToolName;
+extern StringRef ToolName;
 static StringRef CurrInputFile;
 
 // copy from llvm-objdump.cpp
@@ -282,23 +266,6 @@ static cl::list&lt;std::string&gt; InputFilenames(cl::Positional,
                                             cl::cat(Elf2hexCat));
 std::string TripleName = &quot;&quot;;
                                             
-static const Target *getTarget(const ObjectFile *Obj) {
-  // Figure out the target triple.
-  Triple TheTriple(&quot;unknown-unknown-unknown&quot;);
-  TheTriple = Obj-&gt;makeTriple();
-
-  // Get the target specific parser.
-  std::string Error;
-  const Target *TheTarget = TargetRegistry::lookupTarget(&quot;&quot;, TheTriple,
-                                                         Error);
-  if (!TheTarget)
-    reportError(Obj-&gt;getFileName(), &quot;can&#39;t find target: &quot; + Error);
-
-  // Update the triple name and return the found target.
-  TripleName = TheTriple.getTriple();
-  return TheTarget;
-}
-
 bool isRelocAddressLess(RelocationRef A, RelocationRef B) {
   return A.getOffset() &lt; B.getOffset();
 }
@@ -393,13 +360,22 @@ uint64_t SectionOffset(const ObjectFile *o, StringRef secName) {
   return 0;
 }
 
+static const Triple getTriple(const ObjectFile *Obj) {
+  // Figure out the target triple.
+  static Triple TheTriple(&quot;unknown-unknown-unknown&quot;);
+  TheTriple = Obj-&gt;makeTriple();
+
+  return TheTriple;
+}
+
 using namespace llvm::elf2hex;
 
 Reader reader;
 
-VerilogHex::VerilogHex(std::unique_ptr&lt;MCInstPrinter&gt;&amp; instructionPointer, 
-  std::unique_ptr&lt;const MCSubtargetInfo&gt;&amp; subTargetInfo, const ObjectFile *Obj) :
-  IP(instructionPointer), STI(subTargetInfo) {
+VerilogHex::VerilogHex(const ObjectFile *Obj) {
+  const Triple TheTriple = getTriple(Obj);
+  this-&gt;Disas = new DisAs(TheTriple);
+
   lastDumpAddr = 0;
 #ifdef ELF2HEX_DEBUG
   //uint64_t startAddr = GetSectionHeaderStartAddress(Obj, &quot;_start&quot;);
@@ -484,7 +460,9 @@ void VerilogHex::Fill0s(uint64_t startAddr, uint64_t endAddr) {
   return;
 }
 
-void VerilogHex::ProcessDisAsmInstruction(MCInst inst, uint64_t Size, 
+// Print {/*memory-address*/, hex instruction, /* assembly instruction */}
+// e.g. /*   20840:*/   ff ff 70 0f/*   lui     $7, 65535*/
+void VerilogHex::ProcessDisAsmInstruction(uint64_t Size, 
                                 ArrayRef&lt;uint8_t&gt; Bytes, const ObjectFile *Obj) {
   SectionRef Section = reader.CurrentSection();
   StringRef Name;
@@ -531,11 +509,12 @@ void VerilogHex::ProcessDisAsmInstruction(MCInst inst, uint64_t Size,
   outs() &lt;&lt; &quot;\t&quot;;
   dumpBytes(Bytes.slice(Index, Size), outs());
 
-  outs() &lt;&lt; &quot;/*&quot;;
-  // print disassembly instruction to outs()
-  IP-&gt;printInst(&amp;inst, 0, &quot;&quot;, *STI, outs());
-  outs() &lt;&lt; &quot;*/&quot;;
-  outs() &lt;&lt; &quot;\n&quot;;
+  // Disassemble and print disassembly instruction to Asm
+  std::string Asm;
+  llvm::raw_string_ostream RSO(Asm);
+  Disas-&gt;disassemble(Bytes.slice(Index), RSO); 
+
+  outs() &lt;&lt; &quot;/* &quot; &lt;&lt; Asm &lt;&lt; &quot;*/\n&quot;;
 
   // In section .plt or .text, the Contents.size() maybe &lt; (SectionAddr + Index + 4)
   if (Contents.size() &lt; (SectionAddr + Index + 4))
@@ -573,6 +552,11 @@ void VerilogHex::ProcessDataSection(SectionRef Section) {
   }
 }
 
+// Print data section as the following form:
+// /*Contents of section :*/
+// /*   100d4 */6a 75 73 74  69 66 3a 20  22 25 31 30  73 22 0a 00 /*  justif: &quot;%10s&quot;..*/
+// /*   100e4 */68 65 78 20  25 30 32 78  20 3d 20 30  30 0a 00 74 /*  hex %02x = 00..t*/
+// ...
 void VerilogHex::PrintDataSection(SectionRef Section) {
   std::string Error;
   StringRef Name;
@@ -640,11 +624,8 @@ uint64_t Reader::CurrentIndex() {
 }
 
 // Porting from DisassembleObject() of llvm-objump.cpp
-void Reader::DisassembleObject(const ObjectFile *Obj
-/*, bool InlineRelocs*/  , std::unique_ptr&lt;MCDisassembler&gt;&amp; DisAsm, 
-  std::unique_ptr&lt;MCInstPrinter&gt;&amp; IP,
-  std::unique_ptr&lt;const MCSubtargetInfo&gt;&amp; STI) {
-  VerilogHex hexOut(IP, STI, Obj);
+void Reader::DisassembleObject(const ObjectFile *Obj) {
+  VerilogHex hexOut(Obj);
   std::error_code ec;
   for (const SectionRef &amp;Section : Obj-&gt;sections()) {
     _section = Section;
@@ -721,7 +702,7 @@ void Reader::DisassembleObject(const ObjectFile *Obj
     ArrayRef&lt;uint8_t&gt; Bytes(reinterpret_cast&lt;const uint8_t *&gt;(BytesStr.data()),
                             BytesStr.size());
 #endif
-    uint64_t Size;
+    const uint64_t Size = 4;
     SectSize = Section.getSize();
 
     // Disassemble symbol by symbol.
@@ -740,16 +721,10 @@ void Reader::DisassembleObject(const ObjectFile *Obj
         continue;
       }
 
+      // Now this section is &quot;.text&quot; section, so disassemble binary instructions
+      // into assembly instructions
       for (Index = Start; Index &lt; End; Index += Size) {
-        MCInst Inst;
-        if (DisAsm-&gt;getInstruction(Inst, Size, Bytes.slice(Index),
-                                   SectionAddr + Index, CommentStream)) {
-          hexOut.ProcessDisAsmInstruction(Inst, Size, Bytes, Obj);
-        } else {
-          errs() &lt;&lt; ToolName &lt;&lt; &quot;: warning: invalid instruction encoding\n&quot;;
-          if (Size == 0)
-            Size = 1; // skip illegible bytes
-        }
+        hexOut.ProcessDisAsmInstruction(Size, Bytes, Obj);
       } // for
     } // for
   }
@@ -757,54 +732,7 @@ void Reader::DisassembleObject(const ObjectFile *Obj
 
 // Porting from disassembleObject() of llvm-objump.cpp
 static void Elf2Hex(const ObjectFile *Obj) {
-
-  const Target *TheTarget = getTarget(Obj);
-
-  // Package up features to be passed to target/subtarget
-  SubtargetFeatures Features = Obj-&gt;getFeatures();
-
-  std::unique_ptr&lt;const MCRegisterInfo&gt; MRI(TheTarget-&gt;createMCRegInfo(TripleName));
-  if (!MRI)
-    report_fatal_error(&quot;error: no register info for target &quot; + TripleName);
-
-  // Set up disassembler.
-  MCTargetOptions MCOptions;
-  std::unique_ptr&lt;const MCAsmInfo&gt; AsmInfo(
-    TheTarget-&gt;createMCAsmInfo(*MRI, TripleName, MCOptions));
-  if (!AsmInfo)
-    report_fatal_error(&quot;error: no assembly info for target &quot; + TripleName);
-
-  std::unique_ptr&lt;const MCSubtargetInfo&gt; STI(
-    TheTarget-&gt;createMCSubtargetInfo(TripleName, &quot;&quot;, Features.getString()));
-  if (!STI)
-    report_fatal_error(&quot;error: no subtarget info for target &quot; + TripleName);
-
-  std::unique_ptr&lt;const MCInstrInfo&gt; MII(TheTarget-&gt;createMCInstrInfo());
-  if (!MII)
-    report_fatal_error(&quot;error: no instruction info for target &quot; + TripleName);
-
-  MCObjectFileInfo MOFI;
-  MCContext Ctx(AsmInfo.get(), MRI.get(), &amp;MOFI);
-  // FIXME: for now initialize MCObjectFileInfo with default values
-  MOFI.InitMCObjectFileInfo(Triple(TripleName), false, Ctx);
-
-  std::unique_ptr&lt;MCDisassembler&gt; DisAsm(
-    TheTarget-&gt;createMCDisassembler(*STI, Ctx));
-  if (!DisAsm)
-    report_fatal_error(&quot;error: no disassembler for target &quot; + TripleName);
-
-  std::unique_ptr&lt;const MCInstrAnalysis&gt; MIA(
-      TheTarget-&gt;createMCInstrAnalysis(MII.get()));
-
-  int AsmPrinterVariant = AsmInfo-&gt;getAssemblerDialect();
-  std::unique_ptr&lt;MCInstPrinter&gt; IP(TheTarget-&gt;createMCInstPrinter(
-      Triple(TripleName), AsmPrinterVariant, *AsmInfo, *MII, *MRI));
-  if (!IP)
-    report_fatal_error(&quot;error: no instruction printer for target &quot; +
-                       TripleName);
-
-  std::error_code EC;
-  reader.DisassembleObject(Obj, DisAsm, IP, STI);
+  reader.DisassembleObject(Obj);
 }
 
 static void DumpObject(const ObjectFile *o) {
@@ -833,24 +761,11 @@ static void DumpInput(StringRef file) {
 }
 
 int main(int argc, char **argv) {
-  // Print a stack trace if we signal out.
-  //sys::PrintStackTraceOnErrorSignal(argv[0]);
-  //PrettyStackTraceProgram X(argc, argv);
-  //llvm_shutdown_obj Y;  // Call llvm_shutdown() on exit.
-
   using namespace llvm;
   InitLLVM X(argc, argv);
 
-  // Initialize targets and assembly printers/parsers.
-  llvm::InitializeAllTargetInfos();
-  llvm::InitializeAllTargetMCs();
-  llvm::InitializeAllDisassemblers();
-
-  // Register the target printer for --version.
-  cl::AddExtraVersionPrinter(TargetRegistry::printRegisteredTargetsForVersion);
-
+  cl::HideUnrelatedOptions(Elf2hexCat);
   cl::ParseCommandLineOptions(argc, argv, &quot;llvm object file dumper\n&quot;);
-//  TripleName = Triple::normalize(TripleName);
 
   ToolName = argv[0];
 
@@ -864,6 +779,216 @@ int main(int argc, char **argv) {
   return EXIT_SUCCESS;
 }
 
+</pre></div>
+</div>
+<p class="rubric">exlbt/dishex/disas.h</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="c1">#ifndef LLVM_TOOLS_DISAS_DISAS_H</span>
+<span class="c1">#define LLVM_TOOLS_DISAS_DISAS_H</span>
+
+<span class="c1">#include &quot;llvm/DebugInfo/DIContext.h&quot;</span>
+<span class="c1">#include &quot;llvm/MC/MCDisassembler/MCDisassembler.h&quot;</span>
+<span class="c1">#include &quot;llvm/MC/MCInstPrinter.h&quot;</span>
+<span class="c1">#include &quot;llvm/Object/MachO.h&quot;</span>
+<span class="c1">#include &quot;llvm/Support/CommandLine.h&quot;</span>
+<span class="c1">#include &quot;llvm/Support/Compiler.h&quot;</span>
+<span class="c1">#include &quot;llvm/Support/DataTypes.h&quot;</span>
+<span class="c1">#include &quot;llvm/Object/Archive.h&quot;</span>
+<span class="c1">#include &quot;llvm/Support/raw_ostream.h&quot;</span>
+<span class="c1">#include &quot;llvm/Support/TargetRegistry.h&quot;</span>
+
+<span class="n">using</span> <span class="n">namespace</span> <span class="n">llvm</span><span class="p">;</span>
+
+<span class="n">using</span> <span class="n">namespace</span> <span class="n">llvm</span><span class="p">::</span><span class="nb">object</span><span class="p">;</span>
+
+<span class="k">class</span> <span class="nc">DisAs</span> <span class="p">{</span>
+<span class="n">public</span><span class="p">:</span>
+  <span class="n">DisAs</span><span class="p">(</span><span class="n">const</span> <span class="n">Triple</span> <span class="n">TheTriple</span><span class="p">);</span>
+  <span class="nb">bool</span> <span class="n">disassemble</span><span class="p">(</span><span class="n">const</span> <span class="n">ArrayRef</span><span class="o">&lt;</span><span class="n">uint8_t</span><span class="o">&gt;</span> <span class="n">Bytes</span><span class="p">,</span> <span class="n">llvm</span><span class="p">::</span><span class="n">raw_string_ostream</span> <span class="o">&amp;</span><span class="n">RSO</span><span class="p">)</span> <span class="n">const</span><span class="p">;</span>
+  <span class="nb">bool</span> <span class="n">getInstruction</span><span class="p">(</span><span class="n">const</span> <span class="n">ArrayRef</span><span class="o">&lt;</span><span class="n">uint8_t</span><span class="o">&gt;</span> <span class="n">Bytes</span><span class="p">,</span> <span class="n">MCInst</span> <span class="o">&amp;</span><span class="n">Inst</span><span class="p">)</span> <span class="n">const</span><span class="p">;</span>
+  <span class="n">const</span> <span class="n">Target</span> <span class="o">*</span><span class="n">getTarget</span><span class="p">(</span><span class="n">const</span> <span class="n">Triple</span> <span class="n">TheTriple</span><span class="p">)</span> <span class="n">const</span><span class="p">;</span>
+  <span class="n">void</span> <span class="n">reportError</span><span class="p">(</span><span class="n">const</span> <span class="n">Twine</span> <span class="o">&amp;</span><span class="n">Message</span><span class="p">)</span> <span class="n">const</span><span class="p">;</span>
+
+<span class="n">private</span><span class="p">:</span>
+  <span class="n">void</span> <span class="n">initLLVM</span><span class="p">();</span>
+  <span class="n">void</span> <span class="n">create</span><span class="p">(</span><span class="n">const</span> <span class="n">Triple</span> <span class="n">TheTriple</span><span class="p">);</span>
+  <span class="n">const</span> <span class="n">MCSubtargetInfo</span> <span class="o">*</span><span class="n">createSTI</span><span class="p">(</span><span class="n">const</span> <span class="n">Target</span> <span class="o">*</span><span class="n">TheTarget</span><span class="p">);</span>
+
+  <span class="n">std</span><span class="p">::</span><span class="n">unique_ptr</span><span class="o">&lt;</span><span class="n">MCDisassembler</span><span class="o">&gt;</span> <span class="n">DisAsm</span><span class="p">;</span>
+  <span class="n">std</span><span class="p">::</span><span class="n">unique_ptr</span><span class="o">&lt;</span><span class="n">MCInstPrinter</span><span class="o">&gt;</span> <span class="n">IP</span><span class="p">;</span>
+  <span class="n">const</span> <span class="n">MCSubtargetInfo</span> <span class="o">*</span><span class="n">STI</span><span class="p">;</span>
+
+  <span class="n">const</span> <span class="n">Target</span> <span class="o">*</span><span class="n">TheTarget</span><span class="p">;</span>
+  <span class="n">const</span> <span class="n">MCRegisterInfo</span> <span class="o">*</span><span class="n">MRI</span><span class="p">;</span>
+  <span class="n">const</span> <span class="n">MCAsmInfo</span> <span class="o">*</span><span class="n">AsmInfo</span><span class="p">;</span>
+  <span class="n">MCContext</span> <span class="o">*</span><span class="n">Ctx</span><span class="p">;</span>
+<span class="p">};</span>
+<span class="c1">#endif // LIVM_TOOLS_DISAS_DISAS_H</span>
+</pre></div>
+</div>
+<p class="rubric">exlbt/dishex/disas.cpp</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>#include &quot;disas.h&quot;
+
+#include &quot;llvm/MC/MCAsmInfo.h&quot;
+#include &quot;llvm/MC/MCContext.h&quot;
+#include &quot;llvm/MC/MCInst.h&quot;
+#include &quot;llvm/MC/MCInstrAnalysis.h&quot;
+#include &quot;llvm/MC/MCInstrInfo.h&quot;
+#include &quot;llvm/MC/MCObjectFileInfo.h&quot;
+#include &quot;llvm/MC/MCTargetOptions.h&quot;
+#include &quot;llvm/Object/MachO.h&quot;
+#include &quot;llvm/Support/InitLLVM.h&quot;
+#include &quot;llvm/Support/TargetSelect.h&quot;
+
+#include &lt;algorithm&gt;
+
+StringRef ToolName;
+static std::string TripleName = &quot;&quot;;
+static std::string MCPU = &quot;&quot;;
+
+void DisAs::reportError(const Twine &amp;Message) const {
+  outs().flush();
+  WithColor::error(errs(), ToolName) &lt;&lt; &quot;: &quot; &lt;&lt; Message &lt;&lt; &quot;\n&quot;;
+  exit(1);
+}
+
+// Initialize all targets, components and disassemblers.
+void DisAs::initLLVM() {
+  // Initialize targets and assembly printers/parsers.
+  llvm::InitializeAllTargetInfos();
+  llvm::InitializeAllTargetMCs();
+  llvm::InitializeAllDisassemblers();
+
+  // Register the target printer for --version.
+  cl::AddExtraVersionPrinter(TargetRegistry::printRegisteredTargetsForVersion);
+}
+
+// Outpu:
+//   TheTarget
+//   TripleName
+// Input:
+//   TheTriple
+const Target *DisAs::getTarget(const Triple TheTriple) const {
+  // Get the target specific parser.
+  Triple Triple2 = TheTriple;;
+  std:: string Error;
+  const Target *TheTarget = TargetRegistry::lookupTarget(&quot;&quot;, Triple2, Error);
+  if (!TheTarget)
+    reportError(&quot;Can&#39;t find target: &quot; + Error);
+
+  return TheTarget;
+}
+
+// Return/Output:
+//   STI
+// Input:
+//   TheTarget
+const MCSubtargetInfo *DisAs::createSTI(const Target *TheTarget) {
+  // Package up features to be passed to target/subtarget
+  SubtargetFeatures Features;
+  const MCSubtargetInfo *STI =
+      TheTarget-&gt;createMCSubtargetInfo(TripleName, MCPU, Features.getString());
+  if (!STI)
+    reportError(&quot;no subtarget info for target &quot; + TripleName);
+
+  return STI;
+}
+
+// Create MCDisassemble and MCInstPrinter for the &quot;disassembler task&quot;.
+// Output:
+//   DisAsm, IP(Instruction Printer)
+// Important! Remember that certain objects, such as Ctx, must exist outside
+// the scope of the `create()` function. Do not declare them as local variables
+// with `create()`, or they will be destroyed after the function exists.
+void DisAs::create(const Triple TheTriple) {
+  // Update the triple name and return the found target.
+  TripleName = TheTriple.getTriple();
+
+  TheTarget = getTarget(TheTriple);
+  MRI = TheTarget-&gt;createMCRegInfo(TripleName);
+  if (!MRI)
+    reportError(&quot;no register info for target &quot; + TripleName);
+
+  // Set up disassembler.
+  MCTargetOptions MCOptions;
+  AsmInfo = TheTarget-&gt;createMCAsmInfo(*MRI, TripleName, MCOptions);
+  if (!AsmInfo)
+    reportError(&quot;no assembly info for target &quot; + TripleName);
+
+  // Create member variable STI
+  STI = createSTI(TheTarget);
+
+  MCObjectFileInfo MOFI;
+  Ctx = new MCContext(AsmInfo, MRI, &amp;MOFI);
+  // FIXME: for now initialize MCObjectFileInfo with default value
+  MOFI.InitMCObjectFileInfo(Triple(TripleName), false, *Ctx);
+
+  // Create member variable DisAsm
+  std:: unique_ptr&lt;MCDisassembler&gt; DisAsm(
+     TheTarget-&gt;createMCDisassembler(*STI, *Ctx));
+  if (!DisAsm)
+    reportError(&quot;error: no disassembler for target &quot; + TripleName);
+  this-&gt;DisAsm = std::move(DisAsm);
+
+  int AsmPrinterVariant = AsmInfo-&gt;getAssemblerDialect();
+
+  const MCInstrInfo *MII = TheTarget-&gt;createMCInstrInfo();
+  if (!MII)
+    reportError(&quot;error: no instruction info for target &quot; + TripleName);
+
+  // Create member variable IP
+  std::unique_ptr&lt;MCInstPrinter&gt; IP(TheTarget-&gt;createMCInstPrinter(
+     Triple(TripleName), AsmPrinterVariant, *AsmInfo, *MII, *MRI));
+  if (!IP)
+    reportError(&quot;error: no instruction printer for target &quot; + TripleName);
+  this-&gt;IP = std::move(IP);
+}
+
+// Hex -&gt; MCInst
+//   Convert Hex string to MCInst
+// Output:
+//   Inst
+// Input:
+//   Hex
+bool DisAs::getInstruction(const ArrayRef&lt;uint8_t&gt; Bytes, MCInst &amp;Inst) const {
+#if 0
+  outs() &lt;&lt; &quot;Bytes size: &quot; &lt;&lt; Bytes.size() &lt;&lt; &quot;\n&quot;;
+  dumpBytes(Bytes, outs());
+  outs() &lt;&lt; &quot;\n&quot; ;
+#endif
+  uint64_t Size = 0;
+  SmallString&lt;40&gt; Comments;
+  raw_svector_ostream CommentStream(Comments);
+  bool Disassembled = DisAsm-&gt;getInstruction(Inst, Size, Bytes, 0, CommentStream);
+  if (!Disassembled) {
+    reportError(&quot;error: DisAsm-&gt;getInstruction&quot;);
+  } 
+
+  return Disassembled;
+}
+
+
+// Bin -&gt; MCInst
+//   Convert a Binary Instruction to MCInst.
+// Output:
+//   RSO
+// Input:
+//   Bytes   
+bool DisAs::disassemble(const ArrayRef&lt;uint8_t&gt; Bytes, llvm::raw_string_ostream &amp;RSO) const {
+  MCInst Inst;
+  bool Disassembled = getInstruction(Bytes, Inst);
+  if (Disassembled) {
+    IP-&gt;printInst(&amp;Inst, 0, &quot;&quot;, *STI, RSO);
+  }
+
+  return Disassembled;
+}
+
+// Initialize LLVM targets and components, and create both MCDisassembler
+// (DisAsm) and MCInstPrinter(IP) for the &quot;disassembler task&quot;.
+DisAs::DisAs(const Triple TheTriple) {
+  initLLVM();
+  create(TheTriple);
+}
 </pre></div>
 </div>
 <p>To support the commands <strong>llvm-objdump -d</strong> and <strong>llvm-objdump -t</strong> for Cpu0,
@@ -1835,20 +1960,29 @@ build_newlib() {
   popd
 }
 
-prologue() {
-  if [ $ARG_NUM == 0 ]; then
-    echo &quot;useage: bash $sh_name cpu_type ENDIAN&quot;
+checkCommand() {
+  echo &quot;ARG_NUM: $ARG_NUM&quot;
+  if [ $ARG_NUM != 3 ]; then
+    echo &quot;useage: bash make.sh cpu_type endian makefilename&quot;
     echo &quot;  cpu_type: cpu032I or cpu032II&quot;
-    echo &quot;  ENDIAN: be (big ENDIAN, default) or le (little ENDIAN)&quot;
+    echo &quot;  endian: be (big ENDIAN, default) or le (little ENDIAN)&quot;
+    echo &quot;  makefilename: e.g. Makefile.slinker&quot;
     echo &quot;for example:&quot;
-    echo &quot;  bash build-slinker.sh cpu032I eb&quot;
+    echo &quot;  make.sh cpu032I el Makefile.slinker&quot;
     exit 1;
   fi
   if [ $CPU != cpu032I ] &amp;&amp; [ $CPU != cpu032II ]; then
     echo &quot;1st argument is cpu032I or cpu032II&quot;
     exit 1
   fi
+  if [ ! -f &quot;$FILE&quot; ]; then
+    echo &quot;$FILE does not exists.&quot;
+    exit 0;
+  fi
 
+}
+
+prologue() {
   INCDIR=../../lbdex/input
   OS=`uname -s`
   echo &quot;OS =&quot; ${OS}
@@ -1901,11 +2035,7 @@ epilogue() {
 
 FILE=$3
 
-if [ ! -f &quot;$FILE&quot; ]; then
-  echo &quot;$FILE does not exists.&quot;
-  exit 0;
-fi
-
+checkCommand
 prologue;
 
 make -f $FILE CPU=${CPU} ENDIAN=${ENDIAN} LBDEX_DIR=${LBDEX_DIR} NEWLIB_DIR=${NEWLIB_DIR} clean

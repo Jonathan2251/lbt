@@ -63,6 +63,12 @@ The code to convert ELF file format into Hex format for Cpu0 as follows,
 .. rubric:: exlbt/elf2hex/elf2hex.cpp
 .. literalinclude:: ../exlbt/elf2hex/elf2hex.cpp
 
+.. rubric:: exlbt/dishex/disas.h
+.. literalinclude:: ../exlbt/dishex/disas.h
+
+.. rubric:: exlbt/dishex/disas.cpp
+.. literalinclude:: ../exlbt/dishex/disas.cpp
+
 To support the commands **llvm-objdump -d** and **llvm-objdump -t** for Cpu0, 
 the following code is added to llvm-objdump.cpp:
 
