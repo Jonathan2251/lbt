@@ -82,7 +82,7 @@ Create Cpu0 backend under LLD
 -----------------------------
 
 LLD introduction
-~~~~~~~~~~~~~~~~
+****************
 
 In general, the linker performs relocation record resolution as described in 
 the ELF support chapter. Some optimizations cannot be completed during the 
@@ -130,7 +130,7 @@ native linker (such as LLD) has the opportunity to perform dead code stripping,
 while the IR linker cannot.
 
 Static linker
-~~~~~~~~~~~~~
+*************
 
 Let's run the static linker first and explain it next.
 
@@ -332,7 +332,7 @@ The printed messages ``taskInterrupt(001)`` and ``taskInterrupt(011)`` are just
 trace messages from ``cpu0.v`` code.
 
 Dynamic linker
-~~~~~~~~~~~~~~
+**************
 
 The dynamic linker demonstration was removed from version 3.9.0 because its
 implementation with lld 3.9 was unclear and required extensive additions to
@@ -360,7 +360,7 @@ Summary
 --------
 
 Create a new backend based on LLVM
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+**********************************
 
 Thanks to the LLVM open source project, writing a linker and ELF-to-Hex tools
 for a new CPU architecture is both easy and reliable.
@@ -398,7 +398,7 @@ design.
 
 
 Contribute Back to Open Source Through Working and Learning
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+***********************************************************
 
 Finally, 10,000 lines of source code in the Cpu0 backend is very small for a UI
 program, but it is quite complex for system programming based on LLVM.  

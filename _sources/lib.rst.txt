@@ -453,7 +453,7 @@ The following quote is from Clang's documentation [#clang-builtin-comment]_:
 
 
 Verification
-~~~~~~~~~~~~
+************
 
 The following `sanitizer_printf.cpp`, extended from compiler-rt, supports
 `printf("%lld")`. Its implementation calls some floating-point library

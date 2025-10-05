@@ -211,7 +211,7 @@ Project
 --------
 
 LLVM-VPO
-~~~~~~~~~
+********
 
 Friend Gang-Ryung Uh replace LLC compiler by llvm on Very Portable Optimizer
 (VPO) compiler toolchain. VPO performs optimizations on a single intermediate

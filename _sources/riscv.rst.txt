@@ -539,22 +539,22 @@ Resources
 ---------
 
 FreeBSD
-~~~~~~~
+*******
 
 FreeBSD RISCV [#freebsd-platforms]_. FreeBSD [#freebsd]_.
 
 FreeRTOS
-~~~~~~~~
+********
 
 Code [#freertos-github-riscv]_ [#freertos-kernel]_. Documents [#freertos-riscv-doc1]_ [#freertos-pdf]_.
 
 Zephyr
-~~~~~~
+******
 
 RISCV Boards [#zephyr-riscv]_.
 
 Andes
-~~~~~
+*****
 
 Amazon-FreeRTOS [#andes-amazon-freertos]_, Xilinux has RISCV inside in MicroZed [#microzed]_ and vivado [#vivado-riscv]_. 
 

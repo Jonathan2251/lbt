@@ -27,7 +27,7 @@ Using Clang as a Library
 ------------------------
 
 Clang Plugins
-~~~~~~~~~~~~~
+*************
 
 Refer example code, clang/examples/PrintFunctionNames [clang-plugins]_ [clang-ast-fa]_.
 
@@ -49,7 +49,7 @@ respectively:
 
 
 Using LibTooling and LibASTMatchers
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+***********************************
 
 Refer to `clang-tools-extra/loop-convert` for examples and usage:
 [clang-lamt]_ and [clang-lam]_.
@@ -62,7 +62,7 @@ Using Clang as Tools
 --------------------
 
 clang-query
-~~~~~~~~~~~
+***********
 
 References: [#ASTMatchers]_, [#ASTMatchersRef]_, [#narrowing-matchers]_.
 

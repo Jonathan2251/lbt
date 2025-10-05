@@ -38,7 +38,11 @@ https://github.com/Jonathan2251/lbt/blob/master/README.md
 Revision history
 ----------------
 
-Version 12.0.18, not released yet.
+Version 12.0.19, not released yet.
+
+Version 12.0.18, Released October 4, 2026.
+
+  Fix symbols for reST section.
 
 Version 12.0.17, Released September 6, 2026.
 

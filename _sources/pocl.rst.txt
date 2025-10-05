@@ -35,7 +35,7 @@ Run OpenCL
 ----------
 
 MacOS
-+++++
+*****
 
 You can create the project ~/git/lbt/exlbt/opencl/opencl-saxpy/opencl-saxpy.xcodeproj by:
 
