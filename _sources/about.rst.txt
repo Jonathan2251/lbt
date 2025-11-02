@@ -38,7 +38,11 @@ https://github.com/Jonathan2251/lbt/blob/master/README.md
 Revision history
 ----------------
 
-Version 12.0.19, not released yet.
+Version 12.0.20, not released yet.
+
+Version 12.0.19, November 2, 2025.
+
+  pocl.rst: add section 'Why Is CUDA More Popular and Marketable Than OpenCL?'
 
 Version 12.0.18, Released October 4, 2026.
 

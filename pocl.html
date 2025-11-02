@@ -54,6 +54,7 @@
 <li><p><a class="reference internal" href="#riscv-opencl" id="id32">RISCV OpenCL</a></p></li>
 <li><p><a class="reference internal" href="#sycl" id="id33">SYCL</a></p></li>
 <li><p><a class="reference internal" href="#dpc" id="id34">DPC++</a></p></li>
+<li><p><a class="reference internal" href="#why-is-cuda-more-popular-and-marketable-than-opencl" id="id35">Why Is CUDA More Popular and Marketable Than OpenCL?</a></p></li>
 </ul>
 </nav>
 <figure class="align-default" id="id20">
@@ -203,6 +204,15 @@ the library requirements of the OpenCL C programming language <a class="footnote
 implementation, and as a portability layer. Thus, if your desired target has an
 LLVM backend, it should be able to get OpenCL support easily by using PoCL
 <a class="footnote-reference brackets" href="#pocl-web" id="id13" role="doc-noteref"><span class="fn-bracket">[</span>4<span class="fn-bracket">]</span></a>.</p>
+<ul class="simple">
+<li><p>PoCL is an open-source, CPU-focused OpenCL implementation.</p></li>
+<li><p>It supports:</p>
+<ul>
+<li><p>x86 CPUs (including AMD CPUs)</p></li>
+<li><p>Some experimental GPU backends</p></li>
+</ul>
+</li>
+</ul>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
 <p>OpenCL is a C-based language with the keyword <cite>__kernel</cite> and special
@@ -441,6 +451,112 @@ shown below:</p>
 <h2><a class="toc-backref" href="#id34" role="doc-backlink">DPC++</a><a class="headerlink" href="#dpc" title="Permalink to this heading">¶</a></h2>
 <p>Book <a class="footnote-reference brackets" href="#dpcpp-book" id="id18" role="doc-noteref"><span class="fn-bracket">[</span>17<span class="fn-bracket">]</span></a>.</p>
 <p class="rubric">exlbt/pocl/dpc++.txt</p>
+</section>
+<section id="why-is-cuda-more-popular-and-marketable-than-opencl">
+<h2><a class="toc-backref" href="#id35" role="doc-backlink">Why Is CUDA More Popular and Marketable Than OpenCL?</a><a class="headerlink" href="#why-is-cuda-more-popular-and-marketable-than-opencl" title="Permalink to this heading">¶</a></h2>
+<p><strong>CUDA vs OpenCL: Feature Comparison</strong></p>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>Feature</p></th>
+<th class="head"><p>CUDA (NVIDIA)</p></th>
+<th class="head"><p>OpenCL (Khronos Group)</p></th>
+<th class="head"><p>Market Impact</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>Language Model</p></td>
+<td><p>C++-like, high-level</p></td>
+<td><p>C-like, low-level</p></td>
+<td><p>✅ CUDA easier to adopt</p></td>
+</tr>
+<tr class="row-odd"><td><p>Hardware Integration</p></td>
+<td><p>NVIDIA-only, tightly coupled</p></td>
+<td><p>Multi-vendor, generic</p></td>
+<td><p>✅ CUDA better optimized</p></td>
+</tr>
+<tr class="row-even"><td><p>Ecosystem Libraries</p></td>
+<td><p>cuBLAS, cuDNN, TensorRT</p></td>
+<td><p>clBLAS, clDNN (less mature)</p></td>
+<td><p>✅ CUDA more complete</p></td>
+</tr>
+<tr class="row-odd"><td><p>Tooling &amp; Profiling</p></td>
+<td><p>Nsight suite</p></td>
+<td><p>Varies by vendor</p></td>
+<td><p>✅ CUDA more developer-friendly</p></td>
+</tr>
+<tr class="row-even"><td><p>Framework Support</p></td>
+<td><p>PyTorch, TensorFlow, JAX</p></td>
+<td><p>Limited, indirect support</p></td>
+<td><p>✅ CUDA deeply integrated</p></td>
+</tr>
+<tr class="row-odd"><td><p>Portability</p></td>
+<td><p>NVIDIA-only</p></td>
+<td><p>Cross-platform</p></td>
+<td><p>❌ OpenCL more portable</p></td>
+</tr>
+<tr class="row-even"><td><p>Performance Consistency</p></td>
+<td><p>High (on NVIDIA GPUs)</p></td>
+<td><p>Variable across vendors</p></td>
+<td><p>✅ CUDA more predictable</p></td>
+</tr>
+</tbody>
+</table>
+<ul class="simple">
+<li><p>CUDA supports <strong>full C++</strong> on the device while OpenCL uses <strong>C</strong> in the device side.</p></li>
+<li><p><strong>CUDA “AI-first”; OpenCL general computation with less momentum in deep learning.</strong></p></li>
+<li><p><strong>iPhone vs Android</strong> situation mirrors CUDA vs OpenCL in many ways.</p></li>
+</ul>
+<p>Legend:</p>
+<blockquote>
+<div><p>✅ = Advantage
+❌ = Trade-off</p>
+</div></blockquote>
+<p>CUDA, despite being proprietary, has become the dominant GPU compute platform,
+far surpassing OpenCL in popularity, performance, and ecosystem integration.
+This success is rooted in strategic design choices, developer engagement, and
+tight hardware-software co-design.</p>
+<ol class="arabic simple">
+<li><p>Early Developer Adoption</p></li>
+</ol>
+<p>CUDA was introduced by NVIDIA in 2006, years before OpenCL gained traction. It
+provided a dedicated, well-documented, and performant programming model for
+GPU compute, attracting researchers, HPC developers, and AI practitioners early
+on.</p>
+<ol class="arabic simple" start="2">
+<li><p>Unified Hardware-Software Stack</p></li>
+</ol>
+<p>CUDA is tightly coupled with NVIDIA’s GPU architectures. Each CUDA release is
+optimized for specific hardware generations (e.g., Volta, Ampere, Hopper),
+ensuring maximum performance.
+OpenCL, by contrast, must support multiple vendors and devices, often leading
+to inconsistent performance and fragmented tooling.</p>
+<ol class="arabic simple" start="3">
+<li><p>Rich Ecosystem and Tooling</p></li>
+</ol>
+<p>NVIDIA built a comprehensive ecosystem around CUDA, including:</p>
+<ul class="simple">
+<li><p>cuBLAS, cuDNN, and TensorRT for optimized libraries</p></li>
+<li><p>Nsight Systems and Nsight Compute for profiling and debugging</p></li>
+<li><p>Deep integration with PyTorch, TensorFlow, and JAX</p></li>
+</ul>
+<p>OpenCL lacks such a unified stack, and its vendor-specific implementations vary
+widely in quality.</p>
+<ol class="arabic simple" start="4">
+<li><p>Developer Experience</p></li>
+</ol>
+<p>CUDA offers a clean, C++-like syntax with powerful abstractions for memory
+management, kernel launches, and parallelism.
+Its documentation, tutorials, and community support are extensive.
+OpenCL, while flexible, is lower-level and more verbose, making it harder to
+learn and maintain.</p>
+<ol class="arabic simple" start="5">
+<li><p>Market Perception and Branding</p></li>
+</ol>
+<p>NVIDIA has positioned <strong>CUDA</strong> as the backbone of modern AI and HPC.
+Its branding as an <strong>“AI-first” company</strong> has made CUDA synonymous with
+cutting-edge innovation.
+<strong>OpenCL</strong>, governed by the Khronos Group, is seen as a <strong>generic standard with
+less momentum in deep learning</strong> and commercial applications.</p>
 <aside class="footnote brackets" id="ocl-impl" role="note">
 <span class="label"><span class="fn-bracket">[</span><a role="doc-backlink" href="#id1">1</a><span class="fn-bracket">]</span></span>
 <p><a class="reference external" href="https://www.iwocl.org/resources/opencl-implementations/">https://www.iwocl.org/resources/opencl-implementations/</a></p>
