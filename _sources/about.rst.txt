@@ -40,6 +40,10 @@ Revision history
 
 Version 12.0.20, not released yet.
 
+Version 12.0.19.1, March 14, 2026.
+
+  lib.rst: refine section 'The theory of Floating Point Implementation'
+
 Version 12.0.19, November 2, 2025.
 
   pocl.rst: add section 'Why Is CUDA More Popular and Marketable Than OpenCL?'

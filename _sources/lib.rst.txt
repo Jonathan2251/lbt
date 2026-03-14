@@ -10,6 +10,9 @@ Library
 The theory of Floating Point Implementation
 -------------------------------------------
 
+Fixed Point Represention
+************************
+
 Fixed-point representation is used to implement floating-point numbers,  
 as illustrated in :numref:`fixed-point`. The calculation is described  
 below.
@@ -21,10 +24,30 @@ below.
 
   Fixed point representation
 
-Assume Sign part: 1-bit (0:+, 1:-), Integer part: 2-bit, Fraction part: 2-bit.
+Assume Sign part: 1-bit (0 is +, 1 is -), Integer part: 2-bit, Fraction part: 2-bit.
 
-- `3.0 * 0.5 = {0 11 00} * {0 00 10} = {(0 xor 0) (11 00 * 00 10) >> 2} =` 
-  `{0 01 10} = 1.5`
+.. list-table:: Fixed Point Representation.
+  :widths: 8 10 17
+  :header-rows: 1
+
+  * - value
+    - sign
+    - integer+fraction
+  * - :math:`3.0`
+    - :math:`0`
+    - :math:`11 00`
+  * - :math:`0.05`
+    - :math:`0`
+    - :math:`00 10`
+  * - :math:`3.0 \, \mathsf{x} \, 0.05`
+    - :math:`0 \oplus 0 = 0`
+    - :math:`1100 \, \mathsf x \, 0010 >> 2 = 0010`
+
+The :math:`0 01 10` for fixed-point is :math:`1.5`.
+
+
+IEEE Floating Point Respresenation
+**********************************
 
 The layout for half-precision floating-point format is shown in  
 :numref:`floating-point-half`.
@@ -41,49 +64,145 @@ IEEE-754 floating standard also consider NaN (Not a Number) such as 0/0 and
 
 Floating-point arithmetic can be implemented in both software and hardware.
 
-The 16-bit product `a * b` can be computed by first converting both `a` and `b` 
+The 16-bit product :math:`a \mathsf x b` can be computed by first converting 
+both `a` and `b` 
 to fixed-point format using more bits of memory or registers. After performing the 
 multiplication as fixed-point arithmetic, the result is converted back, as 
 described on this website [#fp-calc]_.
 
-An example of multiplication using exponent base 2 is given below:
+✅ An example of multiplication :math:`a \, \mathsf{x} \, b` using exponent 
+base 2 is given below:
 
 - Precondition: `a` and `b` are normalized IEEE half-precision (16-bit) floating 
   point values [#ieee754-half]_.
-  The exponent bias is 15. For example: 15 -> 0, 1 -> -14, 30 -> 15, and 31 -> NaN.
+  The exponent bias is 0b01111 = 15. 
+  As result, the value 15 in exponent field means :math:`2^0`.
+  List some of the exponent field values as follows: 
 
-- Transformation for `a * b`:
+.. math::
 
-  1. `{sign-bit(a) xor sign-bit(b)} {exponent(a) + exponent(b) - 15}` 
-     `{significand(a) * significand(b) >> 10}`
+    15 \rightarrow 2^0, 
+
+    1 \rightarrow 2^{14},
+
+    30 \rightarrow 2^{15},
+
+    31 \rightarrow NaN.
+
+- Transformation for :math:`a \, \mathsf{x} \, b`:
+
+  1. Calculation:
+
+     .. list-table:: :math:`a \, \mathsf{x} \, b`
+       :widths: 5 10 18 20
+       :header-rows: 1
+
+       * - variable
+         - sign
+         - exponent
+         - significand
+       * - :math:`a \, \mathsf{x} \, b`
+         - :math:`sign(a) \oplus sign(b)`
+         - :math:`exponent(a) + exponent(b) - 15`
+         - :math:`significand(a)\, \mathsf{x} \,significand(b) >> 10`
+
+     - :math:`exponent(a) + exponent(b) - 15` since exponent bias of 5-bit = 01111 = 15.
+     - :math:`significand(a) * significand(b) >> 10` since signicand is 10 bits.
+    
   2. Normalize the result.
 
 - Example:
 
-  a = 0.01 (binary) = `{0 01110 1000000000}`  
-  b = 1.1 (binary) = `{0 10000 1100000000}`
+  .. list-table:: :math:`a \, \mathsf{x} \, b`
+    :widths: 5 8 8 18 25
+    :header-rows: 1
 
-  1. `a * b` = `{0 xor 0} {01110 + 10000 - 01111 = 01111}` 
-     `{1000000000 * 1100000000 >> 10 = 0110000000}`
-  2. Normalize: `{0 01111 0110000000}` → `{0 01110 1100000000}` = 0.011
+    * - variable
+      - binary value
+      - sign
+      - exponent
+      - significand
+    * - :math:`a`
+      - :math:`0.01`
+      - :math:`0`
+      - :math:`01110`
+      - :math:`1000000000`
+    * - :math:`b`
+      - :math:`1.1`
+      - :math:`0`
+      - :math:`10000`
+      - :math:`1100000000`
+    * - :math:`a \, \mathsf{x} \, b`
+      - :math:`0.01 \, \mathsf{x} \, 1.1`
+      - :math:`0 \oplus 0 = 0`
+      - :math:`01110 + 10000 - 01111 = 01111`
+      - :math:`1000000000\, \mathsf{x} \, 1100000000 >> 10 = 0110000000`
 
-Division is handled similarly:
+After normalization, :math:`0 01111 0110000000` becomes:
+
+.. math::
+   
+   0\, 01110\, 1100000000 = 0.011
+
+
+✅ Division is handled similarly:
 
 - Transformation for `a / b`:
 
-  1. `{sign-bit(a) xor sign-bit(b)}` 
-     `{exponent(a) - exponent(b) + 15}` 
-     `{significand(a) / significand(b) >> 10}`
+  1. Calculation:
+
+     .. list-table:: :math:`a / b`
+       :widths: 5 10 18 20
+       :header-rows: 1
+
+       * - variable
+         - sign
+         - exponent
+         - significand
+       * - :math:`a / b`
+         - :math:`sign(a) \oplus sign(b)`
+         - :math:`exponent(a) - exponent(b) + 15`
+         - :math:`(significand(a) << 10) / significand(b)`
+
   2. Normalize the result.
 
 - Example:
 
-  a = 0.01 (binary) = `{0 01110 1000000000}`  
-  b = 1 (binary) = `{0 10000 1000000000}`
+  .. math::
 
-  1. `a / b` = `{0 xor 0} {01110 - 10000 + 01111 = 01101}` 
-     `{1000000000 / 1000000000 << 9 = 1000000000}`
-  2. Normalize: `{0 01101 0000000001}` → `{0 01101 1000000000}` = 0.01
+     sign: 0, exponent: 10001, fraction: 1000000000
+
+  .. list-table:: :math:`a / b`
+    :widths: 5 8 8 18 25
+    :header-rows: 1
+
+    * - variable
+      - binary value
+      - sign
+      - exponent
+      - significand
+    * - :math:`a`
+      - :math:`0.01`
+      - :math:`0`
+      - :math:`01110`
+      - :math:`1000000000`
+    * - :math:`b`
+      - :math:`10.0`
+      - :math:`0`
+      - :math:`10001`
+      - :math:`1000000000`
+    * - :math:`a / b`
+      - :math:`0.01 / 10.0`
+      - :math:`0 \oplus 0 = 0`
+      - :math:`01110 - 10001 + 01111 = 01100`
+      - :math:`(1000000000 << 10) / 1000000000 = 100000000 0`
+
+After normalization, :math:`0 01100 1000000000 0` becomes:
+
+.. math::
+   
+   0\, 01101\, 1000000000 = 0.001
+
 
 The IEEE-754 floating-point standard also includes special cases such as NaN
 (Not a Number), which can result from operations like 0/0, and `\infty`, as 
@@ -103,15 +222,82 @@ instructions to speed up the normalization process.
 The `compiler-rt` library implements floating-point multiplication by handling 
 special cases like NaN and :math:`\infty` in the same way as described in the 
 implementation above. It also uses `clz` and `clo` instructions to accelerate 
-normalization, as shown below:
+normalization.
+
+.. rubric:: ~/llvm/debug/compiler-rt/lib/builtins/int_type.h
+.. code-block:: c++
+
+  #if UINT_MAX == 0xFFFFFFFF
+  #define clzsi __builtin_clz
+  #define ctzsi __builtin_ctz
+  #elif ULONG_MAX == 0xFFFFFFFF
+  #define clzsi __builtin_clzl
+  #define ctzsi __builtin_ctzl
+  #else
+  #error could not determine appropriate clzsi macro for this system
+  #endif
 
 .. rubric:: ~/llvm/debug/compiler-rt/lib/builtins/fp_lib.h
 .. code-block:: c++
 
-  #if defined SINGLE_PRECISION
+  #if defined(SINGLE_PRECISION)
+  ...
+  #define significandBits 23 
+  ..
+  #define implicitBit (REP_C(1) << significandBits)
+  ...
+  static __inline int rep_clz(rep_t a) { return clzsi(a); }
+  ...
   static __inline int rep_clz(rep_t a) { return __builtin_clz(a); }
   ...
+  #elif defined(DOUBLE_PRECISION)
+  ...
+  #define significandBits 52
+  ...
+  static inline int rep_clz(rep_t a) {
+  #if defined __LP64__
+      return __builtin_clzl(a);
+  #else
+      if (a & REP_C(0xffffffff00000000))
+          return __builtin_clz(a >> 32);
+      else     
+          return 32 + __builtin_clz(a & REP_C(0xffffffff));
+  #endif  
+  ...
+  #elif defined(QUAD_PRECISION)
+  ...
+  // Note: Since there is no explicit way to tell compiler the constant is a
+  // 128-bit integer, we let the constant be casted to 128-bit integer
+  #define significandBits 112
+  ...
+  #define implicitBit     (REP_C(1) << significandBits)
+  ...
+  static inline int rep_clz(rep_t a) {
+      const union
+          {
+               __uint128_t ll;
+  #if _YUGA_BIG_ENDIAN
+               struct { uint64_t high, low; } s;
+  #else
+               struct { uint64_t low, high; } s;
   #endif
+          } uu = { .ll = a };
+
+      uint64_t word;
+      uint64_t add;
+
+      if (uu.s.high){
+          word = uu.s.high;
+          add = 0;
+      }   
+      else{
+          word = uu.s.low;
+          add = 64;
+      }
+      return __builtin_clzll(word) + add;
+  }   
+  ...
+  #endif // __LDBL_MANT_DIG__ == 113
   ...
   static __inline rep_t toRep(fp_t x) {
     const union {
@@ -127,6 +313,35 @@ normalization, as shown below:
     return 1 - shift;
   }
 
+.. figure:: ../Fig/lib/floating-point-single.png
+  :scale: 50 %
+  :align: center
+
+  IEEE 754 single precision of Floating point representation [#ieee754-single]_
+
+The following implementation for 32-bit float multiplication of a*b uses the
+algorithm introduced above and proceeds as follows:
+
+1. Normalize a and b.
+
+2. Computation:
+
+  .. list-table:: :math:`a \, \mathsf{x} \, b`
+    :widths: 5 10 18 20
+    :header-rows: 1
+
+    * - variable
+      - sign
+      - exponent
+      - significand
+    * - :math:`a \, \mathsf{x} \, b`
+      - :math:`sign(a) \oplus sign(b)`
+      - :math:`exponent(a) + exponent(b) - 127`
+      - :math:`significand(a)\, \mathsf{x} \,significand(b) >> 23`
+
+3. Normalize the result.
+
+
 .. rubric:: ~/llvm/debug/compiler-rt/lib/builtins/fp_mul_impl.inc
 .. code-block:: c++
 
@@ -136,8 +351,28 @@ normalization, as shown below:
     const unsigned int aExponent = toRep(a) >> significandBits & maxExponent;
     const unsigned int bExponent = toRep(b) >> significandBits & maxExponent;
     ...
-    int productExponent = aExponent + bExponent - exponentBias + scale;
+
+    // Detect if a or b is zero, denormal, infinity, or NaN. 
+    if (aExponent - 1U >= maxExponent - 1U ||
+        bExponent - 1U >= maxExponent - 1U) {
+      ....
+      // One or both of a or b is denormal.  The other (if applicable) is a
+      // normal number.  Renormalize one or both of a and b, and set scale to
+      // include the necessary exponent adjustment.
+      if (aAbs < implicitBit)
+        scale += normalize(&aSignificand);
+      if (bAbs < implicitBit)
+        scale += normalize(&bSignificand);
+    }
     ...
+
+    // exponentBias is 127 for 32-bit single precision.
+    // scale is 0 when both a and b are normal form.
+    int productExponent = aExponent + bExponent - exponentBias + scale;
+
+    // Normalize the significand and adjust the exponent if needed.
+    ...
+      // For 32-bit float, productExponent << 23 since exponent is bit(1..23)
       productHi |= (rep_t)productExponent << significandBits;
     ...
     return fromRep(productHi);
@@ -688,6 +923,8 @@ Run the tests as follows,
 .. [#fp-calc] https://witscad.com/course/computer-architecture/chapter/floating-point-arithmetic
 
 .. [#ieee754-half] https://en.wikipedia.org/wiki/Half-precision_floating-point_format
+
+.. [#ieee754-single] https://en.wikipedia.org/wiki/Single-precision_floating-point_format
 
 .. [#newlib] https://sourceware.org/newlib/
 

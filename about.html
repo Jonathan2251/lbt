@@ -1,20 +1,17 @@
-
 <!DOCTYPE html>
 
-<html lang="en">
+<html lang="en" data-content_root="./">
   <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
     <title>About &#8212; Tutorial: Creating an LLVM Toolchain for the Cpu0 Architecture</title>
-    <link rel="stylesheet" type="text/css" href="_static/pygments.css" />
-    <link rel="stylesheet" type="text/css" href="_static/haiku.css" />
-    <link rel="stylesheet" type="text/css" href="_static/graphviz.css" />
-    <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
-    <script src="_static/jquery.js"></script>
-    <script src="_static/underscore.js"></script>
-    <script src="_static/_sphinx_javascript_frameworks_compat.js"></script>
-    <script src="_static/doctools.js"></script>
+    <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=03e43079" />
+    <link rel="stylesheet" type="text/css" href="_static/haiku.css?v=fce32b03" />
+    <link rel="stylesheet" type="text/css" href="_static/graphviz.css?v=4ae1632d" />
+    <script src="_static/documentation_options.js?v=bb34c2f5"></script>
+    <script src="_static/doctools.js?v=fd6eb6e6"></script>
+    <script src="_static/sphinx_highlight.js?v=6ffebe34"></script>
     <link rel="author" title="About these documents" href="#" />
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
@@ -25,7 +22,7 @@
           <span>Tutorial: Creating an LLVM Toolchain for the Cpu0 Architecture</span></a></h1>
         <h2 class="heading"><span>About</span></h2>
       </div>
-      <div class="topnav" role="navigation" aria-label="top navigation">
+      <div class="topnav" role="navigation" aria-label="Top">
       
         <p>
         «&#160;&#160;<a href="index.html">Table of Contents</a>
@@ -40,7 +37,7 @@
         
         
   <section id="about">
-<span id="sec-about"></span><h1>About<a class="headerlink" href="#about" title="Permalink to this heading">¶</a></h1>
+<span id="sec-about"></span><h1>About<a class="headerlink" href="#about" title="Link to this heading">¶</a></h1>
 <nav class="contents local" id="contents">
 <ul class="simple">
 <li><p><a class="reference internal" href="#authors" id="id10">Authors</a></p></li>
@@ -52,26 +49,30 @@
 </ul>
 </nav>
 <section id="authors">
-<h2><a class="toc-backref" href="#id10" role="doc-backlink">Authors</a><a class="headerlink" href="#authors" title="Permalink to this heading">¶</a></h2>
+<h2><a class="toc-backref" href="#id10" role="doc-backlink">Authors</a><a class="headerlink" href="#authors" title="Link to this heading">¶</a></h2>
 <img alt="_images/Author_ChineseName.png" class="align-right" src="_images/Author_ChineseName.png" />
 <p>Chen Chung-Shu</p>
 <p><a class="reference external" href="mailto:gamma_chen&#37;&#52;&#48;yahoo&#46;com&#46;tw">gamma_chen<span>&#64;</span>yahoo<span>&#46;</span>com<span>&#46;</span>tw</a></p>
 <p><a class="reference external" href="http://jonathan2251.github.io/web/index.html">http://jonathan2251.github.io/web/index.html</a></p>
 </section>
 <section id="acknowledgments">
-<h2><a class="toc-backref" href="#id11" role="doc-backlink">Acknowledgments</a><a class="headerlink" href="#acknowledgments" title="Permalink to this heading">¶</a></h2>
+<h2><a class="toc-backref" href="#id11" role="doc-backlink">Acknowledgments</a><a class="headerlink" href="#acknowledgments" title="Link to this heading">¶</a></h2>
 <p>I would like to thank Sean Silva, <a class="reference external" href="mailto:chisophugis&#37;&#52;&#48;gmail&#46;com">chisophugis<span>&#64;</span>gmail<span>&#46;</span>com</a>, for his help,
 encouragement, and assistance with the Sphinx document generator.
 Without his help, this book would not have been finished and published online.
 Also thanking those corrections from readers who make the book more accurate.</p>
 </section>
 <section id="build-steps">
-<h2><a class="toc-backref" href="#id12" role="doc-backlink">Build steps</a><a class="headerlink" href="#build-steps" title="Permalink to this heading">¶</a></h2>
+<h2><a class="toc-backref" href="#id12" role="doc-backlink">Build steps</a><a class="headerlink" href="#build-steps" title="Link to this heading">¶</a></h2>
 <p><a class="reference external" href="https://github.com/Jonathan2251/lbt/blob/master/README.md">https://github.com/Jonathan2251/lbt/blob/master/README.md</a></p>
 </section>
 <section id="revision-history">
-<h2><a class="toc-backref" href="#id13" role="doc-backlink">Revision history</a><a class="headerlink" href="#revision-history" title="Permalink to this heading">¶</a></h2>
+<h2><a class="toc-backref" href="#id13" role="doc-backlink">Revision history</a><a class="headerlink" href="#revision-history" title="Link to this heading">¶</a></h2>
 <p>Version 12.0.20, not released yet.</p>
+<p>Version 12.0.19.1, March 14, 2026.</p>
+<blockquote>
+<div><p>lib.rst: refine section ‘The theory of Floating Point Implementation’</p>
+</div></blockquote>
 <p>Version 12.0.19, November 2, 2025.</p>
 <blockquote>
 <div><p>pocl.rst: add section ‘Why Is CUDA More Popular and Marketable Than OpenCL?’</p>
@@ -213,15 +214,16 @@ Remove warning in build Cpu0 code.</p>
 </dl>
 </section>
 <section id="licensing">
-<h2><a class="toc-backref" href="#id14" role="doc-backlink">Licensing</a><a class="headerlink" href="#licensing" title="Permalink to this heading">¶</a></h2>
+<h2><a class="toc-backref" href="#id14" role="doc-backlink">Licensing</a><a class="headerlink" href="#licensing" title="Link to this heading">¶</a></h2>
 <p><a class="reference external" href="http://llvm.org/docs/DeveloperPolicy.html#license">http://llvm.org/docs/DeveloperPolicy.html#license</a></p>
 </section>
 <section id="outline-of-chapters">
-<h2><a class="toc-backref" href="#id15" role="doc-backlink">Outline of Chapters</a><a class="headerlink" href="#outline-of-chapters" title="Permalink to this heading">¶</a></h2>
+<h2><a class="toc-backref" href="#id15" role="doc-backlink">Outline of Chapters</a><a class="headerlink" href="#outline-of-chapters" title="Link to this heading">¶</a></h2>
 <figure class="align-center" id="id8">
-<span id="about-f1"></span><a class="reference internal image-reference" href="_images/mywork_1.png"><img alt="_images/mywork_1.png" src="_images/mywork_1.png" style="width: 1194.0px; height: 411.0px;" /></a>
+<span id="about-f1"></span><a class="reference internal image-reference" href="_images/mywork_1.png"><img alt="_images/mywork_1.png" height="411" src="_images/mywork_1.png" width="1194" />
+</a>
 <figcaption>
-<p><span class="caption-number">Fig. 2 </span><span class="caption-text">Code generation and execution flow</span><a class="headerlink" href="#id8" title="Permalink to this image">¶</a></p>
+<p><span class="caption-number">Fig. 2 </span><span class="caption-text">Code generation and execution flow</span><a class="headerlink" href="#id8" title="Link to this image">¶</a></p>
 </figcaption>
 </figure>
 <p>The upper half of <a class="reference internal" href="#about-f1"><span class="std std-numref">Fig. 2</span></a> is the work flow and software package
@@ -234,7 +236,7 @@ part.
 The Cpu0 llvm backend can be find on
 <a class="reference external" href="http://jonathan2251.github.io/lbd/index.html">http://jonathan2251.github.io/lbd/index.html</a>.</p>
 <table class="docutils align-default" id="id9">
-<caption><span class="caption-number">Table 1 </span><span class="caption-text">Toolchain components <a class="footnote-reference brackets" href="#toolchain" id="id1" role="doc-noteref"><span class="fn-bracket">[</span>2<span class="fn-bracket">]</span></a> <a class="footnote-reference brackets" href="#toolchain2" id="id2" role="doc-noteref"><span class="fn-bracket">[</span>3<span class="fn-bracket">]</span></a></span><a class="headerlink" href="#id9" title="Permalink to this table">¶</a></caption>
+<caption><span class="caption-number">Table 1 </span><span class="caption-text">Toolchain components <a class="footnote-reference brackets" href="#toolchain" id="id1" role="doc-noteref"><span class="fn-bracket">[</span>2<span class="fn-bracket">]</span></a> <a class="footnote-reference brackets" href="#toolchain2" id="id2" role="doc-noteref"><span class="fn-bracket">[</span>3<span class="fn-bracket">]</span></a></span><a class="headerlink" href="#id9" title="Link to this table">¶</a></caption>
 <thead>
 <tr class="row-odd"><th class="head"><p>Component</p></th>
 <th class="head"><p>LLVM</p></th>
@@ -300,37 +302,39 @@ computer.</p>
 <p>Backend independent optimaization.</p>
 <p><a class="reference internal" href="lib.html#sec-lib"><span class="std std-ref">Library</span></a>:</p>
 <p>Software floating point library and standard C library supporting.</p>
-<aside class="footnote brackets" id="gnu" role="note">
+<aside class="footnote-list brackets">
+<aside class="footnote brackets" id="gnu" role="doc-footnote">
 <span class="label"><span class="fn-bracket">[</span><a role="doc-backlink" href="#id3">1</a><span class="fn-bracket">]</span></span>
 <p><a class="reference external" href="https://en.wikipedia.org/wiki/GNU_Compiler_Collection#cite_note-55">https://en.wikipedia.org/wiki/GNU_Compiler_Collection#cite_note-55</a></p>
 </aside>
-<aside class="footnote brackets" id="toolchain" role="note">
+<aside class="footnote brackets" id="toolchain" role="doc-footnote">
 <span class="label"><span class="fn-bracket">[</span><a role="doc-backlink" href="#id1">2</a><span class="fn-bracket">]</span></span>
 <p>page 8 - 9 of  <a class="reference external" href="https://archive.fosdem.org/2018/schedule/event/crosscompile/attachments/slides/2107/export/events/attachments/crosscompile/slides/2107/How_to_cross_compile_with_LLVM_based_tools.pdf">https://archive.fosdem.org/2018/schedule/event/crosscompile/attachments/slides/2107/export/events/attachments/crosscompile/slides/2107/How_to_cross_compile_with_LLVM_based_tools.pdf</a></p>
 </aside>
-<aside class="footnote brackets" id="toolchain2" role="note">
+<aside class="footnote brackets" id="toolchain2" role="doc-footnote">
 <span class="label"><span class="fn-bracket">[</span><a role="doc-backlink" href="#id2">3</a><span class="fn-bracket">]</span></span>
 <p><a class="reference external" href="https://bcain-llvm.readthedocs.io/projects/clang/en/latest/Toolchain/#compiler-runtime">https://bcain-llvm.readthedocs.io/projects/clang/en/latest/Toolchain/#compiler-runtime</a></p>
 </aside>
-<aside class="footnote brackets" id="libgcc" role="note">
+<aside class="footnote brackets" id="libgcc" role="doc-footnote">
 <span class="label"><span class="fn-bracket">[</span>4<span class="fn-bracket">]</span></span>
 <span class="backrefs">(<a role="doc-backlink" href="#id4">1</a>,<a role="doc-backlink" href="#id5">2</a>)</span>
 <p><a class="reference external" href="https://gcc.gnu.org/onlinedocs/gccint/Libgcc.html">https://gcc.gnu.org/onlinedocs/gccint/Libgcc.html</a></p>
 </aside>
-<aside class="footnote brackets" id="integer-lib" role="note">
+<aside class="footnote brackets" id="integer-lib" role="doc-footnote">
 <span class="label"><span class="fn-bracket">[</span><a role="doc-backlink" href="#id6">5</a><span class="fn-bracket">]</span></span>
 <p><a class="reference external" href="https://gcc.gnu.org/onlinedocs/gccint/Integer-library-routines.html#Integer-library-routines">https://gcc.gnu.org/onlinedocs/gccint/Integer-library-routines.html#Integer-library-routines</a></p>
 </aside>
-<aside class="footnote brackets" id="soft-float-lib" role="note">
+<aside class="footnote brackets" id="soft-float-lib" role="doc-footnote">
 <span class="label"><span class="fn-bracket">[</span><a role="doc-backlink" href="#id7">6</a><span class="fn-bracket">]</span></span>
 <p><a class="reference external" href="https://gcc.gnu.org/onlinedocs/gccint/Soft-float-library-routines.html#Soft-float-library-routines">https://gcc.gnu.org/onlinedocs/gccint/Soft-float-library-routines.html#Soft-float-library-routines</a></p>
+</aside>
 </aside>
 </section>
 </section>
 
 
       </div>
-      <div class="bottomnav" role="navigation" aria-label="bottom navigation">
+      <div class="bottomnav" role="navigation" aria-label="Bottom">
       
         <p>
         «&#160;&#160;<a href="index.html">Table of Contents</a>
@@ -343,8 +347,8 @@ computer.</p>
       </div>
 
     <div class="footer" role="contentinfo">
-        &#169; Copyright 2016, Chen Chung-Shu.
-      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 5.0.2.
+    &#169; Copyright 2016, Chen Chung-Shu.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 9.1.0.
     </div>
   </body>
 </html>

@@ -446,15 +446,7 @@ did not expect.
 
 .. [#lld-install] http://lld.llvm.org/getting_started.html#on-unix-like-systems
 
-.. [#llvm-download] http://llvm.org/releases/download.html#3.5
-
 .. [#effectiveC++] http://www.cplusplus.com/reference/memory/unique_ptr/
-
-.. [#get] http://www.cplusplus.com/reference/memory/unique_ptr/get/
-
-.. [#move] http://www.cplusplus.com/reference/utility/move/
-
-.. [#pic-call-stub] Page 5-12 of http://www.linux-mips.org/pub/linux/mips/doc/ABI/mipsabi.pdf
 
 .. [#printf-stdarg] https://github.com/atgreen/FreeRTOS/blob/master/Demo/CORTEX_STM32F103_Primer_GCC/printf-stdarg.c
 

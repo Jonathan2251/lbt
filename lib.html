@@ -1,21 +1,18 @@
-
 <!DOCTYPE html>
 
-<html lang="en">
+<html lang="en" data-content_root="./">
   <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
     <title>Library &#8212; Tutorial: Creating an LLVM Toolchain for the Cpu0 Architecture</title>
-    <link rel="stylesheet" type="text/css" href="_static/pygments.css" />
-    <link rel="stylesheet" type="text/css" href="_static/haiku.css" />
-    <link rel="stylesheet" type="text/css" href="_static/graphviz.css" />
-    <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
-    <script src="_static/jquery.js"></script>
-    <script src="_static/underscore.js"></script>
-    <script src="_static/_sphinx_javascript_frameworks_compat.js"></script>
-    <script src="_static/doctools.js"></script>
-    <script async="async" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=03e43079" />
+    <link rel="stylesheet" type="text/css" href="_static/haiku.css?v=fce32b03" />
+    <link rel="stylesheet" type="text/css" href="_static/graphviz.css?v=4ae1632d" />
+    <script src="_static/documentation_options.js?v=bb34c2f5"></script>
+    <script src="_static/doctools.js?v=fd6eb6e6"></script>
+    <script src="_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@4/tex-mml-chtml.js"></script>
     <link rel="author" title="About these documents" href="about.html" />
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
@@ -26,7 +23,7 @@
           <span>Tutorial: Creating an LLVM Toolchain for the Cpu0 Architecture</span></a></h1>
         <h2 class="heading"><span>Library</span></h2>
       </div>
-      <div class="topnav" role="navigation" aria-label="top navigation">
+      <div class="topnav" role="navigation" aria-label="Top">
       
         <p>
         «&#160;&#160;<a href="opt.html">Optimization</a>
@@ -41,99 +38,264 @@
         
         
   <section id="library">
-<span id="sec-lib"></span><h1>Library<a class="headerlink" href="#library" title="Permalink to this heading">¶</a></h1>
+<span id="sec-lib"></span><h1>Library<a class="headerlink" href="#library" title="Link to this heading">¶</a></h1>
 <nav class="contents local" id="contents">
 <ul class="simple">
-<li><p><a class="reference internal" href="#the-theory-of-floating-point-implementation" id="id34">The theory of Floating Point Implementation</a></p></li>
-<li><p><a class="reference internal" href="#the-dependence-for-cpu0-based-on-compiler-rt-s-builtins" id="id35">The dependence for Cpu0 based on Compiler-rt’s builtins</a></p></li>
-<li><p><a class="reference internal" href="#c-library-newlib" id="id36">C Library (Newlib)</a></p></li>
-<li><p><a class="reference internal" href="#compiler-rt-s-builtins" id="id37">Compiler-rt’s builtins</a></p>
+<li><p><a class="reference internal" href="#the-theory-of-floating-point-implementation" id="id42">The theory of Floating Point Implementation</a></p>
 <ul>
-<li><p><a class="reference internal" href="#verification" id="id38">Verification</a></p></li>
+<li><p><a class="reference internal" href="#fixed-point-represention" id="id43">Fixed Point Represention</a></p></li>
+<li><p><a class="reference internal" href="#ieee-floating-point-respresenation" id="id44">IEEE Floating Point Respresenation</a></p></li>
+</ul>
+</li>
+<li><p><a class="reference internal" href="#the-dependence-for-cpu0-based-on-compiler-rt-s-builtins" id="id45">The dependence for Cpu0 based on Compiler-rt’s builtins</a></p></li>
+<li><p><a class="reference internal" href="#c-library-newlib" id="id46">C Library (Newlib)</a></p></li>
+<li><p><a class="reference internal" href="#compiler-rt-s-builtins" id="id47">Compiler-rt’s builtins</a></p>
+<ul>
+<li><p><a class="reference internal" href="#verification" id="id48">Verification</a></p></li>
 </ul>
 </li>
 </ul>
 </nav>
 <section id="the-theory-of-floating-point-implementation">
-<h2><a class="toc-backref" href="#id34" role="doc-backlink">The theory of Floating Point Implementation</a><a class="headerlink" href="#the-theory-of-floating-point-implementation" title="Permalink to this heading">¶</a></h2>
+<h2><a class="toc-backref" href="#id42" role="doc-backlink">The theory of Floating Point Implementation</a><a class="headerlink" href="#the-theory-of-floating-point-implementation" title="Link to this heading">¶</a></h2>
+<section id="fixed-point-represention">
+<h3><a class="toc-backref" href="#id43" role="doc-backlink">Fixed Point Represention</a><a class="headerlink" href="#fixed-point-represention" title="Link to this heading">¶</a></h3>
 <p>Fixed-point representation is used to implement floating-point numbers,
 as illustrated in <a class="reference internal" href="#fixed-point"><span class="std std-numref">Fig. 6</span></a>. The calculation is described
 below.</p>
-<figure class="align-center" id="id24">
-<span id="fixed-point"></span><a class="reference internal image-reference" href="_images/fixed-point.png"><img alt="_images/fixed-point.png" src="_images/fixed-point.png" style="width: 379.0px; height: 81.0px;" /></a>
+<figure class="align-center" id="id25">
+<span id="fixed-point"></span><a class="reference internal image-reference" href="_images/fixed-point.png"><img alt="_images/fixed-point.png" height="81" src="_images/fixed-point.png" width="379" />
+</a>
 <figcaption>
-<p><span class="caption-number">Fig. 6 </span><span class="caption-text">Fixed point representation</span><a class="headerlink" href="#id24" title="Permalink to this image">¶</a></p>
+<p><span class="caption-number">Fig. 6 </span><span class="caption-text">Fixed point representation</span><a class="headerlink" href="#id25" title="Link to this image">¶</a></p>
 </figcaption>
 </figure>
-<p>Assume Sign part: 1-bit (0:+, 1:-), Integer part: 2-bit, Fraction part: 2-bit.</p>
-<ul class="simple">
-<li><p><cite>3.0 * 0.5 = {0 11 00} * {0 00 10} = {(0 xor 0) (11 00 * 00 10) &gt;&gt; 2} =</cite>
-<cite>{0 01 10} = 1.5</cite></p></li>
-</ul>
+<p>Assume Sign part: 1-bit (0 is +, 1 is -), Integer part: 2-bit, Fraction part: 2-bit.</p>
+<table class="docutils align-default" id="id26">
+<caption><span class="caption-number">Table 2 </span><span class="caption-text">Fixed Point Representation.</span><a class="headerlink" href="#id26" title="Link to this table">¶</a></caption>
+<colgroup>
+<col style="width: 22.9%" />
+<col style="width: 28.6%" />
+<col style="width: 48.6%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>value</p></th>
+<th class="head"><p>sign</p></th>
+<th class="head"><p>integer+fraction</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><span class="math notranslate nohighlight">\(3.0\)</span></p></td>
+<td><p><span class="math notranslate nohighlight">\(0\)</span></p></td>
+<td><p><span class="math notranslate nohighlight">\(11 00\)</span></p></td>
+</tr>
+<tr class="row-odd"><td><p><span class="math notranslate nohighlight">\(0.05\)</span></p></td>
+<td><p><span class="math notranslate nohighlight">\(0\)</span></p></td>
+<td><p><span class="math notranslate nohighlight">\(00 10\)</span></p></td>
+</tr>
+<tr class="row-even"><td><p><span class="math notranslate nohighlight">\(3.0 \, \mathsf{x} \, 0.05\)</span></p></td>
+<td><p><span class="math notranslate nohighlight">\(0 \oplus 0 = 0\)</span></p></td>
+<td><p><span class="math notranslate nohighlight">\(1100 \, \mathsf x \, 0010 &gt;&gt; 2 = 0010\)</span></p></td>
+</tr>
+</tbody>
+</table>
+<p>The <span class="math notranslate nohighlight">\(0 01 10\)</span> for fixed-point is <span class="math notranslate nohighlight">\(1.5\)</span>.</p>
+</section>
+<section id="ieee-floating-point-respresenation">
+<h3><a class="toc-backref" href="#id44" role="doc-backlink">IEEE Floating Point Respresenation</a><a class="headerlink" href="#ieee-floating-point-respresenation" title="Link to this heading">¶</a></h3>
 <p>The layout for half-precision floating-point format is shown in
 <a class="reference internal" href="#floating-point-half"><span class="std std-numref">Fig. 7</span></a>.</p>
-<figure class="align-center" id="id25">
-<span id="floating-point-half"></span><a class="reference internal image-reference" href="_images/floating-point-half.png"><img alt="_images/floating-point-half.png" src="_images/floating-point-half.png" style="width: 191.0px; height: 103.0px;" /></a>
+<figure class="align-center" id="id27">
+<span id="floating-point-half"></span><a class="reference internal image-reference" href="_images/floating-point-half.png"><img alt="_images/floating-point-half.png" height="103" src="_images/floating-point-half.png" width="191" />
+</a>
 <figcaption>
-<p><span class="caption-number">Fig. 7 </span><span class="caption-text">IEEE 754 half precision of Floating point representation <a class="footnote-reference brackets" href="#ieee754-half" id="id1" role="doc-noteref"><span class="fn-bracket">[</span>2<span class="fn-bracket">]</span></a></span><a class="headerlink" href="#id25" title="Permalink to this image">¶</a></p>
+<p><span class="caption-number">Fig. 7 </span><span class="caption-text">IEEE 754 half precision of Floating point representation <a class="footnote-reference brackets" href="#ieee754-half" id="id1" role="doc-noteref"><span class="fn-bracket">[</span>2<span class="fn-bracket">]</span></a></span><a class="headerlink" href="#id27" title="Link to this image">¶</a></p>
 </figcaption>
 </figure>
 <p>IEEE-754 floating standard also consider NaN (Not a Number) such as 0/0 and
 <span class="math notranslate nohighlight">\(\infty\)</span> as <a class="reference internal" href="#exp-enc"><span class="std std-numref">Fig. 8</span></a>.</p>
 <p>Floating-point arithmetic can be implemented in both software and hardware.</p>
-<p>The 16-bit product <cite>a * b</cite> can be computed by first converting both <cite>a</cite> and <cite>b</cite>
+<p>The 16-bit product <span class="math notranslate nohighlight">\(a \mathsf x b\)</span> can be computed by first converting
+both <cite>a</cite> and <cite>b</cite>
 to fixed-point format using more bits of memory or registers. After performing the
 multiplication as fixed-point arithmetic, the result is converted back, as
 described on this website <a class="footnote-reference brackets" href="#fp-calc" id="id2" role="doc-noteref"><span class="fn-bracket">[</span>1<span class="fn-bracket">]</span></a>.</p>
-<p>An example of multiplication using exponent base 2 is given below:</p>
-<ul>
+<p>✅ An example of multiplication <span class="math notranslate nohighlight">\(a \, \mathsf{x} \, b\)</span> using exponent
+base 2 is given below:</p>
+<ul class="simple">
 <li><p>Precondition: <cite>a</cite> and <cite>b</cite> are normalized IEEE half-precision (16-bit) floating
 point values <a class="footnote-reference brackets" href="#ieee754-half" id="id3" role="doc-noteref"><span class="fn-bracket">[</span>2<span class="fn-bracket">]</span></a>.
-The exponent bias is 15. For example: 15 -&gt; 0, 1 -&gt; -14, 30 -&gt; 15, and 31 -&gt; NaN.</p></li>
-<li><p>Transformation for <cite>a * b</cite>:</p>
-<ol class="arabic simple">
-<li><p><cite>{sign-bit(a) xor sign-bit(b)} {exponent(a) + exponent(b) - 15}</cite>
-<cite>{significand(a) * significand(b) &gt;&gt; 10}</cite></p></li>
+The exponent bias is 0b01111 = 15.
+As result, the value 15 in exponent field means <span class="math notranslate nohighlight">\(2^0\)</span>.
+List some of the exponent field values as follows:</p></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[ \begin{align}\begin{aligned}15 \rightarrow 2^0,\\1 \rightarrow 2^{14},\\30 \rightarrow 2^{15},\\31 \rightarrow NaN.\end{aligned}\end{align} \]</div>
+<ul>
+<li><p>Transformation for <span class="math notranslate nohighlight">\(a \, \mathsf{x} \, b\)</span>:</p>
+<ol class="arabic">
+<li><p>Calculation:</p>
+<table class="docutils align-default" id="id28">
+<caption><span class="caption-number">Table 3 </span><span class="caption-text"><span class="math notranslate nohighlight">\(a \, \mathsf{x} \, b\)</span></span><a class="headerlink" href="#id28" title="Link to this table">¶</a></caption>
+<colgroup>
+<col style="width: 9.4%" />
+<col style="width: 18.9%" />
+<col style="width: 34.0%" />
+<col style="width: 37.7%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>variable</p></th>
+<th class="head"><p>sign</p></th>
+<th class="head"><p>exponent</p></th>
+<th class="head"><p>significand</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><span class="math notranslate nohighlight">\(a \, \mathsf{x} \, b\)</span></p></td>
+<td><p><span class="math notranslate nohighlight">\(sign(a) \oplus sign(b)\)</span></p></td>
+<td><p><span class="math notranslate nohighlight">\(exponent(a) + exponent(b) - 15\)</span></p></td>
+<td><p><span class="math notranslate nohighlight">\(significand(a)\, \mathsf{x} \,significand(b) &gt;&gt; 10\)</span></p></td>
+</tr>
+</tbody>
+</table>
+<ul class="simple">
+<li><p><span class="math notranslate nohighlight">\(exponent(a) + exponent(b) - 15\)</span> since exponent bias of 5-bit = 01111 = 15.</p></li>
+<li><p><span class="math notranslate nohighlight">\(significand(a) * significand(b) &gt;&gt; 10\)</span> since signicand is 10 bits.</p></li>
+</ul>
+</li>
 <li><p>Normalize the result.</p></li>
 </ol>
 </li>
 <li><p>Example:</p>
-<p>a = 0.01 (binary) = <cite>{0 01110 1000000000}</cite>
-b = 1.1 (binary) = <cite>{0 10000 1100000000}</cite></p>
-<ol class="arabic simple">
-<li><p><cite>a * b</cite> = <cite>{0 xor 0} {01110 + 10000 - 01111 = 01111}</cite>
-<cite>{1000000000 * 1100000000 &gt;&gt; 10 = 0110000000}</cite></p></li>
-<li><p>Normalize: <cite>{0 01111 0110000000}</cite> → <cite>{0 01110 1100000000}</cite> = 0.011</p></li>
-</ol>
+<table class="docutils align-default" id="id29">
+<caption><span class="caption-number">Table 4 </span><span class="caption-text"><span class="math notranslate nohighlight">\(a \, \mathsf{x} \, b\)</span></span><a class="headerlink" href="#id29" title="Link to this table">¶</a></caption>
+<colgroup>
+<col style="width: 7.8%" />
+<col style="width: 12.5%" />
+<col style="width: 12.5%" />
+<col style="width: 28.1%" />
+<col style="width: 39.1%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>variable</p></th>
+<th class="head"><p>binary value</p></th>
+<th class="head"><p>sign</p></th>
+<th class="head"><p>exponent</p></th>
+<th class="head"><p>significand</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><span class="math notranslate nohighlight">\(a\)</span></p></td>
+<td><p><span class="math notranslate nohighlight">\(0.01\)</span></p></td>
+<td><p><span class="math notranslate nohighlight">\(0\)</span></p></td>
+<td><p><span class="math notranslate nohighlight">\(01110\)</span></p></td>
+<td><p><span class="math notranslate nohighlight">\(1000000000\)</span></p></td>
+</tr>
+<tr class="row-odd"><td><p><span class="math notranslate nohighlight">\(b\)</span></p></td>
+<td><p><span class="math notranslate nohighlight">\(1.1\)</span></p></td>
+<td><p><span class="math notranslate nohighlight">\(0\)</span></p></td>
+<td><p><span class="math notranslate nohighlight">\(10000\)</span></p></td>
+<td><p><span class="math notranslate nohighlight">\(1100000000\)</span></p></td>
+</tr>
+<tr class="row-even"><td><p><span class="math notranslate nohighlight">\(a \, \mathsf{x} \, b\)</span></p></td>
+<td><p><span class="math notranslate nohighlight">\(0.01 \, \mathsf{x} \, 1.1\)</span></p></td>
+<td><p><span class="math notranslate nohighlight">\(0 \oplus 0 = 0\)</span></p></td>
+<td><p><span class="math notranslate nohighlight">\(01110 + 10000 - 01111 = 01111\)</span></p></td>
+<td><p><span class="math notranslate nohighlight">\(1000000000\, \mathsf{x} \, 1100000000 &gt;&gt; 10 = 0110000000\)</span></p></td>
+</tr>
+</tbody>
+</table>
 </li>
 </ul>
-<p>Division is handled similarly:</p>
+<p>After normalization, <span class="math notranslate nohighlight">\(0 01111 0110000000\)</span> becomes:</p>
+<div class="math notranslate nohighlight">
+\[0\, 01110\, 1100000000 = 0.011\]</div>
+<p>✅ Division is handled similarly:</p>
 <ul>
 <li><p>Transformation for <cite>a / b</cite>:</p>
-<ol class="arabic simple">
-<li><p><cite>{sign-bit(a) xor sign-bit(b)}</cite>
-<cite>{exponent(a) - exponent(b) + 15}</cite>
-<cite>{significand(a) / significand(b) &gt;&gt; 10}</cite></p></li>
+<ol class="arabic">
+<li><p>Calculation:</p>
+<table class="docutils align-default" id="id30">
+<caption><span class="caption-number">Table 5 </span><span class="caption-text"><span class="math notranslate nohighlight">\(a / b\)</span></span><a class="headerlink" href="#id30" title="Link to this table">¶</a></caption>
+<colgroup>
+<col style="width: 9.4%" />
+<col style="width: 18.9%" />
+<col style="width: 34.0%" />
+<col style="width: 37.7%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>variable</p></th>
+<th class="head"><p>sign</p></th>
+<th class="head"><p>exponent</p></th>
+<th class="head"><p>significand</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><span class="math notranslate nohighlight">\(a / b\)</span></p></td>
+<td><p><span class="math notranslate nohighlight">\(sign(a) \oplus sign(b)\)</span></p></td>
+<td><p><span class="math notranslate nohighlight">\(exponent(a) - exponent(b) + 15\)</span></p></td>
+<td><p><span class="math notranslate nohighlight">\((significand(a) &lt;&lt; 10) / significand(b)\)</span></p></td>
+</tr>
+</tbody>
+</table>
+</li>
 <li><p>Normalize the result.</p></li>
 </ol>
 </li>
 <li><p>Example:</p>
-<p>a = 0.01 (binary) = <cite>{0 01110 1000000000}</cite>
-b = 1 (binary) = <cite>{0 10000 1000000000}</cite></p>
-<ol class="arabic simple">
-<li><p><cite>a / b</cite> = <cite>{0 xor 0} {01110 - 10000 + 01111 = 01101}</cite>
-<cite>{1000000000 / 1000000000 &lt;&lt; 9 = 1000000000}</cite></p></li>
-<li><p>Normalize: <cite>{0 01101 0000000001}</cite> → <cite>{0 01101 1000000000}</cite> = 0.01</p></li>
-</ol>
+<div class="math notranslate nohighlight">
+\[sign: 0, exponent: 10001, fraction: 1000000000\]</div>
+<table class="docutils align-default" id="id31">
+<caption><span class="caption-number">Table 6 </span><span class="caption-text"><span class="math notranslate nohighlight">\(a / b\)</span></span><a class="headerlink" href="#id31" title="Link to this table">¶</a></caption>
+<colgroup>
+<col style="width: 7.8%" />
+<col style="width: 12.5%" />
+<col style="width: 12.5%" />
+<col style="width: 28.1%" />
+<col style="width: 39.1%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>variable</p></th>
+<th class="head"><p>binary value</p></th>
+<th class="head"><p>sign</p></th>
+<th class="head"><p>exponent</p></th>
+<th class="head"><p>significand</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><span class="math notranslate nohighlight">\(a\)</span></p></td>
+<td><p><span class="math notranslate nohighlight">\(0.01\)</span></p></td>
+<td><p><span class="math notranslate nohighlight">\(0\)</span></p></td>
+<td><p><span class="math notranslate nohighlight">\(01110\)</span></p></td>
+<td><p><span class="math notranslate nohighlight">\(1000000000\)</span></p></td>
+</tr>
+<tr class="row-odd"><td><p><span class="math notranslate nohighlight">\(b\)</span></p></td>
+<td><p><span class="math notranslate nohighlight">\(10.0\)</span></p></td>
+<td><p><span class="math notranslate nohighlight">\(0\)</span></p></td>
+<td><p><span class="math notranslate nohighlight">\(10001\)</span></p></td>
+<td><p><span class="math notranslate nohighlight">\(1000000000\)</span></p></td>
+</tr>
+<tr class="row-even"><td><p><span class="math notranslate nohighlight">\(a / b\)</span></p></td>
+<td><p><span class="math notranslate nohighlight">\(0.01 / 10.0\)</span></p></td>
+<td><p><span class="math notranslate nohighlight">\(0 \oplus 0 = 0\)</span></p></td>
+<td><p><span class="math notranslate nohighlight">\(01110 - 10001 + 01111 = 01100\)</span></p></td>
+<td><p><span class="math notranslate nohighlight">\((1000000000 &lt;&lt; 10) / 1000000000 = 100000000 0\)</span></p></td>
+</tr>
+</tbody>
+</table>
 </li>
 </ul>
+<p>After normalization, <span class="math notranslate nohighlight">\(0 01100 1000000000 0\)</span> becomes:</p>
+<div class="math notranslate nohighlight">
+\[0\, 01101\, 1000000000 = 0.001\]</div>
 <p>The IEEE-754 floating-point standard also includes special cases such as NaN
 (Not a Number), which can result from operations like 0/0, and <cite>infty</cite>, as
 illustrated in <a class="reference internal" href="#exp-enc"><span class="std std-numref">Fig. 8</span></a>.</p>
-<figure class="align-center" id="id26">
-<span id="exp-enc"></span><a class="reference internal image-reference" href="_images/exp-enc.png"><img alt="_images/exp-enc.png" src="_images/exp-enc.png" style="width: 694.0px; height: 127.0px;" /></a>
+<figure class="align-center" id="id32">
+<span id="exp-enc"></span><a class="reference internal image-reference" href="_images/exp-enc.png"><img alt="_images/exp-enc.png" height="127" src="_images/exp-enc.png" width="694" />
+</a>
 <figcaption>
-<p><span class="caption-number">Fig. 8 </span><span class="caption-text">Encoding of exponent for IEEE 754 half precision <a class="footnote-reference brackets" href="#ieee754-half" id="id4" role="doc-noteref"><span class="fn-bracket">[</span>2<span class="fn-bracket">]</span></a></span><a class="headerlink" href="#id26" title="Permalink to this image">¶</a></p>
+<p><span class="caption-number">Fig. 8 </span><span class="caption-text">Encoding of exponent for IEEE 754 half precision <a class="footnote-reference brackets" href="#ieee754-half" id="id4" role="doc-noteref"><span class="fn-bracket">[</span>2<span class="fn-bracket">]</span></a></span><a class="headerlink" href="#id32" title="Link to this image">¶</a></p>
 </figcaption>
 </figure>
 <p>Since normalization in floating-point arithmetic is a critical operation, the
@@ -142,54 +304,182 @@ instructions to speed up the normalization process.</p>
 <p>The <cite>compiler-rt</cite> library implements floating-point multiplication by handling
 special cases like NaN and <span class="math notranslate nohighlight">\(\infty\)</span> in the same way as described in the
 implementation above. It also uses <cite>clz</cite> and <cite>clo</cite> instructions to accelerate
-normalization, as shown below:</p>
-<p class="rubric">~/llvm/debug/compiler-rt/lib/builtins/fp_lib.h</p>
-<div class="highlight-c++ notranslate"><div class="highlight"><pre><span></span><span class="cp">#if defined SINGLE_PRECISION</span>
-<span class="k">static</span><span class="w"> </span><span class="kr">__inline</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="nf">rep_clz</span><span class="p">(</span><span class="n">rep_t</span><span class="w"> </span><span class="n">a</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="k">return</span><span class="w"> </span><span class="n">__builtin_clz</span><span class="p">(</span><span class="n">a</span><span class="p">);</span><span class="w"> </span><span class="p">}</span><span class="w"></span>
-<span class="p">...</span><span class="w"></span>
+normalization.</p>
+<p class="rubric">~/llvm/debug/compiler-rt/lib/builtins/int_type.h</p>
+<div class="highlight-c++ notranslate"><div class="highlight"><pre><span></span><span class="cp">#if UINT_MAX == 0xFFFFFFFF</span>
+<span class="cp">#define clzsi __builtin_clz</span>
+<span class="cp">#define ctzsi __builtin_ctz</span>
+<span class="cp">#elif ULONG_MAX == 0xFFFFFFFF</span>
+<span class="cp">#define clzsi __builtin_clzl</span>
+<span class="cp">#define ctzsi __builtin_ctzl</span>
+<span class="cp">#else</span>
+<span class="cp">#error could not determine appropriate clzsi macro for this system</span>
 <span class="cp">#endif</span>
-<span class="p">...</span><span class="w"></span>
-<span class="k">static</span><span class="w"> </span><span class="kr">__inline</span><span class="w"> </span><span class="n">rep_t</span><span class="w"> </span><span class="n">toRep</span><span class="p">(</span><span class="n">fp_t</span><span class="w"> </span><span class="n">x</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
-<span class="w">  </span><span class="k">const</span><span class="w"> </span><span class="k">union</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
-<span class="w">    </span><span class="n">fp_t</span><span class="w"> </span><span class="n">f</span><span class="p">;</span><span class="w"></span>
-<span class="w">    </span><span class="n">rep_t</span><span class="w"> </span><span class="n">i</span><span class="p">;</span><span class="w"></span>
-<span class="w">  </span><span class="p">}</span><span class="w"> </span><span class="n">rep</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{.</span><span class="n">f</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">x</span><span class="p">};</span><span class="w"></span>
-<span class="w">  </span><span class="k">return</span><span class="w"> </span><span class="n">rep</span><span class="p">.</span><span class="n">i</span><span class="p">;</span><span class="w"></span>
-<span class="p">}</span><span class="w"></span>
-<span class="p">...</span><span class="w"></span>
-<span class="k">static</span><span class="w"> </span><span class="kr">__inline</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">normalize</span><span class="p">(</span><span class="n">rep_t</span><span class="w"> </span><span class="o">*</span><span class="n">significand</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
-<span class="w">  </span><span class="k">const</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">shift</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">rep_clz</span><span class="p">(</span><span class="o">*</span><span class="n">significand</span><span class="p">)</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="n">rep_clz</span><span class="p">(</span><span class="n">implicitBit</span><span class="p">);</span><span class="w"></span>
-<span class="w">  </span><span class="o">*</span><span class="n">significand</span><span class="w"> </span><span class="o">&lt;&lt;=</span><span class="w"> </span><span class="n">shift</span><span class="p">;</span><span class="w"></span>
-<span class="w">  </span><span class="k">return</span><span class="w"> </span><span class="mi">1</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="n">shift</span><span class="p">;</span><span class="w"></span>
-<span class="p">}</span><span class="w"></span>
 </pre></div>
 </div>
+<p class="rubric">~/llvm/debug/compiler-rt/lib/builtins/fp_lib.h</p>
+<div class="highlight-c++ notranslate"><div class="highlight"><pre><span></span><span class="cp">#if defined(SINGLE_PRECISION)</span>
+<span class="p">...</span>
+<span class="cp">#define significandBits 23</span>
+<span class="p">..</span>
+<span class="cp">#define implicitBit (REP_C(1) &lt;&lt; significandBits)</span>
+<span class="p">...</span>
+<span class="k">static</span><span class="w"> </span><span class="kr">__inline</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">rep_clz</span><span class="p">(</span><span class="n">rep_t</span><span class="w"> </span><span class="n">a</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="k">return</span><span class="w"> </span><span class="n">clzsi</span><span class="p">(</span><span class="n">a</span><span class="p">);</span><span class="w"> </span><span class="p">}</span>
+<span class="p">...</span>
+<span class="k">static</span><span class="w"> </span><span class="kr">__inline</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">rep_clz</span><span class="p">(</span><span class="n">rep_t</span><span class="w"> </span><span class="n">a</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="k">return</span><span class="w"> </span><span class="n">__builtin_clz</span><span class="p">(</span><span class="n">a</span><span class="p">);</span><span class="w"> </span><span class="p">}</span>
+<span class="p">...</span>
+<span class="cp">#elif defined(DOUBLE_PRECISION)</span>
+<span class="p">...</span>
+<span class="cp">#define significandBits 52</span>
+<span class="p">...</span>
+<span class="k">static</span><span class="w"> </span><span class="kr">inline</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">rep_clz</span><span class="p">(</span><span class="n">rep_t</span><span class="w"> </span><span class="n">a</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="cp">#if defined __LP64__</span>
+<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="n">__builtin_clzl</span><span class="p">(</span><span class="n">a</span><span class="p">);</span>
+<span class="cp">#else</span>
+<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">a</span><span class="w"> </span><span class="o">&amp;</span><span class="w"> </span><span class="n">REP_C</span><span class="p">(</span><span class="mh">0xffffffff00000000</span><span class="p">))</span>
+<span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="n">__builtin_clz</span><span class="p">(</span><span class="n">a</span><span class="w"> </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="mi">32</span><span class="p">);</span>
+<span class="w">    </span><span class="k">else</span>
+<span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="mi">32</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">__builtin_clz</span><span class="p">(</span><span class="n">a</span><span class="w"> </span><span class="o">&amp;</span><span class="w"> </span><span class="n">REP_C</span><span class="p">(</span><span class="mh">0xffffffff</span><span class="p">));</span>
+<span class="cp">#endif</span>
+<span class="p">...</span>
+<span class="cp">#elif defined(QUAD_PRECISION)</span>
+<span class="p">...</span>
+<span class="c1">// Note: Since there is no explicit way to tell compiler the constant is a</span>
+<span class="c1">// 128-bit integer, we let the constant be casted to 128-bit integer</span>
+<span class="cp">#define significandBits 112</span>
+<span class="p">...</span>
+<span class="cp">#define implicitBit     (REP_C(1) &lt;&lt; significandBits)</span>
+<span class="p">...</span>
+<span class="k">static</span><span class="w"> </span><span class="kr">inline</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">rep_clz</span><span class="p">(</span><span class="n">rep_t</span><span class="w"> </span><span class="n">a</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="k">const</span><span class="w"> </span><span class="k">union</span>
+<span class="w">        </span><span class="p">{</span>
+<span class="w">             </span><span class="n">__uint128_t</span><span class="w"> </span><span class="n">ll</span><span class="p">;</span>
+<span class="cp">#if _YUGA_BIG_ENDIAN</span>
+<span class="w">             </span><span class="k">struct</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="kt">uint64_t</span><span class="w"> </span><span class="n">high</span><span class="p">,</span><span class="w"> </span><span class="n">low</span><span class="p">;</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="n">s</span><span class="p">;</span>
+<span class="cp">#else</span>
+<span class="w">             </span><span class="k">struct</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="kt">uint64_t</span><span class="w"> </span><span class="n">low</span><span class="p">,</span><span class="w"> </span><span class="n">high</span><span class="p">;</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="n">s</span><span class="p">;</span>
+<span class="cp">#endif</span>
+<span class="w">        </span><span class="p">}</span><span class="w"> </span><span class="n">uu</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="p">.</span><span class="n">ll</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">a</span><span class="w"> </span><span class="p">};</span>
+
+<span class="w">    </span><span class="kt">uint64_t</span><span class="w"> </span><span class="n">word</span><span class="p">;</span>
+<span class="w">    </span><span class="kt">uint64_t</span><span class="w"> </span><span class="n">add</span><span class="p">;</span>
+
+<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">uu</span><span class="p">.</span><span class="n">s</span><span class="p">.</span><span class="n">high</span><span class="p">){</span>
+<span class="w">        </span><span class="n">word</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">uu</span><span class="p">.</span><span class="n">s</span><span class="p">.</span><span class="n">high</span><span class="p">;</span>
+<span class="w">        </span><span class="n">add</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="w">    </span><span class="k">else</span><span class="p">{</span>
+<span class="w">        </span><span class="n">word</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">uu</span><span class="p">.</span><span class="n">s</span><span class="p">.</span><span class="n">low</span><span class="p">;</span>
+<span class="w">        </span><span class="n">add</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">64</span><span class="p">;</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="n">__builtin_clzll</span><span class="p">(</span><span class="n">word</span><span class="p">)</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">add</span><span class="p">;</span>
+<span class="p">}</span>
+<span class="p">...</span>
+<span class="cp">#endif </span><span class="c1">// __LDBL_MANT_DIG__ == 113</span>
+<span class="p">...</span>
+<span class="k">static</span><span class="w"> </span><span class="kr">__inline</span><span class="w"> </span><span class="n">rep_t</span><span class="w"> </span><span class="n">toRep</span><span class="p">(</span><span class="n">fp_t</span><span class="w"> </span><span class="n">x</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="k">const</span><span class="w"> </span><span class="k">union</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="n">fp_t</span><span class="w"> </span><span class="n">f</span><span class="p">;</span>
+<span class="w">    </span><span class="n">rep_t</span><span class="w"> </span><span class="n">i</span><span class="p">;</span>
+<span class="w">  </span><span class="p">}</span><span class="w"> </span><span class="n">rep</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{.</span><span class="n">f</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">x</span><span class="p">};</span>
+<span class="w">  </span><span class="k">return</span><span class="w"> </span><span class="n">rep</span><span class="p">.</span><span class="n">i</span><span class="p">;</span>
+<span class="p">}</span>
+<span class="p">...</span>
+<span class="k">static</span><span class="w"> </span><span class="kr">__inline</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">normalize</span><span class="p">(</span><span class="n">rep_t</span><span class="w"> </span><span class="o">*</span><span class="n">significand</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="k">const</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">shift</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">rep_clz</span><span class="p">(</span><span class="o">*</span><span class="n">significand</span><span class="p">)</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="n">rep_clz</span><span class="p">(</span><span class="n">implicitBit</span><span class="p">);</span>
+<span class="w">  </span><span class="o">*</span><span class="n">significand</span><span class="w"> </span><span class="o">&lt;&lt;=</span><span class="w"> </span><span class="n">shift</span><span class="p">;</span>
+<span class="w">  </span><span class="k">return</span><span class="w"> </span><span class="mi">1</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="n">shift</span><span class="p">;</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<figure class="align-center" id="id33">
+<a class="reference internal image-reference" href="_images/floating-point-single.png"><img alt="_images/floating-point-single.png" height="90" src="_images/floating-point-single.png" width="599" />
+</a>
+<figcaption>
+<p><span class="caption-number">Fig. 9 </span><span class="caption-text">IEEE 754 single precision of Floating point representation <a class="footnote-reference brackets" href="#ieee754-single" id="id5" role="doc-noteref"><span class="fn-bracket">[</span>3<span class="fn-bracket">]</span></a></span><a class="headerlink" href="#id33" title="Link to this image">¶</a></p>
+</figcaption>
+</figure>
+<p>The following implementation for 32-bit float multiplication of a*b uses the
+algorithm introduced above and proceeds as follows:</p>
+<ol class="arabic simple">
+<li><p>Normalize a and b.</p></li>
+<li><p>Computation:</p></li>
+</ol>
+<blockquote>
+<div><table class="docutils align-default" id="id34">
+<caption><span class="caption-number">Table 7 </span><span class="caption-text"><span class="math notranslate nohighlight">\(a \, \mathsf{x} \, b\)</span></span><a class="headerlink" href="#id34" title="Link to this table">¶</a></caption>
+<colgroup>
+<col style="width: 9.4%" />
+<col style="width: 18.9%" />
+<col style="width: 34.0%" />
+<col style="width: 37.7%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>variable</p></th>
+<th class="head"><p>sign</p></th>
+<th class="head"><p>exponent</p></th>
+<th class="head"><p>significand</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><span class="math notranslate nohighlight">\(a \, \mathsf{x} \, b\)</span></p></td>
+<td><p><span class="math notranslate nohighlight">\(sign(a) \oplus sign(b)\)</span></p></td>
+<td><p><span class="math notranslate nohighlight">\(exponent(a) + exponent(b) - 127\)</span></p></td>
+<td><p><span class="math notranslate nohighlight">\(significand(a)\, \mathsf{x} \,significand(b) &gt;&gt; 23\)</span></p></td>
+</tr>
+</tbody>
+</table>
+</div></blockquote>
+<ol class="arabic simple" start="3">
+<li><p>Normalize the result.</p></li>
+</ol>
 <p class="rubric">~/llvm/debug/compiler-rt/lib/builtins/fp_mul_impl.inc</p>
-<div class="highlight-c++ notranslate"><div class="highlight"><pre><span></span><span class="cp">#include</span><span class="w"> </span><span class="cpf">&quot;fp_lib.h&quot;</span><span class="cp"></span>
-<span class="p">...</span><span class="w"></span>
-<span class="k">static</span><span class="w"> </span><span class="kr">__inline</span><span class="w"> </span><span class="n">fp_t</span><span class="w"> </span><span class="n">__mulXf3__</span><span class="p">(</span><span class="n">fp_t</span><span class="w"> </span><span class="n">a</span><span class="p">,</span><span class="w"> </span><span class="n">fp_t</span><span class="w"> </span><span class="n">b</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
-<span class="w">  </span><span class="k">const</span><span class="w"> </span><span class="kt">unsigned</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">aExponent</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">toRep</span><span class="p">(</span><span class="n">a</span><span class="p">)</span><span class="w"> </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="n">significandBits</span><span class="w"> </span><span class="o">&amp;</span><span class="w"> </span><span class="n">maxExponent</span><span class="p">;</span><span class="w"></span>
-<span class="w">  </span><span class="k">const</span><span class="w"> </span><span class="kt">unsigned</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">bExponent</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">toRep</span><span class="p">(</span><span class="n">b</span><span class="p">)</span><span class="w"> </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="n">significandBits</span><span class="w"> </span><span class="o">&amp;</span><span class="w"> </span><span class="n">maxExponent</span><span class="p">;</span><span class="w"></span>
-<span class="w">  </span><span class="p">...</span><span class="w"></span>
-<span class="w">  </span><span class="kt">int</span><span class="w"> </span><span class="n">productExponent</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">aExponent</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">bExponent</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="n">exponentBias</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">scale</span><span class="p">;</span><span class="w"></span>
-<span class="w">  </span><span class="p">...</span><span class="w"></span>
-<span class="w">    </span><span class="n">productHi</span><span class="w"> </span><span class="o">|=</span><span class="w"> </span><span class="p">(</span><span class="n">rep_t</span><span class="p">)</span><span class="n">productExponent</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="n">significandBits</span><span class="p">;</span><span class="w"></span>
-<span class="w">  </span><span class="p">...</span><span class="w"></span>
-<span class="w">  </span><span class="k">return</span><span class="w"> </span><span class="n">fromRep</span><span class="p">(</span><span class="n">productHi</span><span class="p">);</span><span class="w"></span>
-<span class="p">}</span><span class="w"></span>
+<div class="highlight-c++ notranslate"><div class="highlight"><pre><span></span><span class="cp">#include</span><span class="w"> </span><span class="cpf">&quot;fp_lib.h&quot;</span>
+<span class="p">...</span>
+<span class="k">static</span><span class="w"> </span><span class="kr">__inline</span><span class="w"> </span><span class="n">fp_t</span><span class="w"> </span><span class="n">__mulXf3__</span><span class="p">(</span><span class="n">fp_t</span><span class="w"> </span><span class="n">a</span><span class="p">,</span><span class="w"> </span><span class="n">fp_t</span><span class="w"> </span><span class="n">b</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="k">const</span><span class="w"> </span><span class="kt">unsigned</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">aExponent</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">toRep</span><span class="p">(</span><span class="n">a</span><span class="p">)</span><span class="w"> </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="n">significandBits</span><span class="w"> </span><span class="o">&amp;</span><span class="w"> </span><span class="n">maxExponent</span><span class="p">;</span>
+<span class="w">  </span><span class="k">const</span><span class="w"> </span><span class="kt">unsigned</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">bExponent</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">toRep</span><span class="p">(</span><span class="n">b</span><span class="p">)</span><span class="w"> </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="n">significandBits</span><span class="w"> </span><span class="o">&amp;</span><span class="w"> </span><span class="n">maxExponent</span><span class="p">;</span>
+<span class="w">  </span><span class="p">...</span>
+
+<span class="w">  </span><span class="c1">// Detect if a or b is zero, denormal, infinity, or NaN.</span>
+<span class="w">  </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">aExponent</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="mi">1U</span><span class="w"> </span><span class="o">&gt;=</span><span class="w"> </span><span class="n">maxExponent</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="mi">1U</span><span class="w"> </span><span class="o">||</span>
+<span class="w">      </span><span class="n">bExponent</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="mi">1U</span><span class="w"> </span><span class="o">&gt;=</span><span class="w"> </span><span class="n">maxExponent</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="mi">1U</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="p">....</span>
+<span class="w">    </span><span class="c1">// One or both of a or b is denormal.  The other (if applicable) is a</span>
+<span class="w">    </span><span class="c1">// normal number.  Renormalize one or both of a and b, and set scale to</span>
+<span class="w">    </span><span class="c1">// include the necessary exponent adjustment.</span>
+<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">aAbs</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="n">implicitBit</span><span class="p">)</span>
+<span class="w">      </span><span class="n">scale</span><span class="w"> </span><span class="o">+=</span><span class="w"> </span><span class="n">normalize</span><span class="p">(</span><span class="o">&amp;</span><span class="n">aSignificand</span><span class="p">);</span>
+<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">bAbs</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="n">implicitBit</span><span class="p">)</span>
+<span class="w">      </span><span class="n">scale</span><span class="w"> </span><span class="o">+=</span><span class="w"> </span><span class="n">normalize</span><span class="p">(</span><span class="o">&amp;</span><span class="n">bSignificand</span><span class="p">);</span>
+<span class="w">  </span><span class="p">}</span>
+<span class="w">  </span><span class="p">...</span>
+
+<span class="w">  </span><span class="c1">// exponentBias is 127 for 32-bit single precision.</span>
+<span class="w">  </span><span class="c1">// scale is 0 when both a and b are normal form.</span>
+<span class="w">  </span><span class="kt">int</span><span class="w"> </span><span class="n">productExponent</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">aExponent</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">bExponent</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="n">exponentBias</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">scale</span><span class="p">;</span>
+
+<span class="w">  </span><span class="c1">// Normalize the significand and adjust the exponent if needed.</span>
+<span class="w">  </span><span class="p">...</span>
+<span class="w">    </span><span class="c1">// For 32-bit float, productExponent &lt;&lt; 23 since exponent is bit(1..23)</span>
+<span class="w">    </span><span class="n">productHi</span><span class="w"> </span><span class="o">|=</span><span class="w"> </span><span class="p">(</span><span class="n">rep_t</span><span class="p">)</span><span class="n">productExponent</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="n">significandBits</span><span class="p">;</span>
+<span class="w">  </span><span class="p">...</span>
+<span class="w">  </span><span class="k">return</span><span class="w"> </span><span class="n">fromRep</span><span class="p">(</span><span class="n">productHi</span><span class="p">);</span>
+<span class="p">}</span>
 </pre></div>
 </div>
 </section>
+</section>
 <section id="the-dependence-for-cpu0-based-on-compiler-rt-s-builtins">
-<h2><a class="toc-backref" href="#id35" role="doc-backlink">The dependence for Cpu0 based on Compiler-rt’s builtins</a><a class="headerlink" href="#the-dependence-for-cpu0-based-on-compiler-rt-s-builtins" title="Permalink to this heading">¶</a></h2>
+<h2><a class="toc-backref" href="#id45" role="doc-backlink">The dependence for Cpu0 based on Compiler-rt’s builtins</a><a class="headerlink" href="#the-dependence-for-cpu0-based-on-compiler-rt-s-builtins" title="Link to this heading">¶</a></h2>
 <p>Since Cpu0 does not have hardware floating-point instructions, it requires a
 software floating-point library to perform floating-point operations.</p>
 <p>The LLVM <cite>compiler-rt</cite> project provides a software floating-point implementation
-(<a class="reference internal" href="#swf-lib"><span class="std std-numref">Fig. 9</span></a>), so I chose it for this purpose.</p>
+(<a class="reference internal" href="#swf-lib"><span class="std std-numref">Fig. 10</span></a>), so I chose it for this purpose.</p>
 <p>As <cite>compiler-rt</cite> assumes a Unix/Linux rootfs structure, we bridge the gap by
 adding a few empty header files in <cite>exlbt/include</cite>.</p>
-<figure class="align-default" id="id27">
-<span id="swf-lib"></span><div class="graphviz"><img src="_images/graphviz-27ca1dabd6b60df91c84b556090fa1e8f64984d7.png" alt="// dot -Tpng lib.gv -o lib.png
+<figure class="align-default" id="id35">
+<span id="swf-lib"></span><div class="graphviz"><img src="_images/graphviz-c9527620e3066fb5a83fc482a617e8552fc92f73.png" alt="// dot -Tpng lib.gv -o lib.png
 digraph G {
   rankdir=LR;
 
@@ -200,13 +490,13 @@ digraph G {
   &quot;clang/llc&quot; -&gt; lld [ label = &quot;obj&quot; ];
 }" class="graphviz" /></div>
 <figcaption>
-<p><span class="caption-number">Fig. 9 </span><span class="caption-text">compiler-rt/lib/builtins’ software float library</span><a class="headerlink" href="#id27" title="Permalink to this image">¶</a></p>
+<p><span class="caption-number">Fig. 10 </span><span class="caption-text">compiler-rt/lib/builtins’ software float library</span><a class="headerlink" href="#id35" title="Link to this image">¶</a></p>
 </figcaption>
 </figure>
 <p>The dependencies for <cite>compiler-rt</cite> on <cite>libm</cite> are shown in
-<a class="reference internal" href="#compiler-rrt-dep"><span class="std std-numref">Fig. 11</span></a>.</p>
-<figure class="align-default" id="id28">
-<span id="compiler-rrt-dep-short"></span><div class="graphviz"><img src="_images/graphviz-0ee855d97534fb88032190bd88679d3de56582f1.png" alt="// dot -Tpng compiler-rt-dep-short.gv -o compiler-rt-dep-short.png
+<a class="reference internal" href="#compiler-rrt-dep"><span class="std std-numref">Fig. 12</span></a>.</p>
+<figure class="align-default" id="id36">
+<span id="compiler-rrt-dep-short"></span><div class="graphviz"><img src="_images/graphviz-f5951f7eb8877a5dfc6f7727f441d906619097e2.png" alt="// dot -Tpng compiler-rt-dep-short.gv -o compiler-rt-dep-short.png
 digraph G {
   rankdir=LR;
 
@@ -236,11 +526,11 @@ digraph G {
   utb -&gt; sanitizer_printf;
 }" class="graphviz" /></div>
 <figcaption>
-<p><span class="caption-number">Fig. 10 </span><span class="caption-text">Dependences for compiler-rt on libm</span><a class="headerlink" href="#id28" title="Permalink to this image">¶</a></p>
+<p><span class="caption-number">Fig. 11 </span><span class="caption-text">Dependences for compiler-rt on libm</span><a class="headerlink" href="#id36" title="Link to this image">¶</a></p>
 </figcaption>
 </figure>
-<table class="docutils align-default" id="id29">
-<caption><span class="caption-number">Table 2 </span><span class="caption-text"><cite>lldb</cite> dependences</span><a class="headerlink" href="#id29" title="Permalink to this table">¶</a></caption>
+<table class="docutils align-default" id="id37">
+<caption><span class="caption-number">Table 8 </span><span class="caption-text"><cite>lldb</cite> dependences</span><a class="headerlink" href="#id37" title="Link to this table">¶</a></caption>
 <thead>
 <tr class="row-odd"><th class="head"><p>functions</p></th>
 <th class="head"><p>depend on</p></th>
@@ -255,8 +545,8 @@ digraph G {
 </tr>
 </tbody>
 </table>
-<table class="docutils align-default" id="id30">
-<caption><span class="caption-number">Table 3 </span><span class="caption-text">sanitizer_printf.c of <cite>compiler-rt</cite> dependences</span><a class="headerlink" href="#id30" title="Permalink to this table">¶</a></caption>
+<table class="docutils align-default" id="id38">
+<caption><span class="caption-number">Table 9 </span><span class="caption-text">sanitizer_printf.c of <cite>compiler-rt</cite> dependences</span><a class="headerlink" href="#id38" title="Link to this table">¶</a></caption>
 <thead>
 <tr class="row-odd"><th class="head"><p>functions</p></th>
 <th class="head"><p>depend on</p></th>
@@ -270,14 +560,14 @@ digraph G {
 </table>
 </section>
 <section id="c-library-newlib">
-<h2><a class="toc-backref" href="#id36" role="doc-backlink">C Library (Newlib)</a><a class="headerlink" href="#c-library-newlib" title="Permalink to this heading">¶</a></h2>
+<h2><a class="toc-backref" href="#id46" role="doc-backlink">C Library (Newlib)</a><a class="headerlink" href="#c-library-newlib" title="Link to this heading">¶</a></h2>
 <p>Since the complex type in <cite>compiler-rt</cite> depends on <cite>libm</cite>, I port Newlib in
 this section.</p>
 <p>Newlib is a C library designed for bare-metal platforms. It consists of two
 libraries: <cite>libc</cite> and <cite>libm</cite>. The <cite>libc</cite> library supports I/O, file, and
 string functions, while <cite>libm</cite> provides mathematical functions.</p>
-<p>The official website for Newlib is available here <a class="footnote-reference brackets" href="#newlib" id="id5" role="doc-noteref"><span class="fn-bracket">[</span>3<span class="fn-bracket">]</span></a>, and the <cite>libm</cite>
-library can be found here <a class="footnote-reference brackets" href="#newlib-libm" id="id6" role="doc-noteref"><span class="fn-bracket">[</span>4<span class="fn-bracket">]</span></a>.</p>
+<p>The official website for Newlib is available here <a class="footnote-reference brackets" href="#newlib" id="id6" role="doc-noteref"><span class="fn-bracket">[</span>4<span class="fn-bracket">]</span></a>, and the <cite>libm</cite>
+library can be found here <a class="footnote-reference brackets" href="#newlib-libm" id="id7" role="doc-noteref"><span class="fn-bracket">[</span>5<span class="fn-bracket">]</span></a>.</p>
 <p>Since the next section, <cite>compiler-rt/builtins</cite>, depends on <cite>libm</cite>, please run
 the following bash script to install and build Newlib for Cpu0.</p>
 <p class="rubric">lbt/exlbt/newlib-cpu0.sh</p>
@@ -505,28 +795,28 @@ $BB1:
         ret	$lr
 </pre></div>
 </div>
-<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">cschen@cschendeiMac exlbt % </span>bash newlib-cpu0.sh
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">cschen@cschendeiMac exlbt % </span>bash<span class="w"> </span>newlib-cpu0.sh
 </pre></div>
 </div>
 <p>The <cite>libm.a</cite> library depends on the <cite>errno</cite> variable from <cite>libc</cite>, which is
 defined in <cite>sys/errno.h</cite>.</p>
 <ul class="simple">
-<li><p>libgloss is BSP license <a class="footnote-reference brackets" href="#libgloss-bsp" id="id7" role="doc-noteref"><span class="fn-bracket">[</span>5<span class="fn-bracket">]</span></a></p></li>
+<li><p>libgloss is BSP license <a class="footnote-reference brackets" href="#libgloss-bsp" id="id8" role="doc-noteref"><span class="fn-bracket">[</span>6<span class="fn-bracket">]</span></a></p></li>
 </ul>
 </section>
 <section id="compiler-rt-s-builtins">
-<h2><a class="toc-backref" href="#id37" role="doc-backlink">Compiler-rt’s builtins</a><a class="headerlink" href="#compiler-rt-s-builtins" title="Permalink to this heading">¶</a></h2>
-<p>Compiler-rt is a project for runtime libraries implementation <a class="footnote-reference brackets" href="#compiler-rt" id="id8" role="doc-noteref"><span class="fn-bracket">[</span>6<span class="fn-bracket">]</span></a>.
+<h2><a class="toc-backref" href="#id47" role="doc-backlink">Compiler-rt’s builtins</a><a class="headerlink" href="#compiler-rt-s-builtins" title="Link to this heading">¶</a></h2>
+<p>Compiler-rt is a project for runtime libraries implementation <a class="footnote-reference brackets" href="#compiler-rt" id="id9" role="doc-noteref"><span class="fn-bracket">[</span>7<span class="fn-bracket">]</span></a>.
 The <cite>compiler-rt/lib/builtins</cite> directory provides functions for basic operations
 such as <cite>+</cite>, <cite>-</cite>, <cite>*</cite>, <cite>/</cite>, etc., on <cite>float</cite> or <cite>double</cite> types. It also supports
 type conversions between floating-point and integer, or conversions involving
 types wider than 32 bits, such as <cite>long long</cite>.</p>
-<p>The <cite>compiler-rt/lib/builtins/README.txt</cite> <a class="footnote-reference brackets" href="#builtins-readme" id="id9" role="doc-noteref"><span class="fn-bracket">[</span>7<span class="fn-bracket">]</span></a> lists the
+<p>The <cite>compiler-rt/lib/builtins/README.txt</cite> <a class="footnote-reference brackets" href="#builtins-readme" id="id10" role="doc-noteref"><span class="fn-bracket">[</span>8<span class="fn-bracket">]</span></a> lists the
 dependent functions used throughout the builtins. These dependent functions are
 a small subset of <cite>libm</cite>, which are defined in
-<cite>compiler-rt/lib/builtins/int_math.h</cite> <a class="footnote-reference brackets" href="#builtins-int-math" id="id10" role="doc-noteref"><span class="fn-bracket">[</span>8<span class="fn-bracket">]</span></a>.</p>
+<cite>compiler-rt/lib/builtins/int_math.h</cite> <a class="footnote-reference brackets" href="#builtins-int-math" id="id11" role="doc-noteref"><span class="fn-bracket">[</span>9<span class="fn-bracket">]</span></a>.</p>
 <p class="rubric">~git/newlib-cygwin/build-cpu032I-eb/Makefile</p>
-<div class="highlight-Makefile notranslate"><div class="highlight"><pre><span></span><span class="nv">MATHDIR</span> <span class="o">=</span> math
+<div class="highlight-Makefile notranslate"><div class="highlight"><pre><span></span><span class="nv">MATHDIR</span><span class="w"> </span><span class="o">=</span><span class="w"> </span>math
 
 <span class="c"># The newlib hardware floating-point routines have been disabled due to</span>
 <span class="c"># inaccuracy.  If you wish to work on them, you will need to edit the</span>
@@ -537,9 +827,9 @@ a small subset of <cite>libm</cite>, which are defined in
 </div>
 <p>As shown in the Makefile above, Newlib uses the <cite>libm/math</cite> directory.</p>
 <p>The dependencies for the builtin functions of compiler-rt on <cite>libm</cite> are shown in
-<a class="reference internal" href="#compiler-rrt-dep"><span class="std std-numref">Fig. 11</span></a>.</p>
-<figure class="align-default" id="id31">
-<span id="compiler-rrt-dep"></span><div class="graphviz"><img src="_images/graphviz-5b1f37a39603cb0a721adbb9c51e4a5ec0392fa3.png" alt="// dot -Tpng compiler-rt-dep.gv -o compiler-rt-dep.png
+<a class="reference internal" href="#compiler-rrt-dep"><span class="std std-numref">Fig. 12</span></a>.</p>
+<figure class="align-default" id="id39">
+<span id="compiler-rrt-dep"></span><div class="graphviz"><img src="_images/graphviz-24e1abd3617c6ec2080075a6d94d1dab7df1a9b4.png" alt="// dot -Tpng compiler-rt-dep.gv -o compiler-rt-dep.png
 digraph G {
   rankdir=LR;
 
@@ -569,7 +859,7 @@ digraph G {
   utb -&gt; sanitizer_printf [label = &quot;sanitizer_printf.cpp and sanitizer_internal_defs.h \n of compiler-rt/test/builtins/Unit&quot; ];
 }" class="graphviz" /></div>
 <figcaption>
-<p><span class="caption-number">Fig. 11 </span><span class="caption-text">Dependences for builtin functions of compiler-rt on libm</span><a class="headerlink" href="#id31" title="Permalink to this image">¶</a></p>
+<p><span class="caption-number">Fig. 12 </span><span class="caption-text">Dependences for builtin functions of compiler-rt on libm</span><a class="headerlink" href="#id39" title="Link to this image">¶</a></p>
 </figcaption>
 </figure>
 <p>In this section, I copied test cases for verification of software floating point
@@ -580,9 +870,9 @@ integer, 64-bit), and the test cases in
 <cite>compiler-rt/test/builtins/Unit</cite> require this format to verify SW FP results, I
 ported <cite>sanitizer_printf.cpp</cite> and <cite>sanitizer_internal_defs.h</cite> to
 <cite>lbt/exlbt/input/</cite> from <cite>compiler-rt/lib/sanitizer_common/</cite>.</p>
-<table class="docutils align-default" id="id32">
-<caption><span class="caption-number">Table 4 </span><span class="caption-text">compiler-rt builtins dependences on newlib/libm (open source libc
-         for bare metal)</span><a class="headerlink" href="#id32" title="Permalink to this table">¶</a></caption>
+<table class="docutils align-default" id="id40">
+<caption><span class="caption-number">Table 10 </span><span class="caption-text">compiler-rt builtins dependences on newlib/libm (open source libc
+         for bare metal)</span><a class="headerlink" href="#id40" title="Link to this table">¶</a></caption>
 <thead>
 <tr class="row-odd"><th class="head"><p>function</p></th>
 <th class="head"><p>file</p></th>
@@ -684,12 +974,12 @@ and <cite>abort()</cite>. I have ported <cite>abort()</cite> in
 profile and BlocksRuntime in <cite>compiler-rt</cite> are not needed for my embedded
 Cpu0.</p></li>
 </ul>
-<p>The libgcc integer and soft float libraries <a class="footnote-reference brackets" href="#lib-gcc" id="id11" role="doc-noteref"><span class="fn-bracket">[</span>9<span class="fn-bracket">]</span></a> <a class="footnote-reference brackets" href="#int-lib" id="id12" role="doc-noteref"><span class="fn-bracket">[</span>10<span class="fn-bracket">]</span></a>
-<a class="footnote-reference brackets" href="#sw-float-lib" id="id13" role="doc-noteref"><span class="fn-bracket">[</span>11<span class="fn-bracket">]</span></a> are functionally equivalent to the builtins in <cite>compiler-rt</cite>.</p>
+<p>The libgcc integer and soft float libraries <a class="footnote-reference brackets" href="#lib-gcc" id="id12" role="doc-noteref"><span class="fn-bracket">[</span>10<span class="fn-bracket">]</span></a> <a class="footnote-reference brackets" href="#int-lib" id="id13" role="doc-noteref"><span class="fn-bracket">[</span>11<span class="fn-bracket">]</span></a>
+<a class="footnote-reference brackets" href="#sw-float-lib" id="id14" role="doc-noteref"><span class="fn-bracket">[</span>12<span class="fn-bracket">]</span></a> are functionally equivalent to the builtins in <cite>compiler-rt</cite>.</p>
 <p>In <cite>compiler-rt/lib/builtins</cite>, the file-level dependencies are listed in the
 following table.</p>
-<table class="docutils align-default" id="id33">
-<caption><span class="caption-number">Table 5 </span><span class="caption-text">dependence between files for <cite>compiler-rt/lib/builtins</cite></span><a class="headerlink" href="#id33" title="Permalink to this table">¶</a></caption>
+<table class="docutils align-default" id="id41">
+<caption><span class="caption-number">Table 11 </span><span class="caption-text">dependence between files for <cite>compiler-rt/lib/builtins</cite></span><a class="headerlink" href="#id41" title="Link to this table">¶</a></caption>
 <thead>
 <tr class="row-odd"><th class="head"><p>functions</p></th>
 <th class="head"><p>depend on</p></th>
@@ -729,15 +1019,15 @@ instruction.</p>
 
 </pre></div>
 </div>
-<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">chungshu@ChungShudeMacBook-Air input % </span>clang -target mips-unknown-linux-gnu -S
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">chungshu@ChungShudeMacBook-Air input % </span>clang<span class="w"> </span>-target<span class="w"> </span>mips-unknown-linux-gnu<span class="w"> </span>-S
 <span class="go">ch_call_compilerrt_func.c -emit-llvm</span>
-<span class="gp">chungshu@ChungShudeMacBook-Air input % </span>cat ch_call_compilerrt_func.ll
+<span class="gp">chungshu@ChungShudeMacBook-Air input % </span>cat<span class="w"> </span>ch_call_compilerrt_func.ll
 <span class="go">  ...</span>
-<span class="gp">  %</span><span class="nv">4</span> <span class="o">=</span> load float, float* %1, align <span class="m">4</span>
-<span class="gp">  %</span><span class="nv">5</span> <span class="o">=</span> load float, float* %2, align <span class="m">4</span>
-<span class="gp">  %</span><span class="nv">6</span> <span class="o">=</span> fadd float %4, %5
+<span class="gp">  %</span><span class="nv">4</span><span class="w"> </span><span class="o">=</span><span class="w"> </span>load<span class="w"> </span>float,<span class="w"> </span>float*<span class="w"> </span>%1,<span class="w"> </span>align<span class="w"> </span><span class="m">4</span>
+<span class="gp">  %</span><span class="nv">5</span><span class="w"> </span><span class="o">=</span><span class="w"> </span>load<span class="w"> </span>float,<span class="w"> </span>float*<span class="w"> </span>%2,<span class="w"> </span>align<span class="w"> </span><span class="m">4</span>
+<span class="gp">  %</span><span class="nv">6</span><span class="w"> </span><span class="o">=</span><span class="w"> </span>fadd<span class="w"> </span>float<span class="w"> </span>%4,<span class="w"> </span>%5
 
-<span class="gp">chungshu@ChungShudeMacBook-Air input % </span>~/llvm/test/build/bin/llc -march<span class="o">=</span>cpu0
+<span class="gp">chungshu@ChungShudeMacBook-Air input % </span>~/llvm/test/build/bin/llc<span class="w"> </span>-march<span class="o">=</span>cpu0
 <span class="go">-mcpu=cpu032II -relocation-model=static -filetype=asm ch_call_compilerrt_func.ll -o -</span>
 <span class="go">      ...</span>
 <span class="go">      ld      $4, 20($fp)</span>
@@ -748,9 +1038,9 @@ instruction.</p>
 <p>For some bare-metal or embedded applications, the C code does not need the
 file and high-level I/O features provided by <cite>libc</cite>.</p>
 <p><cite>libm</cite> provides a wide range of functions to support software floating-point
-operations beyond basic arithmetic <a class="footnote-reference brackets" href="#math" id="id14" role="doc-noteref"><span class="fn-bracket">[</span>12<span class="fn-bracket">]</span></a>.</p>
+operations beyond basic arithmetic <a class="footnote-reference brackets" href="#math" id="id15" role="doc-noteref"><span class="fn-bracket">[</span>13<span class="fn-bracket">]</span></a>.</p>
 <p><cite>libc</cite> provides file handling, high-level I/O functions, and some basic float
-operations <a class="footnote-reference brackets" href="#clib" id="id15" role="doc-noteref"><span class="fn-bracket">[</span>13<span class="fn-bracket">]</span></a>.</p>
+operations <a class="footnote-reference brackets" href="#clib" id="id16" role="doc-noteref"><span class="fn-bracket">[</span>14<span class="fn-bracket">]</span></a>.</p>
 <p>Cpu0 uses <cite>compiler-rt/lib/builtins</cite> and
 <cite>compiler-rt/lib/sanitizer_common/sanitizer_printf.cpp</cite> to support
 software floating-point.</p>
@@ -772,43 +1062,43 @@ instructions.</p>
 <p>For example, the Clang compilation and backend translation go as follows:</p>
 <ul class="simple">
 <li><p><cite>float a, b, c; a = b * c;</cite> → (Clang) → <cite>%add = fmul float %0, %1</cite>
-<a class="footnote-reference brackets" href="#llvm-fmul" id="id16" role="doc-noteref"><span class="fn-bracket">[</span>15<span class="fn-bracket">]</span></a></p></li>
+<a class="footnote-reference brackets" href="#llvm-fmul" id="id17" role="doc-noteref"><span class="fn-bracket">[</span>16<span class="fn-bracket">]</span></a></p></li>
 </ul>
 <p>MIPS backend compiles <cite>fmul</cite> into hardware instructions:</p>
 <ul class="simple">
 <li><p><cite>%add = fmul float %0, %1</cite> → (LLVM-MIPS) → <cite>mul.s</cite>
-<a class="footnote-reference brackets" href="#llvm-fmul" id="id17" role="doc-noteref"><span class="fn-bracket">[</span>15<span class="fn-bracket">]</span></a> <a class="footnote-reference brackets" href="#mips-fmadd1-ll" id="id18" role="doc-noteref"><span class="fn-bracket">[</span>14<span class="fn-bracket">]</span></a></p></li>
+<a class="footnote-reference brackets" href="#llvm-fmul" id="id18" role="doc-noteref"><span class="fn-bracket">[</span>16<span class="fn-bracket">]</span></a> <a class="footnote-reference brackets" href="#mips-fmadd1-ll" id="id19" role="doc-noteref"><span class="fn-bracket">[</span>15<span class="fn-bracket">]</span></a></p></li>
 </ul>
 <p>Cpu0 backend, without hardware float support, compiles <cite>fmul</cite> into a library
 function call:</p>
 <ul class="simple">
 <li><p><cite>%add = fmul float %0, %1</cite> → (LLVM-Cpu0) → <cite>jsub fmul</cite>
-<a class="footnote-reference brackets" href="#llvm-fmul" id="id19" role="doc-noteref"><span class="fn-bracket">[</span>15<span class="fn-bracket">]</span></a></p></li>
+<a class="footnote-reference brackets" href="#llvm-fmul" id="id20" role="doc-noteref"><span class="fn-bracket">[</span>16<span class="fn-bracket">]</span></a></p></li>
 </ul>
 <p>For high-level math functions, Clang compiles float-type operations in C
 into LLVM intrinsic functions. Then, LLVM backends for different CPUs compile
 these intrinsics into hardware instructions when available.</p>
 <p>For example, Clang compiles <cite>pow()</cite> into <cite>&#64;llvm.pow.f32</cite> as follows:</p>
 <ul class="simple">
-<li><p><cite>%pow = call float &#64;llvm.pow.f32(float %x, float %y)</cite> <a class="footnote-reference brackets" href="#clang-pow" id="id20" role="doc-noteref"><span class="fn-bracket">[</span>16<span class="fn-bracket">]</span></a></p></li>
+<li><p><cite>%pow = call float &#64;llvm.pow.f32(float %x, float %y)</cite> <a class="footnote-reference brackets" href="#clang-pow" id="id21" role="doc-noteref"><span class="fn-bracket">[</span>17<span class="fn-bracket">]</span></a></p></li>
 </ul>
 <p>The AMDGPU backend compiles <cite>&#64;llvm.pow.f32</cite> into a sequence of instructions:</p>
 <ul class="simple">
 <li><p><cite>%pow = call float &#64;llvm.pow.f32(float %x, float %y)</cite>
-→ (LLVM-AMDGPU) → <cite>… + v_exp_f32_e32 v0, v0 + …</cite> <a class="footnote-reference brackets" href="#clang-pow" id="id21" role="doc-noteref"><span class="fn-bracket">[</span>16<span class="fn-bracket">]</span></a></p></li>
+→ (LLVM-AMDGPU) → <cite>… + v_exp_f32_e32 v0, v0 + …</cite> <a class="footnote-reference brackets" href="#clang-pow" id="id22" role="doc-noteref"><span class="fn-bracket">[</span>17<span class="fn-bracket">]</span></a></p></li>
 </ul>
 <p>The MIPS backend compiles <cite>&#64;llvm.pow.f32</cite> into a function call:</p>
 <ul class="simple">
 <li><p><cite>%pow = call float &#64;llvm.pow.f32(float %x, float %y)</cite>
-→ (LLVM-MIPS) → <cite>jal powf</cite> <a class="footnote-reference brackets" href="#clang-pow" id="id22" role="doc-noteref"><span class="fn-bracket">[</span>16<span class="fn-bracket">]</span></a></p></li>
+→ (LLVM-MIPS) → <cite>jal powf</cite> <a class="footnote-reference brackets" href="#clang-pow" id="id23" role="doc-noteref"><span class="fn-bracket">[</span>17<span class="fn-bracket">]</span></a></p></li>
 </ul>
 <p>Clang treats these <cite>libm</cite> functions as built-ins and compiles them into LLVM IR
 or intrinsics. Then, the LLVM backend can either lower them into hardware
 instructions (if available) or generate function calls to built-in implementations
 in <cite>libm</cite>.</p>
-<p>The following quote is from Clang’s documentation <a class="footnote-reference brackets" href="#clang-builtin-comment" id="id23" role="doc-noteref"><span class="fn-bracket">[</span>17<span class="fn-bracket">]</span></a>:</p>
-<div class="highlight-c++ notranslate"><div class="highlight"><pre><span></span><span class="n">RValue</span><span class="w"> </span><span class="n">CodeGenFunction</span><span class="o">::</span><span class="n">EmitBuiltinExpr</span><span class="p">(...)</span><span class="w"></span>
-<span class="w">  </span><span class="p">...</span><span class="w"></span>
+<p>The following quote is from Clang’s documentation <a class="footnote-reference brackets" href="#clang-builtin-comment" id="id24" role="doc-noteref"><span class="fn-bracket">[</span>18<span class="fn-bracket">]</span></a>:</p>
+<div class="highlight-c++ notranslate"><div class="highlight"><pre><span></span><span class="n">RValue</span><span class="w"> </span><span class="n">CodeGenFunction</span><span class="o">::</span><span class="n">EmitBuiltinExpr</span><span class="p">(...)</span>
+<span class="w">  </span><span class="p">...</span>
 <span class="w">  </span><span class="c1">// There are LLVM math intrinsics/instructions corresponding to math library</span>
 <span class="w">  </span><span class="c1">// functions except the LLVM op will never set errno while the math library</span>
 <span class="w">  </span><span class="c1">// might. Also, math builtins have the same semantics as their math library</span>
@@ -817,7 +1107,7 @@ in <cite>libm</cite>.</p>
 </pre></div>
 </div>
 <section id="verification">
-<h3><a class="toc-backref" href="#id38" role="doc-backlink">Verification</a><a class="headerlink" href="#verification" title="Permalink to this heading">¶</a></h3>
+<h3><a class="toc-backref" href="#id48" role="doc-backlink">Verification</a><a class="headerlink" href="#verification" title="Link to this heading">¶</a></h3>
 <p>The following <cite>sanitizer_printf.cpp</cite>, extended from compiler-rt, supports
 <cite>printf(“%lld”)</cite>. Its implementation calls some floating-point library
 functions in <cite>compiler-rt/lib/builtins</cite>.</p>
@@ -1639,13 +1929,13 @@ LIBS := $(LIBBUILTINS_DIR)/build-$(CPU)-$(ENDIAN)/libbuiltins.a
 include Common.mk
 </pre></div>
 </div>
-<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">chungshu@ChungShudeMacBook-Air input % </span>bash make.sh cpu032II eb Makefile.float
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">chungshu@ChungShudeMacBook-Air input % </span>bash<span class="w"> </span>make.sh<span class="w"> </span>cpu032II<span class="w"> </span>eb<span class="w"> </span>Makefile.float
 <span class="go">...</span>
 <span class="go">endian =  BigEndian</span>
 <span class="go">ISR address:00020614</span>
 <span class="go">0   /* 0: big endian, 1: little endian */</span>
 
-<span class="gp">chungshu@ChungShudeMacBook-Air verilog % </span>iverilog -o cpu0IIs cpu0IIs.v
+<span class="gp">chungshu@ChungShudeMacBook-Air verilog % </span>iverilog<span class="w"> </span>-o<span class="w"> </span>cpu0IIs<span class="w"> </span>cpu0IIs.v
 <span class="gp">chungshu@ChungShudeMacBook-Air verilog % </span>./cpu0IIs
 <span class="go">...</span>
 
@@ -2471,7 +2761,7 @@ include Common.mk
 </pre></div>
 </div>
 <p>Run the tests as follows,</p>
-<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">chungshu@ChungShudeMacBook-Air input % </span>bash make.sh cpu032II eb Makefile.builtins
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">chungshu@ChungShudeMacBook-Air input % </span>bash<span class="w"> </span>make.sh<span class="w"> </span>cpu032II<span class="w"> </span>eb<span class="w"> </span>Makefile.builtins
 <span class="go">...</span>
 <span class="gp">chungshu@ChungShudeMacBook-Air verilog % </span>./cpu0IIs
 <span class="go">...</span>
@@ -2595,76 +2885,82 @@ include Common.mk
 <span class="go">RET to PC &lt; 0, finished!</span>
 </pre></div>
 </div>
-<aside class="footnote brackets" id="fp-calc" role="note">
+<aside class="footnote-list brackets">
+<aside class="footnote brackets" id="fp-calc" role="doc-footnote">
 <span class="label"><span class="fn-bracket">[</span><a role="doc-backlink" href="#id2">1</a><span class="fn-bracket">]</span></span>
 <p><a class="reference external" href="https://witscad.com/course/computer-architecture/chapter/floating-point-arithmetic">https://witscad.com/course/computer-architecture/chapter/floating-point-arithmetic</a></p>
 </aside>
-<aside class="footnote brackets" id="ieee754-half" role="note">
+<aside class="footnote brackets" id="ieee754-half" role="doc-footnote">
 <span class="label"><span class="fn-bracket">[</span>2<span class="fn-bracket">]</span></span>
 <span class="backrefs">(<a role="doc-backlink" href="#id1">1</a>,<a role="doc-backlink" href="#id3">2</a>,<a role="doc-backlink" href="#id4">3</a>)</span>
 <p><a class="reference external" href="https://en.wikipedia.org/wiki/Half-precision_floating-point_format">https://en.wikipedia.org/wiki/Half-precision_floating-point_format</a></p>
 </aside>
-<aside class="footnote brackets" id="newlib" role="note">
+<aside class="footnote brackets" id="ieee754-single" role="doc-footnote">
 <span class="label"><span class="fn-bracket">[</span><a role="doc-backlink" href="#id5">3</a><span class="fn-bracket">]</span></span>
+<p><a class="reference external" href="https://en.wikipedia.org/wiki/Single-precision_floating-point_format">https://en.wikipedia.org/wiki/Single-precision_floating-point_format</a></p>
+</aside>
+<aside class="footnote brackets" id="newlib" role="doc-footnote">
+<span class="label"><span class="fn-bracket">[</span><a role="doc-backlink" href="#id6">4</a><span class="fn-bracket">]</span></span>
 <p><a class="reference external" href="https://sourceware.org/newlib/">https://sourceware.org/newlib/</a></p>
 </aside>
-<aside class="footnote brackets" id="newlib-libm" role="note">
-<span class="label"><span class="fn-bracket">[</span><a role="doc-backlink" href="#id6">4</a><span class="fn-bracket">]</span></span>
+<aside class="footnote brackets" id="newlib-libm" role="doc-footnote">
+<span class="label"><span class="fn-bracket">[</span><a role="doc-backlink" href="#id7">5</a><span class="fn-bracket">]</span></span>
 <p><a class="reference external" href="https://sourceware.org/newlib/libm.html">https://sourceware.org/newlib/libm.html</a></p>
 </aside>
-<aside class="footnote brackets" id="libgloss-bsp" role="note">
-<span class="label"><span class="fn-bracket">[</span><a role="doc-backlink" href="#id7">5</a><span class="fn-bracket">]</span></span>
+<aside class="footnote brackets" id="libgloss-bsp" role="doc-footnote">
+<span class="label"><span class="fn-bracket">[</span><a role="doc-backlink" href="#id8">6</a><span class="fn-bracket">]</span></span>
 <p><a class="reference external" href="https://www.embecosm.com/appnotes/ean9/html/ch03s01.html">https://www.embecosm.com/appnotes/ean9/html/ch03s01.html</a></p>
 </aside>
-<aside class="footnote brackets" id="compiler-rt" role="note">
-<span class="label"><span class="fn-bracket">[</span><a role="doc-backlink" href="#id8">6</a><span class="fn-bracket">]</span></span>
+<aside class="footnote brackets" id="compiler-rt" role="doc-footnote">
+<span class="label"><span class="fn-bracket">[</span><a role="doc-backlink" href="#id9">7</a><span class="fn-bracket">]</span></span>
 <p><a class="reference external" href="http://compiler-rt.llvm.org/">http://compiler-rt.llvm.org/</a></p>
 </aside>
-<aside class="footnote brackets" id="builtins-readme" role="note">
-<span class="label"><span class="fn-bracket">[</span><a role="doc-backlink" href="#id9">7</a><span class="fn-bracket">]</span></span>
+<aside class="footnote brackets" id="builtins-readme" role="doc-footnote">
+<span class="label"><span class="fn-bracket">[</span><a role="doc-backlink" href="#id10">8</a><span class="fn-bracket">]</span></span>
 <p><a class="reference external" href="https://github.com/llvm-mirror/compiler-rt/blob/master/lib/builtins/README.txt">https://github.com/llvm-mirror/compiler-rt/blob/master/lib/builtins/README.txt</a></p>
 </aside>
-<aside class="footnote brackets" id="builtins-int-math" role="note">
-<span class="label"><span class="fn-bracket">[</span><a role="doc-backlink" href="#id10">8</a><span class="fn-bracket">]</span></span>
+<aside class="footnote brackets" id="builtins-int-math" role="doc-footnote">
+<span class="label"><span class="fn-bracket">[</span><a role="doc-backlink" href="#id11">9</a><span class="fn-bracket">]</span></span>
 <p><a class="reference external" href="https://github.com/microsoft/compiler-rt/blob/master/lib/builtins/int_math.h">https://github.com/microsoft/compiler-rt/blob/master/lib/builtins/int_math.h</a></p>
 </aside>
-<aside class="footnote brackets" id="lib-gcc" role="note">
-<span class="label"><span class="fn-bracket">[</span><a role="doc-backlink" href="#id11">9</a><span class="fn-bracket">]</span></span>
+<aside class="footnote brackets" id="lib-gcc" role="doc-footnote">
+<span class="label"><span class="fn-bracket">[</span><a role="doc-backlink" href="#id12">10</a><span class="fn-bracket">]</span></span>
 <p><a class="reference external" href="https://gcc.gnu.org/onlinedocs/gccint/Libgcc.html">https://gcc.gnu.org/onlinedocs/gccint/Libgcc.html</a></p>
 </aside>
-<aside class="footnote brackets" id="int-lib" role="note">
-<span class="label"><span class="fn-bracket">[</span><a role="doc-backlink" href="#id12">10</a><span class="fn-bracket">]</span></span>
+<aside class="footnote brackets" id="int-lib" role="doc-footnote">
+<span class="label"><span class="fn-bracket">[</span><a role="doc-backlink" href="#id13">11</a><span class="fn-bracket">]</span></span>
 <p><a class="reference external" href="https://gcc.gnu.org/onlinedocs/gccint/Integer-library-routines.html#Integer-library-routines">https://gcc.gnu.org/onlinedocs/gccint/Integer-library-routines.html#Integer-library-routines</a></p>
 </aside>
-<aside class="footnote brackets" id="sw-float-lib" role="note">
-<span class="label"><span class="fn-bracket">[</span><a role="doc-backlink" href="#id13">11</a><span class="fn-bracket">]</span></span>
+<aside class="footnote brackets" id="sw-float-lib" role="doc-footnote">
+<span class="label"><span class="fn-bracket">[</span><a role="doc-backlink" href="#id14">12</a><span class="fn-bracket">]</span></span>
 <p><a class="reference external" href="https://gcc.gnu.org/onlinedocs/gccint/Soft-float-library-routines.html#Soft-float-library-routines">https://gcc.gnu.org/onlinedocs/gccint/Soft-float-library-routines.html#Soft-float-library-routines</a></p>
 </aside>
-<aside class="footnote brackets" id="math" role="note">
-<span class="label"><span class="fn-bracket">[</span><a role="doc-backlink" href="#id14">12</a><span class="fn-bracket">]</span></span>
+<aside class="footnote brackets" id="math" role="doc-footnote">
+<span class="label"><span class="fn-bracket">[</span><a role="doc-backlink" href="#id15">13</a><span class="fn-bracket">]</span></span>
 <p><a class="reference external" href="https://www.programiz.com/c-programming/library-function/math.h">https://www.programiz.com/c-programming/library-function/math.h</a></p>
 </aside>
-<aside class="footnote brackets" id="clib" role="note">
-<span class="label"><span class="fn-bracket">[</span><a role="doc-backlink" href="#id15">13</a><span class="fn-bracket">]</span></span>
+<aside class="footnote brackets" id="clib" role="doc-footnote">
+<span class="label"><span class="fn-bracket">[</span><a role="doc-backlink" href="#id16">14</a><span class="fn-bracket">]</span></span>
 <p><a class="reference external" href="https://www.cplusplus.com/reference/clibrary">https://www.cplusplus.com/reference/clibrary</a></p>
 </aside>
-<aside class="footnote brackets" id="mips-fmadd1-ll" role="note">
-<span class="label"><span class="fn-bracket">[</span><a role="doc-backlink" href="#id18">14</a><span class="fn-bracket">]</span></span>
+<aside class="footnote brackets" id="mips-fmadd1-ll" role="doc-footnote">
+<span class="label"><span class="fn-bracket">[</span><a role="doc-backlink" href="#id19">15</a><span class="fn-bracket">]</span></span>
 <p><a class="reference external" href="https://github.com/llvm/llvm-project/blob/main/llvm/test/CodeGen/Mips/fmadd1.ll">https://github.com/llvm/llvm-project/blob/main/llvm/test/CodeGen/Mips/fmadd1.ll</a></p>
 </aside>
-<aside class="footnote brackets" id="llvm-fmul" role="note">
-<span class="label"><span class="fn-bracket">[</span>15<span class="fn-bracket">]</span></span>
-<span class="backrefs">(<a role="doc-backlink" href="#id16">1</a>,<a role="doc-backlink" href="#id17">2</a>,<a role="doc-backlink" href="#id19">3</a>)</span>
+<aside class="footnote brackets" id="llvm-fmul" role="doc-footnote">
+<span class="label"><span class="fn-bracket">[</span>16<span class="fn-bracket">]</span></span>
+<span class="backrefs">(<a role="doc-backlink" href="#id17">1</a>,<a role="doc-backlink" href="#id18">2</a>,<a role="doc-backlink" href="#id20">3</a>)</span>
 <p>Reference <a class="reference external" href="https://github.com/Jonathan2251/lbd/tree/master/lbdex/input/ch7_1_fmul.c">https://github.com/Jonathan2251/lbd/tree/master/lbdex/input/ch7_1_fmul.c</a></p>
 </aside>
-<aside class="footnote brackets" id="clang-pow" role="note">
-<span class="label"><span class="fn-bracket">[</span>16<span class="fn-bracket">]</span></span>
-<span class="backrefs">(<a role="doc-backlink" href="#id20">1</a>,<a role="doc-backlink" href="#id21">2</a>,<a role="doc-backlink" href="#id22">3</a>)</span>
+<aside class="footnote brackets" id="clang-pow" role="doc-footnote">
+<span class="label"><span class="fn-bracket">[</span>17<span class="fn-bracket">]</span></span>
+<span class="backrefs">(<a role="doc-backlink" href="#id21">1</a>,<a role="doc-backlink" href="#id22">2</a>,<a role="doc-backlink" href="#id23">3</a>)</span>
 <p>Reference <a class="reference external" href="https://github.com/Jonathan2251/lbt/tree/master/exlbt/input/test_pow.c">https://github.com/Jonathan2251/lbt/tree/master/exlbt/input/test_pow.c</a></p>
 </aside>
-<aside class="footnote brackets" id="clang-builtin-comment" role="note">
-<span class="label"><span class="fn-bracket">[</span><a role="doc-backlink" href="#id23">17</a><span class="fn-bracket">]</span></span>
+<aside class="footnote brackets" id="clang-builtin-comment" role="doc-footnote">
+<span class="label"><span class="fn-bracket">[</span><a role="doc-backlink" href="#id24">18</a><span class="fn-bracket">]</span></span>
 <p><a class="reference external" href="https://github.com/llvm/llvm-project/blob/main/clang/lib/CodeGen/CGBuiltin.cpp">https://github.com/llvm/llvm-project/blob/main/clang/lib/CodeGen/CGBuiltin.cpp</a></p>
+</aside>
 </aside>
 </section>
 </section>
@@ -2672,7 +2968,7 @@ include Common.mk
 
 
       </div>
-      <div class="bottomnav" role="navigation" aria-label="bottom navigation">
+      <div class="bottomnav" role="navigation" aria-label="Bottom">
       
         <p>
         «&#160;&#160;<a href="opt.html">Optimization</a>
@@ -2685,8 +2981,8 @@ include Common.mk
       </div>
 
     <div class="footer" role="contentinfo">
-        &#169; Copyright 2016, Chen Chung-Shu.
-      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 5.0.2.
+    &#169; Copyright 2016, Chen Chung-Shu.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 9.1.0.
     </div>
   </body>
 </html>
