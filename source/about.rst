@@ -40,6 +40,8 @@ Revision history
 
 Version 12.0.20, not released yet.
 
+  about.rst: Refine section 'Outline of Chapters'.
+
 Version 12.0.19.1, March 14, 2026.
 
   lib.rst: refine section 'The theory of Floating Point Implementation'
@@ -212,21 +214,69 @@ http://jonathan2251.github.io/lbd/index.html.
 
 .. table:: Toolchain components [#toolchain]_ [#toolchain2]_
 
-  ==============  ==========================  =============
-  Component       LLVM                        GNU [#gnu]_
-  ==============  ==========================  =============
-  C/C++ Compiler  clang/llvm                  gcc
-  Assembler       llvm integrated assembler   as
-  Linker          ld.lld                      ld.bfd ld.gold
-  Runtime         compiler-rt                 libgcc [#libgcc]_
-  Unwinder        libunwind                   libgcc_s
-  C++ library     libc++abi, libc++           libsupc++ libstdc++
-  Utils           llvm-ar, llvm-objdump etc.  ar, objdump etc.
-  C library                  -                libc
-  ==============  ==========================  =============
+   ====================  ==========================  =======================
+   Layer                 LLVM                        GNU [#gnu]_
+   ====================  ==========================  =======================
+   C/C++ Compiler        clang/llvm                  gcc
+   Assembler             llvm integrated assembler   as
+   Linker                ld.lld                      ld.bfd, ld.gold
+   Runtime Builtins      compiler-rt                 libgcc [#libgcc]_
+   Unwinder              libunwind                   libgcc_s
+   C++ ABI Library       libc++abi                   libsupc++
+   C++ Standard Library  libc++                      libstdc++
+   Binary Utilities      llvm-ar, llvm-objdump       ar, objdump, etc.
+   C Library             -                           libc
+   ====================  ==========================  =======================
 
-The libgcc's Integer plus Soft float library [#libgcc]_ [#integer-lib]_ 
-[#soft-float-lib]_ are equal to functions of compiler-rt's builtins.
+The runtime libraries are layered as follows:
+
+* **compiler-rt** and **libgcc** provide compiler runtime builtins,
+  including integer arithmetic and software floating-point routines
+  [#libgcc]_ [#integer-lib]_ [#soft-float-lib]_.
+
+* **libunwind** and **libgcc_s** implement the low-level stack unwinder.
+  They perform stack unwinding during exception propagation using DWARF
+  unwind information.
+
+* **libc++abi** and **libsupc++** implement the Itanium C++ ABI.
+  They provide the language-level exception handling interfaces, such as
+  ``__cxa_throw()``, ``__cxa_begin_catch()``, ``__cxa_rethrow()``, RTTI,
+  ``dynamic_cast``, and ``typeid``. These libraries rely on the unwinder
+  (``libunwind`` or ``libgcc_s``) to propagate exceptions across stack
+  frames.
+
+* **libc++** and **libstdc++** implement the ISO C++ Standard Library and
+  depend on the corresponding C++ ABI library.
+
+A simplified view of the exception handling layers is:
+
+.. code-block:: text
+
+   Application
+        │
+        ▼
+   libc++ / libstdc++
+        │
+        ▼
+   libc++abi / libsupc++
+        │
+        ▼
+   libunwind / libgcc_s
+        │
+        ▼
+   DWARF unwind information
+
+This organization has two advantages:
+
+1. It separates the compiler runtime (compiler-rt/libgcc) from the C++ runtime 
+   (libc++abi/libsupc++).
+
+2. It shows that exception handling consists of two layers:
+
+   - the C++ ABI layer (libc++abi or libsupc++), which implements the C++ 
+     language semantics; and
+   - the unwinding layer (libunwind or libgcc_s), which performs the actual 
+     stack unwinding.
 
 This book include:
 
