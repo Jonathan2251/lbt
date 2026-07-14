@@ -12,6 +12,7 @@ if test -d ${LLVM_TEST_DIR}; then
   cp -rf clang/* ${LLVM_TEST_DIR}/clang/.
   cp -rf lld/* ${LLVM_TEST_DIR}/lld/.
   cp -rf llvm-objdump/* ${LLVM_TEST_DIR}/llvm/tools/llvm-objdump/.
+  cp -rf dishex ${LLVM_TEST_DIR}/llvm/tools/.
   cp -rf elf2hex ${LLVM_TEST_DIR}/llvm/tools/.
   OS=`uname -s`
   echo "OS =" ${OS}
