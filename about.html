@@ -9,7 +9,7 @@
     <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=03e43079" />
     <link rel="stylesheet" type="text/css" href="_static/haiku.css?v=fce32b03" />
     <link rel="stylesheet" type="text/css" href="_static/graphviz.css?v=4ae1632d" />
-    <script src="_static/documentation_options.js?v=bb34c2f5"></script>
+    <script src="_static/documentation_options.js?v=f001b849"></script>
     <script src="_static/doctools.js?v=fd6eb6e6"></script>
     <script src="_static/sphinx_highlight.js?v=6ffebe34"></script>
     <link rel="author" title="About these documents" href="#" />
@@ -68,7 +68,11 @@ Also thanking those corrections from readers who make the book more accurate.</p
 </section>
 <section id="revision-history">
 <h2><a class="toc-backref" href="#id13" role="doc-backlink">Revision history</a><a class="headerlink" href="#revision-history" title="Link to this heading">¶</a></h2>
-<p>Version 12.0.20, not released yet.</p>
+<p>Version 12.0.20.1, not released yet.</p>
+<p>Version 12.0.20, October 18, 2026.</p>
+<blockquote>
+<div><p>about.rst: Refine section ‘Outline of Chapters’.</p>
+</div></blockquote>
 <p>Version 12.0.19.1, March 14, 2026.</p>
 <blockquote>
 <div><p>lib.rst: refine section ‘The theory of Floating Point Implementation’</p>
@@ -238,7 +242,7 @@ The Cpu0 llvm backend can be find on
 <table class="docutils align-default" id="id9">
 <caption><span class="caption-number">Table 1 </span><span class="caption-text">Toolchain components <a class="footnote-reference brackets" href="#toolchain" id="id1" role="doc-noteref"><span class="fn-bracket">[</span>2<span class="fn-bracket">]</span></a> <a class="footnote-reference brackets" href="#toolchain2" id="id2" role="doc-noteref"><span class="fn-bracket">[</span>3<span class="fn-bracket">]</span></a></span><a class="headerlink" href="#id9" title="Link to this table">¶</a></caption>
 <thead>
-<tr class="row-odd"><th class="head"><p>Component</p></th>
+<tr class="row-odd"><th class="head"><p>Layer</p></th>
 <th class="head"><p>LLVM</p></th>
 <th class="head"><p>GNU <a class="footnote-reference brackets" href="#gnu" id="id3" role="doc-noteref"><span class="fn-bracket">[</span>1<span class="fn-bracket">]</span></a></p></th>
 </tr>
@@ -254,9 +258,9 @@ The Cpu0 llvm backend can be find on
 </tr>
 <tr class="row-even"><td><p>Linker</p></td>
 <td><p>ld.lld</p></td>
-<td><p>ld.bfd ld.gold</p></td>
+<td><p>ld.bfd, ld.gold</p></td>
 </tr>
-<tr class="row-odd"><td><p>Runtime</p></td>
+<tr class="row-odd"><td><p>Runtime Builtins</p></td>
 <td><p>compiler-rt</p></td>
 <td><p>libgcc <a class="footnote-reference brackets" href="#libgcc" id="id4" role="doc-noteref"><span class="fn-bracket">[</span>4<span class="fn-bracket">]</span></a></p></td>
 </tr>
@@ -264,15 +268,19 @@ The Cpu0 llvm backend can be find on
 <td><p>libunwind</p></td>
 <td><p>libgcc_s</p></td>
 </tr>
-<tr class="row-odd"><td><p>C++ library</p></td>
-<td><p>libc++abi, libc++</p></td>
-<td><p>libsupc++ libstdc++</p></td>
+<tr class="row-odd"><td><p>C++ ABI Library</p></td>
+<td><p>libc++abi</p></td>
+<td><p>libsupc++</p></td>
 </tr>
-<tr class="row-even"><td><p>Utils</p></td>
-<td><p>llvm-ar, llvm-objdump etc.</p></td>
-<td><p>ar, objdump etc.</p></td>
+<tr class="row-even"><td><p>C++ Standard Library</p></td>
+<td><p>libc++</p></td>
+<td><p>libstdc++</p></td>
 </tr>
-<tr class="row-odd"><td><p>C library</p></td>
+<tr class="row-odd"><td><p>Binary Utilities</p></td>
+<td><p>llvm-ar, llvm-objdump</p></td>
+<td><p>ar, objdump, etc.</p></td>
+</tr>
+<tr class="row-even"><td><p>C Library</p></td>
 <td><ul class="simple">
 <li></li>
 </ul>
@@ -281,8 +289,52 @@ The Cpu0 llvm backend can be find on
 </tr>
 </tbody>
 </table>
-<p>The libgcc’s Integer plus Soft float library <a class="footnote-reference brackets" href="#libgcc" id="id5" role="doc-noteref"><span class="fn-bracket">[</span>4<span class="fn-bracket">]</span></a> <a class="footnote-reference brackets" href="#integer-lib" id="id6" role="doc-noteref"><span class="fn-bracket">[</span>5<span class="fn-bracket">]</span></a>
-<a class="footnote-reference brackets" href="#soft-float-lib" id="id7" role="doc-noteref"><span class="fn-bracket">[</span>6<span class="fn-bracket">]</span></a> are equal to functions of compiler-rt’s builtins.</p>
+<p>The runtime libraries are layered as follows:</p>
+<ul class="simple">
+<li><p><strong>compiler-rt</strong> and <strong>libgcc</strong> provide compiler runtime builtins,
+including integer arithmetic and software floating-point routines
+<a class="footnote-reference brackets" href="#libgcc" id="id5" role="doc-noteref"><span class="fn-bracket">[</span>4<span class="fn-bracket">]</span></a> <a class="footnote-reference brackets" href="#integer-lib" id="id6" role="doc-noteref"><span class="fn-bracket">[</span>5<span class="fn-bracket">]</span></a> <a class="footnote-reference brackets" href="#soft-float-lib" id="id7" role="doc-noteref"><span class="fn-bracket">[</span>6<span class="fn-bracket">]</span></a>.</p></li>
+<li><p><strong>libunwind</strong> and <strong>libgcc_s</strong> implement the low-level stack unwinder.
+They perform stack unwinding during exception propagation using DWARF
+unwind information.</p></li>
+<li><p><strong>libc++abi</strong> and <strong>libsupc++</strong> implement the Itanium C++ ABI.
+They provide the language-level exception handling interfaces, such as
+<code class="docutils literal notranslate"><span class="pre">__cxa_throw()</span></code>, <code class="docutils literal notranslate"><span class="pre">__cxa_begin_catch()</span></code>, <code class="docutils literal notranslate"><span class="pre">__cxa_rethrow()</span></code>, RTTI,
+<code class="docutils literal notranslate"><span class="pre">dynamic_cast</span></code>, and <code class="docutils literal notranslate"><span class="pre">typeid</span></code>. These libraries rely on the unwinder
+(<code class="docutils literal notranslate"><span class="pre">libunwind</span></code> or <code class="docutils literal notranslate"><span class="pre">libgcc_s</span></code>) to propagate exceptions across stack
+frames.</p></li>
+<li><p><strong>libc++</strong> and <strong>libstdc++</strong> implement the ISO C++ Standard Library and
+depend on the corresponding C++ ABI library.</p></li>
+</ul>
+<p>A simplified view of the exception handling layers is:</p>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>Application
+     │
+     ▼
+libc++ / libstdc++
+     │
+     ▼
+libc++abi / libsupc++
+     │
+     ▼
+libunwind / libgcc_s
+     │
+     ▼
+DWARF unwind information
+</pre></div>
+</div>
+<p>This organization has two advantages:</p>
+<ol class="arabic simple">
+<li><p>It separates the compiler runtime (compiler-rt/libgcc) from the C++ runtime
+(libc++abi/libsupc++).</p></li>
+<li><p>It shows that exception handling consists of two layers:</p>
+<ul class="simple">
+<li><p>the C++ ABI layer (libc++abi or libsupc++), which implements the C++
+language semantics; and</p></li>
+<li><p>the unwinding layer (libunwind or libgcc_s), which performs the actual
+stack unwinding.</p></li>
+</ul>
+</li>
+</ol>
 <p>This book include:</p>
 <ol class="arabic simple">
 <li><p>Add Cpu0 target to clang.</p></li>
