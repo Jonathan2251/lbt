@@ -38,7 +38,9 @@ https://github.com/Jonathan2251/lbt/blob/master/README.md
 Revision history
 ----------------
 
-Version 12.0.20, not released yet.
+Version 12.0.20.1, not released yet.
+
+Version 12.0.20, October 18, 2026.
 
   about.rst: Refine section 'Outline of Chapters'.
 
